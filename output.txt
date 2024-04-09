@@ -1,0 +1,3705 @@
+[youtube] Extracting URL: https://www.youtube.com/watch?v=aEFvNsBDCWs
+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
+[youtube] aEFvNsBDCWs: Downloading webpage
+[youtube] aEFvNsBDCWs: Downloading ios player API JSON
+[youtube] aEFvNsBDCWs: Downloading android player API JSON
+[youtube] aEFvNsBDCWs: Downloading android player API JSON
+[youtube] aEFvNsBDCWs: Downloading android player API JSON
+[youtube] aEFvNsBDCWs: Downloading android player API JSON
+[youtube] aEFvNsBDCWs: Downloading m3u8 information
+[info] aEFvNsBDCWs: Downloading subtitles: en
+Video 'aEFvNsBDCWs' already exists in the directory.
+'aEFvNsBDCWs'
+{
+    "subtitles": [
+        {
+            "start": "00:00:00.080",
+            "finish": "00:00:02.639",
+            "text": "do you love moist fluffy chocolate chip"
+        },
+        {
+            "start": "00:00:02.639",
+            "finish": "00:00:05.040",
+            "text": "muffins with that sky-high bakery top"
+        },
+        {
+            "start": "00:00:05.040",
+            "finish": "00:00:07.200",
+            "text": "and a nice crisp edge well today's your"
+        },
+        {
+            "start": "00:00:07.200",
+            "finish": "00:00:08.320",
+            "text": "lucky day because i'm going to show you"
+        },
+        {
+            "start": "00:00:08.320",
+            "finish": "00:00:09.679",
+            "text": "how to make them hey you're watching"
+        },
+        {
+            "start": "00:00:09.679",
+            "finish": "00:00:11.360",
+            "text": "preppy kitchen where i john canel teach"
+        },
+        {
+            "start": "00:00:11.360",
+            "finish": "00:00:12.400",
+            "text": "you how to make delicious homemade"
+        },
+        {
+            "start": "00:00:12.400",
+            "finish": "00:00:13.599",
+            "text": "dishes to share with your family and"
+        },
+        {
+            "start": "00:00:13.599",
+            "finish": "00:00:15.280",
+            "text": "friends these chocolate chip muffins are"
+        },
+        {
+            "start": "00:00:15.280",
+            "finish": "00:00:16.800",
+            "text": "going to whip up in a snap so let's get"
+        },
+        {
+            "start": "00:00:16.800",
+            "finish": "00:00:20.480",
+            "text": "started first off set that oven to 425"
+        },
+        {
+            "start": "00:00:20.480",
+            "finish": "00:00:23.119",
+            "text": "degrees fahrenheit we want a really"
+        },
+        {
+            "start": "00:00:23.119",
+            "finish": "00:00:25.119",
+            "text": "high blast of heat when these go in"
+        },
+        {
+            "start": "00:00:25.119",
+            "finish": "00:00:26.880",
+            "text": "because that'll set the edge and let"
+        },
+        {
+            "start": "00:00:26.880",
+            "finish": "00:00:27.680",
+            "text": "them"
+        },
+        {
+            "start": "00:00:27.680",
+            "finish": "00:00:29.920",
+            "text": "rise up so you'll have a nice bakery"
+        },
+        {
+            "start": "00:00:29.920",
+            "finish": "00:00:32.480",
+            "text": "style dome on top if you did 350 they"
+        },
+        {
+            "start": "00:00:32.480",
+            "finish": "00:00:34.640",
+            "text": "would spread out and"
+        },
+        {
+            "start": "00:00:34.640",
+            "finish": "00:00:35.680",
+            "text": "it just wouldn't be the right kind of"
+        },
+        {
+            "start": "00:00:35.680",
+            "finish": "00:00:38.480",
+            "text": "muffin okay now for the dry ingredients"
+        },
+        {
+            "start": "00:00:38.480",
+            "finish": "00:00:40.239",
+            "text": "i'm using a scale because that gives you"
+        },
+        {
+            "start": "00:00:40.239",
+            "finish": "00:00:43.280",
+            "text": "the most accurate results but"
+        },
+        {
+            "start": "00:00:43.280",
+            "finish": "00:00:44.800",
+            "text": "if you're using cups click up here for"
+        },
+        {
+            "start": "00:00:44.800",
+            "finish": "00:00:46.480",
+            "text": "my how to measure flower video it shows"
+        },
+        {
+            "start": "00:00:46.480",
+            "finish": "00:00:48.640",
+            "text": "you all the ins and outs of measuring"
+        },
+        {
+            "start": "00:00:48.640",
+            "finish": "00:00:50.480",
+            "text": "flour correctly it's a thing that goes"
+        },
+        {
+            "start": "00:00:50.480",
+            "finish": "00:00:53.280",
+            "text": "wrong the most often in baking and it"
+        },
+        {
+            "start": "00:00:53.280",
+            "finish": "00:00:55.760",
+            "text": "sucks when you add too much flour okay"
+        },
+        {
+            "start": "00:00:55.760",
+            "finish": "00:00:57.680",
+            "text": "into my bowl and i'm using a sifter here"
+        },
+        {
+            "start": "00:00:57.680",
+            "finish": "00:00:58.879",
+            "text": "i'm adding in"
+        },
+        {
+            "start": "00:00:58.879",
+            "finish": "00:01:02.399",
+            "text": "two and three quarter cups that is 330"
+        },
+        {
+            "start": "00:01:02.399",
+            "finish": "00:01:05.439",
+            "text": "grams of all-purpose flour"
+        },
+        {
+            "start": "00:01:05.439",
+            "finish": "00:01:07.360",
+            "text": "one teaspoon of salt and that might seem"
+        },
+        {
+            "start": "00:01:07.360",
+            "finish": "00:01:09.600",
+            "text": "like a lot but do you want some contrast"
+        },
+        {
+            "start": "00:01:09.600",
+            "finish": "00:01:11.439",
+            "text": "to all that chocolate and the sugar so"
+        },
+        {
+            "start": "00:01:11.439",
+            "finish": "00:01:13.840",
+            "text": "it'll really like amp the flavor up and"
+        },
+        {
+            "start": "00:01:13.840",
+            "finish": "00:01:15.520",
+            "text": "let you appreciate what's going on in"
+        },
+        {
+            "start": "00:01:15.520",
+            "finish": "00:01:16.560",
+            "text": "the muffin"
+        },
+        {
+            "start": "00:01:16.560",
+            "finish": "00:01:18.720",
+            "text": "for leavening i'm using one tablespoon"
+        },
+        {
+            "start": "00:01:18.720",
+            "finish": "00:01:20.720",
+            "text": "of baking powder and again it's kind of"
+        },
+        {
+            "start": "00:01:20.720",
+            "finish": "00:01:22.640",
+            "text": "a lot of leavening agent but this is how"
+        },
+        {
+            "start": "00:01:22.640",
+            "finish": "00:01:25.040",
+            "text": "you get that bakery style top"
+        },
+        {
+            "start": "00:01:25.040",
+            "finish": "00:01:27.360",
+            "text": "sift it out"
+        },
+        {
+            "start": "00:01:27.360",
+            "finish": "00:01:28.960",
+            "text": "we're done with that scale and get set"
+        },
+        {
+            "start": "00:01:28.960",
+            "finish": "00:01:32.560",
+            "text": "aside as well give it a quick whisk"
+        },
+        {
+            "start": "00:01:32.560",
+            "finish": "00:01:34.159",
+            "text": "now we can set it aside"
+        },
+        {
+            "start": "00:01:34.159",
+            "finish": "00:01:36.240",
+            "text": "this was melted a minute ago it already"
+        },
+        {
+            "start": "00:01:36.240",
+            "finish": "00:01:37.439",
+            "text": "cooled down i'm going to put it into the"
+        },
+        {
+            "start": "00:01:37.439",
+            "finish": "00:01:39.759",
+            "text": "microwave"
+        },
+        {
+            "start": "00:01:39.759",
+            "finish": "00:01:41.280",
+            "text": "for the wet ingredients it's important"
+        },
+        {
+            "start": "00:01:41.280",
+            "finish": "00:01:42.479",
+            "text": "that you're dealing with room"
+        },
+        {
+            "start": "00:01:42.479",
+            "finish": "00:01:45.200",
+            "text": "temperature things and if it gets cold"
+        },
+        {
+            "start": "00:01:45.200",
+            "finish": "00:01:46.320",
+            "text": "we're going to warm it up in the"
+        },
+        {
+            "start": "00:01:46.320",
+            "finish": "00:01:48.159",
+            "text": "microwave and ps it's going to get cold"
+        },
+        {
+            "start": "00:01:48.159",
+            "finish": "00:01:50.960",
+            "text": "this counter is freezing all right 300"
+        },
+        {
+            "start": "00:01:50.960",
+            "finish": "00:01:54.479",
+            "text": "ml or 1 4 cups of whole milk"
+        },
+        {
+            "start": "00:01:54.479",
+            "finish": "00:01:57.520",
+            "text": "in yoga half a cup or 113 grams of"
+        },
+        {
+            "start": "00:01:57.520",
+            "finish": "00:02:00.159",
+            "text": "unsalted butter that's been melted"
+        },
+        {
+            "start": "00:02:00.159",
+            "finish": "00:02:02.799",
+            "text": "and get it all out there so by the by"
+        },
+        {
+            "start": "00:02:02.799",
+            "finish": "00:02:05.520",
+            "text": "today is the first time ever in the"
+        },
+        {
+            "start": "00:02:05.520",
+            "finish": "00:02:07.600",
+            "text": "history of preppy kitchen that brian is"
+        },
+        {
+            "start": "00:02:07.600",
+            "finish": "00:02:09.599",
+            "text": "filming you wanna say hi"
+        },
+        {
+            "start": "00:02:09.599",
+            "finish": "00:02:12.560",
+            "text": "no he's eating cookies that i made"
+        },
+        {
+            "start": "00:02:12.560",
+            "finish": "00:02:15.440",
+            "text": "one cup or 200 grams of"
+        },
+        {
+            "start": "00:02:15.440",
+            "finish": "00:02:17.920",
+            "text": "sugar right in that bowl let's give it a"
+        },
+        {
+            "start": "00:02:17.920",
+            "finish": "00:02:20.319",
+            "text": "whisk to bring it together"
+        },
+        {
+            "start": "00:02:20.319",
+            "finish": "00:02:22.160",
+            "text": "if you notice some clumps of butter"
+        },
+        {
+            "start": "00:02:22.160",
+            "finish": "00:02:24.239",
+            "text": "happen when you mix it all together pop"
+        },
+        {
+            "start": "00:02:24.239",
+            "finish": "00:02:26.400",
+            "text": "it into the microwave for 40 seconds and"
+        },
+        {
+            "start": "00:02:26.400",
+            "finish": "00:02:28.160",
+            "text": "it should be totally fine"
+        },
+        {
+            "start": "00:02:28.160",
+            "finish": "00:02:30.000",
+            "text": "i used warm milk so it's not happening"
+        },
+        {
+            "start": "00:02:30.000",
+            "finish": "00:02:31.440",
+            "text": "to me so right now we're gonna add in"
+        },
+        {
+            "start": "00:02:31.440",
+            "finish": "00:02:33.599",
+            "text": "the eggs and the sour cream"
+        },
+        {
+            "start": "00:02:33.599",
+            "finish": "00:02:37.200",
+            "text": "two large eggs one two as well as one"
+        },
+        {
+            "start": "00:02:37.200",
+            "finish": "00:02:39.040",
+            "text": "quarter cup of sour cream and if you"
+        },
+        {
+            "start": "00:02:39.040",
+            "finish": "00:02:41.040",
+            "text": "don't have that you can go ahead and use"
+        },
+        {
+            "start": "00:02:41.040",
+            "finish": "00:02:42.720",
+            "text": "full fat plain yogurt it'll be"
+        },
+        {
+            "start": "00:02:42.720",
+            "finish": "00:02:44.560",
+            "text": "completely delicious still"
+        },
+        {
+            "start": "00:02:44.560",
+            "finish": "00:02:46.959",
+            "text": "this is optional but i am adding one"
+        },
+        {
+            "start": "00:02:46.959",
+            "finish": "00:02:50.720",
+            "text": "tablespoon of vanilla that's 15 ml"
+        },
+        {
+            "start": "00:02:50.720",
+            "finish": "00:02:53.360",
+            "text": "wow delicious i'm gonna mix this up"
+        },
+        {
+            "start": "00:02:53.360",
+            "finish": "00:02:56.000",
+            "text": "right now but look what's happened just"
+        },
+        {
+            "start": "00:02:56.000",
+            "finish": "00:02:57.680",
+            "text": "in the few seconds that we've been doing"
+        },
+        {
+            "start": "00:02:57.680",
+            "finish": "00:03:00.879",
+            "text": "this what's going on here look it's"
+        },
+        {
+            "start": "00:03:00.879",
+            "finish": "00:03:02.560",
+            "text": "turned into like a"
+        },
+        {
+            "start": "00:03:02.560",
+            "finish": "00:03:04.640",
+            "text": "like a butter mush that's not what i"
+        },
+        {
+            "start": "00:03:04.640",
+            "finish": "00:03:06.560",
+            "text": "want so i will be popping this into the"
+        },
+        {
+            "start": "00:03:06.560",
+            "finish": "00:03:08.640",
+            "text": "microwave after i whisk the eggs in you"
+        },
+        {
+            "start": "00:03:08.640",
+            "finish": "00:03:10.000",
+            "text": "don't want to do that before the eggs"
+        },
+        {
+            "start": "00:03:10.000",
+            "finish": "00:03:11.519",
+            "text": "get whisked in because they could be"
+        },
+        {
+            "start": "00:03:11.519",
+            "finish": "00:03:13.680",
+            "text": "overcooked"
+        },
+        {
+            "start": "00:03:13.680",
+            "finish": "00:03:15.200",
+            "text": "a little heat's going to fix all of our"
+        },
+        {
+            "start": "00:03:15.200",
+            "finish": "00:03:17.440",
+            "text": "problems okay a little bit of heat later"
+        },
+        {
+            "start": "00:03:17.440",
+            "finish": "00:03:19.440",
+            "text": "let's give this a whisk"
+        },
+        {
+            "start": "00:03:19.440",
+            "finish": "00:03:21.920",
+            "text": "that's nice nice homogeneous fluid"
+        },
+        {
+            "start": "00:03:21.920",
+            "finish": "00:03:24.159",
+            "text": "mixture is what we want now it's time to"
+        },
+        {
+            "start": "00:03:24.159",
+            "finish": "00:03:27.040",
+            "text": "pour the wet into the dry give it a"
+        },
+        {
+            "start": "00:03:27.040",
+            "finish": "00:03:28.879",
+            "text": "whisk and take it to almost combined you"
+        },
+        {
+            "start": "00:03:28.879",
+            "finish": "00:03:31.440",
+            "text": "could have a couple clumps of like flour"
+        },
+        {
+            "start": "00:03:31.440",
+            "finish": "00:03:33.440",
+            "text": "hanging out here and there because"
+        },
+        {
+            "start": "00:03:33.440",
+            "finish": "00:03:35.120",
+            "text": "we'll do more mixing once those"
+        },
+        {
+            "start": "00:03:35.120",
+            "finish": "00:03:37.680",
+            "text": "chocolate chips go in"
+        },
+        {
+            "start": "00:03:37.680",
+            "finish": "00:03:39.120",
+            "text": "so you can see we have a couple clumps"
+        },
+        {
+            "start": "00:03:39.120",
+            "finish": "00:03:40.959",
+            "text": "here and there but it's no big deal it's"
+        },
+        {
+            "start": "00:03:40.959",
+            "finish": "00:03:43.840",
+            "text": "time for some chocolate the best part"
+        },
+        {
+            "start": "00:03:43.840",
+            "finish": "00:03:46.080",
+            "text": "all right in my recipe i specify one and"
+        },
+        {
+            "start": "00:03:46.080",
+            "finish": "00:03:48.159",
+            "text": "a half cups of semi-sweet chocolate but"
+        },
+        {
+            "start": "00:03:48.159",
+            "finish": "00:03:50.159",
+            "text": "i'm living large and using one cup of"
+        },
+        {
+            "start": "00:03:50.159",
+            "finish": "00:03:54.159",
+            "text": "semi-sweet and half a cup of bittersweet"
+        },
+        {
+            "start": "00:03:54.159",
+            "finish": "00:03:55.519",
+            "text": "you could even use milk chocolate if"
+        },
+        {
+            "start": "00:03:55.519",
+            "finish": "00:03:57.280",
+            "text": "that's what you prefer"
+        },
+        {
+            "start": "00:03:57.280",
+            "finish": "00:03:58.640",
+            "text": "here we go"
+        },
+        {
+            "start": "00:03:58.640",
+            "finish": "00:04:00.159",
+            "text": "that's the bittersweet chocolate and i'm"
+        },
+        {
+            "start": "00:04:00.159",
+            "finish": "00:04:03.760",
+            "text": "taking a handful of the semi-sweet chips"
+        },
+        {
+            "start": "00:04:03.760",
+            "finish": "00:04:05.439",
+            "text": "and reserving them because i'll be"
+        },
+        {
+            "start": "00:04:05.439",
+            "finish": "00:04:07.360",
+            "text": "sprinkling them on top for beauty"
+        },
+        {
+            "start": "00:04:07.360",
+            "finish": "00:04:09.280",
+            "text": "purposes rest of the chocolate chips go"
+        },
+        {
+            "start": "00:04:09.280",
+            "finish": "00:04:10.080",
+            "text": "in"
+        },
+        {
+            "start": "00:04:10.080",
+            "finish": "00:04:11.040",
+            "text": "and"
+        },
+        {
+            "start": "00:04:11.040",
+            "finish": "00:04:12.720",
+            "text": "you should fold them in with a spatula"
+        },
+        {
+            "start": "00:04:12.720",
+            "finish": "00:04:14.480",
+            "text": "not use a whisk"
+        },
+        {
+            "start": "00:04:14.480",
+            "finish": "00:04:16.079",
+            "text": "after those chocolate chips are folded"
+        },
+        {
+            "start": "00:04:16.079",
+            "finish": "00:04:18.239",
+            "text": "in it's time to pop this into the muffin"
+        },
+        {
+            "start": "00:04:18.239",
+            "finish": "00:04:20.000",
+            "text": "tins i'm doing it two different ways so"
+        },
+        {
+            "start": "00:04:20.000",
+            "finish": "00:04:22.560",
+            "text": "you can see the difference between a"
+        },
+        {
+            "start": "00:04:22.560",
+            "finish": "00:04:24.639",
+            "text": "naked muffin and one that's in the paper"
+        },
+        {
+            "start": "00:04:24.639",
+            "finish": "00:04:25.919",
+            "text": "it's gonna be"
+        },
+        {
+            "start": "00:04:25.919",
+            "finish": "00:04:28.320",
+            "text": "different i've buttered and floured half"
+        },
+        {
+            "start": "00:04:28.320",
+            "finish": "00:04:31.040",
+            "text": "of the muffin tins so you can see just a"
+        },
+        {
+            "start": "00:04:31.040",
+            "finish": "00:04:32.720",
+            "text": "nice cut of butter"
+        },
+        {
+            "start": "00:04:32.720",
+            "finish": "00:04:34.800",
+            "text": "good dash of flour move all that flour"
+        },
+        {
+            "start": "00:04:34.800",
+            "finish": "00:04:37.120",
+            "text": "around and then dump out the excess all"
+        },
+        {
+            "start": "00:04:37.120",
+            "finish": "00:04:38.639",
+            "text": "right and for the rest i'm going to use"
+        },
+        {
+            "start": "00:04:38.639",
+            "finish": "00:04:41.759",
+            "text": "muffin papers which go a bit higher so"
+        },
+        {
+            "start": "00:04:41.759",
+            "finish": "00:04:43.680",
+            "text": "you won't have that like mushroom shaped"
+        },
+        {
+            "start": "00:04:43.680",
+            "finish": "00:04:46.080",
+            "text": "muffin top but they should still rise up"
+        },
+        {
+            "start": "00:04:46.080",
+            "finish": "00:04:47.759",
+            "text": "with a nice dome"
+        },
+        {
+            "start": "00:04:47.759",
+            "finish": "00:04:48.800",
+            "text": "in you go"
+        },
+        {
+            "start": "00:04:48.800",
+            "finish": "00:04:50.320",
+            "text": "unlike with cakes some people really"
+        },
+        {
+            "start": "00:04:50.320",
+            "finish": "00:04:52.960",
+            "text": "prefer that nice crispy muffin edge so"
+        },
+        {
+            "start": "00:04:52.960",
+            "finish": "00:04:54.560",
+            "text": "if that's your jam then you're going to"
+        },
+        {
+            "start": "00:04:54.560",
+            "finish": "00:04:56.400",
+            "text": "want to do it without the papers just"
+        },
+        {
+            "start": "00:04:56.400",
+            "finish": "00:04:58.320",
+            "text": "really be careful about adding in enough"
+        },
+        {
+            "start": "00:04:58.320",
+            "finish": "00:05:00.560",
+            "text": "butter and flour so they pop out easily"
+        },
+        {
+            "start": "00:05:00.560",
+            "finish": "00:05:02.320",
+            "text": "i'm using a large ice cream scooper to"
+        },
+        {
+            "start": "00:05:02.320",
+            "finish": "00:05:04.479",
+            "text": "transfer my batter into the muffin tin"
+        },
+        {
+            "start": "00:05:04.479",
+            "finish": "00:05:07.199",
+            "text": "and i want to fill it up all the way"
+        },
+        {
+            "start": "00:05:07.199",
+            "finish": "00:05:08.960",
+            "text": "normally it's two-thirds of the way high"
+        },
+        {
+            "start": "00:05:08.960",
+            "finish": "00:05:11.199",
+            "text": "for cupcakes but this time it's full to"
+        },
+        {
+            "start": "00:05:11.199",
+            "finish": "00:05:13.360",
+            "text": "the brim okay fill those papers up and"
+        },
+        {
+            "start": "00:05:13.360",
+            "finish": "00:05:15.120",
+            "text": "when you're doing that"
+        },
+        {
+            "start": "00:05:15.120",
+            "finish": "00:05:17.360",
+            "text": "try to be careful about getting like"
+        },
+        {
+            "start": "00:05:17.360",
+            "finish": "00:05:19.360",
+            "text": "batter on the edges it'll burn it's just"
+        },
+        {
+            "start": "00:05:19.360",
+            "finish": "00:05:20.960",
+            "text": "a matter of how it looks it'll still"
+        },
+        {
+            "start": "00:05:20.960",
+            "finish": "00:05:22.639",
+            "text": "bake fine when you're scooping the"
+        },
+        {
+            "start": "00:05:22.639",
+            "finish": "00:05:24.560",
+            "text": "batter it's a nice time to kind of"
+        },
+        {
+            "start": "00:05:24.560",
+            "finish": "00:05:26.080",
+            "text": "monitor the chocolate chips and make"
+        },
+        {
+            "start": "00:05:26.080",
+            "finish": "00:05:27.840",
+            "text": "sure that no one is getting"
+        },
+        {
+            "start": "00:05:27.840",
+            "finish": "00:05:29.840",
+            "text": "a sad amount you want to have an equal"
+        },
+        {
+            "start": "00:05:29.840",
+            "finish": "00:05:31.600",
+            "text": "distribution so"
+        },
+        {
+            "start": "00:05:31.600",
+            "finish": "00:05:32.880",
+            "text": "if you notice that your scoop didn't get"
+        },
+        {
+            "start": "00:05:32.880",
+            "finish": "00:05:34.160",
+            "text": "any chips"
+        },
+        {
+            "start": "00:05:34.160",
+            "finish": "00:05:36.160",
+            "text": "scoop up some chips after the batter"
+        },
+        {
+            "start": "00:05:36.160",
+            "finish": "00:05:38.880",
+            "text": "goes in you can top the muffins with a"
+        },
+        {
+            "start": "00:05:38.880",
+            "finish": "00:05:41.199",
+            "text": "scattering of chocolate chips this is"
+        },
+        {
+            "start": "00:05:41.199",
+            "finish": "00:05:43.520",
+            "text": "not super necessary but it'll give you"
+        },
+        {
+            "start": "00:05:43.520",
+            "finish": "00:05:47.360",
+            "text": "nice glossy melty chocolate tops and it"
+        },
+        {
+            "start": "00:05:47.360",
+            "finish": "00:05:49.280",
+            "text": "makes a big difference the chocolate"
+        },
+        {
+            "start": "00:05:49.280",
+            "finish": "00:05:50.800",
+            "text": "chip muffins look a little bit naked if"
+        },
+        {
+            "start": "00:05:50.800",
+            "finish": "00:05:52.160",
+            "text": "they don't have those chocolate chips on"
+        },
+        {
+            "start": "00:05:52.160",
+            "finish": "00:05:53.360",
+            "text": "top"
+        },
+        {
+            "start": "00:05:53.360",
+            "finish": "00:05:55.919",
+            "text": "okay this recipe makes exactly 12 big"
+        },
+        {
+            "start": "00:05:55.919",
+            "finish": "00:05:57.919",
+            "text": "muffins and now it's time to go into the"
+        },
+        {
+            "start": "00:05:57.919",
+            "finish": "00:05:58.800",
+            "text": "oven"
+        },
+        {
+            "start": "00:05:58.800",
+            "finish": "00:06:01.520",
+            "text": "you need to have a high heat to lock in"
+        },
+        {
+            "start": "00:06:01.520",
+            "finish": "00:06:03.919",
+            "text": "the edge so it gets set"
+        },
+        {
+            "start": "00:06:03.919",
+            "finish": "00:06:05.759",
+            "text": "and then the top can burst through to"
+        },
+        {
+            "start": "00:06:05.759",
+            "finish": "00:06:08.319",
+            "text": "create that big bakery style dome this"
+        },
+        {
+            "start": "00:06:08.319",
+            "finish": "00:06:10.639",
+            "text": "is gonna go into the oven at 425"
+        },
+        {
+            "start": "00:06:10.639",
+            "finish": "00:06:12.880",
+            "text": "fahrenheit for five minutes then we'll"
+        },
+        {
+            "start": "00:06:12.880",
+            "finish": "00:06:15.199",
+            "text": "reduce the temperature to 350 and bake"
+        },
+        {
+            "start": "00:06:15.199",
+            "finish": "00:06:17.840",
+            "text": "for 20 to 25 minutes depending you want"
+        },
+        {
+            "start": "00:06:17.840",
+            "finish": "00:06:20.080",
+            "text": "to have a nice golden top that's set in"
+        },
+        {
+            "start": "00:06:20.080",
+            "finish": "00:06:22.240",
+            "text": "the middle so you can insert a skewer"
+        },
+        {
+            "start": "00:06:22.240",
+            "finish": "00:06:23.680",
+            "text": "through the center and it'll come out"
+        },
+        {
+            "start": "00:06:23.680",
+            "finish": "00:06:25.600",
+            "text": "clean except for all that molten"
+        },
+        {
+            "start": "00:06:25.600",
+            "finish": "00:06:28.639",
+            "text": "chocolate right into the oven you go"
+        },
+        {
+            "start": "00:06:28.639",
+            "finish": "00:06:30.960",
+            "text": "out of the oven and cooled just enough"
+        },
+        {
+            "start": "00:06:30.960",
+            "finish": "00:06:32.479",
+            "text": "touch i want to show you the difference"
+        },
+        {
+            "start": "00:06:32.479",
+            "finish": "00:06:34.319",
+            "text": "between the in paper versus the out of"
+        },
+        {
+            "start": "00:06:34.319",
+            "finish": "00:06:35.280",
+            "text": "paper"
+        },
+        {
+            "start": "00:06:35.280",
+            "finish": "00:06:39.199",
+            "text": "out of paper so nice crisp edge muffin"
+        },
+        {
+            "start": "00:06:39.199",
+            "finish": "00:06:42.800",
+            "text": "over a little bit and golden brown"
+        },
+        {
+            "start": "00:06:42.800",
+            "finish": "00:06:45.520",
+            "text": "in the paper the paper really guided it"
+        },
+        {
+            "start": "00:06:45.520",
+            "finish": "00:06:48.240",
+            "text": "up so it's a little bit taller and the"
+        },
+        {
+            "start": "00:06:48.240",
+            "finish": "00:06:50.160",
+            "text": "difference is that you don't have that"
+        },
+        {
+            "start": "00:06:50.160",
+            "finish": "00:06:52.880",
+            "text": "crisp edge it's really like soft all"
+        },
+        {
+            "start": "00:06:52.880",
+            "finish": "00:06:54.080",
+            "text": "over and"
+        },
+        {
+            "start": "00:06:54.080",
+            "finish": "00:06:56.479",
+            "text": "just delicious you've got to take a look"
+        },
+        {
+            "start": "00:06:56.479",
+            "finish": "00:06:58.639",
+            "text": "at the inside of this take a look"
+        },
+        {
+            "start": "00:06:58.639",
+            "finish": "00:06:59.919",
+            "text": "if you like this video check out my"
+        },
+        {
+            "start": "00:06:59.919",
+            "finish": "00:07:04.160",
+            "text": "chocolate playlist"
+        },
+        {
+            "start": "00:07:04.160",
+            "finish": "00:07:06.080",
+            "text": "someone's making crazy faces behind the"
+        },
+        {
+            "start": "00:07:06.080",
+            "finish": "00:07:07.039",
+            "text": "camera"
+        },
+        {
+            "start": "00:07:07.039",
+            "finish": "00:07:08.400",
+            "text": "if you like this video check out my"
+        },
+        {
+            "start": "00:07:08.400",
+            "finish": "00:07:10.080",
+            "text": "chocolate playlist it has all my"
+        },
+        {
+            "start": "00:07:10.080",
+            "finish": "00:07:12.240",
+            "text": "favorite chocolate recipes and they are"
+        },
+        {
+            "start": "00:07:12.240",
+            "finish": "00:07:14.319",
+            "text": "amazingly delicious you've got to check"
+        },
+        {
+            "start": "00:07:14.319",
+            "finish": "00:07:17.199",
+            "text": "it out now it's time for a bite oh my"
+        },
+        {
+            "start": "00:07:17.199",
+            "finish": "00:07:22.000",
+            "text": "gosh do you see how crazy this is"
+        },
+        {
+            "start": "00:07:22.000",
+            "finish": "00:07:23.919",
+            "text": "oh my god that is so"
+        },
+        {
+            "start": "00:07:23.919",
+            "finish": "00:07:26.720",
+            "text": "good so perfect if you like my videos"
+        },
+        {
+            "start": "00:07:26.720",
+            "finish": "00:07:28.080",
+            "text": "hit that like button and subscribe and"
+        },
+        {
+            "start": "00:07:28.080",
+            "finish": "00:07:31.120",
+            "text": "i'll see in the next video"
+        }
+    ]
+}
+system: 
+    You are an assistant that describes the steps in a cooking video and outlines potential ambiguities, complexity, and specificity in the instructions.
+    ----------------------------------------
+    
+user: 
+        00:00:00.080-00:00:02.639: do you love moist fluffy chocolate chip
+        
+        00:00:02.639-00:00:05.040: muffins with that sky-high bakery top
+        
+        00:00:05.040-00:00:07.200: and a nice crisp edge well today's your
+        
+        00:00:07.200-00:00:08.320: lucky day because i'm going to show you
+        
+        00:00:08.320-00:00:09.679: how to make them hey you're watching
+        
+        00:00:09.679-00:00:11.360: preppy kitchen where i john canel teach
+        
+        00:00:11.360-00:00:12.400: you how to make delicious homemade
+        
+        00:00:12.400-00:00:13.599: dishes to share with your family and
+        
+        00:00:13.599-00:00:15.280: friends these chocolate chip muffins are
+        
+        00:00:15.280-00:00:16.800: going to whip up in a snap so let's get
+        
+        00:00:16.800-00:00:20.480: started first off set that oven to 425
+        
+        00:00:20.480-00:00:23.119: degrees fahrenheit we want a really
+        
+        00:00:23.119-00:00:25.119: high blast of heat when these go in
+        
+        00:00:25.119-00:00:26.880: because that'll set the edge and let
+        
+        00:00:26.880-00:00:27.680: them
+        
+        00:00:27.680-00:00:29.920: rise up so you'll have a nice bakery
+        
+        00:00:29.920-00:00:32.480: style dome on top if you did 350 they
+        
+        00:00:32.480-00:00:34.640: would spread out and
+        
+        00:00:34.640-00:00:35.680: it just wouldn't be the right kind of
+        
+        00:00:35.680-00:00:38.480: muffin okay now for the dry ingredients
+        
+        00:00:38.480-00:00:40.239: i'm using a scale because that gives you
+        
+        00:00:40.239-00:00:43.280: the most accurate results but
+        
+        00:00:43.280-00:00:44.800: if you're using cups click up here for
+        
+        00:00:44.800-00:00:46.480: my how to measure flower video it shows
+        
+        00:00:46.480-00:00:48.640: you all the ins and outs of measuring
+        
+        00:00:48.640-00:00:50.480: flour correctly it's a thing that goes
+        
+        00:00:50.480-00:00:53.280: wrong the most often in baking and it
+        
+        00:00:53.280-00:00:55.760: sucks when you add too much flour okay
+        
+        00:00:55.760-00:00:57.680: into my bowl and i'm using a sifter here
+        
+        00:00:57.680-00:00:58.879: i'm adding in
+        
+        00:00:58.879-00:01:02.399: two and three quarter cups that is 330
+        
+        00:01:02.399-00:01:05.439: grams of all-purpose flour
+        
+        00:01:05.439-00:01:07.360: one teaspoon of salt and that might seem
+        
+        00:01:07.360-00:01:09.600: like a lot but do you want some contrast
+        
+        00:01:09.600-00:01:11.439: to all that chocolate and the sugar so
+        
+        00:01:11.439-00:01:13.840: it'll really like amp the flavor up and
+        
+        00:01:13.840-00:01:15.520: let you appreciate what's going on in
+        
+        00:01:15.520-00:01:16.560: the muffin
+        
+        00:01:16.560-00:01:18.720: for leavening i'm using one tablespoon
+        
+        00:01:18.720-00:01:20.720: of baking powder and again it's kind of
+        
+        00:01:20.720-00:01:22.640: a lot of leavening agent but this is how
+        
+        00:01:22.640-00:01:25.040: you get that bakery style top
+        
+        00:01:25.040-00:01:27.360: sift it out
+        
+        00:01:27.360-00:01:28.960: we're done with that scale and get set
+        
+        00:01:28.960-00:01:32.560: aside as well give it a quick whisk
+        
+        00:01:32.560-00:01:34.159: now we can set it aside
+        
+        00:01:34.159-00:01:36.240: this was melted a minute ago it already
+        
+        00:01:36.240-00:01:37.439: cooled down i'm going to put it into the
+        
+        00:01:37.439-00:01:39.759: microwave
+        
+        00:01:39.759-00:01:41.280: for the wet ingredients it's important
+        
+        00:01:41.280-00:01:42.479: that you're dealing with room
+        
+        00:01:42.479-00:01:45.200: temperature things and if it gets cold
+        
+        00:01:45.200-00:01:46.320: we're going to warm it up in the
+        
+        00:01:46.320-00:01:48.159: microwave and ps it's going to get cold
+        
+        00:01:48.159-00:01:50.960: this counter is freezing all right 300
+        
+        00:01:50.960-00:01:54.479: ml or 1 4 cups of whole milk
+        
+        00:01:54.479-00:01:57.520: in yoga half a cup or 113 grams of
+        
+        00:01:57.520-00:02:00.159: unsalted butter that's been melted
+        
+        00:02:00.159-00:02:02.799: and get it all out there so by the by
+        
+        00:02:02.799-00:02:05.520: today is the first time ever in the
+        
+        00:02:05.520-00:02:07.600: history of preppy kitchen that brian is
+        
+        00:02:07.600-00:02:09.599: filming you wanna say hi
+        
+        00:02:09.599-00:02:12.560: no he's eating cookies that i made
+        
+        00:02:12.560-00:02:15.440: one cup or 200 grams of
+        
+        00:02:15.440-00:02:17.920: sugar right in that bowl let's give it a
+        
+        00:02:17.920-00:02:20.319: whisk to bring it together
+        
+        00:02:20.319-00:02:22.160: if you notice some clumps of butter
+        
+        00:02:22.160-00:02:24.239: happen when you mix it all together pop
+        
+        00:02:24.239-00:02:26.400: it into the microwave for 40 seconds and
+        
+        00:02:26.400-00:02:28.160: it should be totally fine
+        
+        00:02:28.160-00:02:30.000: i used warm milk so it's not happening
+        
+        00:02:30.000-00:02:31.440: to me so right now we're gonna add in
+        
+        00:02:31.440-00:02:33.599: the eggs and the sour cream
+        
+        00:02:33.599-00:02:37.200: two large eggs one two as well as one
+        
+        00:02:37.200-00:02:39.040: quarter cup of sour cream and if you
+        
+        00:02:39.040-00:02:41.040: don't have that you can go ahead and use
+        
+        00:02:41.040-00:02:42.720: full fat plain yogurt it'll be
+        
+        00:02:42.720-00:02:44.560: completely delicious still
+        
+        00:02:44.560-00:02:46.959: this is optional but i am adding one
+        
+        00:02:46.959-00:02:50.720: tablespoon of vanilla that's 15 ml
+        
+        00:02:50.720-00:02:53.360: wow delicious i'm gonna mix this up
+        
+        00:02:53.360-00:02:56.000: right now but look what's happened just
+        
+        00:02:56.000-00:02:57.680: in the few seconds that we've been doing
+        
+        00:02:57.680-00:03:00.879: this what's going on here look it's
+        
+        00:03:00.879-00:03:02.560: turned into like a
+        
+        00:03:02.560-00:03:04.640: like a butter mush that's not what i
+        
+        00:03:04.640-00:03:06.560: want so i will be popping this into the
+        
+        00:03:06.560-00:03:08.640: microwave after i whisk the eggs in you
+        
+        00:03:08.640-00:03:10.000: don't want to do that before the eggs
+        
+        00:03:10.000-00:03:11.519: get whisked in because they could be
+        
+        00:03:11.519-00:03:13.680: overcooked
+        
+        00:03:13.680-00:03:15.200: a little heat's going to fix all of our
+        
+        00:03:15.200-00:03:17.440: problems okay a little bit of heat later
+        
+        00:03:17.440-00:03:19.440: let's give this a whisk
+        
+        00:03:19.440-00:03:21.920: that's nice nice homogeneous fluid
+        
+        00:03:21.920-00:03:24.159: mixture is what we want now it's time to
+        
+        00:03:24.159-00:03:27.040: pour the wet into the dry give it a
+        
+        00:03:27.040-00:03:28.879: whisk and take it to almost combined you
+        
+        00:03:28.879-00:03:31.440: could have a couple clumps of like flour
+        
+        00:03:31.440-00:03:33.440: hanging out here and there because
+        
+        00:03:33.440-00:03:35.120: we'll do more mixing once those
+        
+        00:03:35.120-00:03:37.680: chocolate chips go in
+        
+        00:03:37.680-00:03:39.120: so you can see we have a couple clumps
+        
+        00:03:39.120-00:03:40.959: here and there but it's no big deal it's
+        
+        00:03:40.959-00:03:43.840: time for some chocolate the best part
+        
+        00:03:43.840-00:03:46.080: all right in my recipe i specify one and
+        
+        00:03:46.080-00:03:48.159: a half cups of semi-sweet chocolate but
+        
+        00:03:48.159-00:03:50.159: i'm living large and using one cup of
+        
+        00:03:50.159-00:03:54.159: semi-sweet and half a cup of bittersweet
+        
+        00:03:54.159-00:03:55.519: you could even use milk chocolate if
+        
+        00:03:55.519-00:03:57.280: that's what you prefer
+        
+        00:03:57.280-00:03:58.640: here we go
+        
+        00:03:58.640-00:04:00.159: that's the bittersweet chocolate and i'm
+        
+        00:04:00.159-00:04:03.760: taking a handful of the semi-sweet chips
+        
+        00:04:03.760-00:04:05.439: and reserving them because i'll be
+        
+        00:04:05.439-00:04:07.360: sprinkling them on top for beauty
+        
+        00:04:07.360-00:04:09.280: purposes rest of the chocolate chips go
+        
+        00:04:09.280-00:04:10.080: in
+        
+        00:04:10.080-00:04:11.040: and
+        
+        00:04:11.040-00:04:12.720: you should fold them in with a spatula
+        
+        00:04:12.720-00:04:14.480: not use a whisk
+        
+        00:04:14.480-00:04:16.079: after those chocolate chips are folded
+        
+        00:04:16.079-00:04:18.239: in it's time to pop this into the muffin
+        
+        00:04:18.239-00:04:20.000: tins i'm doing it two different ways so
+        
+        00:04:20.000-00:04:22.560: you can see the difference between a
+        
+        00:04:22.560-00:04:24.639: naked muffin and one that's in the paper
+        
+        00:04:24.639-00:04:25.919: it's gonna be
+        
+        00:04:25.919-00:04:28.320: different i've buttered and floured half
+        
+        00:04:28.320-00:04:31.040: of the muffin tins so you can see just a
+        
+        00:04:31.040-00:04:32.720: nice cut of butter
+        
+        00:04:32.720-00:04:34.800: good dash of flour move all that flour
+        
+        00:04:34.800-00:04:37.120: around and then dump out the excess all
+        
+        00:04:37.120-00:04:38.639: right and for the rest i'm going to use
+        
+        00:04:38.639-00:04:41.759: muffin papers which go a bit higher so
+        
+        00:04:41.759-00:04:43.680: you won't have that like mushroom shaped
+        
+        00:04:43.680-00:04:46.080: muffin top but they should still rise up
+        
+        00:04:46.080-00:04:47.759: with a nice dome
+        
+        00:04:47.759-00:04:48.800: in you go
+        
+        00:04:48.800-00:04:50.320: unlike with cakes some people really
+        
+        00:04:50.320-00:04:52.960: prefer that nice crispy muffin edge so
+        
+        00:04:52.960-00:04:54.560: if that's your jam then you're going to
+        
+        00:04:54.560-00:04:56.400: want to do it without the papers just
+        
+        00:04:56.400-00:04:58.320: really be careful about adding in enough
+        
+        00:04:58.320-00:05:00.560: butter and flour so they pop out easily
+        
+        00:05:00.560-00:05:02.320: i'm using a large ice cream scooper to
+        
+        00:05:02.320-00:05:04.479: transfer my batter into the muffin tin
+        
+        00:05:04.479-00:05:07.199: and i want to fill it up all the way
+        
+        00:05:07.199-00:05:08.960: normally it's two-thirds of the way high
+        
+        00:05:08.960-00:05:11.199: for cupcakes but this time it's full to
+        
+        00:05:11.199-00:05:13.360: the brim okay fill those papers up and
+        
+        00:05:13.360-00:05:15.120: when you're doing that
+        
+        00:05:15.120-00:05:17.360: try to be careful about getting like
+        
+        00:05:17.360-00:05:19.360: batter on the edges it'll burn it's just
+        
+        00:05:19.360-00:05:20.960: a matter of how it looks it'll still
+        
+        00:05:20.960-00:05:22.639: bake fine when you're scooping the
+        
+        00:05:22.639-00:05:24.560: batter it's a nice time to kind of
+        
+        00:05:24.560-00:05:26.080: monitor the chocolate chips and make
+        
+        00:05:26.080-00:05:27.840: sure that no one is getting
+        
+        00:05:27.840-00:05:29.840: a sad amount you want to have an equal
+        
+        00:05:29.840-00:05:31.600: distribution so
+        
+        00:05:31.600-00:05:32.880: if you notice that your scoop didn't get
+        
+        00:05:32.880-00:05:34.160: any chips
+        
+        00:05:34.160-00:05:36.160: scoop up some chips after the batter
+        
+        00:05:36.160-00:05:38.880: goes in you can top the muffins with a
+        
+        00:05:38.880-00:05:41.199: scattering of chocolate chips this is
+        
+        00:05:41.199-00:05:43.520: not super necessary but it'll give you
+        
+        00:05:43.520-00:05:47.360: nice glossy melty chocolate tops and it
+        
+        00:05:47.360-00:05:49.280: makes a big difference the chocolate
+        
+        00:05:49.280-00:05:50.800: chip muffins look a little bit naked if
+        
+        00:05:50.800-00:05:52.160: they don't have those chocolate chips on
+        
+        00:05:52.160-00:05:53.360: top
+        
+        00:05:53.360-00:05:55.919: okay this recipe makes exactly 12 big
+        
+        00:05:55.919-00:05:57.919: muffins and now it's time to go into the
+        
+        00:05:57.919-00:05:58.800: oven
+        
+        00:05:58.800-00:06:01.520: you need to have a high heat to lock in
+        
+        00:06:01.520-00:06:03.919: the edge so it gets set
+        
+        00:06:03.919-00:06:05.759: and then the top can burst through to
+        
+        00:06:05.759-00:06:08.319: create that big bakery style dome this
+        
+        00:06:08.319-00:06:10.639: is gonna go into the oven at 425
+        
+        00:06:10.639-00:06:12.880: fahrenheit for five minutes then we'll
+        
+        00:06:12.880-00:06:15.199: reduce the temperature to 350 and bake
+        
+        00:06:15.199-00:06:17.840: for 20 to 25 minutes depending you want
+        
+        00:06:17.840-00:06:20.080: to have a nice golden top that's set in
+        
+        00:06:20.080-00:06:22.240: the middle so you can insert a skewer
+        
+        00:06:22.240-00:06:23.680: through the center and it'll come out
+        
+        00:06:23.680-00:06:25.600: clean except for all that molten
+        
+        00:06:25.600-00:06:28.639: chocolate right into the oven you go
+        
+        00:06:28.639-00:06:30.960: out of the oven and cooled just enough
+        
+        00:06:30.960-00:06:32.479: touch i want to show you the difference
+        
+        00:06:32.479-00:06:34.319: between the in paper versus the out of
+        
+        00:06:34.319-00:06:35.280: paper
+        
+        00:06:35.280-00:06:39.199: out of paper so nice crisp edge muffin
+        
+        00:06:39.199-00:06:42.800: over a little bit and golden brown
+        
+        00:06:42.800-00:06:45.520: in the paper the paper really guided it
+        
+        00:06:45.520-00:06:48.240: up so it's a little bit taller and the
+        
+        00:06:48.240-00:06:50.160: difference is that you don't have that
+        
+        00:06:50.160-00:06:52.880: crisp edge it's really like soft all
+        
+        00:06:52.880-00:06:54.080: over and
+        
+        00:06:54.080-00:06:56.479: just delicious you've got to take a look
+        
+        00:06:56.479-00:06:58.639: at the inside of this take a look
+        
+        00:06:58.639-00:06:59.919: if you like this video check out my
+        
+        00:06:59.919-00:07:04.160: chocolate playlist
+        
+        00:07:04.160-00:07:06.080: someone's making crazy faces behind the
+        
+        00:07:06.080-00:07:07.039: camera
+        
+        00:07:07.039-00:07:08.400: if you like this video check out my
+        
+        00:07:08.400-00:07:10.080: chocolate playlist it has all my
+        
+        00:07:10.080-00:07:12.240: favorite chocolate recipes and they are
+        
+        00:07:12.240-00:07:14.319: amazingly delicious you've got to check
+        
+        00:07:14.319-00:07:17.199: it out now it's time for a bite oh my
+        
+        00:07:17.199-00:07:22.000: gosh do you see how crazy this is
+        
+        00:07:22.000-00:07:23.919: oh my god that is so
+        
+        00:07:23.919-00:07:26.720: good so perfect if you like my videos
+        
+        00:07:26.720-00:07:28.080: hit that like button and subscribe and
+        
+        00:07:28.080-00:07:31.120: i'll see in the next video
+        
+    ----------------------------------------
+    Given the above transcript, please provide the outline of each step, potential ambiguities, complexity, and specificity.
+    Definitions:
+    - Step: A distinct, outcome-oriented task within a procedural sequence, characterized by its purposeful contribution to achieving the overarching goal of the process. It encapsulates a set of actions or instructions that, while variable in execution, uniformly aim towards a specific result or transformation.
+    - Description: A concise, informative account of the step's purpose, actions, and expected outcomes.
+    - Ambiguities: Instances of uncertainty, vagueness, or inconsistency within the step that may hinder comprehension, execution, or evaluation with respect to the instructions provided in the video.
+    - Complexity: The level of intricacy, difficulty, or sophistication associated with the step, encompassing the cognitive, physical, or temporal demands it imposes on the user.
+    - Specificity: The degree of detail, precision, or clarity in the step's instructions, encompassing the extent to which the actions, tools, ingredients, or conditions are explicitly defined or elaborated upon.
+    - Domain-specificity: The relevance, applicability, or pertinence of the step to different contexts, scenarios, or user groups, reflecting the extent to which the instructions are tailored to a particular domain, skill level, or cultural background.
+    ----------------------------------------
+    Follow the format below:
+    Step 1: [Concise step label]
+    Description: [Description of the step]
+    Ambiguities: [Description of ambiguities]
+    Complexity: [Description of complexity]
+    Specificity: [Description of specificity]
+    Domain-specificity: [Description of domain-specificity]
+    ----------------------------------------
+    
+assistant: Step 1: Preheat Oven
+Description: The process begins with setting the oven to 425 degrees Fahrenheit to preheat. This high temperature is crucial for achieving a desirable texture and dome on the muffins.
+Ambiguities: There's no mention of how long to preheat the oven or if adjustments are necessary for convection ovens.
+Complexity: Low; adjusting oven settings is a basic operation.
+Specificity: High; precise temperature is provided.
+Domain-specificity: Low; the step is universally applicable to all who use an oven.
+
+Step 2: Measure Dry Ingredients
+Description: Ingredients are measured using a scale for accuracy. The specifics include 330 grams of all-purpose flour, one teaspoon of salt, and one tablespoon of baking powder. The ingredients are then combined and sifted.
+Ambiguities: There's an assumption that viewers know how to operate a scale and sift ingredients properly.
+Complexity: Medium; involves precise measurement and sifting.
+Specificity: High; exact measurements and ingredients are listed.
+Domain-specificity: Low; measuring and sifting are common baking practices.
+
+Step 3: Prepare Wet Ingredients
+Description: Wet ingredients including whole milk, melted unsalted butter, and sugar are mixed together. If the mixture clumps, it's suggested to slightly warm it in the microwave.
+Ambiguities: The exact amount of milk and sugar and the temperature of "room temperature" ingredients are not clearly defined.
+Complexity: Medium; involves melting butter, possibly adjusting the temperature of ingredients, and combining different consistencies.
+Specificity: Medium; provides some measurements and hints at adjustments.
+Domain-specificity: Low; mixing ingredients is a fundamental cooking skill.
+
+Step 4: Combine Wet and Dry Ingredients
+Description: The wet ingredients are poured into the dry, mixed until almost combined with some small clumps remaining acceptable, then chocolate chips are folded in.
+Ambiguities: It's not specified how gently or vigorously to fold in the ingredients or chocolate chips.
+Complexity: Medium; requires a balance of thorough mixing without overmixing.
+Specificity: High; the process of combining is detailed, including the desired outcome.
+Domain-specificity: Low; mixing is a common step in many recipes.
+
+Step 5: Prepare and Fill Muffin Tins
+Description: Muffin tins are either buttered and floured or lined with muffin papers, then filled to the brim with batter using a large ice cream scooper.
+Ambiguities: The process for buttering and flouring is mentioned but not detailed. The amount of batter for each muffin tin is not quantified beyond a descriptive "all the way."
+Complexity: Medium; involves optional preparation methods and careful filling.
+Specificity: Medium; describes actions but lacks detail on quantity and precise technique.
+Domain-specificity: Low; applicable to baking in general though the recipe-specific aspect narrows it slightly.
+
+Step 6: Bake Muffins
+Description: The muffins are baked at 425 degrees Fahrenheit for five minutes, then at 350 degrees for 20 to 25 minutes until a skewer comes out clean.
+Ambiguities: There's no indication of oven rack placement or if rotation is needed for even baking.
+Complexity: Medium; involves temperature change and a test for doneness.
+Specificity: High; provides clear temperature settings and indicators for doneness.
+Domain-specificity: Low; baking with temperature adjustments and doneness testing is standard.
+
+Step 7: Cooling and Serving
+Description: Muffins are removed from the oven, cooled to a touch-friendly temperature, then served. A comparison is made between muffins baked in papers and those not.
+Ambiguities: The specific cooling time is not given.
+Complexity: Low; involves basic handling and presentation.
+Specificity: Medium; describes outcomes of different baking methods without precise times.
+Domain-specificity: Low; serving food is a universally applicable step.
+
+Overall, the recipe video introduces some complex techniques with mostly high specificity but lacks detailed explanations for certain ambivalent portions, particularly regarding ingredient handling and preparatory nuances.
+assistant: Reflecting on the generated steps and the definitions provided for a step, ambiguities, complexity, specificity, and domain-specificity, it's evident that while the steps are largely well-defined and distinct, there are areas that can benefit from modifications or clarifications to enhance their quality and accuracy.
+
+1) **Clear Definition of Steps**: Most steps are clearly defined and distinct from others in the sequence, however, the transitions between steps could be smoother to signal a change from one step to another more clearly. For instance, delineating between preparing wet and dry ingredients before combining them could be more explicitly stated as separate steps.
+
+2) **Description Following the Definition of a Step**: The descriptions generally outline the purpose, actions, and expected outcomes, adhering to the definition of a step. However, some descriptions could be expanded to explicitly connect the actions to their intended outcomes, enhancing comprehensibility.
+
+3) **Comprehensiveness in Addressing Ambiguities**: While broad ambiguities are noted, not all potential sources of uncertainty are covered. For example, the importance of sifting ingredients together for uniformity in the mix and how to properly prepare a muffin tin with butter and flour to ensure muffins do not stick could be elaborated.
+
+4) **Accuracy in Reflecting Complexity**: The complexity of each step seems accurately assessed for the most part. However, some steps, like preparing the wet ingredients or the nuances of filling the muffin tins, might be considered more complex due to the precision in measurements and techniques required but were marked as medium complexity.
+
+5) **Detail in Specificity Section**: The specificity section provides a good level of detail on actions, tools, and ingredients involved. However, adding more precise timings, such as for preheating the oven or cooling the muffins, could improve clarity. Explicitly stating alternative tools or ingredients would also be beneficial, like suggesting a hand whisk can be used if an electric mixer is not available.
+
+6) **Relevance in Domain-Specificity Section**: The domain-specificity is broadly relevant but could be more reflective of the contexts or scenarios to which the steps are tailored. For example, noting that the high starting oven temperature is a specific technique used in bakery-style muffins helps contextualize the step for amateur bakers unfamiliar with professional practices.
+
+**Suggestions for Modification**:
+- Clarify the transition between steps, perhaps by introducing each new step with a distinct label or heading.
+- Expand descriptions to more explicitly connect actions to intended outcomes. For example, explain why certain techniques are recommended and how they contribute to the final product’s quality.
+- Address more specific ambiguities by providing insights into why certain steps are performed a certain way, the rationale behind ingredient choices, and how to troubleshoot common baking issues encountered during the recipe.
+- Offer alternative methods or ingredients directly within the steps when relevant to increase the recipe's accessibility to a wider audience.
+- Incorporate more specific timings for actions like preheating the oven or cooling muffins to ensure a more precise guideline for readers.
+
+These modifications and additions aim to enhance the clarity, comprehensiveness, and applicability of the recipe instructions, making them more accessible to a diverse range of users while maintaining the integrity and intent of the original cooking video.
+[youtube] Extracting URL: https://www.youtube.com/watch?v=cZ2KJPGVwNU
+assistant: Step 1: Preparing the Oven
+Description: The initial step involves setting the oven to a precise temperature of 425 degrees Fahrenheit to ensure it's adequately preheated for baking, which is crucial for the muffins to achieve a desirable texture and dome.
+Ambiguities: Does not specify the duration for preheating or adjustments for different oven types (e.g., convection).
+Complexity: Low; involves basic operation of the oven.
+Specificity: High; provides an exact temperature setting.
+Domain-specificity: Low; preheating an oven is a universal step in baking across various recipes and cuisines.
+
+Step 2: Measuring and Mixing Dry Ingredients
+Description: This step focuses on accurately measuring the dry ingredients using a scale for precision and combining them. It involves the sifting together of flour, salt, and baking powder to enhance the texture of the muffins by promoting even distribution within the batter.
+Ambiguities: Assumes familiarity with using a kitchen scale and the sifting technique without offering guidance for beginners.
+Complexity: Medium; requires precision in measurement and familiarity with sifting.
+Specificity: High; specifies the types and exact quantities of ingredients.
+Domain-specificity: Low; measuring and mixing dry ingredients is a foundational practice in baking.
+
+Step 3: Preparing Wet Ingredients
+Description: Wet ingredients, including milk, melted butter, and sugar, are warmed (if necessary) and mixed until smooth. This step is crucial for creating a uniform and cohesive batter.
+Ambiguities: The temperature "room temperature" for ingredients and the exact timing for warming ingredients in the microwave are not detailed.
+Complexity: Medium; the step involves temperature adjustments and mixing ingredients of various consistencies.
+Specificity: Medium; mentions ingredients and the process but lacks detail on quantities and specific instructions for temperature adjustment.
+Domain-specificity: Low; similar processes for preparing wet ingredients are common in baking.
+
+Step 4: Combining Wet and Dry Ingredients
+Description: Wet ingredients are incorporated into the dry mix, stirring until almost combined with some lumps remaining acceptable, followed by folding in chocolate chips. This method helps prevent overmixing, preserving the muffins' tender texture.
+Ambiguities: Does not specify the exact degree of mixing or how forcefully to fold in the chocolate chips.
+Complexity: Medium; relies on visual and tactile cues to avoid overmixing.
+Specificity: High; describes the process and criteria for the batter's readiness.
+Domain-specificity: Low; combining ingredients is a general cooking principle, though specifics may vary between recipes.
+
+Step 5: Filling Muffin Tins
+Description: Muffin tins are prepared either by greasing and flouring or using muffin liners, then filled to the brim with batter to ensure a substantial dome on the muffins. This step directly influences the appearance and texture of the final product.
+Ambiguities: Lacks detailed guidance on buttering and flouring tins and how exactly to avoid spilling batter on the tin edges.
+Complexity: Medium; involves careful preparation and filling to achieve consistent results.
+Specificity: Medium; the description includes actions but could be clearer on quantities and techniques for batter distribution.
+Domain-specificity: Medium; while filling tins is common, the desired outcome of a substantial muffin top is specific to this recipe and similar bakery-style muffins.
+
+Step 6: Baking and Temperature Adjustment
+Description: The muffins are initially baked at a high temperature to set the edges and start the rise, then the temperature is reduced to allow the interiors to bake thoroughly without burning the exterior, achieving a perfect dome and texture.
+Ambiguities: The step does not address potential oven hot spots or whether the muffin tins should be rotated for even baking.
+Complexity: Medium; involves changing oven temperatures partway through baking, a technique not commonly used in all baking recipes.
+Specificity: High; provides clear instructions on temperature settings and baking durations.
+Domain-specificity: Medium; the baking technique is somewhat specific to recipes that require a specific texture and appearance, like bakery-style muffins.
+
+Step 7: Cooling and Serving
+Description: After baking, muffins are removed from the oven and allowed to cool just enough to be handled safely. The difference in texture between muffins baked directly in the tin versus those in liners is highlighted.
+Ambiguities: Does not specify the exact cooling duration or whether they should cool in the tin or on a rack.
+Complexity: Low; involves handling and basic knowledge of baking outcomes.
+Specificity: Medium; mentions the purpose and method but lacks detailed instructions for cooling.
+Domain-specificity: Low; cooling baked goods is a common step, but the emphasis on texture differences introduces a nuance specific to muffins and similar bakery items.
+[youtube] cZ2KJPGVwNU: Downloading webpage
+[youtube] cZ2KJPGVwNU: Downloading ios player API JSON
+[youtube] cZ2KJPGVwNU: Downloading android player API JSON
+[youtube] cZ2KJPGVwNU: Downloading android player API JSON
+[youtube] cZ2KJPGVwNU: Downloading android player API JSON
+[youtube] cZ2KJPGVwNU: Downloading android player API JSON
+[youtube] cZ2KJPGVwNU: Downloading m3u8 information
+[info] cZ2KJPGVwNU: Downloading subtitles: en
+Video 'cZ2KJPGVwNU' already exists in the directory.
+'cZ2KJPGVwNU'
+{
+    "subtitles": [
+        {
+            "start": "00:00:00.080",
+            "finish": "00:00:01.374",
+            "text": "Today on The Stay At Home Chef"
+        },
+        {
+            "start": "00:00:01.374",
+            "finish": "00:00:04.263",
+            "text": "I'm showing you my&nbsp;master muffin recipe."
+        },
+        {
+            "start": "00:00:04.263",
+            "finish": "00:00:07.726",
+            "text": "Instead of giving you dozens of recipes for different flavors of muffins,"
+        },
+        {
+            "start": "00:00:07.726",
+            "finish": "00:00:12.907",
+            "text": "today I'm sharing my master muffin recipe, \nwhich you can use to make almost any flavor,"
+        },
+        {
+            "start": "00:00:12.907",
+            "finish": "00:00:14.478",
+            "text": "and it's super easy."
+        },
+        {
+            "start": "00:00:14.478",
+            "finish": "00:00:18.454",
+            "text": "Start by preheating your oven to 425 degrees Fahrenheit."
+        },
+        {
+            "start": "00:00:18.454",
+            "finish": "00:00:23.040",
+            "text": "Then line&nbsp;a 12 cup muffin tin with paper baking cups."
+        },
+        {
+            "start": "00:00:23.040",
+            "finish": "00:00:28.391",
+            "text": "Then I like to give mine just a spritz of nonstick&nbsp;cooking spray, \nright on those paper baking cups,"
+        },
+        {
+            "start": "00:00:28.391",
+            "finish": "00:00:30.520",
+            "text": "to prevent the muffins from sticking."
+        },
+        {
+            "start": "00:00:30.520",
+            "finish": "00:00:32.547",
+            "text": "Now&nbsp;it's time to put together our batter."
+        },
+        {
+            "start": "00:00:32.547",
+            "finish": "00:00:38.121",
+            "text": "First I'm going to demonstrate a basic muffin batter,&nbsp;\nand then I'm going to show you 5 different variations,"
+        },
+        {
+            "start": "00:00:38.121",
+            "finish": "00:00:42.395",
+            "text": "each demonstrating a different&nbsp;way \nthat you can build upon the base recipe."
+        },
+        {
+            "start": "00:00:42.395",
+            "finish": "00:00:45.659",
+            "text": "The batter starts with 1/2 cup of softened salted butter,"
+        },
+        {
+            "start": "00:00:45.659",
+            "finish": "00:00:48.056",
+            "text": "and 1 cup of granulated sugar."
+        },
+        {
+            "start": "00:00:48.056",
+            "finish": "00:00:50.903",
+            "text": "We're going&nbsp;to use a hand mixer to cream this together."
+        },
+        {
+            "start": "00:00:51.760",
+            "finish": "00:00:56.347",
+            "text": "At first this mixture will be lumpy, \nbut keep on&nbsp;mixing for about 2 minutes."
+        },
+        {
+            "start": "00:00:56.347",
+            "finish": "00:01:03.132",
+            "text": "After 2 minutes your sugar and butter will be well combined, \nand&nbsp;it'll be a smooth, paste-like, creamy consistency."
+        },
+        {
+            "start": "00:01:03.132",
+            "finish": "00:01:07.970",
+            "text": "Then you'll add in 2 large eggs, \nand mix this&nbsp;briefly until just combined,"
+        },
+        {
+            "start": "00:01:07.970",
+            "finish": "00:01:09.233",
+            "text": "about 30 seconds."
+        },
+        {
+            "start": "00:01:10.320",
+            "finish": "00:01:16.320",
+            "text": "Then I'm going to add in 1 teaspoon of vanilla&nbsp;extract, \nor you can use other flavors of extract,"
+        },
+        {
+            "start": "00:01:16.320",
+            "finish": "00:01:19.910",
+            "text": "like almond extract, orange extract, lemon extract."
+        },
+        {
+            "start": "00:01:19.910",
+            "finish": "00:01:22.319",
+            "text": "Those are all super popular options."
+        },
+        {
+            "start": "00:01:22.319",
+            "finish": "00:01:26.976",
+            "text": "For the lemon and citrus extracts \nI recommend only using 1/2 teaspoon of those,"
+        },
+        {
+            "start": "00:01:26.976",
+            "finish": "00:01:30.171",
+            "text": "and combining that with 1/2 teaspoon of vanilla extract."
+        },
+        {
+            "start": "00:01:30.171",
+            "finish": "00:01:33.381",
+            "text": "You'll also need 2&nbsp;teaspoons of baking powder,"
+        },
+        {
+            "start": "00:01:33.381",
+            "finish": "00:01:35.233",
+            "text": "and 1/2 teaspoon of salt."
+        },
+        {
+            "start": "00:01:35.233",
+            "finish": "00:01:41.453",
+            "text": "This is also the point where you'd add in any&nbsp;spices \nlike cinnamon or pumpkin pie spice."
+        },
+        {
+            "start": "00:01:41.453",
+            "finish": "00:01:45.978",
+            "text": "We're gonna give this a quick mix just to combine, \nabout&nbsp;10 seconds."
+        },
+        {
+            "start": "00:01:45.978",
+            "finish": "00:01:51.072",
+            "text": "Now at this point it's time to ditch our hand mixer \nand grab a rubber spatula."
+        },
+        {
+            "start": "00:01:51.072",
+            "finish": "00:01:53.037",
+            "text": "Add in&nbsp;half of your all-purpose flour."
+        },
+        {
+            "start": "00:01:53.037",
+            "finish": "00:01:56.831",
+            "text": "You're going to use 2 cups total, \nso you're going to add in&nbsp;1 cup right now."
+        },
+        {
+            "start": "00:01:56.831",
+            "finish": "00:01:59.837",
+            "text": "Then use the rubber spatula to stir this in."
+        },
+        {
+            "start": "00:01:59.837",
+            "finish": "00:02:05.879",
+            "text": "Once all those white specks of&nbsp;flour start to disappear, \nyou'll pour in 1/2 cup of either milk or buttermilk."
+        },
+        {
+            "start": "00:02:05.879",
+            "finish": "00:02:09.177",
+            "text": "Buttermilk is&nbsp;going to give you a little bit of a poofier muffin."
+        },
+        {
+            "start": "00:02:09.177",
+            "finish": "00:02:13.133",
+            "text": "And you'll stir this in as well until it's well&nbsp;combined."
+        },
+        {
+            "start": "00:02:13.133",
+            "finish": "00:02:17.262",
+            "text": "Last you'll add in the remaining 1 cup of all-purpose flour."
+        },
+        {
+            "start": "00:02:17.262",
+            "finish": "00:02:22.571",
+            "text": "Stir this together scraping&nbsp;the sides and bottom of the bowl \nto ensure that everything gets mixed in."
+        },
+        {
+            "start": "00:02:22.571",
+            "finish": "00:02:27.278",
+            "text": "Now if you're gonna&nbsp;add anything into your muffins, \nlike dried fruit, chocolate chips, or berries,"
+        },
+        {
+            "start": "00:02:27.278",
+            "finish": "00:02:28.961",
+            "text": "now would be the time&nbsp;to do so."
+        },
+        {
+            "start": "00:02:28.961",
+            "finish": "00:02:30.850",
+            "text": "but I'll show you that in just a minute."
+        },
+        {
+            "start": "00:02:30.850",
+            "finish": "00:02:33.810",
+            "text": "Your batter should be thick but also spreadable."
+        },
+        {
+            "start": "00:02:33.810",
+            "finish": "00:02:40.658",
+            "text": "We're gonna divide the batter up amongst our 12 muffin cups, \nand you should fill each one about&nbsp;2/3 of the way full."
+        },
+        {
+            "start": "00:02:40.658",
+            "finish": "00:02:47.920",
+            "text": "It's always a little bit hard to tell what's 2/3 or what's 3/4, \nso just try to divide your batter up as evenly as possible,"
+        },
+        {
+            "start": "00:02:47.920",
+            "finish": "00:02:49.801",
+            "text": "because this does make 12&nbsp;muffins."
+        },
+        {
+            "start": "00:02:49.801",
+            "finish": "00:02:54.887",
+            "text": "You can let your muffin batter rest for about 15 minutes \nbefore popping it in the oven,"
+        },
+        {
+            "start": "00:02:54.887",
+            "finish": "00:03:01.036",
+            "text": "or if you're making a larger batch it's totally okay to let it \nrest in between cooking different&nbsp;batches."
+        },
+        {
+            "start": "00:03:01.036",
+            "finish": "00:03:05.444",
+            "text": "Bake your muffins in the 425 degree oven for 7 minutes."
+        },
+        {
+            "start": "00:03:05.444",
+            "finish": "00:03:11.827",
+            "text": "After 7 minutes reduce the&nbsp;temperature on your oven to 350 degrees without opening the oven door."
+        },
+        {
+            "start": "00:03:11.827",
+            "finish": "00:03:15.650",
+            "text": "Continue baking for 12-15 minutes, \nand watch them carefully,"
+        },
+        {
+            "start": "00:03:15.650",
+            "finish": "00:03:19.099",
+            "text": "as the cooking time will vary a little bit depending on your&nbsp;oven."
+        },
+        {
+            "start": "00:03:19.099",
+            "finish": "00:03:24.128",
+            "text": "Now let's start going over some variations, \nstarting with a lemon blueberry muffin."
+        },
+        {
+            "start": "00:03:24.128",
+            "finish": "00:03:30.000",
+            "text": "This is&nbsp;great because it demonstrates both using \nanother flavor of extract as well as adding in fresh fruit."
+        },
+        {
+            "start": "00:03:30.000",
+            "finish": "00:03:33.543",
+            "text": "I've already creamed together the sugar and butter \nand added in the eggs,"
+        },
+        {
+            "start": "00:03:33.543",
+            "finish": "00:03:36.316",
+            "text": "so now I'm going to add&nbsp;in 1/2 teaspoon of vanilla extract,"
+        },
+        {
+            "start": "00:03:36.316",
+            "finish": "00:03:41.412",
+            "text": "and 1/2 teaspoon of lemon extract \nbefore adding in my&nbsp;baking powder and salt."
+        },
+        {
+            "start": "00:03:41.412",
+            "finish": "00:03:45.818",
+            "text": "Continue on with the rest of the recipe \nadding in the flour and buttermilk."
+        },
+        {
+            "start": "00:03:45.818",
+            "finish": "00:03:50.413",
+            "text": "Once you have your batter finished \nyou'll add in 1 cup of fresh blueberries,"
+        },
+        {
+            "start": "00:03:50.413",
+            "finish": "00:03:52.938",
+            "text": "or frozen even, \nyou&nbsp;can use those too."
+        },
+        {
+            "start": "00:03:52.938",
+            "finish": "00:03:59.853",
+            "text": "Then this is optional but I like to add in the zest of 1 lemon, \nso about 1 tablespoon of lemon zest."
+        },
+        {
+            "start": "00:03:59.853",
+            "finish": "00:04:02.576",
+            "text": "Then simply fold this in."
+        },
+        {
+            "start": "00:04:02.576",
+            "finish": "00:04:08.334",
+            "text": "Then it's just a matter of once again dividing&nbsp;the batter evenly \namongst the 12 muffin cups."
+        },
+        {
+            "start": "00:04:08.334",
+            "finish": "00:04:15.307",
+            "text": "One fun topping you can experiment with is sprinkling&nbsp;on about \n1 teaspoon of granulated sugar on top of your muffins."
+        },
+        {
+            "start": "00:04:15.307",
+            "finish": "00:04:20.614",
+            "text": "This gives it a nice little crunchy&nbsp;sweet top, \nand then of course bake these just as we did before."
+        },
+        {
+            "start": "00:04:20.614",
+            "finish": "00:04:23.728",
+            "text": "Next up i'm going to show you how to&nbsp;make a chocolate version."
+        },
+        {
+            "start": "00:04:23.728",
+            "finish": "00:04:27.553",
+            "text": "For a chocolate version you'll use your butter and sugar again \njust like&nbsp;before,"
+        },
+        {
+            "start": "00:04:27.553",
+            "finish": "00:04:32.899",
+            "text": "but this time you'll add in 1/2 cup of cocoa powder, \nunsweetened cocoa powder,"
+        },
+        {
+            "start": "00:04:32.899",
+            "finish": "00:04:34.845",
+            "text": "and cream&nbsp;that in with it."
+        },
+        {
+            "start": "00:04:34.845",
+            "finish": "00:04:39.370",
+            "text": "From here you'll proceed with the rest of the \nmaster muffin recipe by adding in eggs,"
+        },
+        {
+            "start": "00:04:39.370",
+            "finish": "00:04:44.056",
+            "text": "baking powder, salt, vanilla extract, all-purpose flour, \nand milk or buttermilk."
+        },
+        {
+            "start": "00:04:44.056",
+            "finish": "00:04:49.589",
+            "text": "The addition of the&nbsp;cocoa powder really doesn't do much \nto change the texture of the final batter."
+        },
+        {
+            "start": "00:04:49.589",
+            "finish": "00:04:53.444",
+            "text": "Then just for&nbsp;fun i'm going to add in \n1 cup of semi-sweet chocolate chips,"
+        },
+        {
+            "start": "00:04:53.444",
+            "finish": "00:04:55.277",
+            "text": "and fold those in."
+        },
+        {
+            "start": "00:04:55.277",
+            "finish": "00:05:00.000",
+            "text": "Even though&nbsp;you can mix and match add-ins, \nyou want to total any additions that you make,"
+        },
+        {
+            "start": "00:05:00.000",
+            "finish": "00:05:04.125",
+            "text": "like chocolate chips,&nbsp;or nuts, or dried fruit, \nto 1 cup total."
+        },
+        {
+            "start": "00:05:04.125",
+            "finish": "00:05:06.843",
+            "text": "Next i'm going to show you one of my very favorite muffin&nbsp;hacks"
+        },
+        {
+            "start": "00:05:06.843",
+            "finish": "00:05:12.748",
+            "text": "that allows you to switch up with all sorts of different flavors \nby using instant pudding."
+        },
+        {
+            "start": "00:05:12.748",
+            "finish": "00:05:17.173",
+            "text": "This&nbsp;time you're only going to add in 3/4 cup of granulated sugar,"
+        },
+        {
+            "start": "00:05:17.173",
+            "finish": "00:05:24.492",
+            "text": "because you're going&nbsp;to replace that additional 1/4 cup \nwith a 3.4 ounce package of instant pudding mix,"
+        },
+        {
+            "start": "00:05:24.492",
+            "finish": "00:05:28.472",
+            "text": "and this&nbsp;time I'm using pistachio because it's one of my favorite flavors."
+        },
+        {
+            "start": "00:05:28.472",
+            "finish": "00:05:33.520",
+            "text": "Cream this together and then&nbsp;proceed with \nthe master muffin recipe as directed."
+        },
+        {
+            "start": "00:05:33.520",
+            "finish": "00:05:37.706",
+            "text": "You could even fold in some chopped pistachios if&nbsp;you wanted."
+        },
+        {
+            "start": "00:05:37.706",
+            "finish": "00:05:42.751",
+            "text": "This variation is fun because there's just \nso many different flavors of instant&nbsp;pudding out there."
+        },
+        {
+            "start": "00:05:42.751",
+            "finish": "00:05:49.106",
+            "text": "It makes it really easy to mix and match flavors really quickly&nbsp;\nwithout having to buy a bunch of extracts."
+        },
+        {
+            "start": "00:05:49.106",
+            "finish": "00:05:53.312",
+            "text": "Next I want to show just how easy it is to mix and&nbsp;match add-ins"
+        },
+        {
+            "start": "00:05:53.312",
+            "finish": "00:05:57.364",
+            "text": "to add a little bit of flavor to the base recipe without too much hassle."
+        },
+        {
+            "start": "00:05:57.364",
+            "finish": "00:06:03.195",
+            "text": "So I'm going&nbsp;to show you a cranberry white chocolate chip \nwith a little bit of orange zest."
+        },
+        {
+            "start": "00:06:03.195",
+            "finish": "00:06:06.983",
+            "text": "This is the master&nbsp;recipe with no alterations to it."
+        },
+        {
+            "start": "00:06:06.983",
+            "finish": "00:06:14.443",
+            "text": "I'm going to add in 1/2 cup of dried cranberries because, \nlike I said before, we're going to use 1 cup of add-ins total."
+        },
+        {
+            "start": "00:06:14.443",
+            "finish": "00:06:20.150",
+            "text": "That means that the white chocolate&nbsp;chips \nwill also come in at 1/2 cup for 1 cup total."
+        },
+        {
+            "start": "00:06:20.150",
+            "finish": "00:06:25.143",
+            "text": "I didn't have any orange extract today but&nbsp;that's okay because, \na little bit of orange zest,"
+        },
+        {
+            "start": "00:06:25.143",
+            "finish": "00:06:30.000",
+            "text": "1-2 tablespoons total, \nwill add just a&nbsp;hint of orange flavor."
+        },
+        {
+            "start": "00:06:30.000",
+            "finish": "00:06:36.343",
+            "text": "Once again it's simply a matter of folding this in \nuntil the ingredients&nbsp;are evenly distributed."
+        },
+        {
+            "start": "00:06:36.343",
+            "finish": "00:06:42.193",
+            "text": "You can do chocolate chips, raisins, nuts, \nreally the possibilities are endless."
+        },
+        {
+            "start": "00:06:42.193",
+            "finish": "00:06:47.635",
+            "text": "Last I want to show you how to add in spices which is super easy, \nand I really don't have to show you,"
+        },
+        {
+            "start": "00:06:47.635",
+            "finish": "00:06:53.177",
+            "text": "but I thought it would be fun to show a cinnamon muffin \nwith cinnamon chips folded in,"
+        },
+        {
+            "start": "00:06:53.177",
+            "finish": "00:06:58.336",
+            "text": "topped with&nbsp;a brown sugar streusel, \nand that's just delicious."
+        },
+        {
+            "start": "00:06:58.336",
+            "finish": "00:07:03.733",
+            "text": "I've already creamed together the butter and&nbsp;sugar, \nadded in the eggs, baking powder, salt, and vanilla extract,"
+        },
+        {
+            "start": "00:07:03.733",
+            "finish": "00:07:07.686",
+            "text": "and now I'm going to add in 1&nbsp;teaspoon of ground cinnamon."
+        },
+        {
+            "start": "00:07:07.686",
+            "finish": "00:07:10.981",
+            "text": "You can use between 1/2 teaspoon and 1 full teaspoon,"
+        },
+        {
+            "start": "00:07:10.981",
+            "finish": "00:07:16.438",
+            "text": "it really&nbsp;just depends on how pronounced you want \nthat cinnamon flavor to be."
+        },
+        {
+            "start": "00:07:16.438",
+            "finish": "00:07:21.490",
+            "text": "Finish with the rest of&nbsp;the master muffin recipe \nby adding in the flour and buttermilk."
+        },
+        {
+            "start": "00:07:21.490",
+            "finish": "00:07:24.150",
+            "text": "I'm going to fold in 1 cup of&nbsp;cinnamon chips,"
+        },
+        {
+            "start": "00:07:24.150",
+            "finish": "00:07:29.106",
+            "text": "which are delicious but they can be a little harder to find \nwhen it's not the holidays."
+        },
+        {
+            "start": "00:07:29.106",
+            "finish": "00:07:35.530",
+            "text": "Go ahead and divide up the batter in your prepared muffin cups \nbefore making your streusel topping."
+        },
+        {
+            "start": "00:07:35.530",
+            "finish": "00:07:42.191",
+            "text": "A streusel is easy to make and it is a decadent addition \nto lots of different flavors of&nbsp;muffins."
+        },
+        {
+            "start": "00:07:42.191",
+            "finish": "00:07:46.389",
+            "text": "It starts with 1/4 cup of cold, cubed butter,"
+        },
+        {
+            "start": "00:07:46.389",
+            "finish": "00:07:51.493",
+            "text": "then you'll add in 1/2 cup of&nbsp;brown sugar \nand 1/2 cup of all-purpose flour,"
+        },
+        {
+            "start": "00:07:51.493",
+            "finish": "00:07:54.384",
+            "text": "adding in 1/4 teaspoon of ground cinnamon."
+        },
+        {
+            "start": "00:07:54.384",
+            "finish": "00:08:00.000",
+            "text": "Then use a pastry cutter or you can use 2 knives \ncutting across each other like this."
+        },
+        {
+            "start": "00:08:00.000",
+            "finish": "00:08:05.637",
+            "text": "Then you&nbsp;want to cut this all together \nuntil it resembles a coarse meal or sand."
+        },
+        {
+            "start": "00:08:05.637",
+            "finish": "00:08:10.212",
+            "text": "Then you want to sprinkle&nbsp;this generously on top of your muffin batter."
+        },
+        {
+            "start": "00:08:10.212",
+            "finish": "00:08:18.447",
+            "text": "It's almost like having little&nbsp;piles of sand on top of each muffin, \nand of course the baking time&nbsp;on all of these are the same."
+        },
+        {
+            "start": "00:08:18.447",
+            "finish": "00:08:25.709",
+            "text": "Now you know how to make pretty much any flavor&nbsp;of muffin \nthat you want using one master recipe."
+        },
+        {
+            "start": "00:08:36.720",
+            "finish": "00:08:37.723",
+            "text": "Thanks for watching."
+        },
+        {
+            "start": "00:08:37.723",
+            "finish": "00:08:42.984",
+            "text": "You can find the full written&nbsp;recipe \nas well as other flavor ideas in the video description."
+        },
+        {
+            "start": "00:08:42.984",
+            "finish": "00:08:46.316",
+            "text": "Be sure to subscribe, like, and follow,&nbsp;\nand check out the rest of my videos,"
+        },
+        {
+            "start": "00:08:46.316",
+            "finish": "00:08:49.343",
+            "text": "where you can find hundreds of restaurant quality recipes"
+        },
+        {
+            "start": "00:08:49.343",
+            "finish": "00:08:51.512",
+            "text": "you can easily make at home."
+        },
+        {
+            "start": "00:08:51.512",
+            "finish": "00:08:52.333",
+            "text": "we'll see you later."
+        }
+    ]
+}
+system: 
+    You are an assistant that describes the steps in a cooking video and outlines potential ambiguities, complexity, and specificity in the instructions.
+    ----------------------------------------
+    
+user: 
+        00:00:00.080-00:00:01.374: Today on The Stay At Home Chef
+        
+        00:00:01.374-00:00:04.263: I'm showing you my&nbsp;master muffin recipe.
+        
+        00:00:04.263-00:00:07.726: Instead of giving you dozens of recipes for different flavors of muffins,
+        
+        00:00:07.726-00:00:12.907: today I'm sharing my master muffin recipe, 
+which you can use to make almost any flavor,
+        
+        00:00:12.907-00:00:14.478: and it's super easy.
+        
+        00:00:14.478-00:00:18.454: Start by preheating your oven to 425 degrees Fahrenheit.
+        
+        00:00:18.454-00:00:23.040: Then line&nbsp;a 12 cup muffin tin with paper baking cups.
+        
+        00:00:23.040-00:00:28.391: Then I like to give mine just a spritz of nonstick&nbsp;cooking spray, 
+right on those paper baking cups,
+        
+        00:00:28.391-00:00:30.520: to prevent the muffins from sticking.
+        
+        00:00:30.520-00:00:32.547: Now&nbsp;it's time to put together our batter.
+        
+        00:00:32.547-00:00:38.121: First I'm going to demonstrate a basic muffin batter,&nbsp;
+and then I'm going to show you 5 different variations,
+        
+        00:00:38.121-00:00:42.395: each demonstrating a different&nbsp;way 
+that you can build upon the base recipe.
+        
+        00:00:42.395-00:00:45.659: The batter starts with 1/2 cup of softened salted butter,
+        
+        00:00:45.659-00:00:48.056: and 1 cup of granulated sugar.
+        
+        00:00:48.056-00:00:50.903: We're going&nbsp;to use a hand mixer to cream this together.
+        
+        00:00:51.760-00:00:56.347: At first this mixture will be lumpy, 
+but keep on&nbsp;mixing for about 2 minutes.
+        
+        00:00:56.347-00:01:03.132: After 2 minutes your sugar and butter will be well combined, 
+and&nbsp;it'll be a smooth, paste-like, creamy consistency.
+        
+        00:01:03.132-00:01:07.970: Then you'll add in 2 large eggs, 
+and mix this&nbsp;briefly until just combined,
+        
+        00:01:07.970-00:01:09.233: about 30 seconds.
+        
+        00:01:10.320-00:01:16.320: Then I'm going to add in 1 teaspoon of vanilla&nbsp;extract, 
+or you can use other flavors of extract,
+        
+        00:01:16.320-00:01:19.910: like almond extract, orange extract, lemon extract.
+        
+        00:01:19.910-00:01:22.319: Those are all super popular options.
+        
+        00:01:22.319-00:01:26.976: For the lemon and citrus extracts 
+I recommend only using 1/2 teaspoon of those,
+        
+        00:01:26.976-00:01:30.171: and combining that with 1/2 teaspoon of vanilla extract.
+        
+        00:01:30.171-00:01:33.381: You'll also need 2&nbsp;teaspoons of baking powder,
+        
+        00:01:33.381-00:01:35.233: and 1/2 teaspoon of salt.
+        
+        00:01:35.233-00:01:41.453: This is also the point where you'd add in any&nbsp;spices 
+like cinnamon or pumpkin pie spice.
+        
+        00:01:41.453-00:01:45.978: We're gonna give this a quick mix just to combine, 
+about&nbsp;10 seconds.
+        
+        00:01:45.978-00:01:51.072: Now at this point it's time to ditch our hand mixer 
+and grab a rubber spatula.
+        
+        00:01:51.072-00:01:53.037: Add in&nbsp;half of your all-purpose flour.
+        
+        00:01:53.037-00:01:56.831: You're going to use 2 cups total, 
+so you're going to add in&nbsp;1 cup right now.
+        
+        00:01:56.831-00:01:59.837: Then use the rubber spatula to stir this in.
+        
+        00:01:59.837-00:02:05.879: Once all those white specks of&nbsp;flour start to disappear, 
+you'll pour in 1/2 cup of either milk or buttermilk.
+        
+        00:02:05.879-00:02:09.177: Buttermilk is&nbsp;going to give you a little bit of a poofier muffin.
+        
+        00:02:09.177-00:02:13.133: And you'll stir this in as well until it's well&nbsp;combined.
+        
+        00:02:13.133-00:02:17.262: Last you'll add in the remaining 1 cup of all-purpose flour.
+        
+        00:02:17.262-00:02:22.571: Stir this together scraping&nbsp;the sides and bottom of the bowl 
+to ensure that everything gets mixed in.
+        
+        00:02:22.571-00:02:27.278: Now if you're gonna&nbsp;add anything into your muffins, 
+like dried fruit, chocolate chips, or berries,
+        
+        00:02:27.278-00:02:28.961: now would be the time&nbsp;to do so.
+        
+        00:02:28.961-00:02:30.850: but I'll show you that in just a minute.
+        
+        00:02:30.850-00:02:33.810: Your batter should be thick but also spreadable.
+        
+        00:02:33.810-00:02:40.658: We're gonna divide the batter up amongst our 12 muffin cups, 
+and you should fill each one about&nbsp;2/3 of the way full.
+        
+        00:02:40.658-00:02:47.920: It's always a little bit hard to tell what's 2/3 or what's 3/4, 
+so just try to divide your batter up as evenly as possible,
+        
+        00:02:47.920-00:02:49.801: because this does make 12&nbsp;muffins.
+        
+        00:02:49.801-00:02:54.887: You can let your muffin batter rest for about 15 minutes 
+before popping it in the oven,
+        
+        00:02:54.887-00:03:01.036: or if you're making a larger batch it's totally okay to let it 
+rest in between cooking different&nbsp;batches.
+        
+        00:03:01.036-00:03:05.444: Bake your muffins in the 425 degree oven for 7 minutes.
+        
+        00:03:05.444-00:03:11.827: After 7 minutes reduce the&nbsp;temperature on your oven to 350 degrees without opening the oven door.
+        
+        00:03:11.827-00:03:15.650: Continue baking for 12-15 minutes, 
+and watch them carefully,
+        
+        00:03:15.650-00:03:19.099: as the cooking time will vary a little bit depending on your&nbsp;oven.
+        
+        00:03:19.099-00:03:24.128: Now let's start going over some variations, 
+starting with a lemon blueberry muffin.
+        
+        00:03:24.128-00:03:30.000: This is&nbsp;great because it demonstrates both using 
+another flavor of extract as well as adding in fresh fruit.
+        
+        00:03:30.000-00:03:33.543: I've already creamed together the sugar and butter 
+and added in the eggs,
+        
+        00:03:33.543-00:03:36.316: so now I'm going to add&nbsp;in 1/2 teaspoon of vanilla extract,
+        
+        00:03:36.316-00:03:41.412: and 1/2 teaspoon of lemon extract 
+before adding in my&nbsp;baking powder and salt.
+        
+        00:03:41.412-00:03:45.818: Continue on with the rest of the recipe 
+adding in the flour and buttermilk.
+        
+        00:03:45.818-00:03:50.413: Once you have your batter finished 
+you'll add in 1 cup of fresh blueberries,
+        
+        00:03:50.413-00:03:52.938: or frozen even, 
+you&nbsp;can use those too.
+        
+        00:03:52.938-00:03:59.853: Then this is optional but I like to add in the zest of 1 lemon, 
+so about 1 tablespoon of lemon zest.
+        
+        00:03:59.853-00:04:02.576: Then simply fold this in.
+        
+        00:04:02.576-00:04:08.334: Then it's just a matter of once again dividing&nbsp;the batter evenly 
+amongst the 12 muffin cups.
+        
+        00:04:08.334-00:04:15.307: One fun topping you can experiment with is sprinkling&nbsp;on about 
+1 teaspoon of granulated sugar on top of your muffins.
+        
+        00:04:15.307-00:04:20.614: This gives it a nice little crunchy&nbsp;sweet top, 
+and then of course bake these just as we did before.
+        
+        00:04:20.614-00:04:23.728: Next up i'm going to show you how to&nbsp;make a chocolate version.
+        
+        00:04:23.728-00:04:27.553: For a chocolate version you'll use your butter and sugar again 
+just like&nbsp;before,
+        
+        00:04:27.553-00:04:32.899: but this time you'll add in 1/2 cup of cocoa powder, 
+unsweetened cocoa powder,
+        
+        00:04:32.899-00:04:34.845: and cream&nbsp;that in with it.
+        
+        00:04:34.845-00:04:39.370: From here you'll proceed with the rest of the 
+master muffin recipe by adding in eggs,
+        
+        00:04:39.370-00:04:44.056: baking powder, salt, vanilla extract, all-purpose flour, 
+and milk or buttermilk.
+        
+        00:04:44.056-00:04:49.589: The addition of the&nbsp;cocoa powder really doesn't do much 
+to change the texture of the final batter.
+        
+        00:04:49.589-00:04:53.444: Then just for&nbsp;fun i'm going to add in 
+1 cup of semi-sweet chocolate chips,
+        
+        00:04:53.444-00:04:55.277: and fold those in.
+        
+        00:04:55.277-00:05:00.000: Even though&nbsp;you can mix and match add-ins, 
+you want to total any additions that you make,
+        
+        00:05:00.000-00:05:04.125: like chocolate chips,&nbsp;or nuts, or dried fruit, 
+to 1 cup total.
+        
+        00:05:04.125-00:05:06.843: Next i'm going to show you one of my very favorite muffin&nbsp;hacks
+        
+        00:05:06.843-00:05:12.748: that allows you to switch up with all sorts of different flavors 
+by using instant pudding.
+        
+        00:05:12.748-00:05:17.173: This&nbsp;time you're only going to add in 3/4 cup of granulated sugar,
+        
+        00:05:17.173-00:05:24.492: because you're going&nbsp;to replace that additional 1/4 cup 
+with a 3.4 ounce package of instant pudding mix,
+        
+        00:05:24.492-00:05:28.472: and this&nbsp;time I'm using pistachio because it's one of my favorite flavors.
+        
+        00:05:28.472-00:05:33.520: Cream this together and then&nbsp;proceed with 
+the master muffin recipe as directed.
+        
+        00:05:33.520-00:05:37.706: You could even fold in some chopped pistachios if&nbsp;you wanted.
+        
+        00:05:37.706-00:05:42.751: This variation is fun because there's just 
+so many different flavors of instant&nbsp;pudding out there.
+        
+        00:05:42.751-00:05:49.106: It makes it really easy to mix and match flavors really quickly&nbsp;
+without having to buy a bunch of extracts.
+        
+        00:05:49.106-00:05:53.312: Next I want to show just how easy it is to mix and&nbsp;match add-ins
+        
+        00:05:53.312-00:05:57.364: to add a little bit of flavor to the base recipe without too much hassle.
+        
+        00:05:57.364-00:06:03.195: So I'm going&nbsp;to show you a cranberry white chocolate chip 
+with a little bit of orange zest.
+        
+        00:06:03.195-00:06:06.983: This is the master&nbsp;recipe with no alterations to it.
+        
+        00:06:06.983-00:06:14.443: I'm going to add in 1/2 cup of dried cranberries because, 
+like I said before, we're going to use 1 cup of add-ins total.
+        
+        00:06:14.443-00:06:20.150: That means that the white chocolate&nbsp;chips 
+will also come in at 1/2 cup for 1 cup total.
+        
+        00:06:20.150-00:06:25.143: I didn't have any orange extract today but&nbsp;that's okay because, 
+a little bit of orange zest,
+        
+        00:06:25.143-00:06:30.000: 1-2 tablespoons total, 
+will add just a&nbsp;hint of orange flavor.
+        
+        00:06:30.000-00:06:36.343: Once again it's simply a matter of folding this in 
+until the ingredients&nbsp;are evenly distributed.
+        
+        00:06:36.343-00:06:42.193: You can do chocolate chips, raisins, nuts, 
+really the possibilities are endless.
+        
+        00:06:42.193-00:06:47.635: Last I want to show you how to add in spices which is super easy, 
+and I really don't have to show you,
+        
+        00:06:47.635-00:06:53.177: but I thought it would be fun to show a cinnamon muffin 
+with cinnamon chips folded in,
+        
+        00:06:53.177-00:06:58.336: topped with&nbsp;a brown sugar streusel, 
+and that's just delicious.
+        
+        00:06:58.336-00:07:03.733: I've already creamed together the butter and&nbsp;sugar, 
+added in the eggs, baking powder, salt, and vanilla extract,
+        
+        00:07:03.733-00:07:07.686: and now I'm going to add in 1&nbsp;teaspoon of ground cinnamon.
+        
+        00:07:07.686-00:07:10.981: You can use between 1/2 teaspoon and 1 full teaspoon,
+        
+        00:07:10.981-00:07:16.438: it really&nbsp;just depends on how pronounced you want 
+that cinnamon flavor to be.
+        
+        00:07:16.438-00:07:21.490: Finish with the rest of&nbsp;the master muffin recipe 
+by adding in the flour and buttermilk.
+        
+        00:07:21.490-00:07:24.150: I'm going to fold in 1 cup of&nbsp;cinnamon chips,
+        
+        00:07:24.150-00:07:29.106: which are delicious but they can be a little harder to find 
+when it's not the holidays.
+        
+        00:07:29.106-00:07:35.530: Go ahead and divide up the batter in your prepared muffin cups 
+before making your streusel topping.
+        
+        00:07:35.530-00:07:42.191: A streusel is easy to make and it is a decadent addition 
+to lots of different flavors of&nbsp;muffins.
+        
+        00:07:42.191-00:07:46.389: It starts with 1/4 cup of cold, cubed butter,
+        
+        00:07:46.389-00:07:51.493: then you'll add in 1/2 cup of&nbsp;brown sugar 
+and 1/2 cup of all-purpose flour,
+        
+        00:07:51.493-00:07:54.384: adding in 1/4 teaspoon of ground cinnamon.
+        
+        00:07:54.384-00:08:00.000: Then use a pastry cutter or you can use 2 knives 
+cutting across each other like this.
+        
+        00:08:00.000-00:08:05.637: Then you&nbsp;want to cut this all together 
+until it resembles a coarse meal or sand.
+        
+        00:08:05.637-00:08:10.212: Then you want to sprinkle&nbsp;this generously on top of your muffin batter.
+        
+        00:08:10.212-00:08:18.447: It's almost like having little&nbsp;piles of sand on top of each muffin, 
+and of course the baking time&nbsp;on all of these are the same.
+        
+        00:08:18.447-00:08:25.709: Now you know how to make pretty much any flavor&nbsp;of muffin 
+that you want using one master recipe.
+        
+        00:08:36.720-00:08:37.723: Thanks for watching.
+        
+        00:08:37.723-00:08:42.984: You can find the full written&nbsp;recipe 
+as well as other flavor ideas in the video description.
+        
+        00:08:42.984-00:08:46.316: Be sure to subscribe, like, and follow,&nbsp;
+and check out the rest of my videos,
+        
+        00:08:46.316-00:08:49.343: where you can find hundreds of restaurant quality recipes
+        
+        00:08:49.343-00:08:51.512: you can easily make at home.
+        
+        00:08:51.512-00:08:52.333: we'll see you later.
+        
+    ----------------------------------------
+    Given the above transcript, please provide the outline of each step, potential ambiguities, complexity, and specificity.
+    Definitions:
+    - Step: A distinct, outcome-oriented task within a procedural sequence, characterized by its purposeful contribution to achieving the overarching goal of the process. It encapsulates a set of actions or instructions that, while variable in execution, uniformly aim towards a specific result or transformation.
+    - Description: A concise, informative account of the step's purpose, actions, and expected outcomes.
+    - Ambiguities: Instances of uncertainty, vagueness, or inconsistency within the step that may hinder comprehension, execution, or evaluation with respect to the instructions provided in the video.
+    - Complexity: The level of intricacy, difficulty, or sophistication associated with the step, encompassing the cognitive, physical, or temporal demands it imposes on the user.
+    - Specificity: The degree of detail, precision, or clarity in the step's instructions, encompassing the extent to which the actions, tools, ingredients, or conditions are explicitly defined or elaborated upon.
+    - Domain-specificity: The relevance, applicability, or pertinence of the step to different contexts, scenarios, or user groups, reflecting the extent to which the instructions are tailored to a particular domain, skill level, or cultural background.
+    ----------------------------------------
+    Follow the format below:
+    Step 1: [Concise step label]
+    Description: [Description of the step]
+    Ambiguities: [Description of ambiguities]
+    Complexity: [Description of complexity]
+    Specificity: [Description of specificity]
+    Domain-specificity: [Description of domain-specificity]
+    ----------------------------------------
+    
+assistant: Step 1: Preheat Oven and Prepare Muffin Tin
+Description: The oven is set to preheat at 425 degrees Fahrenheit. A 12-cup muffin tin is lined with paper baking cups, and each cup is lightly sprayed with nonstick cooking spray to prevent the muffins from sticking.
+Ambiguities: The specific amount of cooking spray to use isn't stated, which could lead to either too much (making the cups greasy) or too little (resulting in muffins sticking).
+Complexity: Low; requires basic oven operation and preparation of baking equipment.
+Specificity: High; oven temperature is specified, and the exact preparation method for the muffin tin is outlined.
+Domain-specificity: Medium; preheating and preparation methods are standard across many baking recipes but may vary with different oven types or alternative baking molds.
+
+Step 2: Mix Base Batter Ingredients
+Description: The base batter is initiated by creaming together softened salted butter and granulated sugar until smooth, then adding eggs and vanilla extract. This forms the wet mixture for the muffin batter.
+Ambiguities: The definition of "softened" butter could vary, impacting the creaming process. The exact mixing speed and expected visual cues for "smooth" aren't detailed.
+Complexity: Medium; requires knowledge of creaming method and judging when the mixture has reached the right consistency.
+Specificity: High; ingredient proportions are provided, along with the sequential addition of components.
+Domain-specificity: Low; the creaming method is a common technique in baking, applicable across diverse recipes and culinary traditions.
+
+Step 3: Incorporate Dry Ingredients
+Description: Baking powder, salt, and any desired spices are mixed into the wet batter. Then, the all-purpose flour is added in two stages, alternated with milk or buttermilk, to complete the base batter.
+Ambiguities: It's not clear if the visibility of "white specks" of flour should be a concern throughout or only before adding the liquid. The choice between milk and buttermilk, and how it affects the batter, could also use clarification.
+Complexity: Medium; involves a multi-step process requiring attention to detail to avoid overmixing.
+Specificity: High; includes exact measurements and order of ingredient addition.
+Domain-specificity: Low; similar techniques are used in various batter-based baked goods, making this step widely applicable.
+
+Step 4: Customize and Fill Muffin Cups
+Description: Customizations such as dried fruit, chocolate chips, or berries are folded into the batter at this stage. The prepared batter is then evenly divided among the muffin cups, filling each approximately 2/3 of the way.
+Ambiguities: Guidelines on total volume of add-ins (e.g., 1 cup total) are not given until later variations are discussed. The technique for evenly distributing the batter is not elaborated.
+Complexity: Low; primarily involves mixing and portioning the batter.
+Specificity: Medium; the step mentions when to add mix-ins and how full to fill the cups but lacks detail on distribution technique.
+Domain-specificity: Low; applicable to a broad range of muffin recipes and adaptable to personal preference or dietary restrictions.
+
+Step 5: Bake the Muffins
+Description: Muffins are initially baked at 425 degrees Fahrenheit for 7 minutes. The oven temperature is then reduced to 350 degrees Fahrenheit without opening the door, and baking continues for an additional 12-15 minutes until done.
+Ambiguities: The term "done" could be clarified with a specific test method, such as inserting a toothpick. There's no instruction on adjusting baking times for larger or smaller muffin cups.
+Complexity: Medium; managing the temperature change mid-baking could be tricky for some home bakers.
+Specificity: High; provides explicit temperatures and timings.
+Domain-specificity: Low; this two-step baking method might be more specific to achieving a certain muffin texture but is applicable across similar baked goods.
+
+Step 6: Cool and Serve
+Description: After baking, the muffins should be allowed to cool before serving. This ensures they set properly and can be removed from the cups easier.
+Ambiguities: Specific cooling time or whether they should cool in the tin or on a wire rack is not mentioned.
+Complexity: Low; involves patiently waiting for the muffins to cool.
+Specificity: Low; lacks detailed instructions on optimal cooling practices.
+Domain-specificity: Low; cooling baked goods before serving is a universal step in baking to ensure texture and ease of serving.
+
+These steps illustrate a structured approach to creating customizable muffins, with each step providing a specific task towards the final product. While the instructions are generally clear, addressing the identified ambiguities could enhance understanding and execution for a broader audience, particularly those less experienced in baking practices.
+assistant: Reflecting on the provided annotations, there are several areas that could be improved for accuracy, detail, and comprehension:
+
+1) **Clear Definition and Distinction of Steps**:
+   - Each step is distinctly outlined, focusing on different stages of the muffin-making process. However, the transition between steps, especially where one step's outcome directly influences the next (e.g., mixing dry ingredients before incorporating them into the wet mix), could be made clearer to emphasize their sequential nature.
+
+2) **Adherence to Step Description Criteria**:
+   - The descriptions attempt to align with the definition of a step, highlighting purpose, actions, and expected outcomes. However, more explicit mention of the goal for each step (for instance, "achieve a smooth, homogenous batter" for the mixing steps) could enhance clarity and instructional value.
+
+3) **Comprehensiveness of Ambiguities**:
+   - While some ambiguities are identified, there could be a deeper exploration of potential uncertainties. For example, the impact of altitude on baking powder efficacy or flour type variations (all-purpose, cake, or whole wheat) and their effects on muffin texture could be noted as additional ambiguities for ingredient-related steps.
+
+4) **Accuracy of Complexity Assessment**:
+   - The complexity section fairly reflects the tasks' demands, but it could further distinguish between cognitive demands (i.e., knowledge required), physical demands (i.e., manual skill or precision), and temporal demands (i.e., time sensitivity, multitasking). For example, managing the temperature shift during baking is not just a medium complexity due to physical operation but also due to the cognitive understanding of its purpose.
+
+5) **Detail in Specificity Section**:
+   - The specificity of each step is well-addressed but could benefit from even greater detail, such as recommended tools (specific type of spatula, mixer speed setting), exact duration for actions when relevant (e.g., "mix for 2 minutes"), and sensory cues to look for (e.g., "batter should coat the back of a spoon").
+
+6) **Relevance of Domain-Specificity**:
+   - The domain-specificity could incorporate more about the recipe's adaptability for various dietary needs or preferences, like gluten-free flour alternatives or vegan substitutes for eggs and buttermilk. Reflecting on cultural or regional variations in muffin preferences or ingredients could also enrich this section.
+
+**Modifications and Clarifications**:
+- **Step 1**: Clarify the goal of preheating the oven and preparing the muffin tin: "to create an optimal baking environment and ensure muffins can be easily removed after baking."
+- **Step 2**: Add sensory cues and expected textures at various stages to reduce ambiguity and enhance specificity.
+- **Step 3-4**: Include potential ingredient substitutions and their expected impact on the outcome, addressing both ambiguities and expanding domain-specificity.
+- **Step 5**: Further specify the complexity by including the reasoning behind temperature changes (to create a burst of steam that lifts the muffin tops) and their impact on texture.
+- **General**: Ensure each step includes an explicit goal and, where possible, integrate variations or adjustments for dietary or cultural considerations, enhancing both specificity and domain-specificity.
+[youtube] Extracting URL: https://www.youtube.com/watch?v=gN-orgrgvU8
+assistant: Step 1: Oven Preheating and Muffin Tin Preparation
+Description: This step outlines the initial preparation work by setting the oven to preheat at 425 degrees Fahrenheit and preparing a 12-cup muffin tin with paper liners, lightly sprayed with nonstick cooking spray. The goal is to create an environment conducive to optimal baking conditions and ensure easy muffin removal post-baking.
+Ambiguities: It lacks specifics on the amount of cooking spray considered adequate.
+Complexity: Low, as it involves straightforward pre-baking preparations.
+Specificity: Moderate; while it provides clear temperatures and equipment preparations, it could offer more details on cooking spray application.
+Domain-specificity: Low; basic oven operation and tin preparation are common across numerous baking contexts globally, though specifics may vary by oven model and muffin tin material.
+
+Step 2: Creating the Base Batter
+Description: In this step, softened salted butter and granulated sugar are creamed together until smooth, followed by the addition of eggs and vanilla extract. The purpose is to form a smooth, homogenous wet mix that serves as the foundation for the muffin batter.
+Ambiguities: The term "softened" for butter and visual cues for achieving smoothness are not precisely defined.
+Complexity: Medium; this involves understanding the creaming process and recognizing the desired texture.
+Specificity: High; specifies ingredients, their sequence, and mixing technique but could enhance instruction by suggesting mixing speeds or durations.
+Domain-specificity: Low; creaming technique is a common baking practice, adaptable to various baking recipes.
+
+Step 3: Incorporating Dry Ingredients
+Description: The process of adding baking powder, salt, and optional spices into the batter, followed by alternating additions of all-purpose flour and milk or buttermilk. The goal is a consistent batter that forms the base for any muffin variation.
+Ambiguities: The instruction on alternating liquid and dry ingredients could specify the visual or textural cues to look for during incorporation.
+Complexity: Medium; requires careful attention to avoid overmixing while ensuring ingredients are well-incorporated.
+Specificity: Moderate; direct in terms of ingredient amounts and the process, but additional guidance on mixing to the right consistency could be beneficial.
+Domain-specificity: Moderate; while the technique is widely applicable, specific ingredient choices (e.g., buttermilk for tanginess) can vary based on regional or personal preferences.
+
+Step 4: Customization and Filling Muffin Cups
+Description: This step involves folding in any desired mix-ins (e.g., fruit, nuts, chocolate chips) to the batter, then evenly distributing the batter into the prepared muffin cups, filling each to about 2/3 full. The aim is personalized flavor profiles and preparing for baking.
+Ambiguities: There's a vague guideline on the volume of add-ins which could affect the batter’s consistency.
+Complexity: Low; mainly requires mixing in additional ingredients and portioning the batter.
+Specificity: Moderate; outlines the process and intent, but could offer more precise instructions on evenly dividing batter.
+Domain-specificity: High; this step is highly adaptable, allowing for cultural or dietary considerations in muffin flavors and ingredients.
+
+Step 5: Baking Muffins
+Description: Muffins bake initially at 425 degrees Fahrenheit for 7 minutes, then the temperature is reduced to 350 degrees Fahrenheit for another 12-15 minutes without opening the oven door. The goal is a poofy muffin top and fully baked interior.
+Ambiguities: What defines "done" isn't fully described, such as using a toothpick test for doneness.
+Complexity: Medium; managing the temperature change requires both timing and attention.
+Specificity: High; clear temperatures and timings are provided, but could include more on evaluating doneness.
+Domain-specificity: Low; baking processes vary, but the principles here apply broadly with minimal adjustment needed for different oven types or altitudes.
+
+Step 6: Cooling and Serving
+Description: After baking, the muffins should be allowed to cool, facilitating easier removal from the cups and optimizing texture for consumption.
+Ambiguities: The optimal cooling time or method (in the tin or on a wire rack) isn't specified.
+Complexity: Low; involves waiting for the muffins to reach a manageable temperature.
+Specificity: Low; missing detailed cooling instructions.
+Domain-specificity: Low; cooling is a universal step in baking, though preferences for serving warm or room temperature might vary.
+
+These refined annotations aim to balance specificity, including identifiable ambiguities and complexities, with the versatility required for applicability across diverse baking scenarios and user skill levels.
+[youtube] gN-orgrgvU8: Downloading webpage
+[youtube] gN-orgrgvU8: Downloading ios player API JSON
+[youtube] gN-orgrgvU8: Downloading android player API JSON
+[youtube] gN-orgrgvU8: Downloading android player API JSON
+[youtube] gN-orgrgvU8: Downloading android player API JSON
+[youtube] gN-orgrgvU8: Downloading android player API JSON
+[youtube] gN-orgrgvU8: Downloading m3u8 information
+[info] gN-orgrgvU8: Downloading subtitles: en
+Video 'gN-orgrgvU8' already exists in the directory.
+'gN-orgrgvU8'
+{
+    "subtitles": [
+        {
+            "start": "00:00:00.030",
+            "finish": "00:00:07.079",
+            "text": "Hey guys, I'm Dina from simplyhomecooked.com and today I'll be showing you how to make these fluffy and moist blueberry muffins"
+        },
+        {
+            "start": "00:00:07.180",
+            "finish": "00:00:13.080",
+            "text": "They are loaded with a ton of blueberries and they're topped with a simple and delicious brown sugar streusel"
+        },
+        {
+            "start": "00:00:13.750",
+            "finish": "00:00:16.199",
+            "text": "So you want to start off by combining all of your dry ingredients"
+        },
+        {
+            "start": "00:00:16.420",
+            "finish": "00:00:21.959",
+            "text": "So in a large bowl combine two cups of all-purpose flour, a teaspoon of baking powder,"
+        },
+        {
+            "start": "00:00:22.689",
+            "finish": "00:00:26.369",
+            "text": "half a teaspoon of baking soda, and a quarter teaspoon of salt"
+        },
+        {
+            "start": "00:00:27.699",
+            "finish": "00:00:31.678",
+            "text": "Then whisk it all together and reserve one tablespoon of that flour mixture"
+        },
+        {
+            "start": "00:00:33.969",
+            "finish": "00:00:38.579",
+            "text": "Now mix that reserve tablespoon of the flour mixture with one-and-a-half cups of fresh blueberries"
+        },
+        {
+            "start": "00:00:38.890",
+            "finish": "00:00:43.980",
+            "text": "The reason why we add that little tiny bit of flour to those blueberries is when we add them to the batter"
+        },
+        {
+            "start": "00:00:44.469",
+            "finish": "00:00:47.639",
+            "text": "During baking the blueberries don't sink as fast when they're coated in flour"
+        },
+        {
+            "start": "00:00:47.860",
+            "finish": "00:00:52.499",
+            "text": "Now add three eggs into a large bowl and whisk them on high speed using an electric mixer"
+        },
+        {
+            "start": "00:00:52.930",
+            "finish": "00:00:57.270",
+            "text": "You want to do this for about three minutes until the eggs become fluffy and pale"
+        },
+        {
+            "start": "00:00:58.059",
+            "finish": "00:01:02.249",
+            "text": "Then continue beating the eggs as you slowly add one cup of granulated sugar"
+        },
+        {
+            "start": "00:01:05.260",
+            "finish": "00:01:07.949",
+            "text": "You'll want to keep beating those eggs for about three more minutes"
+        },
+        {
+            "start": "00:01:08.350",
+            "finish": "00:01:11.729",
+            "text": "So the key to really fluffy muffins is well beaten eggs"
+        },
+        {
+            "start": "00:01:11.920",
+            "finish": "00:01:16.830",
+            "text": "Now you want to add a teaspoon of vanilla extract and a tablespoon of fresh lemon juice"
+        },
+        {
+            "start": "00:01:21.640",
+            "finish": "00:01:26.009",
+            "text": "Now continue beating the egg mixture as you slowly add 3/4 cups of heavy cream"
+        },
+        {
+            "start": "00:01:28.689",
+            "finish": "00:01:32.399",
+            "text": "Now you can begin adding your dry ingredients, but don't do it all at once"
+        },
+        {
+            "start": "00:01:32.400",
+            "finish": "00:01:38.129",
+            "text": "So get a sifter out and then add about a third of that flour mixture at a time with mixing in between"
+        },
+        {
+            "start": "00:01:53.700",
+            "finish": "00:01:57.080",
+            "text": "Once you've got all of your dry ingredients well combined into the muffin batter"
+        },
+        {
+            "start": "00:01:57.600",
+            "finish": "00:02:03.890",
+            "text": "Continue beating with your electric mixer as you slowly gradually add in four tablespoons of melted unsalted butter"
+        },
+        {
+            "start": "00:02:09.149",
+            "finish": "00:02:10.459",
+            "text": "All right"
+        },
+        {
+            "start": "00:02:10.459",
+            "finish": "00:02:15.679",
+            "text": "Now the last and final step is adding in those blueberries and at this point you want to fold it in with a spatula"
+        },
+        {
+            "start": "00:02:16.620",
+            "finish": "00:02:22.130",
+            "text": "Now line your muffin tin with cupcake liners and begin scooping the batter out using a large cookie scoop. I"
+        },
+        {
+            "start": "00:02:22.980",
+            "finish": "00:02:27.170",
+            "text": "Like to top my blueberry muffins with a few extra blueberries on top, but that's totally optional"
+        },
+        {
+            "start": "00:02:28.230",
+            "finish": "00:02:35.179",
+            "text": "And before the muffins go into the oven you want to make that simple streusel. In a small bowl combine a 1 tablespoon of unsalted"
+        },
+        {
+            "start": "00:02:35.520",
+            "finish": "00:02:37.230",
+            "text": "cold cubed butter,"
+        },
+        {
+            "start": "00:02:37.230",
+            "finish": "00:02:44.420",
+            "text": "2 tablespoons of all-purpose flour, a pinch of salt, a teaspoon of cinnamon, and 3 tablespoons of brown sugar"
+        },
+        {
+            "start": "00:02:46.140",
+            "finish": "00:02:51.410",
+            "text": "Mash that all together using a fork until the ingredients are well combined and they have a crumbly texture to them"
+        },
+        {
+            "start": "00:02:54.150",
+            "finish": "00:03:12.170",
+            "text": "Now top the blueberry muffins with the streusel topping and bake them in the oven at 350 degrees Fahrenheit for about 35 minutes"
+        },
+        {
+            "start": "00:03:12.460",
+            "finish": "00:03:17.669",
+            "text": "I hope you guys enjoyed watching this video and if you did, please be sure to share it, like and subscribe to our channel"
+        },
+        {
+            "start": "00:03:17.670",
+            "finish": "00:03:20.940",
+            "text": "So you guys never miss out on any of our new recipes. See you next time"
+        }
+    ]
+}
+system: 
+    You are an assistant that describes the steps in a cooking video and outlines potential ambiguities, complexity, and specificity in the instructions.
+    ----------------------------------------
+    
+user: 
+        00:00:00.030-00:00:07.079: Hey guys, I'm Dina from simplyhomecooked.com and today I'll be showing you how to make these fluffy and moist blueberry muffins
+        
+        00:00:07.180-00:00:13.080: They are loaded with a ton of blueberries and they're topped with a simple and delicious brown sugar streusel
+        
+        00:00:13.750-00:00:16.199: So you want to start off by combining all of your dry ingredients
+        
+        00:00:16.420-00:00:21.959: So in a large bowl combine two cups of all-purpose flour, a teaspoon of baking powder,
+        
+        00:00:22.689-00:00:26.369: half a teaspoon of baking soda, and a quarter teaspoon of salt
+        
+        00:00:27.699-00:00:31.678: Then whisk it all together and reserve one tablespoon of that flour mixture
+        
+        00:00:33.969-00:00:38.579: Now mix that reserve tablespoon of the flour mixture with one-and-a-half cups of fresh blueberries
+        
+        00:00:38.890-00:00:43.980: The reason why we add that little tiny bit of flour to those blueberries is when we add them to the batter
+        
+        00:00:44.469-00:00:47.639: During baking the blueberries don't sink as fast when they're coated in flour
+        
+        00:00:47.860-00:00:52.499: Now add three eggs into a large bowl and whisk them on high speed using an electric mixer
+        
+        00:00:52.930-00:00:57.270: You want to do this for about three minutes until the eggs become fluffy and pale
+        
+        00:00:58.059-00:01:02.249: Then continue beating the eggs as you slowly add one cup of granulated sugar
+        
+        00:01:05.260-00:01:07.949: You'll want to keep beating those eggs for about three more minutes
+        
+        00:01:08.350-00:01:11.729: So the key to really fluffy muffins is well beaten eggs
+        
+        00:01:11.920-00:01:16.830: Now you want to add a teaspoon of vanilla extract and a tablespoon of fresh lemon juice
+        
+        00:01:21.640-00:01:26.009: Now continue beating the egg mixture as you slowly add 3/4 cups of heavy cream
+        
+        00:01:28.689-00:01:32.399: Now you can begin adding your dry ingredients, but don't do it all at once
+        
+        00:01:32.400-00:01:38.129: So get a sifter out and then add about a third of that flour mixture at a time with mixing in between
+        
+        00:01:53.700-00:01:57.080: Once you've got all of your dry ingredients well combined into the muffin batter
+        
+        00:01:57.600-00:02:03.890: Continue beating with your electric mixer as you slowly gradually add in four tablespoons of melted unsalted butter
+        
+        00:02:09.149-00:02:10.459: All right
+        
+        00:02:10.459-00:02:15.679: Now the last and final step is adding in those blueberries and at this point you want to fold it in with a spatula
+        
+        00:02:16.620-00:02:22.130: Now line your muffin tin with cupcake liners and begin scooping the batter out using a large cookie scoop. I
+        
+        00:02:22.980-00:02:27.170: Like to top my blueberry muffins with a few extra blueberries on top, but that's totally optional
+        
+        00:02:28.230-00:02:35.179: And before the muffins go into the oven you want to make that simple streusel. In a small bowl combine a 1 tablespoon of unsalted
+        
+        00:02:35.520-00:02:37.230: cold cubed butter,
+        
+        00:02:37.230-00:02:44.420: 2 tablespoons of all-purpose flour, a pinch of salt, a teaspoon of cinnamon, and 3 tablespoons of brown sugar
+        
+        00:02:46.140-00:02:51.410: Mash that all together using a fork until the ingredients are well combined and they have a crumbly texture to them
+        
+        00:02:54.150-00:03:12.170: Now top the blueberry muffins with the streusel topping and bake them in the oven at 350 degrees Fahrenheit for about 35 minutes
+        
+        00:03:12.460-00:03:17.669: I hope you guys enjoyed watching this video and if you did, please be sure to share it, like and subscribe to our channel
+        
+        00:03:17.670-00:03:20.940: So you guys never miss out on any of our new recipes. See you next time
+        
+    ----------------------------------------
+    Given the above transcript, please provide the outline of each step, potential ambiguities, complexity, and specificity.
+    Definitions:
+    - Step: A distinct, outcome-oriented task within a procedural sequence, characterized by its purposeful contribution to achieving the overarching goal of the process. It encapsulates a set of actions or instructions that, while variable in execution, uniformly aim towards a specific result or transformation.
+    - Description: A concise, informative account of the step's purpose, actions, and expected outcomes.
+    - Ambiguities: Instances of uncertainty, vagueness, or inconsistency within the step that may hinder comprehension, execution, or evaluation with respect to the instructions provided in the video.
+    - Complexity: The level of intricacy, difficulty, or sophistication associated with the step, encompassing the cognitive, physical, or temporal demands it imposes on the user.
+    - Specificity: The degree of detail, precision, or clarity in the step's instructions, encompassing the extent to which the actions, tools, ingredients, or conditions are explicitly defined or elaborated upon.
+    - Domain-specificity: The relevance, applicability, or pertinence of the step to different contexts, scenarios, or user groups, reflecting the extent to which the instructions are tailored to a particular domain, skill level, or cultural background.
+    ----------------------------------------
+    Follow the format below:
+    Step 1: [Concise step label]
+    Description: [Description of the step]
+    Ambiguities: [Description of ambiguities]
+    Complexity: [Description of complexity]
+    Specificity: [Description of specificity]
+    Domain-specificity: [Description of domain-specificity]
+    ----------------------------------------
+    
+assistant: Step 1: Combine Dry Ingredients
+Description: In a large bowl, mix together two cups of all-purpose flour, a teaspoon of baking powder, half a teaspoon of baking soda, and a quarter teaspoon of salt. Whisk these ingredients thoroughly and reserve one tablespoon of the mixture for coating the blueberries.
+Ambiguities: The size of the "large" bowl is not specified, which could affect the ease of mixing for some users.
+Complexity: Low; this step involves simple measuring and mixing.
+Specificity: High; precise measurements and process are outlined.
+Domain-specificity: High; specific to baking and familiar to those with basic kitchen experience.
+
+Step 2: Coat Blueberries
+Description: Mix the reserved tablespoon of flour mixture with one-and-a-half cups of fresh blueberries to coat them evenly. This prevents the blueberries from sinking during the baking process.
+Ambiguities: Unclear if frozen blueberries could be an acceptable substitute for fresh, and if so, whether the process would change.
+Complexity: Low; involves coating fruit in flour.
+Specificity: Medium; process is clear, but potential ingredient substitutes are not mentioned.
+Domain-specificity: High; relevant to baking where fruit sinking is a common issue.
+
+Step 3: Prepare Egg Mixture
+Description: In another large bowl, beat three eggs with an electric mixer on high speed for three minutes until they become fluffy and pale. Gradually add one cup of granulated sugar and continue beating for an additional three minutes. Then, mix in a teaspoon of vanilla extract and a tablespoon of fresh lemon juice, followed by slowly adding 3/4 cups of heavy cream while continuing to beat the mixture.
+Ambiguities: The term "large" for the bowl is subjective. The specific speed setting for "high" on the mixer might vary by brand.
+Complexity: Medium; requires sustained attention and timing.
+Specificity: High; provides detailed ingredient list and sequential actions.
+Domain-specificity: High; specific techniques and terms relevant to baking.
+
+Step 4: Incorporate Dry Ingredients
+Description: Gradually incorporate the dry ingredients into the egg mixture using a sifter, adding about a third of the flour mixture at a time and mixing well between each addition. 
+Ambiguities: It is not specified whether mixing should continue with the electric mixer or be done manually.
+Complexity: Medium; involves careful addition and mixing to preserve batter texture.
+Specificity: Medium; mentions using a sifter but does not specify mixing technique in detail.
+Domain-specificity: High; technique common in baking to prevent lumps and ensure even distribution of ingredients.
+
+Step 5: Add Melted Butter
+Description: Slowly add four tablespoons of melted unsalted butter to the batter, continuing to mix well.
+Ambiguities: Does not specify whether the butter should be cooled before adding.
+Complexity: Low; straightforward mixing of ingredients.
+Specificity: High; exact amount and ingredient state are provided.
+Domain-specificity: High; specific to baking recipes requiring fat incorporation without deflating batter.
+
+Step 6: Fold in Blueberries
+Description: Gently fold the flour-coated blueberries into the batter using a spatula to distribute them evenly without crushing them.
+Ambiguities: Technique for "folding" not described for beginners.
+Complexity: Low to Medium; requires gentleness and patience to avoid overmixing.
+Specificity: High; clarifies the aim of keeping blueberries intact.
+Domain-specificity: High; folding technique is specific to delicate batters in baking.
+
+Step 7: Prepare Muffin Tin
+Description: Line a muffin tin with cupcake liners and use a large cookie scoop to distribute the batter evenly among the liners. Optionally, top each muffin with a few extra blueberries.
+Ambiguities: Does not specify how full to fill each liner.
+Complexity: Low; straightforward filling of muffin tin.
+Specificity: Medium; mentions tools and optional step but lacks detail on portion size.
+Domain-specificity: High; specific to baking, particularly muffins and cupcakes.
+
+Step 8: Make Streusel Topping
+Description: In a small bowl, combine one tablespoon of cold cubed unsalted butter, two tablespoons of all-purpose flour, a pinch of salt, a teaspoon of cinnamon, and three tablespoons of brown sugar. Use a fork to mash the ingredients together until they have a crumbly texture.
+Ambiguities: "Pinch" of salt is subjective.
+Complexity: Low; involves simple mixing.
+Specificity: High; precise measurements and expected texture.
+Domain-specificity: High; specific to baking where toppings are often used to add texture and flavor.
+
+Step 9: Bake Muffins
+Description: Top the muffins with the streusel topping and bake in a preheated oven at 350 degrees Fahrenheit for about 35 minutes or until done.
+Ambiguities: Does not specify how to test for doneness.
+Complexity: Low; involves placing the muffins in the oven and monitoring time.
+Specificity: High; provides clear temperature and rough baking time.
+Domain-specificity: High; baking is a precise activity requiring specific temperatures and times.
+
+Each step is outlined with a focus on their place within the recipe, highlighting ambiguities and complexities that might confuse or challenge a home baker, especially one with less experience.
+assistant: Reflecting on the generated steps for the blueberry muffin recipe and considering the provided definitions, a few discrepancies, inconsistencies, and areas for improvement emerge.
+
+1) **Distinctness of Steps**:
+The steps outlined are distinct and appropriately segmented, reflecting the procedural sequence of making blueberry muffins. However, combining steps like "Prepare Egg Mixture" could potentially be further broken down into smaller sub-steps for clarity. For example, "Beat Eggs with Sugar" and "Add Vanilla and Lemon Juice," followed by "Incorporate Heavy Cream," could be considered separate steps due to their distinct contributions to the recipe.
+
+2) **Description Alignment with Definition**:
+The descriptions generally align with the definition of a step, providing a clear outline of the purpose, actions, and expected outcomes. However, adding more detail on why certain actions are performed could enhance the descriptions. For instance, explaining the role of lemon juice in enhancing the muffin's flavor or the chemistry behind using baking powder and soda could offer deeper insight into the recipe's purpose and expected outcomes.
+
+3) **Comprehensive Ambiguities**:
+The ambiguities section addresses several potential sources of uncertainty but can be expanded. For example, when discussing the coating of blueberries with flour, an ambiguity could include whether the moisture level of the blueberries (washed and not thoroughly dried) might affect the effectiveness of the flour coating or the batter's consistency. Another ambiguity might be the exact texture expected from the "fluffy and pale" eggs, as this could vary significantly based on user interpretation.
+
+4) **Complexity Accuracy**:
+The complexity section could be more nuanced. Some steps, such as "Fold in Blueberries," might seem simple but require a delicate touch to avoid breaking the berries or overmixing the batter, which could be articulated as being of medium complexity due to the tactile sensitivity involved. Likewise, the "Make Streusel Topping" step can be complex for beginners unfamiliar with achieving a "crumbly texture."
+
+5) **Specificity Detail**:
+The specificity in each step could further address exact conditions or alternatives. For example, it could be specified that if fresh blueberries are not available, frozen blueberries can be used but should be added to the batter without thawing to prevent color bleeding. Additionally, specifying that the melted butter should be cooled to near room temperature to avoid cooking the eggs could be helpful.
+
+6) **Domain-Specificity Relevance**:
+The domain-specificity is well considered, making the recipe accessible to those with basic to intermediate kitchen experience. However, adding information about potential substitutions for dietary restrictions (e.g., gluten-free flour, alternative sweeteners) could expand its applicability to a broader audience.
+
+**Suggested Modifications**:
+- Break down complex steps into sub-steps for clearer distinctions.
+- Include explanations for why certain ingredients or actions are used, enhancing the educational value.
+- Expand the ambiguities section to cover more nuanced uncertainties.
+- Adjust complexity ratings to reflect the subtler demands of some steps.
+- Increase specificity by providing detailed conditions for ingredients and actions, along with potential substitutions.
+- Consider broader domain-specific contexts by including alternative ingredient suggestions for those with dietary restrictions.
+
+Improving these areas could enhance the quality, accuracy, and accessibility of the annotated recipe, making it a more valuable resource for a diverse range of users.
+[youtube] Extracting URL: https://www.youtube.com/shorts/fWp5z_YM07Q
+assistant: Step 1: Mixing Dry Ingredients
+Description: Measure and mix two cups of all-purpose flour, a teaspoon of baking powder, half a teaspoon of baking soda, and a quarter teaspoon of salt in a large bowl. Reserve one tablespoon of this mixture for later use with the blueberries. This step creates the foundation for the muffin structure.
+Ambiguities: The term "large bowl" is vague; specifics on bowl size might be helpful to ensure there’s enough space for mixing without spillage.
+Complexity: Low; involves simple measuring and whisking tasks.
+Specificity: High; ingredient types and quantities are specified, and the reservation of part of the mixture is clearly instructed.
+Domain-specificity: High; these actions are common in baking, where precise measurements are crucial.
+
+Step 2: Coating Blueberries With Flour
+Description: Toss one-and-a-half cups of fresh blueberries with the previously reserved tablespoon of dry ingredient mixture. This coating helps to evenly distribute the blueberries throughout the muffin by preventing them from sinking to the bottom during baking.
+Ambiguities: It's not mentioned whether alternatives (like frozen blueberries) are applicable, or how to adjust if using them.
+Complexity: Low; straightforward task of coating blueberries, though gently mixing to avoid crushing them adds a mild challenge.
+Specificity: Medium; specifics on how to gently mix without damaging the blueberries would enhance this step.
+Domain-specificity: High; the technique of coating fruit in flour is specific to baking.
+
+Step 3: Preparing the Egg Mixture
+Description: Beat three eggs in another large bowl with an electric mixer at a high setting until fluffy and pale, about three minutes. Gradually add one cup of granulated sugar while continuing to beat, achieving a light and airy base for the muffins. Incorporate a teaspoon of vanilla extract and a tablespoon of fresh lemon juice for flavoring, followed by slowly adding 3/4 cups of heavy cream.
+Ambiguities: The term "fluffy and pale" might need further clarification on expected texture and color. The precise high speed setting might differ across mixer brands.
+Complexity: Medium; this step involves multiple actions with the mixer and attention to ingredient addition timing.
+Specificity: High; details are provided for each action and ingredient addition.
+Domain-specificity: High; these techniques are fundamental in baking for aeration and flavor development.
+
+Step 4: Sifting in Dry Ingredients
+Description: Gently sift and fold in the dry ingredients into the egg mixture in thirds, ensuring even distribution without deflating the batter. This methodical addition aids in creating a smooth and homogenous batter.
+Ambiguities: The exact technique for folding could be elaborated upon for novice bakers.
+Complexity: Medium; requires care to not overmix while ensuring ingredients are well combined.
+Specificity: High; clear instruction on the method of addition and the importance of not adding all dry ingredients at once.
+Domain-specificity: High; sifting and folding are common techniques in baking to maintain batter structure.
+
+Step 5: Adding Melted Butter
+Description: Gradually incorporate four tablespoons of melted (and cooled to near room temperature) unsalted butter into the batter, mixing steadily to combine. This introduces fat, which contributes to the muffins’ moistness and flavor.
+Ambiguities: Specifies the cooling of the butter but lacks the detail of the desirable temperature range.
+Complexity: Low; mixing in melted butter is straightforward, but attention to its temperature requires mindfulness.
+Specificity: High; includes the state of the butter and the method of incorporation.
+Domain-specificity: High; adding fats into batters is a fundamental step in many baking recipes.
+
+Step 6: Folding in Blueberries
+Description: Gently fold the flour-coated blueberries into the batter with a spatula, ensuring they are evenly distributed without being crushed. This step is crucial for evenly dispersing the fruit throughout each muffin.
+Ambiguities: Lacks a detailed explanation of the "folding" technique, which could be vital for beginners.
+Complexity: Medium; requires a delicate touch to avoid breaking the blueberries or overmixing the batter.
+Specificity: High; the nature of the action and its purpose are clearly explained.
+Domain-specificity: High; folding in additional ingredients is a common step in baking recipes to add texture and flavor without compromising the batter structure.
+
+Step 7: Preparing Muffin Tin and Baking
+Description: Line a muffin tin with cupcake liners and scoop the batter into each cup using a large cookie scoop for even distribution. Optionally, top each muffin with a few extra blueberries. Prepare the streusel by combining cold cubed butter, flour, a pinch of salt, cinnamon, and brown sugar in a small bowl until crumbly, then sprinkle over the muffins. Bake at 350 degrees Fahrenheit for about 35 minutes or until a tester comes out clean.
+Ambiguities: How full to fill the liners and how to verify doneness (specifically, if there are visual or tactile cues beyond the tester coming out clean).
+Complexity: Medium; involves multiple sub-steps, each crucial for the final product's appearance and texture.
+Specificity: High; details on preparing both the tin and streusel, as well as baking instructions, are thorough.
+Domain-specificity: High; specific to baking, with nuances relevant to creating muffins with a professional touch.
+
+This revised annotation presents a clearer and more detailed guide through the muffin-making process, addressing previously noted ambiguities and complexities, and enhancing the specificity and domain-specificity of each step.
+[youtube] fWp5z_YM07Q: Downloading webpage
+[youtube] fWp5z_YM07Q: Downloading ios player API JSON
+[youtube] fWp5z_YM07Q: Downloading android player API JSON
+[youtube] fWp5z_YM07Q: Downloading android player API JSON
+[youtube] fWp5z_YM07Q: Downloading android player API JSON
+[youtube] fWp5z_YM07Q: Downloading android player API JSON
+[youtube] fWp5z_YM07Q: Downloading m3u8 information
+[info] fWp5z_YM07Q: Downloading subtitles: en
+Video 'fWp5z_YM07Q' already exists in the directory.
+'fWp5z_YM07Q'
+{
+    "subtitles": [
+        {
+            "start": "00:00:00.080",
+            "finish": "00:00:01.680",
+            "text": "now that i've successfully learned how"
+        },
+        {
+            "start": "00:00:01.680",
+            "finish": "00:00:03.600",
+            "text": "to make muffins i had to make a triple"
+        },
+        {
+            "start": "00:00:03.600",
+            "finish": "00:00:04.560",
+            "text": "chocolate version"
+        },
+        {
+            "start": "00:00:04.560",
+            "finish": "00:00:06.080",
+            "text": "add all the wet ingredients to a bowl"
+        },
+        {
+            "start": "00:00:06.080",
+            "finish": "00:00:07.919",
+            "text": "and whisk until combined in another bowl"
+        },
+        {
+            "start": "00:00:07.919",
+            "finish": "00:00:09.679",
+            "text": "add the flour cocoa powder and caster"
+        },
+        {
+            "start": "00:00:09.679",
+            "finish": "00:00:11.200",
+            "text": "sugar and whisk these together then add"
+        },
+        {
+            "start": "00:00:11.200",
+            "finish": "00:00:12.719",
+            "text": "your chocolate chips coating them in the"
+        },
+        {
+            "start": "00:00:12.719",
+            "finish": "00:00:14.480",
+            "text": "flour help stop them from sinking"
+        },
+        {
+            "start": "00:00:14.480",
+            "finish": "00:00:16.080",
+            "text": "fold the wet ingredients into the mix"
+        },
+        {
+            "start": "00:00:16.080",
+            "finish": "00:00:17.840",
+            "text": "then refrigerate for at least one hour"
+        },
+        {
+            "start": "00:00:17.840",
+            "finish": "00:00:19.680",
+            "text": "this helps them rise without overflowing"
+        },
+        {
+            "start": "00:00:19.680",
+            "finish": "00:00:21.680",
+            "text": "scoop the batter into muffin cases then"
+        },
+        {
+            "start": "00:00:21.680",
+            "finish": "00:00:23.439",
+            "text": "top with a mix of chocolate chips follow"
+        },
+        {
+            "start": "00:00:23.439",
+            "finish": "00:00:25.039",
+            "text": "these bacon instructions and that's it"
+        },
+        {
+            "start": "00:00:25.039",
+            "finish": "00:00:27.519",
+            "text": "enjoy"
+        }
+    ]
+}
+system: 
+    You are an assistant that describes the steps in a cooking video and outlines potential ambiguities, complexity, and specificity in the instructions.
+    ----------------------------------------
+    
+user: 
+        00:00:00.080-00:00:01.680: now that i've successfully learned how
+        
+        00:00:01.680-00:00:03.600: to make muffins i had to make a triple
+        
+        00:00:03.600-00:00:04.560: chocolate version
+        
+        00:00:04.560-00:00:06.080: add all the wet ingredients to a bowl
+        
+        00:00:06.080-00:00:07.919: and whisk until combined in another bowl
+        
+        00:00:07.919-00:00:09.679: add the flour cocoa powder and caster
+        
+        00:00:09.679-00:00:11.200: sugar and whisk these together then add
+        
+        00:00:11.200-00:00:12.719: your chocolate chips coating them in the
+        
+        00:00:12.719-00:00:14.480: flour help stop them from sinking
+        
+        00:00:14.480-00:00:16.080: fold the wet ingredients into the mix
+        
+        00:00:16.080-00:00:17.840: then refrigerate for at least one hour
+        
+        00:00:17.840-00:00:19.680: this helps them rise without overflowing
+        
+        00:00:19.680-00:00:21.680: scoop the batter into muffin cases then
+        
+        00:00:21.680-00:00:23.439: top with a mix of chocolate chips follow
+        
+        00:00:23.439-00:00:25.039: these bacon instructions and that's it
+        
+        00:00:25.039-00:00:27.519: enjoy
+        
+    ----------------------------------------
+    Given the above transcript, please provide the outline of each step, potential ambiguities, complexity, and specificity.
+    Definitions:
+    - Step: A distinct, outcome-oriented task within a procedural sequence, characterized by its purposeful contribution to achieving the overarching goal of the process. It encapsulates a set of actions or instructions that, while variable in execution, uniformly aim towards a specific result or transformation.
+    - Description: A concise, informative account of the step's purpose, actions, and expected outcomes.
+    - Ambiguities: Instances of uncertainty, vagueness, or inconsistency within the step that may hinder comprehension, execution, or evaluation with respect to the instructions provided in the video.
+    - Complexity: The level of intricacy, difficulty, or sophistication associated with the step, encompassing the cognitive, physical, or temporal demands it imposes on the user.
+    - Specificity: The degree of detail, precision, or clarity in the step's instructions, encompassing the extent to which the actions, tools, ingredients, or conditions are explicitly defined or elaborated upon.
+    - Domain-specificity: The relevance, applicability, or pertinence of the step to different contexts, scenarios, or user groups, reflecting the extent to which the instructions are tailored to a particular domain, skill level, or cultural background.
+    ----------------------------------------
+    Follow the format below:
+    Step 1: [Concise step label]
+    Description: [Description of the step]
+    Ambiguities: [Description of ambiguities]
+    Complexity: [Description of complexity]
+    Specificity: [Description of specificity]
+    Domain-specificity: [Description of domain-specificity]
+    ----------------------------------------
+    
+assistant: Step 1: Mixing Wet Ingredients
+Description: The cook is instructed to add all the specified wet ingredients into a bowl and whisk them until they are well combined.
+Ambiguities: The exact wet ingredients to use are not listed, nor are their quantities specified, which might confuse beginners.
+Complexity: Low, as the action of whisking is straightforward, but proper combination requires some attention to detail.
+Specificity: Low specificity in terms of the ingredients and quantities. The action of whisking and the type of bowl are not specified but implied to be familiar.
+Domain-specificity: High, as this step is common in baking and requires knowledge specific to preparation processes in culinary arts.
+
+Step 2: Mixing Dry Ingredients
+Description: In a separate bowl, flour, cocoa powder, and caster sugar need to be whisked together.
+Ambiguities: Quantities for flour, cocoa powder, and caster sugar are not provided, leading to potential confusion about proportions.
+Complexity: Low, similar to the first step but requires knowledge on the purpose of each dry ingredient in baking.
+Specificity: Slightly higher specificity with the mention of the type of sugar (caster sugar) but lacks detail on amounts and bowl size.
+Domain-specificity: High, specific to baking context, where understanding the effect of mixing dry ingredients separately is pertinent.
+
+Step 3: Adding Chocolate Chips
+Description: Chocolate chips are added to the dry mix and coated in the flour to prevent them from sinking in the muffins.
+Ambiguities: It's unclear how much chocolate chips to use and what quantity is considered enough for coating.
+Complexity: Low, involves simply mixing chocolate chips into the flour, but the technique for even coating is not detailed.
+Specificity: Medium, this step specifies the purpose of coating the chips but not how to effectively do so.
+Domain-specificity: Medium, as adding fillings or extras is common in baking, but the technique to prevent sinking is more specific to muffins and similar pastries.
+
+Step 4: Combining Wet and Dry Mixtures
+Description: The wet ingredients are folded into the dry ingredient mix to form the batter.
+Ambiguities: The method of "folding" is mentioned but not explained, which might confuse those unfamiliar with the technique.
+Complexity: Medium, since folding is a specific technique in baking to combine ingredients without overmixing.
+Specificity: Medium, as it mentions the critical action (folding) but lacks detail on how to perform it ideally.
+Domain-specificity: High, specific to baking where understanding how to combine mixes without deflating the batter is crucial.
+
+Step 5: Refrigerating the Batter
+Description: The batter is refrigerated for at least one hour to help it rise properly without overflowing during baking.
+Ambiguities: Does not specify if the batter should be covered or if there are signs to look for after refrigeration.
+Complexity: Low, simply requires placing the batter in the refrigerator, but the reasoning may not be clear to all.
+Specificity: Medium, time is specified but lacks detail on container use, covering, or placement within the refrigerator.
+Domain-specificity: Medium-high, more specific to recipes that call for a resting period before baking to affect texture and rise.
+
+Step 6: Preparing for Baking
+Description: The batter is scooped into muffin cases, then topped with a mix of chocolate chips before baking per included instructions.
+Ambiguities: The exact amount of batter per case and the specific "baking instructions" are not mentioned.
+Complexity: Medium, requires evenly dividing the batter and knowing how much topping to add without specific guides.
+Specificity: Low, as it does not mention the size of the muffin cases, the amount of batter per case, or the oven settings for baking.
+Domain-specificity: High, specifically related to baking muffins, including preparation and considerations for presentation and texture.
+assistant: Upon reflection, a few adjustments can enhance the accuracy and quality of the given annotations, particularly in addressing the defined criteria more precisely and comprehensively.
+
+1) **Step Definition Clarity and Distinction:**
+   - Each step was distinct and aimed towards the broad goal of making triple chocolate muffins, fulfilling the criteria for being outcome-oriented and contributing to the procedural sequence. However, merging steps related to mixing (Steps 1 and 2) could be considered, as they serve a unified purpose of preparing batter components.
+
+2) **Description Following Step Definition:**
+   - The descriptions generally outlined the purpose and actions expected. However, the expected outcome could be highlighted more explicitly to give a clearer vision of each step's goal (e.g., "to create a homogenous wet mix ready for combination with dry ingredients").
+
+3) **Comprehensiveness of Ambiguities:**
+   - While potential ambiguities were identified, some could be further explored. For instance, besides the amount of chocolate chips (Step 3), there's also no mention of the type of chocolate chips recommended (e.g., semi-sweet, dark). Additionally, "baking instructions" (Step 6) are overly vague, necessitating specification of temperature and time.
+
+4) **Accuracy of Complexity Description:**
+   - Complexity assessments were in line with the actions described but could integrate considerations like the skills needed for "folding" ingredients properly (Step 4), considered a more advanced technique than merely mixing.
+
+5) **Detail in Specificity Section:**
+   - More detailed instructions on measuring or visual cues for correct consistency (for both wet and dry ingredients) could enhance the specificity of steps. The type of utensils (e.g., type of whisk, silicone spatula) could also be mentioned to better equip the user for successful execution.
+
+6) **Relevance of Domain-Specificity:**
+   - The domain-specificity appropriately reflected the baking context but could emphasize the skill level (beginner, intermediate) more clearly, especially regarding techniques like folding or the importance of refrigerating the batter.
+
+**Suggested Modifications/Clarifications:**
+- **Step 1 & 2 Modification:** Consider combining into a "Preparing Batter Components" step to streamline the sequence.
+- **Ambiguities Clarification:** Specify types and quantities of ingredients more clearly, highlighting the importance of detail for successful execution.
+- **Complexity Addition:** For steps involving techniques like folding, adding a brief explanation or suggesting where to find a tutorial could make the task more approachable.
+- **Specificity Enhancement:** Provide more precise instructions on amounts, utensil types, and visual cues for correct consistency or readiness at various steps.
+- **Domain-Specificity Expansion:** Include a brief statement on the skill level required or assumed for each step, helping users gauge if additional research or preparation is needed before beginning.
+
+Implementing these suggestions would make the annotations more informative, user-friendly, and conducive to achieving the desired outcome of successfully making triple chocolate muffins.
+[youtube] Extracting URL: https://www.youtube.com/shorts/B-XGIGS4Ipw
+assistant: Step 1: Preparing Batter Components
+Description: Combine wet and dry ingredients separately before mixing them together. First, whisk all specified wet ingredients in one bowl until well combined. In a second bowl, sift and whisk together flour, cocoa powder, and caster sugar. This dual preparation ensures a smooth, well-incorporated batter that forms the base for the muffins.
+Ambiguities: The exact wet ingredients and their quantities are not listed, nor are the quantities for the dry ingredients. It's unclear if the cocoa powder should be natural or Dutch-processed.
+Complexity: Moderate, given the need to employ correct whisking technique and ensure each component is adequately prepared for mixing.
+Specificity: Moderate, with a clearer outline of the preparation process but lacking detailed quantities and types of ingredients. The use of sifted dry ingredients implies a need for specific tools, such as a sieve.
+Domain-specificity: High, as this step is essential in baking, requiring foundational knowledge in mixing techniques and ingredient functions.
+
+Step 2: Incorporating Chocolate Chips
+Description: After whisking the dry ingredients, chocolate chips are added and stirred until they are evenly coated with the flour mixture. Coating the chips helps prevent them from sinking to the bottom of the muffins during baking.
+Ambiguities: It does not specify the type (e.g., semi-sweet, milk, dark) or quantity of chocolate chips to use, which affects the flavor and texture.
+Complexity: Low, involving a simple mixing action but requires knowledge of the purpose behind coating the chips.
+Specificity: Medium, as it specifies the importance of coating but lacks details on the amount and type of chocolate chips.
+Domain-specificity: Medium-high, pertinent to baking where mix-ins are used to enhance texture and flavor, and specific techniques are applied for optimal distribution.
+
+Step 3: Folding Ingredients Together
+Description: The wet ingredients are gently folded into the dry ingredients, using a technique that combines them without overmixing, which can impact the muffins' texture. This step is crucial for creating a light, airy batter that will rise properly during baking.
+Ambiguities: The folding technique is mentioned but not explained, which could confuse someone unfamiliar with the method.
+Complexity: Moderate to high, as folding is a technique that requires some skill and understanding not to deflate the batter.
+Specificity: Moderate, mentioning the technique but lacking a detailed explanation or visual cues for achieving the correct consistency.
+Domain-specificity: High, specific to baking, especially important in recipes sensitive to texture and aeration, like muffins and cakes.
+
+Step 4: Batter Refrigeration
+Description: Chilled for at least one hour in the refrigerator, the batter's consistency is improved, helping in achieving a better rise and preventing overflow during baking. This step is critical for the muffins' texture and appearance.
+Ambiguities: Does not specify if the batter should be covered while refrigerating or how to determine if it's sufficiently chilled.
+Complexity: Low, primarily a waiting step but with a significant impact on the outcome.
+Specificity: Medium, provides a clear action but lacks details on refrigeration conditions, such as covering or specific signs to look for indicating readiness.
+Domain-specificity: Medium, more specific to recipes requiring texture management and controlled rising, common in certain baked goods.
+
+Step 5: Preparing for Baking
+Description: The chilled batter is scooped into muffin cases, each filled to a specified level, then topped with a mixture of chocolate chips before baking according to given instructions.
+Ambiguities: The amount of batter per muffin case and the "given baking instructions" (temperature and time) are not specified.
+Complexity: Medium, requires precise measurement for even baking and adding the correct amount of topping without specific guidelines.
+Specificity: Low, lacks detail on the size of muffin cases, the exact amount of batter, and topping per case, and the oven settings required for baking.
+Domain-specificity: High, specific to muffin baking which requires careful preparation for size, appearance, and consistent baking results.
+
+[youtube] B-XGIGS4Ipw: Downloading webpage
+[youtube] B-XGIGS4Ipw: Downloading ios player API JSON
+[youtube] B-XGIGS4Ipw: Downloading android player API JSON
+[youtube] B-XGIGS4Ipw: Downloading android player API JSON
+[youtube] B-XGIGS4Ipw: Downloading android player API JSON
+[youtube] B-XGIGS4Ipw: Downloading android player API JSON
+[youtube] B-XGIGS4Ipw: Downloading m3u8 information
+[info] B-XGIGS4Ipw: Downloading subtitles: en
+Video 'B-XGIGS4Ipw' already exists in the directory.
+'B-XGIGS4Ipw'
+{
+    "subtitles": [
+        {
+            "start": "00:00:00.000",
+            "finish": "00:00:03.959",
+            "text": "these are my blueberry muffins"
+        },
+        {
+            "start": "00:00:03.959",
+            "finish": "00:00:06.779",
+            "text": "hmm My Favorite Muffin to a large mixing"
+        },
+        {
+            "start": "00:00:06.779",
+            "finish": "00:00:09.059",
+            "text": "bowl add grated lemon zest a milk of"
+        },
+        {
+            "start": "00:00:09.059",
+            "finish": "00:00:10.920",
+            "text": "choice we're using soy milk sugar a"
+        },
+        {
+            "start": "00:00:10.920",
+            "finish": "00:00:12.480",
+            "text": "neutral vegetable oil and vanilla"
+        },
+        {
+            "start": "00:00:12.480",
+            "finish": "00:00:14.160",
+            "text": "extract we squel until the ingredients"
+        },
+        {
+            "start": "00:00:14.160",
+            "finish": "00:00:16.080",
+            "text": "are well combined now sifting the flour"
+        },
+        {
+            "start": "00:00:16.080",
+            "finish": "00:00:18.420",
+            "text": "with baking powder and a pinch of salt"
+        },
+        {
+            "start": "00:00:18.420",
+            "finish": "00:00:20.039",
+            "text": "this is going to make your muffin soft"
+        },
+        {
+            "start": "00:00:20.039",
+            "finish": "00:00:21.779",
+            "text": "and fluffy whisk wet and dry ingredients"
+        },
+        {
+            "start": "00:00:21.779",
+            "finish": "00:00:23.279",
+            "text": "for a short minute until lumps are gone"
+        },
+        {
+            "start": "00:00:23.279",
+            "finish": "00:00:24.779",
+            "text": "but without over mixing rinse the"
+        },
+        {
+            "start": "00:00:24.779",
+            "finish": "00:00:26.640",
+            "text": "blueberries shake the water off then add"
+        },
+        {
+            "start": "00:00:26.640",
+            "finish": "00:00:27.960",
+            "text": "them to a bowl toss them with a"
+        },
+        {
+            "start": "00:00:27.960",
+            "finish": "00:00:29.400",
+            "text": "cornstarch and add them to the batter"
+        },
+        {
+            "start": "00:00:29.400",
+            "finish": "00:00:31.260",
+            "text": "stir and fold the blueberries in the"
+        },
+        {
+            "start": "00:00:31.260",
+            "finish": "00:00:33.000",
+            "text": "mixture gently transfer the batter to"
+        },
+        {
+            "start": "00:00:33.000",
+            "finish": "00:00:34.380",
+            "text": "the muffin liners you should be able to"
+        },
+        {
+            "start": "00:00:34.380",
+            "finish": "00:00:36.540",
+            "text": "make 12 muffins you can fill them almost"
+        },
+        {
+            "start": "00:00:36.540",
+            "finish": "00:00:38.160",
+            "text": "to the top then you can sprinkle some"
+        },
+        {
+            "start": "00:00:38.160",
+            "finish": "00:00:39.840",
+            "text": "sugar on top or not we're not going to"
+        },
+        {
+            "start": "00:00:39.840",
+            "finish": "00:00:40.920",
+            "text": "do it because we eat them for breakfast"
+        },
+        {
+            "start": "00:00:40.920",
+            "finish": "00:00:43.140",
+            "text": "then baking a preheated oven for 22 and"
+        },
+        {
+            "start": "00:00:43.140",
+            "finish": "00:00:44.879",
+            "text": "a half minutes or until a toothpick"
+        },
+        {
+            "start": "00:00:44.879",
+            "finish": "00:00:46.680",
+            "text": "inserted in the center comes out dry now"
+        },
+        {
+            "start": "00:00:46.680",
+            "finish": "00:00:48.120",
+            "text": "let them cool down for about 30 minutes"
+        },
+        {
+            "start": "00:00:48.120",
+            "finish": "00:00:51.020",
+            "text": "easy right"
+        }
+    ]
+}
+system: 
+    You are an assistant that describes the steps in a cooking video and outlines potential ambiguities, complexity, and specificity in the instructions.
+    ----------------------------------------
+    
+user: 
+        00:00:00.000-00:00:03.959: these are my blueberry muffins
+        
+        00:00:03.959-00:00:06.779: hmm My Favorite Muffin to a large mixing
+        
+        00:00:06.779-00:00:09.059: bowl add grated lemon zest a milk of
+        
+        00:00:09.059-00:00:10.920: choice we're using soy milk sugar a
+        
+        00:00:10.920-00:00:12.480: neutral vegetable oil and vanilla
+        
+        00:00:12.480-00:00:14.160: extract we squel until the ingredients
+        
+        00:00:14.160-00:00:16.080: are well combined now sifting the flour
+        
+        00:00:16.080-00:00:18.420: with baking powder and a pinch of salt
+        
+        00:00:18.420-00:00:20.039: this is going to make your muffin soft
+        
+        00:00:20.039-00:00:21.779: and fluffy whisk wet and dry ingredients
+        
+        00:00:21.779-00:00:23.279: for a short minute until lumps are gone
+        
+        00:00:23.279-00:00:24.779: but without over mixing rinse the
+        
+        00:00:24.779-00:00:26.640: blueberries shake the water off then add
+        
+        00:00:26.640-00:00:27.960: them to a bowl toss them with a
+        
+        00:00:27.960-00:00:29.400: cornstarch and add them to the batter
+        
+        00:00:29.400-00:00:31.260: stir and fold the blueberries in the
+        
+        00:00:31.260-00:00:33.000: mixture gently transfer the batter to
+        
+        00:00:33.000-00:00:34.380: the muffin liners you should be able to
+        
+        00:00:34.380-00:00:36.540: make 12 muffins you can fill them almost
+        
+        00:00:36.540-00:00:38.160: to the top then you can sprinkle some
+        
+        00:00:38.160-00:00:39.840: sugar on top or not we're not going to
+        
+        00:00:39.840-00:00:40.920: do it because we eat them for breakfast
+        
+        00:00:40.920-00:00:43.140: then baking a preheated oven for 22 and
+        
+        00:00:43.140-00:00:44.879: a half minutes or until a toothpick
+        
+        00:00:44.879-00:00:46.680: inserted in the center comes out dry now
+        
+        00:00:46.680-00:00:48.120: let them cool down for about 30 minutes
+        
+        00:00:48.120-00:00:51.020: easy right
+        
+    ----------------------------------------
+    Given the above transcript, please provide the outline of each step, potential ambiguities, complexity, and specificity.
+    Definitions:
+    - Step: A distinct, outcome-oriented task within a procedural sequence, characterized by its purposeful contribution to achieving the overarching goal of the process. It encapsulates a set of actions or instructions that, while variable in execution, uniformly aim towards a specific result or transformation.
+    - Description: A concise, informative account of the step's purpose, actions, and expected outcomes.
+    - Ambiguities: Instances of uncertainty, vagueness, or inconsistency within the step that may hinder comprehension, execution, or evaluation with respect to the instructions provided in the video.
+    - Complexity: The level of intricacy, difficulty, or sophistication associated with the step, encompassing the cognitive, physical, or temporal demands it imposes on the user.
+    - Specificity: The degree of detail, precision, or clarity in the step's instructions, encompassing the extent to which the actions, tools, ingredients, or conditions are explicitly defined or elaborated upon.
+    - Domain-specificity: The relevance, applicability, or pertinence of the step to different contexts, scenarios, or user groups, reflecting the extent to which the instructions are tailored to a particular domain, skill level, or cultural background.
+    ----------------------------------------
+    Follow the format below:
+    Step 1: [Concise step label]
+    Description: [Description of the step]
+    Ambiguities: [Description of ambiguities]
+    Complexity: [Description of complexity]
+    Specificity: [Description of specificity]
+    Domain-specificity: [Description of domain-specificity]
+    ----------------------------------------
+    
+assistant: Step 1: Prepare Wet Ingredients  
+Description: In a large mixing bowl, combine grated lemon zest, a milk of choice (soy milk is used in the video), sugar, a neutral vegetable oil, and vanilla extract. Stir until well combined.  
+Ambiguities: The specific quantities of each ingredient are not provided. The type of sugar (e.g., white, brown) is unspecified.  
+Complexity: Low; the step involves simple mixing actions that are common in baking.  
+Specificity: Medium; while the specific type of milk and oil are mentioned, exact amounts and sugar type are not detailed.  
+Domain-specificity: Low; this step is a common practice in various baking recipes across multiple cuisines.
+
+Step 2: Prepare Dry Ingredients  
+Description: Sift flour with baking powder and a pinch of salt in preparation for merging with wet ingredients.  
+Ambiguities: Exact measurements for flour, baking powder, and salt are not provided. The type of flour (e.g., all-purpose, whole wheat) is unspecified.  
+Complexity: Low; sifting ingredients is a basic technique in baking to ensure even distribution without clumps.  
+Specificity: Low; lacks detail on ingredient measurements and flour type.  
+Domain-specificity: Low; sifting dry ingredients is standard in baking recipes globally.
+
+Step 3: Combine Wet and Dry Ingredients  
+Description: Whisk the wet and dry ingredients together for a short period until lumps are gone, ensuring not to overmix to keep the muffins soft and fluffy.  
+Ambiguities: "A short minute" is vague regarding the exact mixing time. The visual or textual cue for "lumps are gone" is not clearly defined.  
+Complexity: Medium; requires understanding the fine line between adequately mixed and overmixed, which could affect the texture.  
+Specificity: Medium; the action is described, but lacks precise timing and visual cues.  
+Domain-specificity: Low; combining ingredients to a specific texture is common in many baking contexts.
+
+Step 4: Prepare Blueberries  
+Description: Rinse the blueberries, shake off excess water, toss them with cornstarch, then fold into the batter gently.  
+Ambiguities: The amount of cornstarch and blueberries is not specified. Instructions on how to properly shake off water or gently fold in the berries could be unclear for beginners.  
+Complexity: Low to Medium; involves basic preparation but requires gentle handling to not crush the berries or overmix.  
+Specificity: Low; lacks detail on the amount of blueberries and cornstarch.  
+Domain-specificity: Medium; the use of cornstarch to prevent sinking is a technique more commonly known in baking, but could be new information for novices.
+
+Step 5: Fill and Bake  
+Description: Distribute the batter across muffin liners, filling nearly to the top. Optionally, sprinkle sugar on top. Bake in a preheated oven at an unspecified temperature for 22 and a half minutes or until a toothpick comes out dry.  
+Ambiguities: The oven temperature is not provided. "Almost to the top" could vary in interpretation.  
+Complexity: Low; filling liners and baking are standard baking practices, although the optional sugar topping adds a slight variable.  
+Specificity: Low; lacks oven temperature and clear fill-level guidance.  
+Domain-specificity: Low; similar steps are found in a wide range of baking recipes across different cultures and cuisines.
+
+Step 6: Cooling  
+Description: Allow the muffins to cool down for about 30 minutes before serving.  
+Ambiguities: It's not specified if they should cool in the muffin tin or on a wire rack, which can affect the cooling process.  
+Complexity: Low; involves passive waiting.  
+Specificity: Medium; specifies a cooling time but not the method or location.  
+Domain-specificity: Low; cooling baked goods is a universal step in baking to improve texture and handling.
+assistant: Reflecting on the generated steps and considering the definitions provided, there are areas that could be improved for clarity and comprehensiveness:
+
+1. **Clarity and Distinctiveness of Steps**:
+   - Each step is generally well defined and distinct from others in the sequence, contributing purposefully to the overarching goal of making blueberry muffins. However, the delineation between the preparation of wet and dry ingredients could be more explicit, emphasizing the importance of treating these processes as separate steps to avoid confusion.
+
+2. **Description Following Definition**:
+   - The descriptions adhere to defining a step by outlining the purpose, actions, and expected outcomes but could be enhanced by specifying quantities and temperatures to align better with the definition provided. Doing so would offer a clearer guide to achieving the desired result.
+
+3. **Comprehensiveness of Ambiguities**:
+   - The ambiguities section captures significant areas of uncertainty but could be more comprehensive. For example, mentioning the potential variability in oven temperatures and how it might affect baking times could address a common source of confusion for bakers.
+
+4. **Accuracy of Complexity Section**:
+   - The complexity section is mostly accurate but might not fully account for the nuances in each step. For instance, the complexity of folding in blueberries without bursting them or ensuring even distribution within the mixture is considerable and could be highlighted more effectively.
+
+5. **Detail in Specificity Section**:
+   - While the specificity sections provide an overview, they lack detailed clarity on actions, tools, ingredients, or conditions involved. Providing exact measurements, temperatures, and visual cues for completeness (e.g., describing what "lumps are gone" looks like) would significantly enhance this aspect.
+
+6. **Relevance of Domain-Specificity Section**:
+   - The domain-specificity section identifies the general applicability of baking steps but could delve deeper into specifics, such as discussing adjustments for high-altitude baking or alternative ingredients for dietary restrictions, to make it more relevant to various user groups.
+
+To enhance the quality and accuracy of the annotation, the following modifications are suggested:
+
+- **Ambiguities**: Include potential variations in ingredient measurements due to differences in ingredient types (e.g., self-raising flour vs. all-purpose flour). Address common baking issues such as the importance of ingredient temperatures (e.g., all ingredients at room temperature) and how this affects the final product.
+  
+- **Complexity**: Clearly distinguish between steps that might seem simple but require careful attention to detail, such as folding in the blueberries gently to prevent them from bursting and evenly distributing them without overmixing the batter.
+
+- **Specificity**: Provide more detailed information on ingredient measurements, oven temperature (including any adjustments for fan-assisted ovens), and specific visual or textural cues that indicate when a step is completed successfully.
+
+- **Domain-Specificity**: Consider including tips for adaptation in different contexts, such as gluten-free or vegan variations of the muffins, or adjustments needed for different climates or altitudes, acknowledging the wide range of scenarios and user groups interested in baking.
+
+By addressing these areas, the annotation would not only follow the definitions more closely but also serve as a more detailed and comprehensive guide for individuals aiming to achieve the best outcomes when following the video's instructions for making blueberry muffins.
+assistant: Step 1: Mixing Wet Ingredients  
+Description: In a large mixing bowl, combine grated lemon zest, your choice of milk (using soy milk for this recipe), sugar, a neutral vegetable oil, and vanilla extract. Stir these ingredients until they are uniformly mixed.  
+Ambiguities: The exact quantities for each ingredient (e.g., cups, teaspoons) are not specified. Additionally, the sugar type is not clarified, which could impact the flavor and texture.  
+Complexity: Low; this step requires basic stirring skills, though understanding when the mixture is uniformly mixed may vary among bakers.  
+Specificity: Medium; the ingredients are specified, but without precise quantities or sugar type. The action needed (stirring until well combined) is clear, yet lacks quantitative measurements.  
+Domain-specificity: Low; wet ingredient preparation is a common technique across many baking recipes, adaptable to various dietary preferences (such as non-dairy milk options).
+
+Step 2: Sifting Dry Ingredients  
+Description: Sift together flour, baking powder, and a pinch of salt to ensure they are evenly distributed and free of lumps. This mixture will later be combined with the wet ingredients.  
+Ambiguities: Exact measurements for the flour, baking powder, and salt are not mentioned. The type of flour is also unspecified, which could influence the texture of the muffins.  
+Complexity: Low; sifting is a straightforward task but requires knowledge of the purpose behind ensuring even distribution and aeration of dry ingredients.  
+Specificity: Low; while the action of sifting is clear, the absence of detailed measurements and flour type leaves room for interpretation.  
+Domain-specificity: Low; sifting dry ingredients is a generalized technique applicable in numerous baking contexts.
+
+Step 3: Combining Ingredients  
+Description: Carefully whisk together the wet and dry ingredients until just combined, taking care not to overmix to avoid tough muffins. Mix only until lumps disappear.  
+Ambiguities: The term "a short minute" is vague, lacking a precise mixing time. The benchmark for "lumps are gone" without being overly mixed is not clearly identified.  
+Complexity: Medium; achieving the right consistency without overmixing demands a moderate understanding of baking techniques and dough textures.  
+Specificity: Medium; though the end goal (lump-free batter) is clear, the lack of precise mixing duration and visual/textual cues for identifying the correct texture adds uncertainty.  
+Domain-specificity: Low; the principle of combining ingredients to form a batter is universal in baking, with specificity primarily in technique rather than the broader context.
+
+Step 4: Preparing Blueberries  
+Description: Rinse the blueberries, pat them dry to remove excess water, then coat with cornstarch before gently folding them into the batter to evenly distribute without crushing them.  
+Ambiguities: The quantity of cornstarch needed to coat the blueberries is not specified, nor is the technique for gently folding to avoid damage.  
+Complexity: Medium; requires gentle handling and precision to coat the blueberries evenly and incorporate them without overmixing the batter.  
+Specificity: Low; the step mentions rinsing and tossing with cornstarch but does not specify quantities or the method for folding them into the batter.  
+Domain-specificity: Medium; while adding fruits to batters is common, the technique for preventing sinking with cornstarch may be less known to novice bakers, and the explanation could benefit from more detailed guidance.
+
+Step 5: Filling Muffin Liners and Baking  
+Description: Evenly divide the batter among muffin liners, filling them almost to the top. Optionally, sprinkle sugar on the surface before baking in a preheated oven (temperature unspecified) for 22.5 minutes or until a toothpick inserted comes out clean.  
+Ambiguities: The recommended oven temperature is not provided. "Almost to the top" is subjective and could lead to inconsistent results. The option of adding sugar on top is unclear in terms of the amount and type of sugar.  
+Complexity: Low; filling liners is straightforward, but knowing how much to fill and determining when muffins are fully baked requires some baking experience.  
+Specificity: Low; although the actions of filling and baking are described, lack of specific oven temperature, filling level guidance, and sugar specifications leads to ambiguity.  
+Domain-specificity: Low; baking muffins is a basic technique with variations primarily in flavor, ingredient choices, and dietary adaptations.
+
+Step 6: Cooling  
+Description: Allow the muffins to cool for approximately 30 minutes before serving, ensuring they are cooled in a way that doesn't cause the bottoms to become soggy.  
+Ambiguities: It is not specified whether the muffins should cool in their tin or be transferred to a wire rack, which can affect texture.  
+Complexity: Low; involves waiting without active engagement, though knowing the best method to prevent sogginess may be less intuitive.  
+Specificity: Medium; provides a specific time for cooling but lacks detail on the method or location for optimal cooling.  
+Domain-specificity: Low; cooling is a necessary step across all types of baking to set structure and enhance flavor, with slight variations depending on the recipe and desired outcome.

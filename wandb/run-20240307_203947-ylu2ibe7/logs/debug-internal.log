@@ -1,0 +1,200 @@
+2024-03-07 20:39:47,483 INFO    StreamThr :8488 [internal.py:wandb_internal():86] W&B internal server running at pid: 8488, started at: 2024-03-07 20:39:47.483242
+2024-03-07 20:39:47,484 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: status
+2024-03-07 20:39:47,486 INFO    WriterThread:8488 [datastore.py:open_for_write():87] open: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/run-ylu2ibe7.wandb
+2024-03-07 20:39:47,487 DEBUG   SenderThread:8488 [sender.py:send():378] send: header
+2024-03-07 20:39:47,488 DEBUG   SenderThread:8488 [sender.py:send():378] send: run
+2024-03-07 20:39:52,490 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: keepalive
+2024-03-07 20:39:54,074 INFO    SenderThread:8488 [dir_watcher.py:__init__():211] watching files in: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files
+2024-03-07 20:39:54,074 INFO    SenderThread:8488 [sender.py:_start_run_threads():1099] run started: ylu2ibe7 with start time 1709811587.483118
+2024-03-07 20:39:54,075 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: status_report
+2024-03-07 20:39:54,079 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: check_version
+2024-03-07 20:39:54,079 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: check_version
+2024-03-07 20:39:54,147 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: run_start
+2024-03-07 20:39:54,153 DEBUG   HandlerThread:8488 [system_info.py:__init__():26] System info init
+2024-03-07 20:39:54,153 DEBUG   HandlerThread:8488 [system_info.py:__init__():41] System info init done
+2024-03-07 20:39:54,153 INFO    HandlerThread:8488 [system_monitor.py:start():194] Starting system monitor
+2024-03-07 20:39:54,153 INFO    SystemMonitor:8488 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-03-07 20:39:54,153 INFO    HandlerThread:8488 [system_monitor.py:probe():214] Collecting system info
+2024-03-07 20:39:54,154 INFO    SystemMonitor:8488 [interfaces.py:start():190] Started cpu monitoring
+2024-03-07 20:39:54,155 INFO    SystemMonitor:8488 [interfaces.py:start():190] Started disk monitoring
+2024-03-07 20:39:54,156 INFO    SystemMonitor:8488 [interfaces.py:start():190] Started gpu monitoring
+2024-03-07 20:39:54,156 INFO    SystemMonitor:8488 [interfaces.py:start():190] Started memory monitoring
+2024-03-07 20:39:54,157 INFO    SystemMonitor:8488 [interfaces.py:start():190] Started network monitoring
+2024-03-07 20:39:54,183 DEBUG   HandlerThread:8488 [system_info.py:probe():150] Probing system
+2024-03-07 20:39:54,184 DEBUG   HandlerThread:8488 [system_info.py:_probe_git():135] Probing git
+2024-03-07 20:39:54,188 DEBUG   HandlerThread:8488 [system_info.py:_probe_git():143] Probing git done
+2024-03-07 20:39:54,188 DEBUG   HandlerThread:8488 [system_info.py:probe():198] Probing system done
+2024-03-07 20:39:54,188 DEBUG   HandlerThread:8488 [system_monitor.py:probe():223] {'os': 'Linux-5.4.0-150-generic-x86_64-with-glibc2.27', 'python': '3.10.13', 'heartbeatAt': '2024-03-07T11:39:54.183346', 'startedAt': '2024-03-07T11:39:47.470782', 'docker': None, 'cuda': None, 'args': ('config/OLMo-7B.yaml',), 'state': 'running', 'program': '/home/bekzat/starlab/video-analysis/starlab-video-analysis/scripts/train.py', 'codePathLocal': 'scripts/train.py', 'codePath': 'scripts/train.py', 'git': {'remote': 'https://github.com/fesiib/starlab-video-analysis', 'commit': '5772dcddb39f5f33e6d05650bc880646ee72757b'}, 'email': 'tlekbay.b@gmail.com', 'root': '/home/bekzat/starlab/video-analysis/starlab-video-analysis', 'host': 'kixlab4', 'username': 'bekzat', 'executable': '/home/bekzat/.conda/envs/starlab-video-analysis/bin/python', 'cpu_count': 12, 'cpu_count_logical': 24, 'cpu_freq': {'current': 2274.163458333334, 'min': 2200.0, 'max': 3700.0}, 'cpu_freq_per_core': [{'current': 2213.89, 'min': 2200.0, 'max': 3700.0}, {'current': 2203.363, 'min': 2200.0, 'max': 3700.0}, {'current': 2212.504, 'min': 2200.0, 'max': 3700.0}, {'current': 2199.73, 'min': 2200.0, 'max': 3700.0}, {'current': 2389.488, 'min': 2200.0, 'max': 3700.0}, {'current': 2212.585, 'min': 2200.0, 'max': 3700.0}, {'current': 2607.712, 'min': 2200.0, 'max': 3700.0}, {'current': 2233.813, 'min': 2200.0, 'max': 3700.0}, {'current': 2334.945, 'min': 2200.0, 'max': 3700.0}, {'current': 2233.417, 'min': 2200.0, 'max': 3700.0}, {'current': 2234.068, 'min': 2200.0, 'max': 3700.0}, {'current': 2229.954, 'min': 2200.0, 'max': 3700.0}, {'current': 2217.266, 'min': 2200.0, 'max': 3700.0}, {'current': 2225.025, 'min': 2200.0, 'max': 3700.0}, {'current': 2206.368, 'min': 2200.0, 'max': 3700.0}, {'current': 1968.754, 'min': 2200.0, 'max': 3700.0}, {'current': 2207.889, 'min': 2200.0, 'max': 3700.0}, {'current': 2210.99, 'min': 2200.0, 'max': 3700.0}, {'current': 2791.354, 'min': 2200.0, 'max': 3700.0}, {'current': 2206.866, 'min': 2200.0, 'max': 3700.0}, {'current': 2563.64, 'min': 2200.0, 'max': 3700.0}, {'current': 2235.404, 'min': 2200.0, 'max': 3700.0}, {'current': 2205.857, 'min': 2200.0, 'max': 3700.0}, {'current': 2235.041, 'min': 2200.0, 'max': 3700.0}], 'disk': {'/': {'total': 937.3305015563965, 'used': 854.6187858581543}}, 'gpu': 'NVIDIA GeForce RTX 3090', 'gpu_count': 1, 'gpu_devices': [{'name': 'NVIDIA GeForce RTX 3090', 'memory_total': 25769803776}], 'memory': {'total': 31.325206756591797}}
+2024-03-07 20:39:54,188 INFO    HandlerThread:8488 [system_monitor.py:probe():224] Finished collecting system info
+2024-03-07 20:39:54,188 INFO    HandlerThread:8488 [system_monitor.py:probe():227] Publishing system info
+2024-03-07 20:39:54,188 DEBUG   HandlerThread:8488 [system_info.py:_save_conda():207] Saving list of conda packages installed into the current environment
+2024-03-07 20:39:55,076 INFO    Thread-12 :8488 [dir_watcher.py:_on_file_created():271] file/dir created: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/conda-environment.yaml
+2024-03-07 20:39:55,941 DEBUG   HandlerThread:8488 [system_info.py:_save_conda():219] Saving conda packages done
+2024-03-07 20:39:55,941 INFO    HandlerThread:8488 [system_monitor.py:probe():229] Finished publishing system info
+2024-03-07 20:39:55,943 DEBUG   SenderThread:8488 [sender.py:send():378] send: files
+2024-03-07 20:39:55,943 INFO    SenderThread:8488 [sender.py:_save_file():1365] saving file wandb-metadata.json with policy now
+2024-03-07 20:39:55,994 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: python_packages
+2024-03-07 20:39:55,995 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: python_packages
+2024-03-07 20:39:55,995 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-07 20:39:55,996 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: stop_status
+2024-03-07 20:39:55,997 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-07 20:39:56,075 INFO    Thread-12 :8488 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/conda-environment.yaml
+2024-03-07 20:39:56,075 INFO    Thread-12 :8488 [dir_watcher.py:_on_file_created():271] file/dir created: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/requirements.txt
+2024-03-07 20:39:56,075 INFO    Thread-12 :8488 [dir_watcher.py:_on_file_created():271] file/dir created: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/wandb-metadata.json
+2024-03-07 20:39:56,377 DEBUG   SenderThread:8488 [sender.py:send():378] send: telemetry
+2024-03-07 20:39:56,982 INFO    wandb-upload_0:8488 [upload_job.py:push():131] Uploaded file /tmp/tmpzry9he59wandb/3h92k7hb-wandb-metadata.json
+2024-03-07 20:39:58,075 INFO    Thread-12 :8488 [dir_watcher.py:_on_file_created():271] file/dir created: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/output.log
+2024-03-07 20:39:58,193 DEBUG   SenderThread:8488 [sender.py:send():378] send: telemetry
+2024-03-07 20:39:58,200 DEBUG   SenderThread:8488 [sender.py:send():378] send: telemetry
+2024-03-07 20:39:59,200 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: status_report
+2024-03-07 20:40:00,076 INFO    Thread-12 :8488 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/output.log
+2024-03-07 20:40:00,355 DEBUG   SenderThread:8488 [sender.py:send():378] send: exit
+2024-03-07 20:40:00,355 INFO    SenderThread:8488 [sender.py:send_exit():585] handling exit code: 0
+2024-03-07 20:40:00,355 INFO    SenderThread:8488 [sender.py:send_exit():587] handling runtime: 6
+2024-03-07 20:40:00,356 INFO    SenderThread:8488 [sender.py:_save_file():1365] saving file wandb-summary.json with policy end
+2024-03-07 20:40:00,356 INFO    SenderThread:8488 [sender.py:send_exit():593] send defer
+2024-03-07 20:40:00,356 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:00,356 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 0
+2024-03-07 20:40:00,356 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:00,356 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 0
+2024-03-07 20:40:00,356 INFO    SenderThread:8488 [sender.py:transition_state():613] send defer: 1
+2024-03-07 20:40:00,357 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:00,357 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 1
+2024-03-07 20:40:00,357 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:00,357 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 1
+2024-03-07 20:40:00,357 INFO    SenderThread:8488 [sender.py:transition_state():613] send defer: 2
+2024-03-07 20:40:00,357 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:00,357 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 2
+2024-03-07 20:40:00,357 INFO    HandlerThread:8488 [system_monitor.py:finish():203] Stopping system monitor
+2024-03-07 20:40:00,357 DEBUG   SystemMonitor:8488 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-03-07 20:40:00,357 INFO    HandlerThread:8488 [interfaces.py:finish():202] Joined cpu monitor
+2024-03-07 20:40:00,358 DEBUG   SystemMonitor:8488 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-03-07 20:40:00,358 INFO    HandlerThread:8488 [interfaces.py:finish():202] Joined disk monitor
+2024-03-07 20:40:00,358 DEBUG   SystemMonitor:8488 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-03-07 20:40:00,384 INFO    HandlerThread:8488 [interfaces.py:finish():202] Joined gpu monitor
+2024-03-07 20:40:00,384 INFO    HandlerThread:8488 [interfaces.py:finish():202] Joined memory monitor
+2024-03-07 20:40:00,384 INFO    HandlerThread:8488 [interfaces.py:finish():202] Joined network monitor
+2024-03-07 20:40:00,384 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:00,385 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 2
+2024-03-07 20:40:00,385 INFO    SenderThread:8488 [sender.py:transition_state():613] send defer: 3
+2024-03-07 20:40:00,385 DEBUG   SenderThread:8488 [sender.py:send():378] send: stats
+2024-03-07 20:40:00,385 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:00,385 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 3
+2024-03-07 20:40:00,385 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:00,385 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 3
+2024-03-07 20:40:00,385 INFO    SenderThread:8488 [sender.py:transition_state():613] send defer: 4
+2024-03-07 20:40:00,385 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:00,385 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 4
+2024-03-07 20:40:00,385 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:00,386 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 4
+2024-03-07 20:40:00,386 INFO    SenderThread:8488 [sender.py:transition_state():613] send defer: 5
+2024-03-07 20:40:00,386 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:00,386 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 5
+2024-03-07 20:40:00,386 DEBUG   SenderThread:8488 [sender.py:send():378] send: summary
+2024-03-07 20:40:00,386 INFO    SenderThread:8488 [sender.py:_save_file():1365] saving file wandb-summary.json with policy end
+2024-03-07 20:40:00,386 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:00,386 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 5
+2024-03-07 20:40:00,386 INFO    SenderThread:8488 [sender.py:transition_state():613] send defer: 6
+2024-03-07 20:40:00,386 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:00,386 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 6
+2024-03-07 20:40:00,387 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:00,387 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 6
+2024-03-07 20:40:00,389 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: status_report
+2024-03-07 20:40:00,677 INFO    SenderThread:8488 [sender.py:transition_state():613] send defer: 7
+2024-03-07 20:40:00,678 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:00,678 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 7
+2024-03-07 20:40:00,678 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:00,678 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 7
+2024-03-07 20:40:01,077 INFO    Thread-12 :8488 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/config.yaml
+2024-03-07 20:40:01,078 INFO    Thread-12 :8488 [dir_watcher.py:_on_file_created():271] file/dir created: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/wandb-summary.json
+2024-03-07 20:40:01,356 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: poll_exit
+2024-03-07 20:40:01,987 INFO    SenderThread:8488 [sender.py:transition_state():613] send defer: 8
+2024-03-07 20:40:01,987 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: poll_exit
+2024-03-07 20:40:01,987 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:01,987 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 8
+2024-03-07 20:40:01,988 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:01,988 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 8
+2024-03-07 20:40:01,988 INFO    SenderThread:8488 [job_builder.py:build():298] Attempting to build job artifact
+2024-03-07 20:40:01,988 INFO    SenderThread:8488 [job_builder.py:_get_source_type():428] is repo sourced job
+2024-03-07 20:40:02,002 INFO    SenderThread:8488 [job_builder.py:build():404] adding wandb-job metadata file
+2024-03-07 20:40:02,009 INFO    SenderThread:8488 [sender.py:transition_state():613] send defer: 9
+2024-03-07 20:40:02,009 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:02,009 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 9
+2024-03-07 20:40:02,010 DEBUG   SenderThread:8488 [sender.py:send():378] send: artifact
+2024-03-07 20:40:02,078 INFO    Thread-12 :8488 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/output.log
+2024-03-07 20:40:02,356 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: poll_exit
+2024-03-07 20:40:03,881 INFO    wandb-upload_0:8488 [upload_job.py:push():89] Uploaded file /home/bekzat/.local/share/wandb/artifacts/staging/tmpdatfduzw
+2024-03-07 20:40:03,982 INFO    wandb-upload_1:8488 [upload_job.py:push():89] Uploaded file /home/bekzat/.local/share/wandb/artifacts/staging/tmpqgont43n
+2024-03-07 20:40:05,466 INFO    SenderThread:8488 [sender.py:send_artifact():1443] sent artifact job-https___github.com_fesiib_starlab-video-analysis_scripts_train.py - {'id': 'QXJ0aWZhY3Q6NzQ1MDQxMDI5', 'state': 'PENDING', 'artifactSequence': {'id': 'QXJ0aWZhY3RDb2xsZWN0aW9uOjE0NjQwNzAwMw==', 'latestArtifact': None}}
+2024-03-07 20:40:05,466 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:05,466 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 9
+2024-03-07 20:40:05,466 INFO    SenderThread:8488 [dir_watcher.py:finish():358] shutting down directory watcher
+2024-03-07 20:40:05,466 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: status_report
+2024-03-07 20:40:06,081 INFO    SenderThread:8488 [dir_watcher.py:finish():388] scan: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files
+2024-03-07 20:40:06,081 INFO    SenderThread:8488 [dir_watcher.py:finish():402] scan save: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/output.log output.log
+2024-03-07 20:40:06,081 INFO    SenderThread:8488 [dir_watcher.py:finish():402] scan save: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/wandb-metadata.json wandb-metadata.json
+2024-03-07 20:40:06,081 INFO    SenderThread:8488 [dir_watcher.py:finish():402] scan save: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/conda-environment.yaml conda-environment.yaml
+2024-03-07 20:40:06,081 INFO    SenderThread:8488 [dir_watcher.py:finish():402] scan save: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/config.yaml config.yaml
+2024-03-07 20:40:06,082 INFO    SenderThread:8488 [dir_watcher.py:finish():402] scan save: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/requirements.txt requirements.txt
+2024-03-07 20:40:06,085 INFO    SenderThread:8488 [dir_watcher.py:finish():402] scan save: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/wandb-summary.json wandb-summary.json
+2024-03-07 20:40:06,086 INFO    SenderThread:8488 [sender.py:transition_state():613] send defer: 10
+2024-03-07 20:40:06,086 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: poll_exit
+2024-03-07 20:40:06,089 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:06,089 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 10
+2024-03-07 20:40:06,089 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:06,089 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 10
+2024-03-07 20:40:06,089 INFO    SenderThread:8488 [file_pusher.py:finish():172] shutting down file pusher
+2024-03-07 20:40:06,359 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: poll_exit
+2024-03-07 20:40:06,359 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: poll_exit
+2024-03-07 20:40:06,672 INFO    wandb-upload_0:8488 [upload_job.py:push():131] Uploaded file /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/output.log
+2024-03-07 20:40:06,686 INFO    wandb-upload_1:8488 [upload_job.py:push():131] Uploaded file /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/conda-environment.yaml
+2024-03-07 20:40:06,935 INFO    wandb-upload_4:8488 [upload_job.py:push():131] Uploaded file /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/wandb-summary.json
+2024-03-07 20:40:06,939 INFO    wandb-upload_3:8488 [upload_job.py:push():131] Uploaded file /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/requirements.txt
+2024-03-07 20:40:06,947 INFO    wandb-upload_2:8488 [upload_job.py:push():131] Uploaded file /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/files/config.yaml
+2024-03-07 20:40:07,147 INFO    Thread-11 (_thread_body):8488 [sender.py:transition_state():613] send defer: 11
+2024-03-07 20:40:07,148 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:07,156 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 11
+2024-03-07 20:40:07,157 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:07,157 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 11
+2024-03-07 20:40:07,157 INFO    SenderThread:8488 [file_pusher.py:join():178] waiting for file pusher
+2024-03-07 20:40:07,157 INFO    SenderThread:8488 [sender.py:transition_state():613] send defer: 12
+2024-03-07 20:40:07,157 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:07,158 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 12
+2024-03-07 20:40:07,158 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:07,158 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 12
+2024-03-07 20:40:07,158 INFO    SenderThread:8488 [file_stream.py:finish():595] file stream finish called
+2024-03-07 20:40:07,360 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: poll_exit
+2024-03-07 20:40:07,391 INFO    SenderThread:8488 [file_stream.py:finish():599] file stream finish is done
+2024-03-07 20:40:07,391 INFO    SenderThread:8488 [sender.py:transition_state():613] send defer: 13
+2024-03-07 20:40:07,391 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: poll_exit
+2024-03-07 20:40:07,391 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:07,391 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 13
+2024-03-07 20:40:07,392 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:07,392 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 13
+2024-03-07 20:40:07,392 INFO    SenderThread:8488 [sender.py:transition_state():613] send defer: 14
+2024-03-07 20:40:07,392 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: defer
+2024-03-07 20:40:07,392 INFO    HandlerThread:8488 [handler.py:handle_request_defer():172] handle defer: 14
+2024-03-07 20:40:07,392 DEBUG   SenderThread:8488 [sender.py:send():378] send: final
+2024-03-07 20:40:07,392 DEBUG   SenderThread:8488 [sender.py:send():378] send: footer
+2024-03-07 20:40:07,392 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: defer
+2024-03-07 20:40:07,392 INFO    SenderThread:8488 [sender.py:send_request_defer():609] handle sender defer: 14
+2024-03-07 20:40:07,393 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: poll_exit
+2024-03-07 20:40:07,393 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: poll_exit
+2024-03-07 20:40:07,394 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: poll_exit
+2024-03-07 20:40:07,394 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: poll_exit
+2024-03-07 20:40:07,394 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: server_info
+2024-03-07 20:40:07,394 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: get_summary
+2024-03-07 20:40:07,395 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: server_info
+2024-03-07 20:40:07,396 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: sampled_history
+2024-03-07 20:40:07,397 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-07 20:40:07,397 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: job_info
+2024-03-07 20:40:07,629 DEBUG   SenderThread:8488 [sender.py:send_request():405] send_request: job_info
+2024-03-07 20:40:07,630 INFO    MainThread:8488 [wandb_run.py:_footer_history_summary_info():3851] rendering history
+2024-03-07 20:40:07,630 INFO    MainThread:8488 [wandb_run.py:_footer_history_summary_info():3883] rendering summary
+2024-03-07 20:40:07,630 INFO    MainThread:8488 [wandb_run.py:_footer_sync_info():3810] logging synced files
+2024-03-07 20:40:07,630 DEBUG   HandlerThread:8488 [handler.py:handle_request():146] handle_request: shutdown
+2024-03-07 20:40:07,631 INFO    HandlerThread:8488 [handler.py:finish():869] shutting down handler
+2024-03-07 20:40:08,398 INFO    WriterThread:8488 [datastore.py:close():296] close: /home/bekzat/starlab/video-analysis/starlab-video-analysis/wandb/run-20240307_203947-ylu2ibe7/run-ylu2ibe7.wandb
+2024-03-07 20:40:08,630 INFO    SenderThread:8488 [sender.py:finish():1521] shutting down sender
+2024-03-07 20:40:08,630 INFO    SenderThread:8488 [file_pusher.py:finish():172] shutting down file pusher
+2024-03-07 20:40:08,630 INFO    SenderThread:8488 [file_pusher.py:join():178] waiting for file pusher

@@ -1,0 +1,2111 @@
+{
+  "text": " speakers. 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp 1 Tbsp",
+  "segments": [
+    {
+      "id": 0,
+      "seek": 0,
+      "start": 0.0,
+      "end": 14.0,
+      "text": " speakers.",
+      "tokens": [
+        50363,
+        11636,
+        13,
+        51063
+      ],
+      "temperature": 1.0,
+      "avg_logprob": -3.465931701660156,
+      "compression_ratio": 0.5294117647058824,
+      "no_speech_prob": 0.2741341292858124
+    },
+    {
+      "id": 1,
+      "seek": 3000,
+      "start": 30.0,
+      "end": 30.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50363,
+        352,
+        309,
+        24145,
+        50402
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 2,
+      "seek": 3000,
+      "start": 30.78,
+      "end": 31.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50402,
+        352,
+        309,
+        24145,
+        50452
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 3,
+      "seek": 3000,
+      "start": 31.78,
+      "end": 32.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50452,
+        352,
+        309,
+        24145,
+        50502
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 4,
+      "seek": 3000,
+      "start": 32.78,
+      "end": 33.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50502,
+        352,
+        309,
+        24145,
+        50552
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 5,
+      "seek": 3000,
+      "start": 33.78,
+      "end": 34.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50552,
+        352,
+        309,
+        24145,
+        50602
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 6,
+      "seek": 3000,
+      "start": 34.78,
+      "end": 35.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50602,
+        352,
+        309,
+        24145,
+        50652
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 7,
+      "seek": 3000,
+      "start": 35.78,
+      "end": 36.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50652,
+        352,
+        309,
+        24145,
+        50702
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 8,
+      "seek": 3000,
+      "start": 36.78,
+      "end": 37.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50702,
+        352,
+        309,
+        24145,
+        50752
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 9,
+      "seek": 3000,
+      "start": 37.78,
+      "end": 38.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50752,
+        352,
+        309,
+        24145,
+        50802
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 10,
+      "seek": 3000,
+      "start": 38.78,
+      "end": 39.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50802,
+        352,
+        309,
+        24145,
+        50852
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 11,
+      "seek": 3000,
+      "start": 39.78,
+      "end": 40.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50852,
+        352,
+        309,
+        24145,
+        50902
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 12,
+      "seek": 3000,
+      "start": 40.78,
+      "end": 41.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50902,
+        352,
+        309,
+        24145,
+        50952
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 13,
+      "seek": 3000,
+      "start": 41.78,
+      "end": 42.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50952,
+        352,
+        309,
+        24145,
+        51002
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 14,
+      "seek": 3000,
+      "start": 42.78,
+      "end": 43.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51002,
+        352,
+        309,
+        24145,
+        51052
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 15,
+      "seek": 3000,
+      "start": 43.78,
+      "end": 44.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51052,
+        352,
+        309,
+        24145,
+        51102
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 16,
+      "seek": 3000,
+      "start": 44.78,
+      "end": 45.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51102,
+        352,
+        309,
+        24145,
+        51152
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 17,
+      "seek": 3000,
+      "start": 45.78,
+      "end": 46.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51152,
+        352,
+        309,
+        24145,
+        51202
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 18,
+      "seek": 3000,
+      "start": 46.78,
+      "end": 47.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51202,
+        352,
+        309,
+        24145,
+        51252
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 19,
+      "seek": 3000,
+      "start": 47.78,
+      "end": 48.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51252,
+        352,
+        309,
+        24145,
+        51302
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 20,
+      "seek": 3000,
+      "start": 48.78,
+      "end": 49.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51302,
+        352,
+        309,
+        24145,
+        51352
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 21,
+      "seek": 3000,
+      "start": 49.78,
+      "end": 50.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51352,
+        352,
+        309,
+        24145,
+        51402
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 22,
+      "seek": 3000,
+      "start": 50.78,
+      "end": 51.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51402,
+        352,
+        309,
+        24145,
+        51452
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 23,
+      "seek": 3000,
+      "start": 51.78,
+      "end": 52.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51452,
+        352,
+        309,
+        24145,
+        51502
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 24,
+      "seek": 3000,
+      "start": 52.78,
+      "end": 53.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51502,
+        352,
+        309,
+        24145,
+        51552
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 25,
+      "seek": 3000,
+      "start": 53.78,
+      "end": 54.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51552,
+        352,
+        309,
+        24145,
+        51602
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 26,
+      "seek": 3000,
+      "start": 54.78,
+      "end": 55.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51602,
+        352,
+        309,
+        24145,
+        51652
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 27,
+      "seek": 3000,
+      "start": 55.78,
+      "end": 56.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51652,
+        352,
+        309,
+        24145,
+        51702
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 28,
+      "seek": 3000,
+      "start": 56.78,
+      "end": 57.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51702,
+        352,
+        309,
+        24145,
+        51752
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 29,
+      "seek": 3000,
+      "start": 57.78,
+      "end": 58.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51752,
+        352,
+        309,
+        24145,
+        51802
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 30,
+      "seek": 3000,
+      "start": 58.78,
+      "end": 59.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51802,
+        352,
+        309,
+        24145,
+        51852
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.2578680891739695,
+      "compression_ratio": 11.61111111111111,
+      "no_speech_prob": 0.6540804505348206
+    },
+    {
+      "id": 31,
+      "seek": 5978,
+      "start": 59.78,
+      "end": 60.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50363,
+        352,
+        309,
+        24145,
+        50413
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 32,
+      "seek": 5978,
+      "start": 60.78,
+      "end": 61.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50413,
+        352,
+        309,
+        24145,
+        50463
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 33,
+      "seek": 5978,
+      "start": 61.78,
+      "end": 62.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50463,
+        352,
+        309,
+        24145,
+        50513
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 34,
+      "seek": 5978,
+      "start": 62.78,
+      "end": 63.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50513,
+        352,
+        309,
+        24145,
+        50563
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 35,
+      "seek": 5978,
+      "start": 63.78,
+      "end": 64.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50563,
+        352,
+        309,
+        24145,
+        50613
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 36,
+      "seek": 5978,
+      "start": 64.78,
+      "end": 65.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50613,
+        352,
+        309,
+        24145,
+        50663
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 37,
+      "seek": 5978,
+      "start": 65.78,
+      "end": 66.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50663,
+        352,
+        309,
+        24145,
+        50713
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 38,
+      "seek": 5978,
+      "start": 66.78,
+      "end": 67.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50713,
+        352,
+        309,
+        24145,
+        50763
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 39,
+      "seek": 5978,
+      "start": 67.78,
+      "end": 68.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50763,
+        352,
+        309,
+        24145,
+        50813
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 40,
+      "seek": 5978,
+      "start": 68.78,
+      "end": 69.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50813,
+        352,
+        309,
+        24145,
+        50863
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 41,
+      "seek": 5978,
+      "start": 69.78,
+      "end": 70.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50863,
+        352,
+        309,
+        24145,
+        50913
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 42,
+      "seek": 5978,
+      "start": 70.78,
+      "end": 71.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50913,
+        352,
+        309,
+        24145,
+        50963
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 43,
+      "seek": 5978,
+      "start": 71.78,
+      "end": 72.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50963,
+        352,
+        309,
+        24145,
+        51013
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 44,
+      "seek": 5978,
+      "start": 72.78,
+      "end": 73.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51013,
+        352,
+        309,
+        24145,
+        51063
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 45,
+      "seek": 5978,
+      "start": 73.78,
+      "end": 74.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51063,
+        352,
+        309,
+        24145,
+        51113
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 46,
+      "seek": 5978,
+      "start": 74.78,
+      "end": 75.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51113,
+        352,
+        309,
+        24145,
+        51163
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 47,
+      "seek": 5978,
+      "start": 75.78,
+      "end": 76.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51163,
+        352,
+        309,
+        24145,
+        51213
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 48,
+      "seek": 5978,
+      "start": 76.78,
+      "end": 77.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51213,
+        352,
+        309,
+        24145,
+        51263
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 49,
+      "seek": 5978,
+      "start": 77.78,
+      "end": 78.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51263,
+        352,
+        309,
+        24145,
+        51313
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 50,
+      "seek": 5978,
+      "start": 78.78,
+      "end": 79.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51313,
+        352,
+        309,
+        24145,
+        51363
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 51,
+      "seek": 5978,
+      "start": 79.78,
+      "end": 80.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51363,
+        352,
+        309,
+        24145,
+        51413
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 52,
+      "seek": 5978,
+      "start": 80.78,
+      "end": 81.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51413,
+        352,
+        309,
+        24145,
+        51463
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 53,
+      "seek": 5978,
+      "start": 81.78,
+      "end": 82.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51463,
+        352,
+        309,
+        24145,
+        51513
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 54,
+      "seek": 5978,
+      "start": 82.78,
+      "end": 83.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51513,
+        352,
+        309,
+        24145,
+        51563
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 55,
+      "seek": 5978,
+      "start": 83.78,
+      "end": 84.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51563,
+        352,
+        309,
+        24145,
+        51613
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 56,
+      "seek": 5978,
+      "start": 84.78,
+      "end": 85.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51613,
+        352,
+        309,
+        24145,
+        51663
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 57,
+      "seek": 5978,
+      "start": 85.78,
+      "end": 86.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51663,
+        352,
+        309,
+        24145,
+        51713
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 58,
+      "seek": 5978,
+      "start": 86.78,
+      "end": 87.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51713,
+        352,
+        309,
+        24145,
+        51763
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 59,
+      "seek": 5978,
+      "start": 87.78,
+      "end": 88.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51763,
+        352,
+        309,
+        24145,
+        51813
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.11940435811775882,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.621573805809021
+    },
+    {
+      "id": 60,
+      "seek": 8878,
+      "start": 88.78,
+      "end": 89.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50363,
+        352,
+        309,
+        24145,
+        50413
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 61,
+      "seek": 8878,
+      "start": 89.78,
+      "end": 90.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50413,
+        352,
+        309,
+        24145,
+        50463
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 62,
+      "seek": 8878,
+      "start": 90.78,
+      "end": 91.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50463,
+        352,
+        309,
+        24145,
+        50513
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 63,
+      "seek": 8878,
+      "start": 91.78,
+      "end": 92.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50513,
+        352,
+        309,
+        24145,
+        50563
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 64,
+      "seek": 8878,
+      "start": 92.78,
+      "end": 93.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50563,
+        352,
+        309,
+        24145,
+        50613
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 65,
+      "seek": 8878,
+      "start": 93.78,
+      "end": 94.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50613,
+        352,
+        309,
+        24145,
+        50663
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 66,
+      "seek": 8878,
+      "start": 94.78,
+      "end": 95.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50663,
+        352,
+        309,
+        24145,
+        50713
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 67,
+      "seek": 8878,
+      "start": 95.78,
+      "end": 96.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50713,
+        352,
+        309,
+        24145,
+        50763
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 68,
+      "seek": 8878,
+      "start": 96.78,
+      "end": 97.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50763,
+        352,
+        309,
+        24145,
+        50813
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 69,
+      "seek": 8878,
+      "start": 97.78,
+      "end": 98.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50813,
+        352,
+        309,
+        24145,
+        50863
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 70,
+      "seek": 8878,
+      "start": 98.78,
+      "end": 99.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50863,
+        352,
+        309,
+        24145,
+        50913
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 71,
+      "seek": 8878,
+      "start": 99.78,
+      "end": 100.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50913,
+        352,
+        309,
+        24145,
+        50963
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 72,
+      "seek": 8878,
+      "start": 100.78,
+      "end": 101.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50963,
+        352,
+        309,
+        24145,
+        51013
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 73,
+      "seek": 8878,
+      "start": 101.78,
+      "end": 102.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51013,
+        352,
+        309,
+        24145,
+        51063
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 74,
+      "seek": 8878,
+      "start": 102.78,
+      "end": 103.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51063,
+        352,
+        309,
+        24145,
+        51113
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 75,
+      "seek": 8878,
+      "start": 103.78,
+      "end": 104.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51113,
+        352,
+        309,
+        24145,
+        51163
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 76,
+      "seek": 8878,
+      "start": 104.78,
+      "end": 105.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51163,
+        352,
+        309,
+        24145,
+        51213
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 77,
+      "seek": 8878,
+      "start": 105.78,
+      "end": 106.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51213,
+        352,
+        309,
+        24145,
+        51263
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 78,
+      "seek": 8878,
+      "start": 106.78,
+      "end": 107.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51263,
+        352,
+        309,
+        24145,
+        51313
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 79,
+      "seek": 8878,
+      "start": 107.78,
+      "end": 108.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51313,
+        352,
+        309,
+        24145,
+        51363
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 80,
+      "seek": 8878,
+      "start": 108.78,
+      "end": 109.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51363,
+        352,
+        309,
+        24145,
+        51413
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 81,
+      "seek": 8878,
+      "start": 109.78,
+      "end": 110.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51413,
+        352,
+        309,
+        24145,
+        51463
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 82,
+      "seek": 8878,
+      "start": 110.78,
+      "end": 111.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51463,
+        352,
+        309,
+        24145,
+        51513
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 83,
+      "seek": 8878,
+      "start": 111.78,
+      "end": 112.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51513,
+        352,
+        309,
+        24145,
+        51563
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 84,
+      "seek": 8878,
+      "start": 112.78,
+      "end": 113.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51563,
+        352,
+        309,
+        24145,
+        51613
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 85,
+      "seek": 8878,
+      "start": 113.78,
+      "end": 114.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51613,
+        352,
+        309,
+        24145,
+        51663
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 86,
+      "seek": 8878,
+      "start": 114.78,
+      "end": 115.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51663,
+        352,
+        309,
+        24145,
+        51713
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 87,
+      "seek": 8878,
+      "start": 115.78,
+      "end": 116.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51713,
+        352,
+        309,
+        24145,
+        51763
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 88,
+      "seek": 8878,
+      "start": 116.78,
+      "end": 117.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51763,
+        352,
+        309,
+        24145,
+        51813
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1206619236744991,
+      "compression_ratio": 11.222222222222221,
+      "no_speech_prob": 0.9699854850769043
+    },
+    {
+      "id": 89,
+      "seek": 11778,
+      "start": 118.78,
+      "end": 119.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50413,
+        352,
+        309,
+        24145,
+        50463
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 90,
+      "seek": 11778,
+      "start": 119.78,
+      "end": 120.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50463,
+        352,
+        309,
+        24145,
+        50513
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 91,
+      "seek": 11778,
+      "start": 120.78,
+      "end": 121.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50513,
+        352,
+        309,
+        24145,
+        50563
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 92,
+      "seek": 11778,
+      "start": 121.78,
+      "end": 122.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50563,
+        352,
+        309,
+        24145,
+        50613
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 93,
+      "seek": 11778,
+      "start": 122.78,
+      "end": 123.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50613,
+        352,
+        309,
+        24145,
+        50663
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 94,
+      "seek": 11778,
+      "start": 123.78,
+      "end": 124.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50663,
+        352,
+        309,
+        24145,
+        50713
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 95,
+      "seek": 11778,
+      "start": 124.78,
+      "end": 125.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50713,
+        352,
+        309,
+        24145,
+        50763
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 96,
+      "seek": 11778,
+      "start": 125.78,
+      "end": 126.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50763,
+        352,
+        309,
+        24145,
+        50813
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 97,
+      "seek": 11778,
+      "start": 126.78,
+      "end": 127.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50813,
+        352,
+        309,
+        24145,
+        50863
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 98,
+      "seek": 11778,
+      "start": 127.78,
+      "end": 128.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50863,
+        352,
+        309,
+        24145,
+        50913
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 99,
+      "seek": 11778,
+      "start": 128.78,
+      "end": 129.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50913,
+        352,
+        309,
+        24145,
+        50963
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 100,
+      "seek": 11778,
+      "start": 129.78,
+      "end": 130.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        50963,
+        352,
+        309,
+        24145,
+        51013
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 101,
+      "seek": 11778,
+      "start": 130.78,
+      "end": 131.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51013,
+        352,
+        309,
+        24145,
+        51063
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 102,
+      "seek": 11778,
+      "start": 131.78,
+      "end": 132.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51063,
+        352,
+        309,
+        24145,
+        51113
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 103,
+      "seek": 11778,
+      "start": 132.78,
+      "end": 133.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51113,
+        352,
+        309,
+        24145,
+        51163
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 104,
+      "seek": 11778,
+      "start": 133.78,
+      "end": 134.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51163,
+        352,
+        309,
+        24145,
+        51213
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 105,
+      "seek": 11778,
+      "start": 134.78,
+      "end": 135.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51213,
+        352,
+        309,
+        24145,
+        51263
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 106,
+      "seek": 11778,
+      "start": 135.78,
+      "end": 136.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51263,
+        352,
+        309,
+        24145,
+        51313
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 107,
+      "seek": 11778,
+      "start": 136.78,
+      "end": 137.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51313,
+        352,
+        309,
+        24145,
+        51363
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 108,
+      "seek": 11778,
+      "start": 137.78,
+      "end": 138.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51363,
+        352,
+        309,
+        24145,
+        51413
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 109,
+      "seek": 11778,
+      "start": 138.78,
+      "end": 139.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51413,
+        352,
+        309,
+        24145,
+        51463
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 110,
+      "seek": 11778,
+      "start": 139.78,
+      "end": 140.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51463,
+        352,
+        309,
+        24145,
+        51513
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 111,
+      "seek": 11778,
+      "start": 140.78,
+      "end": 141.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51513,
+        352,
+        309,
+        24145,
+        51563
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 112,
+      "seek": 11778,
+      "start": 141.78,
+      "end": 142.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51563,
+        352,
+        309,
+        24145,
+        51613
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 113,
+      "seek": 11778,
+      "start": 142.78,
+      "end": 143.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51613,
+        352,
+        309,
+        24145,
+        51663
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 114,
+      "seek": 11778,
+      "start": 143.78,
+      "end": 144.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51663,
+        352,
+        309,
+        24145,
+        51713
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 115,
+      "seek": 11778,
+      "start": 144.78,
+      "end": 145.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51713,
+        352,
+        309,
+        24145,
+        51763
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    },
+    {
+      "id": 116,
+      "seek": 11778,
+      "start": 145.78,
+      "end": 146.78,
+      "text": " 1 Tbsp",
+      "tokens": [
+        51763,
+        352,
+        309,
+        24145,
+        51813
+      ],
+      "temperature": 0.0,
+      "avg_logprob": -0.1135033755235269,
+      "compression_ratio": 10.833333333333334,
+      "no_speech_prob": 0.9632878303527832
+    }
+  ],
+  "language": "en"
+}
