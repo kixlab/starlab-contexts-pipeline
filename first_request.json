@@ -1,0 +1,158 @@
+{
+  "watch_history": [
+    {
+      "video_id": "aEFvNsBDCWs",
+      "start": 0,
+      "finish": 0
+    }
+  ],
+  "link_types": [
+    "local",
+    "global"
+  ],
+  "previous_with_titles": [],
+  "last_step": {
+    "title": "Introduction",
+    "video_id": "aEFvNsBDCWs",
+    "start": 0.08,
+    "finish": 2.639,
+    "text": "Do you love moist fluffy chocolate chip muffins with that sky-high bakery top and a nice crisp edge?"
+  },
+  "previous_links": {},
+  "links": {
+    "global": [
+      {
+        "gap_title": "Accurate Measurement of Dry Ingredients",
+        "gap_description": "The user may not understand the importance of accurately measuring dry ingredients, especially flour, which can affect the outcome of baking.",
+        "keywords": [
+          "measurement",
+          "flour",
+          "accuracy"
+        ],
+        "explanation": "The video explains the importance of using a scale for accurate measurement and provides a link to a detailed video on measuring flour correctly.",
+        "video_id": "aEFvNsBDCWs",
+        "start": 35.68,
+        "finish": 87.36,
+        "label": "-Procedure-"
+      },
+      {
+        "gap_title": "Combining Wet and Dry Ingredients",
+        "gap_description": "The user may not know the correct method to combine wet and dry ingredients to avoid overmixing.",
+        "keywords": [
+          "combine",
+          "wet ingredients",
+          "dry ingredients",
+          "overmixing"
+        ],
+        "explanation": "The video demonstrates how to pour the wet ingredients into the dry ingredients and mix until almost combined, leaving some clumps of flour.",
+        "video_id": "aEFvNsBDCWs",
+        "start": 177.68,
+        "finish": 207.04,
+        "label": "-Procedure-"
+      },
+      {
+        "gap_title": "Folding in Chocolate Chips",
+        "gap_description": "The user may not understand the correct technique to fold in chocolate chips without overmixing the batter.",
+        "keywords": [
+          "folding",
+          "chocolate chips",
+          "overmixing"
+        ],
+        "explanation": "The video shows how to fold in chocolate chips using a spatula instead of a whisk to avoid overmixing.",
+        "video_id": "aEFvNsBDCWs",
+        "start": 207.04,
+        "finish": 252.72,
+        "label": "-Procedure-"
+      },
+      {
+        "gap_title": "Preparing Muffin Tins",
+        "gap_description": "The user may not know the different methods to prepare muffin tins and their effects on the final product.",
+        "keywords": [
+          "muffin tins",
+          "preparation",
+          "butter",
+          "flour",
+          "muffin papers"
+        ],
+        "explanation": "The video explains how to butter and flour muffin tins and the use of muffin papers, including the differences in the final product.",
+        "video_id": "aEFvNsBDCWs",
+        "start": 252.72,
+        "finish": 320.96,
+        "label": "-Procedure-"
+      },
+      {
+        "gap_title": "Baking Temperature and Time",
+        "gap_description": "The user may not understand the importance of adjusting the oven temperature during baking to achieve the best results.",
+        "keywords": [
+          "baking",
+          "temperature",
+          "time",
+          "adjustment"
+        ],
+        "explanation": "The video instructs to bake at 425 degrees Fahrenheit for 5 minutes, then reduce to 350 degrees and continue baking for 20-25 minutes.",
+        "video_id": "aEFvNsBDCWs",
+        "start": 368.319,
+        "finish": 388.639,
+        "label": "-Procedure-"
+      },
+      {
+        "gap_title": "Creating a Streusel Topping",
+        "gap_description": "The user may not know how to make a streusel topping for muffins.",
+        "keywords": [
+          "streusel",
+          "topping",
+          "muffins"
+        ],
+        "explanation": "The video provides a step-by-step guide to making a simple streusel topping with brown sugar, flour, butter, and cinnamon.",
+        "video_id": "gN-orgrgvU8",
+        "start": 148.23,
+        "finish": 171.41,
+        "label": "-Procedure-"
+      },
+      {
+        "gap_title": "Master Muffin Recipe Variations",
+        "gap_description": "The user may not be aware of how to use a master muffin recipe to create different flavors.",
+        "keywords": [
+          "master recipe",
+          "variations",
+          "flavors"
+        ],
+        "explanation": "The video explains a master muffin recipe and demonstrates five different variations, showing how to build upon the base recipe.",
+        "video_id": "cZ2KJPGVwNU",
+        "start": 32.547,
+        "finish": 505.709,
+        "label": "-Procedure-"
+      }
+    ],
+    "local": [
+      {
+        "gap_title": "Introduction to Recipe",
+        "gap_description": "The user may not understand the importance of a clear and engaging introduction in a cooking video.",
+        "keywords": [
+          "introduction",
+          "engagement",
+          "recipe overview"
+        ],
+        "explanation": "The video 'gN-orgrgvU8' provides a clear and engaging introduction by introducing the host and the recipe, which helps set the stage for the cooking process.",
+        "video_id": "gN-orgrgvU8",
+        "start": 0.03,
+        "finish": 7.079,
+        "label": "Introduction"
+      },
+      {
+        "gap_title": "Master Recipe Introduction",
+        "gap_description": "The user may not be aware of how to introduce a master recipe effectively.",
+        "keywords": [
+          "master recipe",
+          "introduction",
+          "cooking"
+        ],
+        "explanation": "The video 'cZ2KJPGVwNU' demonstrates how to introduce a master recipe, emphasizing its versatility and importance.",
+        "video_id": "cZ2KJPGVwNU",
+        "start": 0.08,
+        "finish": 4.263,
+        "label": "Introduction"
+      }
+    ]
+  }
+}

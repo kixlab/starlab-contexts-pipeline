@@ -105,8 +105,9 @@ def get_links():
     task_ug = task_ugs[task_id]
     watch_history = data["watch_history"]
     link_types = data["link_types"]
+    previous_links = data["links"]
     
-    links = generate_links(task_ug, watch_history, link_types)
+    links = generate_links(task_ug, watch_history, link_types, previous_links)
     for link_type in links.keys():
         links[link_type] = add_urls(links[link_type])
 

@@ -27,8 +27,8 @@ LIBRARY = {
         "https://www.youtube.com/watch?v=pYOQutHfCDo",
     ],
     "custom": [
-        "https://www.youtube.com/shorts/B-XGIGS4Ipw", # short
-        "https://www.youtube.com/shorts/fWp5z_YM07Q", # short
+        # "https://www.youtube.com/shorts/B-XGIGS4Ipw", # short
+        # "https://www.youtube.com/shorts/fWp5z_YM07Q", # short
         "https://www.youtube.com/watch?v=aEFvNsBDCWs", # has verbal
         "https://www.youtube.com/watch?v=gN-orgrgvU8", # has verbal
         "https://www.youtube.com/watch?v=cZ2KJPGVwNU", # has verbal
@@ -70,7 +70,7 @@ client = OpenAI(
 )
 
 SEED = 13774
-TEMPERATURE = 0.0
+TEMPERATURE = 0.6
 MODEL_NAME = 'gpt-4o'
 
 def get_response(messages, response_format="json_object", retries=1):
@@ -220,7 +220,6 @@ class Video:
                 if max(start, step["start"]) < min(finish, step["finish"]):
                     steps.append(step)
                     break
-            steps.append(step)
         return steps
     
     def get_common_step(self, timestamp):
@@ -294,17 +293,16 @@ class UnderstandingGap:
             video.common_steps = generate_common_steps(video.custom_steps, self.steps)
 
     @staticmethod
-    def generate_understanding_gaps(previous, next, prompt):
+    def generate_understanding_gaps(previous, next, previous_links, prompt):
         if len(next) == 0:
             return []
-        ### previous: [{'video_id': "", 'start': float, 'finish': float, 'text': ""}]
-        ### next: [{'video_id': "", 'start': float, 'finish': float, 'text': ""}]
         messages = [
-            {"role": "system", "content": "You are a helpful assistant who will identify the understanding gaps between two sets of narrations Return a JSON list of understanding gaps."},
+            {"role": "system", "content": "You are a helpful expert who knows what kind of understanding gaps learners have about specific tasks. Make sure to be as brief & to the point as possible, avoid verbose sentences. You respond in JSON format."},
             {"role": "user", "content": prompt},
-            {"role": "user", "content": "Follow this JSON format: [{'gap_title': string, 'gap_description': string, 'explanation': string, 'video_id': string, 'start': float, 'finish', float}]"},
-            {"role": "user", "content": f"Here are the narrations that the learner have already listened & understood:\n{json_to_markdown(previous)}"},
-            {"role": "user", "content": f"Here are the narrations that the learner have not seen yet:\n{json_to_markdown(next)}"},
+            {"role": "user", "content": "Follow this JSON format: [{'gap_title': string, 'gap_description': string, 'keywords': list, 'explanation': string, 'video_id': string, 'start': float, 'finish', float}]"},
+            {"role": "user", "content": f"Here are the narrations that the learner have already listened & understood:\n{json.dumps(previous)}"},
+            {"role": "user", "content": f"Here are the narrations that the learner have not seen yet:\n{json.dumps(next)}"},
+            {"role": "user", "content": f"Here are the previous understanding gaps that were identified:\n{json.dumps(previous_links)}"}
         ]
 
         gaps = get_response(messages)
@@ -312,7 +310,7 @@ class UnderstandingGap:
         if not isinstance(gaps, list):
             return []
         for gap in gaps:
-            if not all(key in gap for key in ["gap_title", "gap_description", "explanation", "video_id", "start", "finish"]):
+            if not all(key in gap for key in ["gap_title", "gap_description", "keywords", "explanation", "video_id", "start", "finish"]):
                 return []
         return gaps
 
@@ -359,7 +357,7 @@ class UnderstandingGap:
 
         return previous_with_titles, last_step
 
-    def get_global_links(self, previous_with_titles):
+    def get_global_links(self, previous_with_titles, previous_links=[]):
         previous = []
         covered_video_ids = set()
         for watch in previous_with_titles:
@@ -382,13 +380,13 @@ class UnderstandingGap:
                     "finish": step["finish"],
                     "text": step["text"],
                 })
-        
-        prompt = """Given two sets of narrations: (1) previous narrations the learner have listened to and understood, and (2) new narrations the learner did not listen to, identify potential understanding gaps the user may have or developed about the procedure itself (e.g., order, presence/absence of specific steps, etc). Provide (1) a short title of the understanding gap, (2) description of the gap, (3) explanation of how the unseen narration addresses the gap, and (4) start&finish timestamps of the narration."""
 
-        gaps = self.generate_understanding_gaps(previous, next, prompt)
+        prompt = f"""Given (1) the user's watch history (2) the unseen videos, and (3) previous understanding gaps, identify new or old understanding gaps the user can have about the procedure (e.g., order, presence/absence of specific steps, etc) and how they can resolve it by watching the unseen videos. Provide (1) a short title, (2) a short description, (3) few representative keywords, (4) a short explanation how the gap is resolved in the video, and (5) start&finish of the video. Also, make sure to include the understanding gaps that have been resolved yet"""
+        
+        gaps = self.generate_understanding_gaps(previous, next, previous_links, prompt)
         return gaps
 
-    def get_local_links(self, previous_with_titles, last_step):
+    def get_local_links(self, previous_with_titles, last_step, previous_links=[]):
         previous = []
         covered_video_ids = set()
         for watch in previous_with_titles:
@@ -417,9 +415,9 @@ class UnderstandingGap:
                     })
                     break
 
-        prompt = f"""Given two sets of narrations: (1) previous narrations the learner have listened to and understood, and (2) new narrations the learner did not listen to, identify potential understanding gaps the user may have or developed about the step {last_step["title"]}. Provide (1) a short title of the understanding gap, (2) description of the gap, (3) explanation of how the unseen narration addresses the gap, and (4) start&finish timestamps of the narration."""
+        prompt = f"""Given (1) the user's watch history (2) the unseen videos, and (3) previous understanding gaps, identify new or old understanding gaps the user can have about the step ({last_step["title"]}) and how they can resolve it by watching the unseen videos. Provide (1) a short title, (2) a short description, (3) few representative keywords, (4) a short explanation how the gap is resolved in the video, and (5) start&finish of the video."""
 
-        gaps = self.generate_understanding_gaps(previous, next, prompt)
+        gaps = self.generate_understanding_gaps(previous, next, previous_links, prompt)
         return gaps
 
 
@@ -453,18 +451,49 @@ def fake_watch_history(videos):
     current_step = watch_history.pop()
     return watch_history, current_step
 
-def generate_links(ug, watch_history, link_types = []):
+def generate_links(ug, watch_history, link_types = [], previous_links = {}):
+    # with open("first_request.json", "r") as f:
+    #     data = json.load(f)
+    #     old_links = data["links"]
+    #     ### do random sampling from old_links & return
+    #     links = {}
+    #     for link_type in link_types:
+    #         links[link_type] = random.sample(old_links[link_type], min(2, len(old_links[link_type])))
+    #     return links
+    
+    if len(watch_history) <= 1:
+        ## read `first_request.json` and return the links
+        with open("first_request.json", "r") as f:
+            data = json.load(f)
+            old_links = data["links"]
+            old_watch_history = data["watch_history"]
+            if (len(watch_history) == 1):
+                watch = watch_history[0]
+                old_watch = old_watch_history[0]
+                same = True
+                for key in old_watch.keys():
+                    if key not in watch or watch[key] != old_watch[key]:
+                        same = False
+                        break
+                if same is True:
+                    return old_links
+
     previous_with_titles, last_step = ug.transform_watch_history(watch_history)
     links = {}
     if "global" in link_types:
-        links["global"] = ug.get_global_links(previous_with_titles)
+        previous_global = previous_links.get("global", [])
+        links["global"] = ug.get_global_links(previous_with_titles, previous_global)
         for link in links["global"]:
-            link["label"] = "Procedure"
+            link["label"] = "-Procedure-"
     
     if "local" in link_types and last_step is not None:
-        links["local"] = ug.get_local_links(previous_with_titles, last_step)
+        previous_local = previous_links.get("local", [])
+        previous_other = [link for link in previous_local if link["label"] != last_step["title"]]
+        previous_local = [link for link in previous_local if link["label"] == last_step["title"]]
+        links["local"] = ug.get_local_links(previous_with_titles, last_step, previous_local)
         for link in links["local"]:
-            link["label"] = f"Step {last_step['title']}"
+            link["label"] = f"{last_step['title']}"
+        links["local"] = previous_other + links["local"]
 
     ### save last request
     open("last_request.json", "w").write(json.dumps({
@@ -472,6 +501,7 @@ def generate_links(ug, watch_history, link_types = []):
         "link_types": link_types,
         "previous_with_titles": previous_with_titles,
         "last_step": last_step,
+        "previous_links": previous_links,
         "links": links,
     }, indent=2))
 
@@ -506,6 +536,8 @@ def setup_ug(task_id):
             video_data = json.load(file)
             videos = []
             for data in video_data:
+                if data["video_link"] not in LIBRARY[task_id]:
+                    continue
                 video = Video(data["video_link"])
                 video.from_dict(**data)
                 videos.append(video)
