@@ -154,56 +154,33 @@ class AlignmentClassificationSchema(BaseModel):
             "classification": self.classification,
             "explanation": self.explanation,
         }
+
+class ReferenceAlignment(BaseModel):
+    alignment_id: str = Field(..., title="the id of the relevant alignment.")
+    description: str = Field(..., title="the concise description of the information alignment.")
     
+    def get_dict(self):
+        return {
+            "alignment_id": self.alignment_id,
+            "description": self.description,
+        }
+
 class AlignmentHookSchema(BaseModel):
-    alignment_ids: list[str] = Field(..., title="The list of alignment ids (i.e., a-N) that are relevant to the hook.")
-    title: str = Field(..., title="a concise, but catchy hook title that can be used to interest learners in the new content")
-    helpfulness: str = Field(..., title="the helpfulness of the question for the learners in understanding the new content.")
+    newref: list[str] = Field(..., title="the list of relevant quotes from the new video.")
+    alignments: list[ReferenceAlignment] = Field(..., title="The list of alignments between the new video and the previous videos that pertain to `newref`.")
+    title: str = Field(..., title="the hook that describes the alignments and can be used to interest learners in the new content or overall comparison.")
 
     def get_dict(self):
         return {
-            "alignment_ids": self.alignment_ids,
+            "alignments": [a.get_dict() for a in self.alignments],
             "title": self.title,
-            "helpfulness": self.helpfulness,
+            "newref": self.newref,
         }
     
 class AlignmentHooksSchema(BaseModel):
-    hooks: list[AlignmentHookSchema] = Field(..., title="The comprehensive and exhaustive list of hook questions that cover all the information")
+    hooks: list[AlignmentHookSchema] = Field(..., title="The comprehensive and exhaustive list of hooks cover all information alignments")
 
     def get_dict(self):
         return {
             "hooks": [h.get_dict() for h in self.hooks],
-        }
-
-class AlignmentCombination(BaseModel):
-    video_id: str = Field(..., title="the id of the relevant video.")
-    ref: list[str] = Field(..., title="the list of relevant quotes from the video.")
-    description: str = Field(..., title="the concise description of the relation between the two sources.")
-
-    def get_dict(self):
-        return {
-            "video_id": self.video_id,
-            "ref": self.ref,
-            "description": self.description,
-        }
-
-
-class AlignmentsCombination(BaseModel):
-    newref: list[str] = Field(..., title="the list of relevant quotes from the new video.")
-    alignments: list[AlignmentCombination] = Field(..., title="The list of relations between the new video and the previous videos that pertain to `newref`.")
-    hook: str = Field(..., title="the hook that describes the relation and can be used to interest learners in the new content or overall comparison.")
-
-    def get_dict(self):
-        return {
-            "newref": self.newref,
-            "alignments": [a.get_dict() for a in self.alignments],
-            "hook": self.hook,
-        }
-    
-class AlignmentsCombinations(BaseModel):
-    combinations: list[AlignmentsCombination] = Field(..., title="The comprehensive and exhaustive list of relations between the new video and the previous videos.")
-
-    def get_dict(self):
-        return {
-            "combinations": [c.get_dict() for c in self.combinations],
         }
