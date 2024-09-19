@@ -1,0 +1,88 @@
+[
+  {
+    "title": "Understand Concept",
+    "definition": "Understand the concept of binary search, including how it efficiently finds an element in a sorted array by repeatedly dividing the search interval in half. Discuss the advantages over linear search in unsorted arrays.",
+    "dependencies": []
+  },
+  {
+    "title": "Ensure Sorted",
+    "definition": "Ensure that the array or list is sorted before performing a binary search. This is a prerequisite for the binary search algorithm to function correctly.",
+    "dependencies": []
+  },
+  {
+    "title": "Define Problem",
+    "definition": "Decide whether the binary search should return the index of the found element or the element itself. Consider what to return if the element is not found, such as a special value like -1 or an exception.",
+    "dependencies": []
+  },
+  {
+    "title": "Set Bounds",
+    "definition": "Initialize the lower and upper bounds (low and high) for the search range. These bounds will be used to narrow down the search space iteratively.",
+    "dependencies": [
+      "Ensure Sorted"
+    ]
+  },
+  {
+    "title": "Calculate Midpoint",
+    "definition": "Compute the midpoint of the current search range using the formula mid = low + (high - low) // 2 to avoid overflow issues. This midpoint will be used to compare against the target value.",
+    "dependencies": [
+      "Set Bounds"
+    ]
+  },
+  {
+    "title": "Compare and Adjust",
+    "definition": "Compare the element at the midpoint with the target value. Adjust the lower or upper bound based on whether the midpoint element is less than or greater than the target. This step narrows the search range.",
+    "dependencies": [
+      "Calculate Midpoint"
+    ]
+  },
+  {
+    "title": "Check Convergence",
+    "definition": "Ensure that the lower and upper bounds converge by checking that the difference between them decreases in each iteration. This guarantees that the loop will eventually terminate.",
+    "dependencies": [
+      "Compare and Adjust"
+    ]
+  },
+  {
+    "title": "Return Result",
+    "definition": "Return the index where the target value should be inserted to maintain order, which is the converged value of the lower and upper bounds. This index represents the first occurrence of the target if it exists, or a special value if not found.",
+    "dependencies": [
+      "Check Convergence"
+    ]
+  },
+  {
+    "title": "Handle Variants",
+    "definition": "Consider variations of the binary search, such as finding the last occurrence of a target value. Adjust the comparison logic to handle these variants, like using less than or equal to for bisect right.",
+    "dependencies": [
+      "Return Result"
+    ]
+  },
+  {
+    "title": "Implement Iteratively",
+    "definition": "Implement the binary search algorithm using an iterative approach, typically with a while loop that continues until the search range is exhausted.",
+    "dependencies": [
+      "Return Result"
+    ]
+  },
+  {
+    "title": "Implement Recursively",
+    "definition": "Implement the binary search algorithm using a recursive approach, where the function calls itself with a reduced search range until the base case is met.",
+    "dependencies": [
+      "Return Result"
+    ]
+  },
+  {
+    "title": "Algorithm Analysis",
+    "definition": "Analyze the efficiency of binary search. Understand that binary search operates in O(log n) time complexity because it halves the search space with each comparison.",
+    "dependencies": [
+      "Understand Concept"
+    ]
+  },
+  {
+    "title": "Test Implementation",
+    "definition": "Test the binary search implementation with various cases, including finding an element, not finding an element, and edge cases like searching for the first or last element.",
+    "dependencies": [
+      "Implement Iteratively",
+      "Implement Recursively"
+    ]
+  }
+]

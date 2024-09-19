@@ -1,0 +1,37 @@
+[
+  {
+    "title": "Select and Prepare the Meat",
+    "definition": "Select the appropriate meat for the dish, which can be guanciale, pancetta, or bacon. Cut the meat into appropriately sized pieces, typically around 1 cm thick and then into smaller chunks. Render the fat in a cold pan over medium-high heat until the meat is crispy and golden, keeping the rendered fat for later use in the sauce.",
+    "dependencies": [],
+    "explanation": "The preparation of the meat is crucial for the flavor and texture of carbonara. This involves selecting the right type of meat (guanciale is traditional, but pancetta or bacon can be used) and cutting it properly to ensure even cooking and fat rendering. The cold pan technique allows for gradual rendering of fat, essential for the sauce's base."
+  },
+  {
+    "title": "Grate the Cheese",
+    "definition": "Grate pecorino romano cheese finely to be used in the sauce. Optionally, a mixture with parmigiano-reggiano can also be considered. Ensure the cheese is fine enough to melt easily into the sauce when mixed.",
+    "dependencies": [],
+    "explanation": "Grating the cheese is important for achieving the right texture in the carbonara sauce. Pecorino romano is traditional for carbonara, but parmigiano-reggiano may also be used. The cheese needs to be finely grated to blend smoothly with the eggs and create a creamy sauce."
+  },
+  {
+    "title": "Prepare the Egg Mixture",
+    "definition": "Crack the eggs into a bowl and mix them with the grated cheese and freshly cracked black pepper to form the base of the sauce. The mixture should be smooth and well-blended. Depending on preference, use either whole eggs, egg yolks, or a combination of both for the sauce.",
+    "dependencies": [],
+    "explanation": "The egg mixture is the core of the carbonara sauce. It involves combining eggs (yolks or whole) with cheese and seasoning them with black pepper. This mixture should be ready before the pasta is cooked to ensure smooth incorporation without scrambling."
+  },
+  {
+    "title": "Cook the Pasta",
+    "definition": "Boil the spaghetti in lightly salted water until al dente, as the sauce components will add additional saltiness. Reserve some of the pasta cooking water to help emulsify the sauce later.",
+    "dependencies": [],
+    "explanation": "Cooking the pasta correctly is key, as it needs to be al dente to hold up in the sauce. The reserved pasta water is critical for emulsifying the sauce and achieving a creamy texture without scrambling the eggs."
+  },
+  {
+    "title": "Combine Ingredients and Finish the Dish",
+    "definition": "Once the pasta is cooked, transfer it directly into the pan with the rendered meat and fat, using some pasta water to stop the frying. Remove from heat, then add the egg and cheese mixture, stirring quickly to create a creamy sauce. Adjust the consistency with additional pasta water if needed. Finish with freshly cracked black pepper and additional grated cheese before serving.",
+    "dependencies": [
+      "Select and Prepare the Meat",
+      "Grate the Cheese",
+      "Prepare the Egg Mixture",
+      "Cook the Pasta"
+    ],
+    "explanation": "This step involves combining all prepared components to finish the carbonara. It's crucial to mix the pasta with the rendered fat and meat off the heat to prevent the eggs from scrambling. The reserved pasta water helps emulsify the sauce, and the dish is finished with pepper and cheese for flavor and presentation."
+  }
+]

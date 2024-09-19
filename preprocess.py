@@ -3,15 +3,19 @@ import json
 
 from helpers import PATH, LIBRARY, TASK_DESCRIPTIONS, META_TITLE, VIDEO_SETS
 from helpers.Video import Video
-from helpers.llm_prompting import define_common_steps, generate_common_steps, get_meta_summary, get_subgoal_summary, get_meta_alignments, get_subgoal_alignments, get_alignment_classification, get_hooks
+from helpers.llm_prompting_v1 import define_common_subgoals_v1, generate_common_subgoals_v1, get_meta_summary_v1, get_subgoal_summary_v1, get_meta_alignments_v1, get_subgoal_alignments_v1, get_alignment_classification_v1, get_hooks_v1
+
+from helpers.llm_prompting_v2 import define_common_subgoals_v2, align_common_subgoals_v2, generate_common_subgoals_v2, get_meta_summary_v2, get_subgoal_summary_v2, generate_common_subgoals_v3, get_subgoal_summaries_v2
+
+from helpers.clip import clip_similar_per_text
 from helpers.mdprint import print_hooks
 
 
-def save_data(task_id, videos=None, steps=None, alignments=None, hooks=None):
+def save_data(task_id, videos=None, subgoals=None, alignments=None, hooks=None):
     if videos is None:
         videos = []
-    if steps is None:
-        steps = []
+    if subgoals is None:
+        subgoals = []
     if alignments is None:
         alignments = []
     if hooks is None:
@@ -28,9 +32,9 @@ def save_data(task_id, videos=None, steps=None, alignments=None, hooks=None):
     with open(f"{PATH}{task_id}/video_data.json", "w") as file:
         json.dump(save_dict, file, indent=2)
 
-    ### save all the step objects
-    with open(f"{PATH}{task_id}/step_data.json", "w") as file:
-        json.dump(steps, file, indent=2)
+    ### save all the subgoal objects
+    with open(f"{PATH}{task_id}/subgoal_data.json", "w") as file:
+        json.dump(subgoals, file, indent=2)
 
     ### save all the information alignments
     with open(f"{PATH}{task_id}/alignments.json", "w") as file:
@@ -58,67 +62,108 @@ def pre_process_videos(video_links):
 class DynamicSummary:
     task = ""
     videos = []
-    steps = []
+    subgoals = []
 
     alignments = []
 
     hooks = {}
 
-    def __init__(self, task, videos, steps=[]):
+    def __init__(self, task, videos, subgoals=[]):
         self.task = task
         self.videos = videos
-        self.steps = steps
+        self.subgoals = subgoals
 
     def process_videos(self):
-        if len(self.steps) == 0:
-            ### Define common steps across all videos
+        ### feed each narration separately to identify common subgoals
+        # self.__process_videos_v1()
+        ### first split the videos into subgoals and then align the subgoals to each other and redefine them
+        self.__process_videos_v2()
+
+    def __process_videos_v1(self):
+        if len(self.subgoals) == 0:
+            ### Define common subgoals across all videos
             narrations = []
             for video in self.videos:
                 narration = "\n".join([subtitle["text"] for subtitle in video.subtitles])
                 narrations.append(narration)
-            common_steps = define_common_steps(narrations)
-            for step in common_steps:
-                self.steps.append({
-                    "title": step["title"],
-                    "definition": step["definition"],
-                    "dependencies": step["dependencies"] if "dependencies" in step else [],
-                    "explanation": step["explanation"] if "explanation" in step else "",
+            common_subgoals = define_common_subgoals_v1(narrations)
+            for subgoal in common_subgoals:
+                self.subgoals.append({
+                    "title": subgoal["title"],
+                    "definition": subgoal["definition"],
+                    "dependencies": subgoal["dependencies"] if "dependencies" in subgoal else [],
+                    "explanation": subgoal["explanation"] if "explanation" in subgoal else "",
                 })
 
-        ### Split into common_steps within each video
+        ### Split into common_subgoals within each video
         for video in self.videos:
-            if len(video.common_steps) == 0:
-                cur_common_steps = generate_common_steps(video.custom_steps, self.steps)
-                for step in cur_common_steps:
-                    video.common_steps.append({
-                        "title": step["title"],
-                        "start": step["start"],
-                        "finish": step["finish"],
-                        "text": step["text"],
-                        "explanation": step["explanation"] if "explanation" in step else "",
+            if len(video.common_subgoals) == 0:
+                cur_common_subgoals = generate_common_subgoals_v1(video.subtitles, self.subgoals)
+                for subgoal in cur_common_subgoals:
+                    video.common_subgoals.append({
+                        "title": subgoal["title"],
+                        "start": subgoal["start"],
+                        "finish": subgoal["finish"],
+                        "text": subgoal["text"],
+                        "explanation": subgoal["explanation"] if "explanation" in subgoal else "",
                     })
             
-            ## Summarize (for each video) (1) problem, (2) method, (3) outcome
+            ## Summarize (for each video) (1) context, (2) method, (3) outcome
             if video.meta_summary is None:
-                video.meta_summary = get_meta_summary(META_TITLE, video.get_full_narration())
+                video.meta_summary = get_meta_summary_v1(META_TITLE, video.get_full_narration())
 
             ## Summarize (for each subgoal): (1) context, (2) tools, (3) instructions, (4) explanations, (5) supplementary info, (6) outcome
             if len(video.subgoal_summaries) == 0:
-                for main_step_def in self.steps:
+                for main_subgoal_def in self.subgoals:
                     relevant_narrations = []
                     parent_schemas = []
                     for parent_summary in video.subgoal_summaries:
-                        if parent_summary["title"] in main_step_def["dependencies"]:
+                        if parent_summary["title"] in main_subgoal_def["dependencies"]:
                             parent_schemas.append(parent_summary)
                     
-                    for step in video.common_steps:
-                        if step["title"] == main_step_def["title"]:
-                            relevant_narrations.append(step)
+                    for subgoal in video.common_subgoals:
+                        if subgoal["title"] == main_subgoal_def["title"]:
+                            relevant_narrations.append(subgoal)
                     
-                    video.subgoal_summaries.append(get_subgoal_summary(main_step_def["title"], relevant_narrations, parent_schemas, video.meta_summary))
-        
-        if len(self.videos) >= 2 and len(self.alignments) == 0:
-            self.generate_alignments()
+                    video.subgoal_summaries.append(get_subgoal_summary_v1(main_subgoal_def["title"], relevant_narrations, parent_schemas, video.meta_summary))
+
+    def __process_videos_v2(self):
+        if len(self.subgoals) == 0:
+            common_subgoal_defs_per_video = {}
+            for video in self.videos:
+                if len(video.common_subgoals) > 0:
+                    continue
+                common_subgoal_defs_per_video[video.video_id] = define_common_subgoals_v2(video.get_all_contents(), self.task)
+
+            self.subgoals = align_common_subgoals_v2(common_subgoal_defs_per_video, self.task)
+
+        for video in self.videos:
+            if len(video.common_subgoals) == 0:
+                common_subgoals = generate_common_subgoals_v3(video.get_all_contents(), self.subgoals, self.task)
+                ### `segmentation` has `text`, `quotes`, `explanation`
+                for subgoal in common_subgoals:
+                    video.common_subgoals.append({
+                        "title": subgoal["title"],
+                        "explanation": subgoal["explanation"],
+                        "start": subgoal["start"],
+                        "finish": subgoal["finish"],
+                        "text": subgoal["text"],
+                        "frame_paths": subgoal["frame_paths"],
+                    })
+            
+            ## Summarize (for each video) (1) context, (2) method, (3) outcome
+            if video.meta_summary is None:
+                summary = get_meta_summary_v2(video.get_all_contents(), self.task)
+                video.meta_summary = {
+                    "title": META_TITLE,
+                    **summary,
+                }
+            video.meta_summary["frame_paths"] = clip_similar_per_text([video.meta_summary["outcome"]], video.common_subgoals[-1]["frame_paths"])
+
+            ## Summarize (for each subgoal)
+            # if len(video.subgoal_summaries) == 0:
+            #     subgoal_summaries = get_subgoal_summaries_v2(video.common_subgoals, self.task)
+            
 
     def generate_alignments(self):
         self.alignments = []
@@ -128,25 +173,25 @@ class DynamicSummary:
                 if v1_idx == v2_idx:
                     continue
                 ### between meta
-                meta_alignments = get_meta_alignments(video1.meta_summary, video2.meta_summary)
+                meta_alignments = get_meta_alignments_v1(video1.meta_summary, video2.meta_summary)
                 self.alignments.append({
-                    **meta_alignments,
+                    "alignments": meta_alignments,
                     "title": META_TITLE,
                     "new_video": video1.video_id,
                     "prev_video": video2.video_id,
                 })
                 ### between subgoals
-                for step in self.steps:
-                    summary1 = video1.find_subgoal_summary(step["title"])
+                for subgoal in self.subgoals:
+                    summary1 = video1.find_subgoal_summary(subgoal["title"])
                     if summary1 is None:
                         continue    
-                    summary2 = video2.find_subgoal_summary(step["title"])
+                    summary2 = video2.find_subgoal_summary(subgoal["title"])
                     if summary2 is None:
                         continue
-                    subgoal_alignments = get_subgoal_alignments(step["title"], video1.meta_summary, video2.meta_summary, summary1, summary2)
+                    subgoal_alignments = get_subgoal_alignments_v1(subgoal["title"], video1.meta_summary, video2.meta_summary, summary1, summary2)
                     self.alignments.append({
-                        **subgoal_alignments,
-                        "title": step["title"],
+                        "alignments": subgoal_alignments,
+                        "title": subgoal["title"],
                         "new_video": video1.video_id,
                         "prev_video": video2.video_id,
                     })
@@ -179,7 +224,7 @@ class DynamicSummary:
             for index, alignment in enumerate(alignments):
                 if "classification" in alignment:
                     continue
-                classification = get_alignment_classification(alignment, title, new_meta, prev_meta, new_subgoal, prev_subgoal)
+                classification = get_alignment_classification_v1(alignment, title, new_meta, prev_meta, new_subgoal, prev_subgoal)
                 alignments[index] = {
                     **alignment,
                     **classification
@@ -279,7 +324,7 @@ class DynamicSummary:
         return hooks_per_class
     
     def __generate_hooks(self, video_set, classification, title, alignments):
-        hooks = get_hooks(video_set, classification, title, alignments)
+        hooks = get_hooks_v1(video_set, classification, title, alignments)
 
         covered_alignment_ids = []
         for hook in hooks:
@@ -304,10 +349,10 @@ def setup_ds(task_id):
 
     # get the video data
     videos = []
-    steps = []
+    subgoals = []
     alignments = []
     video_data_path = f"{PATH}{task_id}/video_data.json"
-    step_data_path = f"{PATH}{task_id}/step_data.json"
+    subgoal_data_path = f"{PATH}{task_id}/subgoal_data.json"
     alignments_path = f"{PATH}{task_id}/alignments.json"
     hooks_path = f"{PATH}{task_id}/hooks.json"
 
@@ -326,10 +371,10 @@ def setup_ds(task_id):
 
     task_desc = TASK_DESCRIPTIONS[task_id]
 
-    if os.path.exists(step_data_path):
-        with open(step_data_path, "r") as file:
-            steps = json.load(file)
-        ds = DynamicSummary(task_desc, videos, steps)
+    if os.path.exists(subgoal_data_path):
+        with open(subgoal_data_path, "r") as file:
+            subgoals = json.load(file)
+        ds = DynamicSummary(task_desc, videos, subgoals)
     else:
         ds = DynamicSummary(task_desc, videos)
 
@@ -341,17 +386,32 @@ def setup_ds(task_id):
         ds.alignments = []
 
     ds.process_videos()
+    # if len(ds.videos) >= 2 and len(ds.alignments) == 0:
+    #     ds.generate_alignments()
+    #     ds.classify_alignments()
+    #     ds.genenerate_all_hooks()
 
-    ds.classify_alignments()
-
-    ds.genenerate_all_hooks()
-
-    save_data(task_id, videos=ds.videos, steps=ds.steps, alignments=ds.alignments, hooks=ds.hooks)
+    save_data(task_id, videos=ds.videos, subgoals=ds.subgoals, alignments=ds.alignments, hooks=ds.hooks)
     return ds
 
 def main():
 
-    ds = setup_ds("custom2")
+    # for task_id in TASK_DESCRIPTIONS.keys():
+    #     ds = setup_ds(task_id)
+    #     for video in ds.videos:
+    #         for subgoal in video.common_subgoals:
+    #             print(subgoal["title"], end=";")
+    #         print()
+
+    task_id = "remove-objects"
+    ds = setup_ds(task_id)
+    for video in ds.videos:
+        for subgoal in video.common_subgoals:
+            print(subgoal["title"], end="; ")
+        print()
+        print(video.meta_summary["outcome"], video.meta_summary["frame_paths"])
+        print()
+        print()
 
 if __name__ == "__main__":
     main()

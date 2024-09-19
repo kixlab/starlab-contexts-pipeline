@@ -1,0 +1,25 @@
+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
+Custom; Select Object; Modify Selection; Select Object; Generative Fill; Clone and Heal; Refine Edges; Advanced Tools; Final Touches; 
+The final outcome is a clean image with the unwanted objects removed seamlessly, demonstrating the effectiveness of the Generative Fill tool in Photoshop. ['static/database/cTM853qX7cM.mp4_frames/554.jpg']
+
+
+Custom; Select Object; Modify Selection; Content-Aware Fill; Clone and Heal; 
+The final outcome is a photo with the unwanted object or subject removed seamlessly, leaving no trace of the original object and maintaining the natural look of the image. ['static/database/WmDG0xp2liA.mp4_frames/241.jpg']
+
+
+Introduction and Overview; Open Image; Content-Aware Fill; Advertisement Interruption; Content-Aware Fill; Modify Selection; Final Touches; Conclusion and Call to Action; 
+The outcome is a cleaner and more precise removal of unwanted objects from images, as users can now control the sampling area, resulting in fewer artifacts and a more seamless edit. ['static/database/GC6jRpkwZo0.mp4_frames/463.jpg']
+
+
+Clone and Heal; Content-Aware Fill; Advanced Tools; Refine Edges; Advanced Tools; Open Image; Clone and Heal; Refine Edges; Clone and Heal; Advanced Tools; Refine Edges; Advanced Tools; Refine Edges; Advanced Tools; Refine Edges; Final Touches; 
+The final outcome is a demonstration of the new Remove Tool's ability to seamlessly remove objects from images, outperforming older methods like the Spot Healing Brush and Content-Aware Fill, although it still has some limitations in complex scenarios. ['static/database/dSrhB4e5DW0.mp4_frames/519.jpg']
+
+
+Introduction and Overview; Custom Subgoal: Sponsor Message; Open Image; Select Object; Modify Selection; Custom Subgoal: Clone Stamp Application; Final Touches; Custom Subgoal: Clone Stamp Application; Custom Subgoal: Cloning in Perspective; Custom Subgoal: Clone Stamp Application; Custom Subgoal: Define Perspective; Custom Subgoal: Cloning in Perspective; Final Touches; Conclusion and Recap; 
+The final outcome is a clean image with the unwanted object removed, maintaining the correct perspective and seamless integration with the surrounding elements. ['static/database/hshPCtAwSuo.mp4_frames/711.jpg']
+
+
+Introduction; Select Object; Duplicate Layer; Content-Aware Fill; Advanced Tools; Custom Subgoal: Remove Braces; Advanced Tools; Clone and Heal; Custom Subgoal: Remove Braces; Conclusion; 
+By following the techniques shown in the video, viewers will be able to effectively remove various unwanted objects from their photographs, resulting in cleaner and more visually appealing images. ['static/database/KJWlgG68pUw.mp4_frames/645.jpg']
+
+

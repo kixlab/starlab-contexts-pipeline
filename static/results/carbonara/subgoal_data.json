@@ -1,0 +1,59 @@
+[
+  {
+    "title": "Prepare ingredients",
+    "definition": "Gather all necessary ingredients for the pasta carbonara, including guanciale (or pancetta/bacon), pecorino romano cheese, eggs, pasta, and black pepper. Optionally, include garlic. Ensure the guanciale is not too lean and the pecorino is crumbly and salty.",
+    "dependencies": []
+  },
+  {
+    "title": "Prepare guanciale",
+    "definition": "Cut guanciale (or pancetta/bacon) into chunks or matchstick-sized pieces. Place it in a cold pan and gradually heat to render the fat and cook until crispy or light golden brown. Optionally, add garlic to infuse flavor. Reserve some fat for the sauce.",
+    "dependencies": [
+      "Prepare ingredients"
+    ]
+  },
+  {
+    "title": "Grate cheese",
+    "definition": "Grate Pecorino Romano and optionally Parmigiano Reggiano cheese finely. Use a cheese grater or microplane to ensure it melts smoothly into the sauce.",
+    "dependencies": [
+      "Prepare ingredients"
+    ]
+  },
+  {
+    "title": "Prepare eggs",
+    "definition": "Separate egg yolks from whites, or use a combination of whole eggs and yolks. Bring eggs to room temperature to ensure they mix well with the hot pasta without scrambling.",
+    "dependencies": [
+      "Prepare ingredients"
+    ]
+  },
+  {
+    "title": "Mix egg sauce",
+    "definition": "Combine the grated cheese with the eggs to form a smooth, homogenous mixture. Add freshly ground black pepper to taste. This mixture will coat the pasta without scrambling.",
+    "dependencies": [
+      "Grate cheese",
+      "Prepare eggs"
+    ]
+  },
+  {
+    "title": "Cook pasta",
+    "definition": "Boil pasta in salted water until al dente. Reserve some pasta water for later use. Stir occasionally to prevent sticking.",
+    "dependencies": [
+      "Prepare ingredients"
+    ]
+  },
+  {
+    "title": "Combine ingredients",
+    "definition": "Add the cooked pasta to the pan with guanciale and its rendered fat. Pour the egg and cheese mixture over the pasta and gently mix to coat the pasta without scrambling the eggs. Use reserved pasta water to adjust the sauce consistency if needed.",
+    "dependencies": [
+      "Prepare guanciale",
+      "Mix egg sauce",
+      "Cook pasta"
+    ]
+  },
+  {
+    "title": "Finish dish",
+    "definition": "Add more grated cheese and black pepper to the pasta. Optionally, adjust seasoning with salt. Serve immediately, ensuring the sauce is creamy and the pasta is well-coated.",
+    "dependencies": [
+      "Combine ingredients"
+    ]
+  }
+]

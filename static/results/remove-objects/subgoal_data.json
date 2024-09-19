@@ -1,0 +1,71 @@
+[
+  {
+    "title": "Open Image",
+    "definition": "Open Adobe Photoshop and load the image from which you want to remove an object. This is the initial step before applying any tools or making any edits.",
+    "dependencies": []
+  },
+  {
+    "title": "Select Object",
+    "definition": "Use a selection tool, such as the Lasso Tool, Quick Selection Tool, or Pen Tool, to select the object you want to remove from the image. Ensure the selection is accurate and includes the entire object, leaving some space around it if necessary.",
+    "dependencies": [
+      "Open Image"
+    ]
+  },
+  {
+    "title": "Modify Selection",
+    "definition": "If needed, modify the selection to ensure smooth transitions. This can include expanding the selection or applying feathering to the edges to add a slight blur.",
+    "dependencies": [
+      "Select Object"
+    ]
+  },
+  {
+    "title": "Duplicate Layer",
+    "definition": "Create a duplicate of the current layer to preserve the original image. This allows for non-destructive editing and provides a backup in case adjustments are needed later.",
+    "dependencies": [
+      "Modify Selection"
+    ]
+  },
+  {
+    "title": "Content-Aware Fill",
+    "definition": "Apply the Content-Aware Fill feature to the selected area to automatically fill it with surrounding content, effectively removing the object. Adjust the fill settings if necessary to improve the result.",
+    "dependencies": [
+      "Duplicate Layer"
+    ]
+  },
+  {
+    "title": "Generative Fill",
+    "definition": "Use the Generative Fill feature to generate new content to replace the selected object. Evaluate the variations provided and choose the best one.",
+    "dependencies": [
+      "Duplicate Layer"
+    ]
+  },
+  {
+    "title": "Clone and Heal",
+    "definition": "Use tools like the Clone Stamp Tool or Spot Healing Brush Tool to manually remove parts of the object or touch up the image. This involves sampling from nearby areas and painting over the object to blend the area naturally.",
+    "dependencies": [
+      "Content-Aware Fill",
+      "Generative Fill"
+    ]
+  },
+  {
+    "title": "Refine Edges",
+    "definition": "Refine any problematic areas, such as edges of objects or subjects, using a combination of selection tools and healing tools to ensure a seamless blend.",
+    "dependencies": [
+      "Clone and Heal"
+    ]
+  },
+  {
+    "title": "Advanced Tools",
+    "definition": "Use advanced tools like the Remove Tool or Content-Aware Move Tool to further refine the image. This includes exploring features like Sample All Layers and Remove After Each Stroke for non-destructive edits.",
+    "dependencies": [
+      "Refine Edges"
+    ]
+  },
+  {
+    "title": "Final Touches",
+    "definition": "Perform final touch-ups to ensure the object removal is seamless. This may involve using the Clone Stamp tool or other tools to fix any remaining defects or mismatches.",
+    "dependencies": [
+      "Advanced Tools"
+    ]
+  }
+]

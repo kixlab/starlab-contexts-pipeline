@@ -1,0 +1,64 @@
+[
+  {
+    "title": "Introduction and Overview",
+    "definition": "Introduce the dish being prepared, providing an overview of its origin, popularity, or any unique aspects. Address common misconceptions about the ingredients or cooking methods.",
+    "dependencies": [],
+    "explanation": "Each video begins by setting the context for the dish. This includes mentioning its traditional roots, common myths (like no cream in carbonara), and the unique aspects that will be covered. Examples include mentioning Italian roots and the debate over ingredients like cream."
+  },
+  {
+    "title": "Choosing and Listing Ingredients",
+    "definition": "List and discuss the selection of ingredients needed for the dish, including any alternatives or accessible options, and highlight any optional ingredients.",
+    "dependencies": [
+      "Introduction and Overview"
+    ],
+    "explanation": "Before preparing, viewers need to know what ingredients are necessary. This involves listing traditional ingredients like guanciale and pecorino, and accessible alternatives like bacon."
+  },
+  {
+    "title": "Preparing Ingredients",
+    "definition": "Demonstrate the preparation of each ingredient, focusing on any specific techniques or considerations such as chopping, grating, and measuring.",
+    "dependencies": [
+      "Choosing and Listing Ingredients"
+    ],
+    "explanation": "Preparation is crucial and includes chopping bacon, grating cheese, and separating eggs. Different videos emphasize techniques like slicing bacon thickly or grating cheese finely."
+  },
+  {
+    "title": "Cooking Meat and Preparing Pasta",
+    "definition": "Explain the process of cooking the meat to render fat, and cook pasta until al dente, including reserving pasta water and seasoning it appropriately.",
+    "dependencies": [
+      "Preparing Ingredients"
+    ],
+    "explanation": "Cooking meat and pasta involves rendering fat from bacon and boiling pasta in salted water. Videos show how to slowly render bacon fat and reserve pasta water for the sauce."
+  },
+  {
+    "title": "Preparing Sauce",
+    "definition": "Mix cheese with pepper and pasta water, and combine with the egg mixture to create the carbonara sauce, ensuring it is creamy and smooth.",
+    "dependencies": [
+      "Cooking Meat and Preparing Pasta"
+    ],
+    "explanation": "The sauce is made by mixing cheese and pasta water with eggs to achieve creaminess. Videos demonstrate mixing cheese with pasta water and incorporating eggs carefully."
+  },
+  {
+    "title": "Combining Ingredients",
+    "definition": "Combine cooked pasta with the sauce and meat, ensuring the eggs do not scramble and the sauce achieves the desired creamy texture.",
+    "dependencies": [
+      "Preparing Sauce"
+    ],
+    "explanation": "This step involves mixing hot pasta with the sauce and meat without scrambling the eggs, crucial for achieving the dish's creamy texture."
+  },
+  {
+    "title": "Final Touches and Serving",
+    "definition": "Add any final garnishes like additional cheese and pepper, plate attractively, and suggest serving options.",
+    "dependencies": [
+      "Combining Ingredients"
+    ],
+    "explanation": "The final step includes garnishing with extra cheese and pepper, and plating the dish attractively. Videos may show different garnishing techniques."
+  },
+  {
+    "title": "Tasting and Conclusion",
+    "definition": "Conclude with a tasting, offering final thoughts and encouraging viewers to try the recipe.",
+    "dependencies": [
+      "Final Touches and Serving"
+    ],
+    "explanation": "Each video ends with a tasting and personal reaction, encouraging viewers to try the dish themselves, often highlighting flavor notes."
+  }
+]

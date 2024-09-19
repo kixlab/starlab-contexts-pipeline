@@ -1,0 +1,1700 @@
+[
+  {
+    "title": "$meta$",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "method.procedure.1"
+          ],
+          "information_2": [
+            "method.procedure.1"
+          ],
+          "reasoning": "Both procedures replace the traditional guanciale with bacon, which suggests a consistency in the substitution of ingredients for both variations of the dish.",
+          "description": "Both videos suggest using bacon instead of guanciale.",
+          "implication": "The use of bacon as a substitute is a consistent approach in both recipes, providing a similar base flavor profile."
+        },
+        {
+          "information_1": [
+            "method.procedure.6",
+            "method.procedure.7"
+          ],
+          "information_2": [
+            "method.procedure.3",
+            "method.procedure.7"
+          ],
+          "reasoning": "Both procedures describe cooking spaghetti in salted water, which is a standard step for preparing pasta, ensuring it is seasoned and evenly cooked.",
+          "description": "Both videos involve cooking spaghetti in salted water until it is done.",
+          "implication": "This consistency ensures that the pasta is prepared correctly, forming the base of the dish in both recipes."
+        },
+        {
+          "information_1": [
+            "method.procedure.12"
+          ],
+          "information_2": [
+            "method.procedure.10"
+          ],
+          "reasoning": "Both procedures use pasta water to adjust the consistency of the sauce, a common technique to achieve the desired creaminess in pasta dishes.",
+          "description": "Both videos suggest adding pasta water to adjust sauce consistency.",
+          "implication": "This consistent technique helps achieve a creamy sauce texture without the use of cream."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.procedure.8"
+          ],
+          "information_2": [
+            "method.procedure.2"
+          ],
+          "reasoning": "Source 2 provides additional detail on the method of cooking bacon by specifying the use of olive oil and achieving a crispy texture, which complements the simpler instruction in Source 1.",
+          "description": "Source 1 mentions cooking and cooling bacon, while Source 2 describes rendering bacon until crispy with olive oil.",
+          "implication": "The detailed bacon cooking method in Source 2 can enhance the flavor and texture of the dish in Source 1."
+        },
+        {
+          "information_1": [
+            "method.procedure.11"
+          ],
+          "information_2": [
+            "method.procedure.9"
+          ],
+          "reasoning": "Source 2 provides a more detailed technique for combining the sauce with the pasta to prevent scrambling eggs, which complements the mixing step in Source 1.",
+          "description": "Source 1 involves mixing sauce with noodles, while Source 2 specifies pouring egg and cheese mixture over spaghetti and stirring gently.",
+          "implication": "The detailed mixing technique from Source 2 can improve the execution of the dish in Source 1 by preventing the sauce from becoming scrambled."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "method.procedure.2",
+            "method.procedure.4"
+          ],
+          "information_2": [
+            "method.procedure.5"
+          ],
+          "reasoning": "Source 1 explicitly states not to use egg yolks in the traditional way, while Source 2 uses them as part of the sauce, which is a core component of traditional carbonara.",
+          "description": "Source 1 omits egg yolks and mixes cheese with yolks, while Source 2 uses whole eggs and yolks mixed with cheese.",
+          "implication": "The contradiction affects the authenticity and texture of the dish, with Source 1 deviating more from traditional carbonara by omitting a key ingredient in its sauce."
+        },
+        {
+          "information_1": [
+            "method.procedure.3",
+            "method.procedure.4"
+          ],
+          "information_2": [
+            "method.procedure.4"
+          ],
+          "reasoning": "Source 1 uses Pecorino Romano in a mixture not typical for carbonara, while Source 2 combines it with Parmigiano Reggiano, following a more traditional approach.",
+          "description": "Source 1 prepares Pecorino Romano but mixes it differently from Source 2, which combines it with Parmigiano Reggiano.",
+          "implication": "This contradiction results in differing flavor profiles and textures, with Source 1 diverging from the traditional taste of carbonara."
+        }
+      ]
+    },
+    "video1_id": "75p4UHRIMcU",
+    "video2_id": "dzyXBU3dIys"
+  },
+  {
+    "title": "Grate the cheese",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "title",
+            "problem.subgoal",
+            "result.outcome"
+          ],
+          "information_2": [
+            "title",
+            "problem.subgoal",
+            "result.outcome"
+          ],
+          "reasoning": "Both sources are about the process of grating cheese for a dish. They share the common goal of preparing grated cheese for a recipe, although the specific dish in Source 2 is spaghetti carbonara.",
+          "description": "Both sources involve grating cheese, specifically Pecorino Romano, for a dish that includes mixing it later.",
+          "implication": "The consistency in the subgoal and outcome indicates that both methods aim to achieve the same final result of having grated cheese ready for a dish."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.tools",
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.tools",
+            "method.instructions"
+          ],
+          "reasoning": "Source 1 provides a humorous or unconventional approach, while Source 2 provides a traditional method for grating cheese. They complement each other by offering different methods to achieve the same goal.",
+          "description": "Source 1 describes using a drill with a screw or hand gestures, while Source 2 recommends a cheese grater or box grater with a fine setting.",
+          "implication": "The complementary information provides multiple options for grating cheese, allowing for flexibility depending on the tools available or the user's preferences."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "method.supplementary"
+          ],
+          "information_2": [
+            "method.supplementary"
+          ],
+          "reasoning": "The contradiction arises from Source 1's humorous tone about Italian capabilities versus Source 2's focus on using authentic Italian ingredients for flavor.",
+          "description": "Source 1 humorously claims Italians can grate cheese easily due to their hand gesture muscles, while Source 2 emphasizes the authenticity of using Italian-labeled cheese.",
+          "implication": "This contradiction highlights differing focuses: Source 1 on humorous technique and Source 2 on ingredient authenticity, which may affect user perception of importance in technique versus ingredient choice."
+        }
+      ]
+    },
+    "video1_id": "75p4UHRIMcU",
+    "video2_id": "dzyXBU3dIys"
+  },
+  {
+    "title": "Prepare the egg and cheese mixture",
+    "relations": {
+      "consistent": [],
+      "complementary": [
+        {
+          "information_1": [
+            "problem.context",
+            "method.instructions"
+          ],
+          "information_2": [
+            "problem.subgoal",
+            "method.instructions"
+          ],
+          "reasoning": "While Source 1 focuses on adding pepper to a specific type of egg filling, Source 2 provides a detailed process for preparing a mixture for a dish. The basic idea of preparing an egg and cheese mixture for a specific culinary purpose is complementary.",
+          "description": "Both sources involve preparing an egg and cheese mixture, though the specific application differs (Cadbury cream egg filling vs. spaghetti carbonara).",
+          "implication": "The complementary nature of these sources implies that the process of preparing an egg and cheese mixture can be adapted for different culinary uses, highlighting the versatility of such mixtures."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "problem.subgoal",
+            "method.instructions"
+          ],
+          "information_2": [
+            "problem.subgoal",
+            "method.instructions"
+          ],
+          "reasoning": "The instructions in Source 1 involve enhancing the flavor of a filling with pepper, whereas Source 2 describes making a smooth mixture for pasta, involving different ingredients and techniques.",
+          "description": "Source 1 instructs adding pepper to a Cadbury cream egg filling, while Source 2 describes a method for making an egg and cheese mixture for carbonara.",
+          "implication": "This contradiction indicates a difference in culinary application and technique, suggesting that the specific preparation methods are tailored to distinct dishes, and one cannot substitute for the other without altering the intended outcome."
+        }
+      ]
+    },
+    "video1_id": "75p4UHRIMcU",
+    "video2_id": "dzyXBU3dIys"
+  },
+  {
+    "title": "Boil the pasta",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "method.tools",
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Both sources provide instructions that involve salting the water before cooking pasta, indicating a consistent approach to seasoning the water.",
+          "description": "Both sources agree on adding salt to the pasta water.",
+          "implication": "Salting the water is a crucial step in both procedures, ensuring the pasta is cooked with the right seasoning."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.tools",
+            "method.instructions",
+            "method.explanations"
+          ],
+          "information_2": [
+            "method.tools",
+            "method.instructions"
+          ],
+          "reasoning": "Source 1 gives specific instructions and cultural context about spaghetti cooking, while Source 2 provides additional context about the salting process related to a specific dish (carbonara).",
+          "description": "Source 1 provides tools and a detailed explanation about not breaking the spaghetti and the importance of stirring, while Source 2 focuses on the amount of salt due to the salty nature of carbonara.",
+          "implication": "Together, these sources provide a comprehensive guide: Source 1 focuses on spaghetti cooking techniques, while Source 2 adds context about seasoning for specific dishes, enriching the overall understanding of pasta preparation."
+        }
+      ],
+      "contradictory": []
+    },
+    "video1_id": "75p4UHRIMcU",
+    "video2_id": "dzyXBU3dIys"
+  },
+  {
+    "title": "Mix pasta with egg and cheese sauce",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Both sources follow the same fundamental technique of using the residual heat from the cooked pasta to gently cook the eggs in the sauce, which is a classic method in making carbonara.",
+          "description": "Both sources instruct to add the egg and cheese mixture to the hot spaghetti and use the heat from the pasta to cook the eggs, creating a creamy sauce.",
+          "implication": "The consistent information ensures that the fundamental technique of creating a creamy sauce without scrambling the eggs is adhered to, which is crucial for the success of the dish."
+        },
+        {
+          "information_1": [
+            "method.explanations"
+          ],
+          "information_2": [
+            "method.explanations"
+          ],
+          "reasoning": "Both sources understand and explain the role of pasta water in achieving the correct consistency for the sauce and preventing the eggs from scrambling by using gentle heat.",
+          "description": "Both sources explain that the heat from the pasta will cook the eggs and that pasta water can be used to adjust the sauce consistency.",
+          "implication": "This consistency in explanation helps reinforce the importance of technique to achieve the desired sauce consistency and texture."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Each source provides additional details that complement the other: Source 1 focuses on options for thickening and seasoning, while Source 2 emphasizes the transfer technique and the use of bacon fat.",
+          "description": "Source 1 mentions setting aside pasta water and optionally putting the pan on low heat, while Source 2 specifies using tongs to transfer spaghetti and using bacon fat.",
+          "implication": "The complementary details provide a more comprehensive understanding of the process, offering additional techniques and flavor elements to enhance the dish."
+        }
+      ],
+      "contradictory": []
+    },
+    "video1_id": "75p4UHRIMcU",
+    "video2_id": "dzyXBU3dIys"
+  },
+  {
+    "title": "$meta$",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "method.procedure.6",
+            "method.procedure.7"
+          ],
+          "information_2": [
+            "method.procedure.2"
+          ],
+          "reasoning": "The fundamental step of cooking spaghetti in salted water is common to both recipes, as it is a standard method for preparing pasta.",
+          "description": "Both procedures involve cooking spaghetti in salted water.",
+          "implication": "This consistency shows that despite the differences in the recipes, the basic technique of cooking spaghetti is maintained."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.procedure.1",
+            "method.procedure.8"
+          ],
+          "information_2": [
+            "method.procedure.3",
+            "method.procedure.4"
+          ],
+          "reasoning": "Source 1 modifies the traditional recipe by substituting bacon for guanciale, while Source 2 stays true to the authentic preparation, providing a more detailed process for preparing guanciale.",
+          "description": "Source 1 uses bacon as a substitute for guanciale, while Source 2 uses traditional guanciale and details the preparation method.",
+          "implication": "This complementary information allows for a comparison between traditional and modified versions of carbonara, highlighting different approaches to achieving similar flavors."
+        },
+        {
+          "information_1": [
+            "method.procedure.9",
+            "method.procedure.10",
+            "method.procedure.11"
+          ],
+          "information_2": [
+            "method.procedure.9",
+            "method.procedure.10"
+          ],
+          "reasoning": "While both procedures aim to achieve a creamy sauce by mixing pasta water with a sauce mixture, Source 1 uses a non-traditional mix of ingredients, whereas Source 2 uses the traditional egg and pecorino mixture.",
+          "description": "Both sources describe a process of combining pasta with a sauce mixture and using pasta water to achieve creaminess, but they use different ingredients.",
+          "implication": "This highlights the versatility in achieving a creamy pasta dish, showing that similar textures and appearances can be reached even with different sets of ingredients."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "method.procedure.2",
+            "method.procedure.4"
+          ],
+          "information_2": [
+            "method.procedure.7"
+          ],
+          "reasoning": "Source 1 explicitly omits egg yolks to deviate from traditional carbonara, whereas Source 2 includes them to maintain authenticity.",
+          "description": "Source 1 avoids using egg yolks, while Source 2 uses them as part of the traditional carbonara sauce.",
+          "implication": "This contradiction underscores the fundamental difference in the recipes' objectives: one aims to replicate the dish without traditional elements, while the other seeks authenticity."
+        }
+      ]
+    },
+    "video1_id": "75p4UHRIMcU",
+    "video2_id": "D_2DBLAt57c"
+  },
+  {
+    "title": "Prepare the egg and cheese mixture",
+    "relations": {
+      "consistent": [],
+      "complementary": [
+        {
+          "information_1": [
+            "problem.context"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Source 1 mentions Pecorino Romano cheese as part of the context of the mixture, and Source 2 explicitly instructs to add Pecorino cheese to the egg, indicating a common ingredient in both mixtures.",
+          "description": "Both sources involve the use of Pecorino Romano cheese in the preparation of an egg and cheese mixture.",
+          "implication": "The complementary information highlights that Pecorino Romano cheese is a consistent ingredient in different preparations of egg and cheese mixtures, suggesting its versatility and importance in achieving the desired flavor and texture."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "problem.subgoal",
+            "method.instructions"
+          ],
+          "information_2": [
+            "problem.subgoal",
+            "method.instructions"
+          ],
+          "reasoning": "The two sources describe different culinary contexts and purposes for the egg and cheese mixture: one involves a sweet context with Cadbury cream, and the other a savory context for pasta carbonara.",
+          "description": "Source 1 instructs to add pepper to a Cadbury cream egg filling, while Source 2 focuses on preparing an egg and Pecorino cheese mixture for carbonara.",
+          "implication": "The contradictory information indicates that the egg and cheese mixtures are intended for entirely different dishes, and care should be taken to not confuse the instructions or contexts between sweet and savory preparations."
+        }
+      ]
+    },
+    "video1_id": "75p4UHRIMcU",
+    "video2_id": "D_2DBLAt57c"
+  },
+  {
+    "title": "Boil the pasta",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "method.tools"
+          ],
+          "information_2": [
+            "method.tools"
+          ],
+          "reasoning": "Both methods involve boiling pasta, which requires similar basic tools such as a pot, water, and salt.",
+          "description": "Both sources agree on the use of a pot, water, and salt as essential tools for boiling pasta.",
+          "implication": "This consistency ensures that the basic setup for boiling pasta is understood and agreed upon, providing a reliable starting point for the procedure."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Both methods aim to prevent pasta from sticking, but they offer different techniques to achieve this goal, thus complementing each other.",
+          "description": "Source 1 emphasizes stirring the spaghetti initially to prevent sticking, while Source 2 suggests twisting the pasta before adding it to the water for the same purpose.",
+          "implication": "By combining both techniques\u2014twisting and stirring\u2014the procedure may be enhanced, potentially reducing the likelihood of pasta sticking together."
+        },
+        {
+          "information_1": [
+            "method.explanations"
+          ],
+          "information_2": [
+            "method.explanations"
+          ],
+          "reasoning": "Source 1 focuses on cultural and texture aspects of spaghetti preparation, while Source 2 addresses seasoning considerations in the context of a dish with salty ingredients, providing additional context and rationale for the steps involved.",
+          "description": "Source 1 explains the importance of not breaking spaghetti and stirring to prevent sticking, while Source 2 provides a reason for using only a tiny amount of salt due to other salty ingredients.",
+          "implication": "The complementary explanations enrich the understanding of the procedure, offering insights into both cultural practices and flavor balance considerations."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "The specific quantity and method of adding pasta differ between the sources, leading to a contradiction in the precise execution of the procedure.",
+          "description": "Source 1 advises adding 156 pieces of spaghetti to the salted water, while Source 2 suggests twisting and adding an unspecified amount of pasta, with only a tiny amount of salt.",
+          "implication": "This contradiction could lead to confusion regarding the correct amount of pasta and salt to use, potentially affecting the outcome of the dish."
+        }
+      ]
+    },
+    "video1_id": "75p4UHRIMcU",
+    "video2_id": "D_2DBLAt57c"
+  },
+  {
+    "title": "Mix pasta with egg and cheese sauce",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "The instructions from both sources describe a similar process where the egg mixture is added to the pasta, and pasta water is used to help create a creamy texture. This is a common technique in making carbonara sauce.",
+          "description": "Both sources involve adding the egg mixture to the pasta and using pasta water to create a creamy sauce.",
+          "implication": "This consistency reinforces the importance of using pasta water to achieve the desired creaminess in the carbonara sauce."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.explanations"
+          ],
+          "information_2": [
+            "method.explanations"
+          ],
+          "reasoning": "Source 1 provides a practical benefit of adding pasta water, while Source 2 gives a more technical explanation of how emulsification contributes to the sauce's creaminess.",
+          "description": "Source 1 explains the purpose of the pasta water in terms of texture and drinkability, while Source 2 explains the emulsification process.",
+          "implication": "Together, these explanations provide a fuller understanding of why pasta water is used, combining practical and scientific perspectives."
+        },
+        {
+          "information_1": [
+            "method.supplementary"
+          ],
+          "information_2": [
+            "method.supplementary"
+          ],
+          "reasoning": "Both sources provide additional techniques to ensure the sauce achieves the right consistency and texture without scrambling the eggs.",
+          "description": "Source 1 suggests using low heat to thicken the sauce, and Source 2 advises ensuring the frying has stopped to prevent scrambling.",
+          "implication": "These complementary techniques offer multiple ways to control the cooking process and achieve a successful carbonara sauce."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "problem.context"
+          ],
+          "information_2": [
+            "problem.context"
+          ],
+          "reasoning": "The ingredients mentioned in the context of each source differ, which suggests variations in the recipe or regional differences in the preparation of the carbonara sauce.",
+          "description": "Source 1 mentions using pepper and pecorino romano, while Source 2 involves guanciale and does not mention pepper.",
+          "implication": "This contradiction implies that there might be different versions or personal preferences in making carbonara, affecting the flavor profile of the final dish."
+        }
+      ]
+    },
+    "video1_id": "75p4UHRIMcU",
+    "video2_id": "D_2DBLAt57c"
+  },
+  {
+    "title": "$meta$",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "method.procedure.1",
+            "method.procedure.2"
+          ],
+          "information_2": [
+            "method.procedure.1",
+            "method.procedure.8"
+          ],
+          "reasoning": "Both procedures substitute guanciale with bacon, a common alternative in modified carbonara recipes, and cook it until crispy, which is a typical step to achieve the desired texture and flavor.",
+          "description": "Both sources use bacon instead of guanciale and cook it until it is crispy.",
+          "implication": "This consistency ensures that both recipes achieve a similar texture and flavor contribution from the bacon, aligning with the goal of creating a dish reminiscent of traditional carbonara."
+        },
+        {
+          "information_1": [
+            "method.procedure.11"
+          ],
+          "information_2": [
+            "method.procedure.13"
+          ],
+          "reasoning": "Adding cheese and pepper at the end is a common step in pasta dishes to enhance flavor and presentation, consistent with traditional and adapted carbonara recipes.",
+          "description": "Both sources finish the dish with additional cheese and pepper.",
+          "implication": "This consistency contributes to the final flavor profile and presentation of the dish, ensuring a rich and seasoned finish."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.procedure.5"
+          ],
+          "information_2": [
+            "method.procedure.4",
+            "method.procedure.5"
+          ],
+          "reasoning": "Source 1 provides a detailed approach to creating the egg and cheese mixture using both whole eggs and yolks, whereas Source 2 focuses on the texture of the mixture, offering a visual and textural cue for cooks.",
+          "description": "Source 1 uses whole eggs and yolks, while Source 2 uses egg yolks and describes the mixture as similar to Cadbury cream egg filling.",
+          "implication": "By combining these methods, one can gain a better understanding of both the composition and desired texture of the sauce, leading to improved execution of the dish."
+        },
+        {
+          "information_1": [
+            "method.procedure.10"
+          ],
+          "information_2": [
+            "method.procedure.12"
+          ],
+          "reasoning": "Both procedures highlight the use of pasta water as a key technique to adjust and perfect the sauce consistency, emphasizing its role in achieving a creamy texture.",
+          "description": "Both sources mention adding pasta water to achieve the desired sauce consistency, with Source 2 emphasizing the creamy texture.",
+          "implication": "This complementary information underscores the importance of pasta water in creating a successful sauce, providing a crucial technique for achieving the desired creaminess without cream."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "method.procedure.5"
+          ],
+          "information_2": [
+            "method.procedure.2"
+          ],
+          "reasoning": "Source 1 follows a more traditional approach by including yolks for richness, whereas Source 2 deliberately omits yolks to create a non-traditional version that diverges from classic carbonara.",
+          "description": "Source 1 uses three whole eggs and two yolks, while Source 2 explicitly omits egg yolks, using only egg whites.",
+          "implication": "This contradiction highlights a fundamental difference in the approach to achieving creaminess and flavor, affecting the richness and authenticity of the dish. Cooks must decide whether to follow a more traditional method or explore a non-traditional variant."
+        }
+      ]
+    },
+    "video1_id": "dzyXBU3dIys",
+    "video2_id": "75p4UHRIMcU"
+  },
+  {
+    "title": "Grate the cheese",
+    "relations": {
+      "consistent": [],
+      "complementary": [],
+      "contradictory": [
+        {
+          "information_1": [
+            "method.tools",
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.tools",
+            "method.instructions"
+          ],
+          "reasoning": "The two sources propose entirely different tools and methods for grating cheese, which directly contradict each other. Source 1 offers a traditional and standard approach to grating, while Source 2 provides a non-traditional and humorous method.",
+          "description": "The tools and methods for grating cheese are completely different between the two sources. Source 1 recommends using a cheese grater or box grater, while Source 2 suggests using a drill with a big fat screw or using hand gestures.",
+          "implication": "The contradiction implies that the procedures for grating cheese are not compatible, leading to confusion about which method should be used. This affects the overall procedure by presenting conflicting techniques that cannot be reconciled."
+        }
+      ]
+    },
+    "video1_id": "dzyXBU3dIys",
+    "video2_id": "75p4UHRIMcU"
+  },
+  {
+    "title": "Prepare the egg and cheese mixture",
+    "relations": {
+      "consistent": [],
+      "complementary": [],
+      "contradictory": [
+        {
+          "information_1": [
+            "problem.subgoal",
+            "problem.context",
+            "method.instructions",
+            "result.outcome"
+          ],
+          "information_2": [
+            "problem.subgoal",
+            "problem.context",
+            "method.instructions",
+            "result.outcome"
+          ],
+          "reasoning": "The two sources describe entirely different culinary processes. Source 1 is focused on creating a sauce for a pasta dish, whereas Source 2 seems to be about modifying a dessert component.",
+          "description": "Source 1 discusses preparing an egg and cheese mixture for spaghetti carbonara, while Source 2 refers to adding pepper to a Cadbury cream egg filling.",
+          "implication": "The contradictory information implies that the two sources are not aligned in their culinary goals or procedures, which could lead to confusion if someone is attempting to follow these instructions for a specific dish."
+        }
+      ]
+    },
+    "video1_id": "dzyXBU3dIys",
+    "video2_id": "75p4UHRIMcU"
+  },
+  {
+    "title": "Boil the pasta",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "problem.subgoal"
+          ],
+          "information_2": [
+            "problem.subgoal"
+          ],
+          "reasoning": "Both sources address subgoals that are part of the larger task of boiling pasta, although they focus on different aspects of the process.",
+          "description": "Both sources mention the subgoal related to preparing pasta, with Source 1 focusing on seasoning the water and Source 2 on cooking spaghetti properly.",
+          "implication": "The consistency shows that boiling pasta involves multiple subgoals, which can include seasoning and cooking without breaking."
+        },
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Both instructions involve adding salt to the water, indicating a common step in the pasta boiling process.",
+          "description": "Both sources agree on the use of salt in the pasta water.",
+          "implication": "The consistent use of salt highlights its importance in the process of boiling pasta, impacting flavor and cooking."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.explanations"
+          ],
+          "information_2": [
+            "method.explanations",
+            "method.supplementary"
+          ],
+          "reasoning": "Source 1 provides insight into the amount of salt used due to the dish's nature, while Source 2 offers cultural and practical reasons related to spaghetti handling.",
+          "description": "Source 1 explains why less salt is used due to salty elements in carbonara, while Source 2 explains the importance of stirring to prevent sticking and cultural reasons against breaking spaghetti.",
+          "implication": "Together, these explanations provide a broader understanding of both ingredient adjustments and cultural cooking practices, enhancing the overall approach to cooking pasta."
+        }
+      ],
+      "contradictory": []
+    },
+    "video1_id": "dzyXBU3dIys",
+    "video2_id": "75p4UHRIMcU"
+  },
+  {
+    "title": "Mix pasta with egg and cheese sauce",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Both sources highlight the technique of using the residual heat from the cooked pasta to gently cook the egg and cheese mixture, which is critical to avoid scrambling the eggs and achieving the creamy texture. Additionally, both mention the use of pasta water to adjust the consistency of the sauce.",
+          "description": "Both sources instruct to use the heat of the noodles to cook the egg in the sauce and suggest adding pasta water to achieve the desired creaminess.",
+          "implication": "This consistent approach ensures that the carbonara sauce achieves the desired creamy texture without scrambling the eggs, a key aspect of the dish's success."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "problem.context"
+          ],
+          "information_2": [
+            "problem.context"
+          ],
+          "reasoning": "Source 1 provides context about the spaghetti and bacon fat being ready, while Source 2 adds details about the egg yolk, cheese, and seasoning with pepper. Together, they provide a fuller picture of the ingredients involved.",
+          "description": "Source 1 mentions cooked spaghetti, bacon fat, and Source 2 mentions pepper, egg yolk, and pecorino romano as part of the initial setup.",
+          "implication": "By combining both sources, one gets a more comprehensive understanding of the initial setup and ingredients needed for the dish."
+        },
+        {
+          "information_1": [
+            "method.supplementary"
+          ],
+          "information_2": [
+            "method.supplementary"
+          ],
+          "reasoning": "Both sources provide methods to control the heat applied to the sauce, ensuring it thickens without scrambling the eggs, but they offer slightly different techniques to achieve this.",
+          "description": "Source 1 suggests using a simmering pot of water to gently heat the sauce, while Source 2 suggests putting the pan on low heat to thicken the sauce.",
+          "implication": "These complementary methods provide multiple options for cooks to manage the sauce's consistency and texture, enhancing the flexibility of the cooking process."
+        }
+      ],
+      "contradictory": []
+    },
+    "video1_id": "dzyXBU3dIys",
+    "video2_id": "75p4UHRIMcU"
+  },
+  {
+    "title": "$meta$",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "method.procedure.3"
+          ],
+          "information_2": [
+            "method.procedure.2"
+          ],
+          "reasoning": "The method of cooking pasta in salted water is a standard step in preparing spaghetti carbonara, ensuring the pasta is seasoned and cooked to the right texture.",
+          "description": "Both procedures involve cooking the pasta in salted boiling water.",
+          "implication": "This consistency ensures that the foundational step of cooking pasta is aligned in both recipes, maintaining the traditional texture and flavor."
+        },
+        {
+          "information_1": [
+            "method.procedure.5"
+          ],
+          "information_2": [
+            "method.procedure.7"
+          ],
+          "reasoning": "Mixing eggs with cheese is a critical step in carbonara recipes to create the creamy sauce without using cream. This step is traditional and essential to achieve the right texture and flavor.",
+          "description": "Both sources mix eggs with cheese to create the sauce base.",
+          "implication": "This alignment confirms the authenticity of the sauce preparation in both recipes, ensuring a creamy texture through emulsification."
+        },
+        {
+          "information_1": [
+            "method.procedure.10"
+          ],
+          "information_2": [
+            "method.procedure.10"
+          ],
+          "reasoning": "Using pasta water to adjust sauce consistency is a common technique in Italian pasta dishes, leveraging the starch in the water to help emulsify the sauce.",
+          "description": "Both procedures mention adding pasta water to adjust the sauce consistency.",
+          "implication": "This consistency helps achieve the desired creamy consistency in the carbonara sauce, essential for the dish's success."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.procedure.2"
+          ],
+          "information_2": [
+            "method.procedure.4"
+          ],
+          "reasoning": "While the meats differ, both methods involve rendering fat, which is crucial for flavor and texture in carbonara. The choice of meat can affect the flavor profile but the technique remains complementary.",
+          "description": "Source 1 uses bacon, while Source 2 uses guanciale, and both render the fat over medium heat.",
+          "implication": "The complementarity in rendering fat provides options for different flavor profiles while maintaining the technique essential for creating the sauce base."
+        },
+        {
+          "information_1": [
+            "method.procedure.8"
+          ],
+          "information_2": [
+            "method.procedure.9"
+          ],
+          "reasoning": "Both methods manage the amount of fat used to create the sauce, but Source 2 uses the technique of stopping frying with pasta water, which Source 1 does not explicitly mention.",
+          "description": "Source 1 drains most of the bacon fat, while Source 2 directly uses the guanciale fat to stop frying by adding pasta and water.",
+          "implication": "This provides an additional technique for controlling the cooking process and sauce consistency, offering more depth to the procedural knowledge of making carbonara."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "method.procedure.1"
+          ],
+          "information_2": [
+            "method.procedure.1"
+          ],
+          "reasoning": "The choice of meat is a key differentiator in the authenticity of carbonara. Guanciale is traditionally used in authentic carbonara, whereas bacon or pancetta is often used in adaptations.",
+          "description": "Source 1 uses bacon or pancetta, while Source 2 uses guanciale as the meat component.",
+          "implication": "This contradiction highlights a difference in adherence to traditional ingredients, affecting the authenticity and flavor profile of the final dish."
+        }
+      ]
+    },
+    "video1_id": "dzyXBU3dIys",
+    "video2_id": "D_2DBLAt57c"
+  },
+  {
+    "title": "Prepare the guanciale",
+    "relations": {
+      "consistent": [],
+      "complementary": [
+        {
+          "information_1": [
+            "method.instructions",
+            "method.explanations"
+          ],
+          "information_2": [
+            "method.explanations"
+          ],
+          "reasoning": "Source 1 provides an alternative to guanciale, acknowledging its traditional role while suggesting more accessible options. Source 2 explains the traditional preparation of guanciale, emphasizing its flavor benefits.",
+          "description": "Both sources discuss alternatives to using guanciale, with Source 1 suggesting bacon or pancetta for accessibility, and Source 2 focusing on the traditional use of guanciale.",
+          "implication": "The complementary information provides both a traditional approach and a practical alternative, offering flexibility in preparation based on availability and preference."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "method.instructions",
+            "result.outcome"
+          ],
+          "information_2": [
+            "problem.subgoal",
+            "method.instructions",
+            "result.outcome"
+          ],
+          "reasoning": "The contradiction arises because Source 1 suggests substituting guanciale with bacon or pancetta due to accessibility, while Source 2 details the preparation of guanciale as the chosen meat.",
+          "description": "Source 1 recommends using bacon or pancetta instead of guanciale, while Source 2 focuses on preparing guanciale specifically.",
+          "implication": "This contradiction affects the overall procedure by presenting two different approaches: one that adheres to traditional ingredients and another that adapts to ingredient availability. This could lead to confusion about which meat to use."
+        }
+      ]
+    },
+    "video1_id": "dzyXBU3dIys",
+    "video2_id": "D_2DBLAt57c"
+  },
+  {
+    "title": "Prepare the pepper",
+    "relations": {
+      "consistent": [],
+      "complementary": [
+        {
+          "information_1": [
+            "method.tools",
+            "method.instructions",
+            "method.supplementary"
+          ],
+          "information_2": [
+            "method.tools",
+            "method.instructions",
+            "method.supplementary"
+          ],
+          "reasoning": "The tasks in both sources revolve around the preparation of black pepper for a carbonara dish. However, Source 1 assumes pre-ground pepper is used, while Source 2 describes how to prepare the peppercorns from scratch. These methods can complement each other by providing options depending on the starting form of the pepper.",
+          "description": "Both sources involve preparing black pepper as part of a dish, likely carbonara, though the methods differ. Source 1 involves adding ground black pepper directly to the egg mixture, while Source 2 involves cracking whole peppercorns and separating the hotter inner parts for use.",
+          "implication": "The complementary information suggests that there are different ways to prepare pepper for carbonara, depending on whether one is starting with whole peppercorns or ground pepper. Users can choose the method that suits their available ingredients and desired flavor intensity."
+        }
+      ],
+      "contradictory": []
+    },
+    "video1_id": "dzyXBU3dIys",
+    "video2_id": "D_2DBLAt57c"
+  },
+  {
+    "title": "Prepare the egg and cheese mixture",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "title"
+          ],
+          "information_2": [
+            "title"
+          ],
+          "reasoning": "The titles of both sources explicitly mention preparing the egg and cheese mixture for carbonara, indicating they are addressing the same task.",
+          "description": "Both sources are about preparing the egg and cheese mixture for carbonara.",
+          "implication": "Both sources are aligned in terms of the main task, which is to prepare the egg and cheese mixture for carbonara."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Source 1 provides a more detailed and specific method, while Source 2 offers a simplified version. They complement each other by providing different levels of complexity and ingredient ratios.",
+          "description": "Source 1 provides a detailed method using three whole eggs and two yolks with grated cheese, while Source 2 uses one egg with pecorino cheese.",
+          "implication": "The complementary information offers flexibility in preparation methods, allowing for adjustments based on available ingredients or desired richness of the sauce."
+        },
+        {
+          "information_1": [
+            "method.tools"
+          ],
+          "information_2": [
+            "method.tools"
+          ],
+          "reasoning": "Both sources involve whisking, but Source 2 specifies the use of a bowl, which complements the information by providing more detail on the tools used.",
+          "description": "Source 1 uses a whisk, while Source 2 mentions a bowl and whisk.",
+          "implication": "The complementary detail about using a bowl helps clarify the setup needed for the preparation."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "problem.context"
+          ],
+          "information_2": [
+            "problem.context"
+          ],
+          "reasoning": "The contexts provided in each source are different, with Source 1 focusing on cheese preparation and Source 2 on the readiness of guanciale, which is unrelated to the egg and cheese mixture preparation.",
+          "description": "Source 1 focuses on grating cheese, while Source 2 mentions cooking guanciale.",
+          "implication": "This contradiction suggests that the contexts provided in each source are not directly related to the task of preparing the egg and cheese mixture, potentially leading to confusion about the actual focus of the task."
+        }
+      ]
+    },
+    "video1_id": "dzyXBU3dIys",
+    "video2_id": "D_2DBLAt57c"
+  },
+  {
+    "title": "Boil the pasta",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "title",
+            "method.instructions"
+          ],
+          "information_2": [
+            "title",
+            "problem.subgoal"
+          ],
+          "reasoning": "Both sources agree on the topic of boiling pasta and the necessity of adding salt to the water, even though the amounts of salt differ.",
+          "description": "Both sources are about boiling pasta and mention the addition of salt to the water.",
+          "implication": "The consistent information confirms that salt is an essential ingredient when boiling pasta, though the exact amount may vary."
+        },
+        {
+          "information_1": [
+            "method.explanations"
+          ],
+          "information_2": [
+            "method.explanations"
+          ],
+          "reasoning": "The reasoning for adding less salt is consistent in both sources because the dish contains other salty ingredients such as cheese and guanciale.",
+          "description": "Both sources explain that less salt is added due to the salty elements in the dish (carbonara).",
+          "implication": "The consistency in explanations helps understand that the overall saltiness of the dish is considered when seasoning the pasta water."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Source 1 specifies a tablespoon of salt, while Source 2 suggests a tiny amount of salt and includes a technique for twisting the pasta to prevent sticking.",
+          "description": "Source 1 provides the amount of salt to add, while Source 2 provides a technique for adding the pasta to the water.",
+          "implication": "The complementary information provides a more complete procedure: the amount of salt to use and a method to prevent pasta from sticking."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Source 1 suggests adding about a tablespoon of kosher salt, while Source 2 recommends only a tiny amount of salt.",
+          "description": "The amount of salt to add to the pasta water differs between the two sources.",
+          "implication": "The contradictory information regarding the salt quantity could lead to confusion about the correct amount to use, but both sources agree on the principle of reducing salt due to other salty ingredients in the dish."
+        }
+      ]
+    },
+    "video1_id": "dzyXBU3dIys",
+    "video2_id": "D_2DBLAt57c"
+  },
+  {
+    "title": "Combine pasta with guanciale",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "problem.subgoal"
+          ],
+          "information_2": [
+            "problem.subgoal"
+          ],
+          "reasoning": "Both sources describe a similar culinary technique involving pasta and cured pork, focusing on the combination and management of rendered fat.",
+          "description": "Both sources agree on the subgoal involving the combination of the pasta with a form of cured pork (bacon or guanciale) and the management of the fat to create a dish.",
+          "implication": "This consistency reinforces the central culinary technique of combining pasta with rendered pork fat to create a flavorful dish."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.instructions",
+            "method.explanations"
+          ],
+          "information_2": [
+            "method.instructions",
+            "method.explanations"
+          ],
+          "reasoning": "Source 1 focuses on reducing bacon fat to prevent greasiness, while Source 2 emphasizes using pasta water to emulsify with guanciale fat, suggesting a complete process from fat management to sauce creation.",
+          "description": "Source 1 provides details on managing bacon fat and removing it from the pan, while Source 2 explains the emulsion process with pasta water and guanciale fat.",
+          "implication": "Together, these sources provide a comprehensive understanding of both reducing excess fat and using remaining fat to create a creamy sauce, enhancing the procedural knowledge."
+        }
+      ],
+      "contradictory": []
+    },
+    "video1_id": "dzyXBU3dIys",
+    "video2_id": "D_2DBLAt57c"
+  },
+  {
+    "title": "Mix pasta with egg and cheese sauce",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "problem.subgoal"
+          ],
+          "information_2": [
+            "problem.subgoal"
+          ],
+          "reasoning": "Both sources describe the same fundamental cooking goal of combining pasta with an egg-based sauce to achieve a creamy texture.",
+          "description": "Both sources agree on the goal of mixing pasta with an egg and cheese mixture to create a creamy carbonara sauce.",
+          "implication": "This consistency confirms that the main objective of the procedure is to achieve a creamy carbonara sauce."
+        },
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Both instructions highlight the need to carefully manage heat and timing to prevent the eggs from scrambling while making the sauce creamy.",
+          "description": "Both sources emphasize the importance of timing and technique to avoid scrambling the eggs while creating a creamy sauce.",
+          "implication": "This consistency highlights the critical technique required to successfully make carbonara sauce without scrambling the eggs."
+        },
+        {
+          "information_1": [
+            "method.explanations"
+          ],
+          "information_2": [
+            "method.explanations"
+          ],
+          "reasoning": "Both sources discuss the chemical process of emulsification as key to achieving the desired sauce texture.",
+          "description": "Both sources explain that the emulsion of cooking water, fat, and the egg mixture is responsible for the creaminess of the sauce.",
+          "implication": "This consistent explanation reinforces the understanding of the cooking process necessary to achieve the correct sauce consistency."
+        },
+        {
+          "information_1": [
+            "result.outcome"
+          ],
+          "information_2": [
+            "result.outcome"
+          ],
+          "reasoning": "Both outcomes describe the successful completion of the procedure resulting in a creamy sauce coating the pasta.",
+          "description": "Both sources describe the desired outcome as pasta coated in a creamy carbonara sauce.",
+          "implication": "This consistency in outcome confirms that both procedures aim to achieve the same final product."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.tools"
+          ],
+          "information_2": [
+            "method.tools"
+          ],
+          "reasoning": "Each source highlights different tools which could be used in the procedure, suggesting flexibility or additional steps in handling the pasta and sauce.",
+          "description": "Source 1 mentions using tongs and a pan, while Source 2 mentions using a whisk.",
+          "implication": "This complementary information suggests that various tools can be effectively used for mixing and handling the pasta and sauce, offering flexibility in execution."
+        },
+        {
+          "information_1": [
+            "method.supplementary"
+          ],
+          "information_2": [
+            "method.supplementary"
+          ],
+          "reasoning": "Each source provides unique supplementary tips that can enhance the cooking process by addressing specific challenges like sauce consistency and egg scrambling.",
+          "description": "Source 1 provides additional details on adjusting sauce thickness with reserved pasta water and gently heating over simmering water, while Source 2 advises ensuring the frying has stopped to prevent scrambling.",
+          "implication": "These complementary tips provide valuable additional guidance, helping to refine the cooking technique and troubleshoot common issues."
+        }
+      ],
+      "contradictory": []
+    },
+    "video1_id": "dzyXBU3dIys",
+    "video2_id": "D_2DBLAt57c"
+  },
+  {
+    "title": "Adjust sauce consistency and garnish",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "problem.subgoal",
+            "problem.context"
+          ],
+          "information_2": [
+            "problem.subgoal",
+            "problem.context"
+          ],
+          "reasoning": "The subgoal and context in both sources align in terms of the purpose of the procedure, which is to serve the prepared carbonara dish with its creamy sauce.",
+          "description": "Both sources describe the subgoal of presenting and serving the spaghetti carbonara with a creamy sauce made from egg and cheese.",
+          "implication": "The consistent information ensures that both sources are addressing the same procedural step of serving the carbonara, which is crucial for understanding the context of the garnishing instructions."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.instructions",
+            "method.supplementary"
+          ],
+          "information_2": [
+            "method.supplementary",
+            "result.outcome"
+          ],
+          "reasoning": "The instructions from both sources offer different garnishing options that can be used to enhance the flavor and presentation of the carbonara dish.",
+          "description": "Source 1 suggests adding Parmigiano-Reggiano cheese and crispy bacon as garnishes, while Source 2 suggests using pepper and pecorino cheese as final garnishes.",
+          "implication": "The complementary garnishing options provide flexibility and variety in enhancing the dish, allowing for customization based on preference or availability of ingredients."
+        }
+      ],
+      "contradictory": []
+    },
+    "video1_id": "dzyXBU3dIys",
+    "video2_id": "D_2DBLAt57c"
+  },
+  {
+    "title": "$meta$",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "method.procedure.2"
+          ],
+          "information_2": [
+            "method.procedure.6",
+            "method.procedure.7"
+          ],
+          "reasoning": "Both sources describe the step of cooking spaghetti as part of the preparation process, emphasizing the importance of salted water.",
+          "description": "Both procedures involve cooking spaghetti in salted boiling water.",
+          "implication": "This consistency underscores the importance of properly cooking the pasta, which is crucial for the texture of the final dish in both traditional and non-traditional versions."
+        },
+        {
+          "information_1": [
+            "method.procedure.10"
+          ],
+          "information_2": [
+            "method.procedure.12"
+          ],
+          "reasoning": "Both sources utilize the pasta water as an emulsifying agent to achieve a creamy consistency in the sauce.",
+          "description": "Both procedures involve using pasta water to create a creamy sauce.",
+          "implication": "This consistency highlights the role of pasta water in achieving the desired creamy texture, a key feature in both versions of the dish."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.procedure.3"
+          ],
+          "information_2": [
+            "method.procedure.1"
+          ],
+          "reasoning": "Source 2 complements Source 1 by providing an alternative to guanciale, which is bacon, for those who may not have access to the traditional ingredient.",
+          "description": "Source 1 uses guanciale while Source 2 uses bacon as a substitute.",
+          "implication": "This complementarity offers flexibility in ingredient choice, allowing for adaptations based on availability or dietary preferences while still aiming for a similar dish."
+        },
+        {
+          "information_1": [
+            "method.procedure.9"
+          ],
+          "information_2": [
+            "method.procedure.10"
+          ],
+          "reasoning": "Both sources include a step where the pasta is combined with cooked meat before the sauce is added, which is important for flavor integration.",
+          "description": "Both sources describe combining cooked pasta with the meat in the pan before adding the sauce.",
+          "implication": "This complementary step ensures that the pasta absorbs the flavors of the meat, enhancing the overall taste of the dish."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "method.procedure.7"
+          ],
+          "information_2": [
+            "method.procedure.2",
+            "method.procedure.4"
+          ],
+          "reasoning": "Source 1 follows the traditional method of using whole eggs for the sauce, while Source 2 deviates by focusing on egg yolks but contradicts its own approach by not using them traditionally, creating a contradiction in the approach to the sauce.",
+          "description": "Source 1 uses whole eggs mixed with pecorino, whereas Source 2 uses egg yolks mixed with cheese but implies not using yolks traditionally.",
+          "implication": "This contradiction highlights a significant deviation in the preparation of the sauce, which affects the authenticity and flavor profile of the dish."
+        }
+      ]
+    },
+    "video1_id": "D_2DBLAt57c",
+    "video2_id": "75p4UHRIMcU"
+  },
+  {
+    "title": "Prepare the egg and cheese mixture",
+    "relations": {
+      "consistent": [],
+      "complementary": [],
+      "contradictory": [
+        {
+          "information_1": [
+            "title",
+            "problem.subgoal",
+            "method.instructions",
+            "result.outcome"
+          ],
+          "information_2": [
+            "title",
+            "problem.subgoal",
+            "method.instructions",
+            "result.outcome"
+          ],
+          "reasoning": "The two sources have different contexts and goals. Source 1 is focused on preparing a carbonara sauce, involving eggs and pecorino cheese, while Source 2 mentions a Cadbury cream egg filling with pepper, which is unrelated to the carbonara dish.",
+          "description": "Source 1 describes preparing an egg and cheese mixture for carbonara, whereas Source 2 discusses adding pepper to a Cadbury cream egg filling, which is unrelated to carbonara.",
+          "implication": "The contradiction implies that the instructions from Source 2 are not applicable to the procedure described in Source 1, as they refer to entirely different recipes and contexts."
+        }
+      ]
+    },
+    "video1_id": "D_2DBLAt57c",
+    "video2_id": "75p4UHRIMcU"
+  },
+  {
+    "title": "Boil the pasta",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "method.tools"
+          ],
+          "information_2": [
+            "method.tools"
+          ],
+          "reasoning": "Both sources describe the necessary tools for boiling pasta, and they list a pot, water, and salt as essential components.",
+          "description": "Both sources agree on the use of a pot, water, and salt for boiling pasta.",
+          "implication": "This consistency implies that these tools are fundamental for the boiling process in both methods."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.instructions",
+            "method.explanations"
+          ],
+          "information_2": [
+            "method.instructions",
+            "method.explanations"
+          ],
+          "reasoning": "Both sources address the issue of pasta sticking, but they provide different techniques to prevent it. Source 1 suggests twisting, and Source 2 suggests stirring.",
+          "description": "Source 1 provides a method to prevent pasta from sticking by twisting it, while Source 2 recommends stirring the pasta.",
+          "implication": "The complementary information offers multiple methods to achieve the same goal, giving users options based on preference or pasta type."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "The contradiction arises because Source 1 suggests twisting pasta before putting it in water, while Source 2 explicitly instructs not to break the spaghetti, emphasizing stirring instead.",
+          "description": "Source 1 instructs to twist the pasta and Source 2 to stir it without breaking it.",
+          "implication": "This contradiction may confuse users regarding the proper handling of pasta, especially spaghetti, which should not be broken according to Source 2."
+        }
+      ]
+    },
+    "video1_id": "D_2DBLAt57c",
+    "video2_id": "75p4UHRIMcU"
+  },
+  {
+    "title": "Mix pasta with egg and cheese sauce",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Both instructions emphasize adding pasta water to achieve the desired creaminess in the sauce, which is crucial for the texture of the dish.",
+          "description": "Both sources mention the use of pasta water to create a creamy sauce.",
+          "implication": "This consistency reinforces the importance of pasta water in making the sauce creamy, which is a key aspect of the dish."
+        },
+        {
+          "information_1": [
+            "result.outcome"
+          ],
+          "information_2": [
+            "result.outcome"
+          ],
+          "reasoning": "The result in both sources highlights creaminess as a characteristic feature of the sauce, indicating a common goal in the recipe.",
+          "description": "Both sources describe a creamy sauce as the desired outcome.",
+          "implication": "This consistent outcome ensures that the process described in both sources leads to a similar final product."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.tools"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "While Source 1 focuses on the tool (whisk) for mixing, Source 2 provides additional techniques (using heat) for achieving the sauce consistency, which complements the whisking technique.",
+          "description": "Source 1 mentions using a whisk, while Source 2 suggests using the heat from the noodles or low heat to cook the sauce.",
+          "implication": "Combining the whisking with controlled heat application can enhance the sauce's texture and prevent scrambling, providing a more robust method."
+        },
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "problem.context"
+          ],
+          "reasoning": "Source 2's context of pre-mixed pepper and cheese adds flavor complexity, complementing Source 1's focus on timing for adding the egg mixture.",
+          "description": "Source 1 involves adding the egg mixture after the frying sound stops, whereas Source 2 mentions the presence of added pepper and cheese in the egg mixture.",
+          "implication": "Incorporating pepper and cheese in the egg mixture before adding to pasta can enhance flavor, while Source 1's timing advice prevents scrambling, ensuring both flavor and texture are optimized."
+        }
+      ],
+      "contradictory": []
+    },
+    "video1_id": "D_2DBLAt57c",
+    "video2_id": "75p4UHRIMcU"
+  },
+  {
+    "title": "$meta$",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "method.procedure.10"
+          ],
+          "information_2": [
+            "method.procedure.10"
+          ],
+          "reasoning": "The use of pasta water to achieve the right sauce consistency is a common technique in carbonara recipes, emphasizing the importance of emulsification.",
+          "description": "Both procedures involve adding the egg mixture to the pasta and adjusting the sauce's consistency with pasta water.",
+          "implication": "This consistency implies that both recipes share a fundamental technique for achieving the desired creamy texture in carbonara."
+        },
+        {
+          "information_1": [
+            "result.outcome"
+          ],
+          "information_2": [
+            "result.outcome"
+          ],
+          "reasoning": "The goal of both recipes is to create a creamy texture using emulsification of fat, cheese, and pasta water, which is a traditional method for making carbonara.",
+          "description": "Both sources describe the final dish as creamy and achieved through emulsification without using cream.",
+          "implication": "This consistency reinforces the authenticity of the carbonara in both recipes, highlighting the traditional method of achieving creaminess."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.procedure.1"
+          ],
+          "information_2": [
+            "method.procedure.1"
+          ],
+          "reasoning": "The choice of pork product varies based on availability and preference, but both serve the purpose of providing fat and flavor to the dish.",
+          "description": "Source 1 uses guanciale while Source 2 uses bacon or pancetta as the pork ingredient.",
+          "implication": "These complementary approaches suggest flexibility in ingredient selection while maintaining the core flavors of carbonara."
+        },
+        {
+          "information_1": [
+            "method.procedure.7"
+          ],
+          "information_2": [
+            "method.procedure.7"
+          ],
+          "reasoning": "Cooking pasta to al dente is a common practice in Italian cooking to ensure the pasta holds its shape and texture when mixed with the sauce.",
+          "description": "Source 1 and Source 2 both instruct cooking the pasta but Source 2 specifies cooking until slightly al dente.",
+          "implication": "This complementary detail ensures that the pasta has the right texture to absorb the sauce effectively, enhancing the dish's quality."
+        }
+      ],
+      "contradictory": []
+    },
+    "video1_id": "D_2DBLAt57c",
+    "video2_id": "dzyXBU3dIys"
+  },
+  {
+    "title": "Prepare the guanciale",
+    "relations": {
+      "consistent": [],
+      "complementary": [
+        {
+          "information_1": [
+            "problem.subgoal"
+          ],
+          "information_2": [
+            "problem.subgoal"
+          ],
+          "reasoning": "Both sources share the broader goal of preparing meat for a dish, even though the specific details differ. Source 1 emphasizes rendering fat, while Source 2 focuses on selecting suitable meat for carbonara.",
+          "description": "Both sources focus on preparing the meat for a dish, with Source 1 aiming to render fat from guanciale and Source 2 selecting and preparing meat for spaghetti carbonara.",
+          "implication": "The complementary nature highlights different aspects of meat preparation, providing a broader understanding of options and methods for preparing meat for pasta dishes."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Source 1 follows the traditional approach of using guanciale, whereas Source 2 offers a substitution with bacon or pancetta for accessibility, leading to a contradiction in the choice of meat.",
+          "description": "Source 1 uses guanciale, while Source 2 suggests using thick cut bacon or pancetta instead of guanciale.",
+          "implication": "This contradiction affects the authenticity and flavor profile of the final dish, as the choice between guanciale and its substitutes can significantly alter the taste."
+        }
+      ]
+    },
+    "video1_id": "D_2DBLAt57c",
+    "video2_id": "dzyXBU3dIys"
+  },
+  {
+    "title": "Prepare the pepper",
+    "relations": {
+      "consistent": [],
+      "complementary": [
+        {
+          "information_1": [
+            "problem.subgoal",
+            "method.tools",
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.tools",
+            "method.instructions"
+          ],
+          "reasoning": "The methods described in both sources are different but serve the common purpose of preparing black pepper for a dish. Source 1 focuses on a more traditional method of cracking and separating the peppercorns, while Source 2 directly grinds the pepper into the mixture.",
+          "description": "Both sources involve preparing black pepper for a dish. Source 1 uses a pestle and mortar and sieve to crack and separate the peppercorns, while Source 2 uses a pepper grinder to add ground pepper to the egg mixture.",
+          "implication": "The complementary methods provide different techniques for incorporating black pepper into a dish. Source 1's method allows for control over the heat of the pepper by separating parts of the peppercorn, while Source 2's method allows for quick seasoning of the egg mixture."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "problem.subgoal"
+          ],
+          "information_2": [
+            "problem.subgoal"
+          ],
+          "reasoning": "The subgoals appear contradictory because Source 1 focuses on preparing black pepper independently, whereas Source 2 integrates the pepper preparation into the egg mixture preparation for carbonara.",
+          "description": "Source 1's subgoal is to prepare black pepper for a dish, possibly carbonara, while Source 2's subgoal is to prepare the egg mixture for spaghetti carbonara.",
+          "implication": "The contradiction implies that the two sources are addressing different parts of the carbonara preparation process. Source 1 is focused on preparing an ingredient (pepper) separately, while Source 2 is more focused on the preparation of the egg mixture, which includes seasoning with pepper."
+        }
+      ]
+    },
+    "video1_id": "D_2DBLAt57c",
+    "video2_id": "dzyXBU3dIys"
+  },
+  {
+    "title": "Prepare the egg and cheese mixture",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "title"
+          ],
+          "information_2": [
+            "title"
+          ],
+          "reasoning": "The titles from both sources indicate that the task is to prepare an egg and cheese mixture, specifically for carbonara, ensuring that they are addressing the same procedural step.",
+          "description": "Both sources are focused on preparing an egg and cheese mixture for carbonara.",
+          "implication": "Both sources are relevant to the same culinary task, ensuring that the information can be compared or combined effectively."
+        },
+        {
+          "information_1": [
+            "problem.subgoal"
+          ],
+          "information_2": [
+            "problem.subgoal"
+          ],
+          "reasoning": "The subgoals in both sources match, indicating a shared purpose in the task being described.",
+          "description": "Both sources describe the subgoal as preparing the egg mixture for carbonara.",
+          "implication": "The consistency in subgoals confirms that the procedural steps are intended to achieve the same result, which is crucial for ensuring the instructions are aligned."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Source 1 provides a basic method with specific quantities for a simple mixture, while Source 2 offers a more detailed method involving additional yolks and a combination of cheeses, which enriches the texture and flavor profile of the sauce.",
+          "description": "Source 1 describes using one egg and 20 grams of pecorino cheese, while Source 2 describes using three whole eggs and two yolks with a mixture of cheeses.",
+          "implication": "The complementary information provides a broader range of options for preparing the egg and cheese mixture, allowing for variations in flavor and richness depending on the number of eggs and types of cheese used."
+        },
+        {
+          "information_1": [
+            "method.explanations"
+          ],
+          "information_2": [
+            "method.explanations"
+          ],
+          "reasoning": "Both sources provide explanations that enhance understanding of the preparation process, with Source 1 focusing on texture and Source 2 on richness, offering a more comprehensive view of the technique.",
+          "description": "Source 1 warns against overcooking to avoid scrambling, while Source 2 explains the use of whole eggs and yolks for a rich sauce.",
+          "implication": "The complementary explanations help ensure that the cook understands both the risks of overcooking and the benefits of using different egg components, leading to a better final product."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "method.tools"
+          ],
+          "information_2": [
+            "method.tools"
+          ],
+          "reasoning": "There is a slight discrepancy in the tools listed, with Source 1 specifying a bowl in addition to a whisk, whereas Source 2 omits the bowl.",
+          "description": "Source 1 mentions using a bowl and whisk, while Source 2 only mentions using a whisk.",
+          "implication": "This contradiction might lead to confusion about whether a bowl is necessary, although practically, a bowl is typically implied when whisking ingredients together."
+        }
+      ]
+    },
+    "video1_id": "D_2DBLAt57c",
+    "video2_id": "dzyXBU3dIys"
+  },
+  {
+    "title": "Boil the pasta",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "problem.subgoal",
+            "method.explanations"
+          ],
+          "information_2": [
+            "problem.subgoal",
+            "method.explanations"
+          ],
+          "reasoning": "Both sources mention the need to limit the amount of salt added to the pasta water due to other salty ingredients in the dish, such as cheese and guanciale in carbonara.",
+          "description": "Both sources agree on adding a small amount of salt to the pasta water due to the presence of salty elements in the dish.",
+          "implication": "This consistency ensures that the pasta will not become overly salty when combined with other ingredients in the dish."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "The instructions from Source 1 focus on the technique of adding pasta to water to prevent sticking, while Source 2 focuses on the precise amount of salt to add, enhancing the overall pasta cooking process.",
+          "description": "Source 1 provides instructions for twisting the pasta before adding it to the water, while Source 2 specifies the amount of salt to add to the water.",
+          "implication": "By combining these complementary instructions, one can both properly season the pasta water and prevent the pasta from sticking together."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "The contradiction arises from differing interpretations of what constitutes a 'tiny' amount of salt versus a specific measurement of a tablespoon.",
+          "description": "Source 1 suggests adding a tiny amount of salt, while Source 2 specifies adding a tablespoon of kosher salt.",
+          "implication": "This contradiction could lead to confusion about the correct amount of salt to use, potentially affecting the flavor balance of the dish."
+        }
+      ]
+    },
+    "video1_id": "D_2DBLAt57c",
+    "video2_id": "dzyXBU3dIys"
+  },
+  {
+    "title": "Combine pasta with guanciale",
+    "relations": {
+      "consistent": [],
+      "complementary": [
+        {
+          "information_1": [
+            "problem.subgoal",
+            "problem.context",
+            "method.instructions",
+            "method.explanations"
+          ],
+          "information_2": [
+            "method.instructions",
+            "method.explanations"
+          ],
+          "reasoning": "Both sources describe a similar technique of combining pasta with a cured meat and using the rendered fat to create a sauce, emphasizing heat management and fat control.",
+          "description": "Both sources focus on combining pasta with a type of cured meat (guanciale in Source 1, bacon in Source 2) and using the rendered fat to create a sauce. They both describe turning off the heat and managing the fat to prevent overcooking and ensure a good texture and flavor.",
+          "implication": "The complementary information suggests that the principles of managing heat and using rendered fat to create a creamy sauce are applicable across different types of cured meat (guanciale and bacon), which can aid in understanding the general technique."
+        }
+      ],
+      "contradictory": [
+        {
+          "information_1": [
+            "problem.context",
+            "method.instructions"
+          ],
+          "information_2": [
+            "problem.context",
+            "method.instructions"
+          ],
+          "reasoning": "The contradiction arises because the two sources use different types of meat (guanciale vs bacon) and have different additional ingredients and steps (garlic removal vs bacon garnishing).",
+          "description": "Source 1 uses guanciale and its rendered fat, while Source 2 uses bacon and its rendered fat. Additionally, Source 1 involves removing garlic, while Source 2 focuses on managing bacon pieces and using some as garnish.",
+          "implication": "The contradictory information highlights that while the basic technique of combining pasta with rendered fat is common, the specific ingredients and steps can vary, affecting flavor and presentation."
+        }
+      ]
+    },
+    "video1_id": "D_2DBLAt57c",
+    "video2_id": "dzyXBU3dIys"
+  },
+  {
+    "title": "Mix pasta with egg and cheese sauce",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "problem.subgoal"
+          ],
+          "information_2": [
+            "problem.subgoal"
+          ],
+          "reasoning": "The subgoal in both sources is identical, focusing on the creation of a creamy sauce by mixing the pasta with the egg and cheese.",
+          "description": "Both sources agree on the subgoal of combining the pasta with the egg and cheese mixture to create a creamy carbonara sauce.",
+          "implication": "This consistency confirms that the primary objective of mixing the pasta with the egg and cheese mixture is to achieve a creamy carbonara sauce."
+        },
+        {
+          "information_1": [
+            "result.outcome"
+          ],
+          "information_2": [
+            "result.outcome"
+          ],
+          "reasoning": "The outcome in both sources is described similarly, emphasizing the creamy texture of the carbonara sauce achieved through emulsification.",
+          "description": "Both sources describe the outcome as the pasta being coated in a creamy carbonara sauce.",
+          "implication": "This consistency suggests that despite different methods, the final desired outcome of a creamy carbonara sauce is achieved in both sources."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.tools"
+          ],
+          "information_2": [
+            "method.tools"
+          ],
+          "reasoning": "Source 1 focuses on using a whisk for mixing, while Source 2 highlights the use of tongs for transferring pasta and a specific type of pan for heating.",
+          "description": "Source 1 mentions a whisk while Source 2 mentions tongs and a pan (e.g., Le Creuset) as tools for making the sauce.",
+          "implication": "This complementary information provides a more comprehensive set of tools that can be used, suggesting flexibility in the equipment needed to achieve the desired outcome."
+        },
+        {
+          "information_1": [
+            "method.instructions"
+          ],
+          "information_2": [
+            "method.instructions"
+          ],
+          "reasoning": "Source 1 emphasizes timing related to the frying sound, while Source 2 focuses on the method of transferring pasta and managing heat to avoid scrambling eggs.",
+          "description": "Source 1 instructs to add the egg mixture once the frying sound stops, while Source 2 instructs to use tongs to transfer pasta and then add the egg mixture.",
+          "implication": "These complementary instructions offer a more detailed understanding of both timing and handling techniques to ensure the sauce remains creamy and the eggs do not scramble."
+        },
+        {
+          "information_1": [
+            "method.explanations"
+          ],
+          "information_2": [
+            "method.explanations"
+          ],
+          "reasoning": "Source 1 focuses on the emulsification process, while Source 2 expands on how heat management contributes to the emulsification without scrambling the eggs.",
+          "description": "Both sources explain the importance of emulsification but Source 2 adds details about using the heat from the pasta and the pan to prevent scrambling.",
+          "implication": "This complementary information enhances understanding of the role of heat and emulsification in achieving the desired sauce consistency, providing additional techniques to prevent scrambling."
+        }
+      ],
+      "contradictory": []
+    },
+    "video1_id": "D_2DBLAt57c",
+    "video2_id": "dzyXBU3dIys"
+  },
+  {
+    "title": "Adjust sauce consistency and garnish",
+    "relations": {
+      "consistent": [
+        {
+          "information_1": [
+            "problem.subgoal",
+            "problem.context"
+          ],
+          "information_2": [
+            "problem.subgoal",
+            "problem.context"
+          ],
+          "reasoning": "The subgoal and context sections of both sources align, indicating agreement on the purpose of the procedure and the state of the pasta before garnishing.",
+          "description": "Both sources agree on the subgoal and context of plating the spaghetti carbonara with a creamy sauce for serving.",
+          "implication": "This consistency ensures that both sources are focusing on the same task and starting from the same point in the cooking process, providing a clear understanding of the goal."
+        }
+      ],
+      "complementary": [
+        {
+          "information_1": [
+            "method.supplementary",
+            "result.outcome"
+          ],
+          "information_2": [
+            "method.instructions",
+            "method.explanations",
+            "method.supplementary",
+            "result.outcome"
+          ],
+          "reasoning": "Both sources provide different garnishing options that can enhance the dish in unique ways, allowing for variation in flavor and texture.",
+          "description": "Source 1 suggests garnishing with pepper and pecorino cheese, while Source 2 suggests using Parmigiano-Reggiano cheese and crispy bacon.",
+          "implication": "The complementary garnishing suggestions offer flexibility to the cook, allowing them to choose between or combine different garnishing techniques to suit personal preferences or available ingredients."
+        }
+      ],
+      "contradictory": []
+    },
+    "video1_id": "D_2DBLAt57c",
+    "video2_id": "dzyXBU3dIys"
+  }
+]

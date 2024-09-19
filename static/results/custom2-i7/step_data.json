@@ -1,0 +1,70 @@
+[
+  {
+    "title": "Select and Prepare Meat Ingredient",
+    "definition": "Choose the appropriate meat for the dish, such as guanciale, pancetta, or bacon. Cut the meat into appropriate sizes, removing any skin if necessary, and prepare it for cooking.",
+    "dependencies": [],
+    "explanation": "This step involves selecting the type of meat to use, which can vary between guanciale, pancetta, or bacon, depending on availability and preference. Preparing it by removing skin and cutting it into the right size is crucial for proper cooking."
+  },
+  {
+    "title": "Render Meat and Flavor Fat",
+    "definition": "Cook the meat in a cold pan to slowly render the fat, adding optional aromatics like garlic to enhance flavor. Cook until the meat is golden and crispy, then remove aromatics if used.",
+    "dependencies": [
+      "Select and Prepare Meat Ingredient"
+    ],
+    "explanation": "Rendering the fat from the meat is essential to create the base flavor for the sauce. Starting with a cold pan allows for gradual rendering. Optional aromatics like garlic can be added for additional flavor, which is a technique highlighted in the video."
+  },
+  {
+    "title": "Grate Cheese",
+    "definition": "Grate the cheese finely, typically pecorino romano, to be used in the sauce mixture later.",
+    "dependencies": [],
+    "explanation": "Grating cheese finely is crucial for its incorporation into the sauce without clumping. Pecorino romano is preferred for its classic flavor, but other cheeses like parmigiano-reggiano can be used as well."
+  },
+  {
+    "title": "Prepare Egg and Cheese Mixture",
+    "definition": "Mix eggs with the grated cheese and season with black pepper. Ensure the mixture is smooth and well combined.",
+    "dependencies": [
+      "Grate Cheese"
+    ],
+    "explanation": "The egg and cheese mixture forms the creamy base of the carbonara sauce. Proper mixing and seasoning with black pepper are important for the sauce's flavor and texture."
+  },
+  {
+    "title": "Cook Pasta",
+    "definition": "Boil the pasta in lightly salted water until al dente, reserving some pasta water for the sauce.",
+    "dependencies": [],
+    "explanation": "Cooking pasta to the right doneness is critical, and lightly salting the water prevents the dish from becoming too salty due to the cheese and meat. Reserving pasta water is essential for adjusting the sauce consistency."
+  },
+  {
+    "title": "Combine Pasta with Meat and Fat",
+    "definition": "Add the cooked pasta to the pan with rendered meat and fat, using some pasta water to stop the cooking process and start forming the sauce base.",
+    "dependencies": [
+      "Render Meat and Flavor Fat",
+      "Cook Pasta"
+    ],
+    "explanation": "Adding pasta to the pan with the rendered meat and fat allows the flavors to meld. The pasta water helps emulsify the fat into a sauce."
+  },
+  {
+    "title": "Mix in Egg and Cheese Mixture Off Heat",
+    "definition": "Remove the pan from heat and add the egg and cheese mixture, stirring quickly to avoid scrambling. Use additional pasta water as needed to achieve a creamy texture.",
+    "dependencies": [
+      "Prepare Egg and Cheese Mixture",
+      "Combine Pasta with Meat and Fat"
+    ],
+    "explanation": "Combining the egg mixture off the heat prevents the eggs from scrambling, creating a smooth, creamy sauce. The pasta water is used to adjust consistency."
+  },
+  {
+    "title": "Finish with Cheese and Pepper",
+    "definition": "Garnish the dish with additional grated cheese and freshly cracked black pepper before serving.",
+    "dependencies": [
+      "Mix in Egg and Cheese Mixture Off Heat"
+    ],
+    "explanation": "Finishing with extra cheese and pepper enhances the flavor and presentation of the dish, ensuring it is served at its best."
+  },
+  {
+    "title": "Serve Immediately",
+    "definition": "Serve the dish immediately while it is hot and creamy to ensure optimal texture and flavor.",
+    "dependencies": [
+      "Finish with Cheese and Pepper"
+    ],
+    "explanation": "Serving the dish immediately after preparation ensures the best texture and flavor, as the sauce can thicken or separate if left to sit."
+  }
+]

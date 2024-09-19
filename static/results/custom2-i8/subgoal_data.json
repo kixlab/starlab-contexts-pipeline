@@ -1,0 +1,58 @@
+[
+  {
+    "title": "Introduction and Overview",
+    "definition": "Introduce the dish (spaghetti carbonara), providing a brief overview of its origin, popularity, and any unique aspects or controversies associated with it. Clarify common misconceptions about its ingredients and discuss the traditional versus alternative ingredients used.",
+    "dependencies": [],
+    "explanation": "This subgoal sets the stage for the cooking process by clarifying what authentic carbonara is and what variations might be used, making the video relatable to a wider audience. Examples include discussing the Italian origins, common misconceptions about ingredients (e.g., cream vs. no cream), and why it's beloved yet controversial."
+  },
+  {
+    "title": "Gather and Prepare Ingredients",
+    "definition": "List, gather, and prepare all necessary ingredients for the dish, which includes bacon or guanciale, eggs, cheese, and spaghetti. Demonstrate how to prepare each ingredient, such as chopping bacon, grating cheese, and separating egg yolks from whites. Discuss the differences between bacon and guanciale and the types of cheese traditionally used in carbonara.",
+    "dependencies": [
+      "Introduction and Overview"
+    ],
+    "explanation": "This subgoal is crucial as it sets up the foundation for the dish. Different videos might highlight different ingredients or substitutes, such as using bacon instead of guanciale. Proper preparation is crucial for the success of the dish, ensuring a smooth cooking process."
+  },
+  {
+    "title": "Cook Meat and Prepare Fat",
+    "definition": "Cook the meat (bacon or guanciale) until crispy, rendering the fat, and optionally flavoring it with garlic. Ensure not to overcook it and discuss the importance of using the right type of meat for the dish.",
+    "dependencies": [
+      "Gather and Prepare Ingredients"
+    ],
+    "explanation": "Cooking the meat and rendering its fat is a key step in many pasta dishes, including carbonara. This subgoal might vary in videos, such as using guanciale or pancetta instead of bacon. Rendering fat and flavoring it is crucial for creating the sauce base."
+  },
+  {
+    "title": "Prepare Cheese and Egg Mixture",
+    "definition": "Grate the cheese and mix it with egg yolks to create a creamy mixture. Optionally, discuss techniques for grating cheese, handling eggs, and the ratio of whole eggs to yolks.",
+    "dependencies": [
+      "Gather and Prepare Ingredients"
+    ],
+    "explanation": "Combining cheese and eggs is a vital step in achieving the creamy texture of the sauce. Videos may show different methods for grating cheese or separating egg yolks. The cheese and egg mixture is the core of the carbonara sauce."
+  },
+  {
+    "title": "Cook Pasta",
+    "definition": "Boil spaghetti in salted water until al dente, ensuring it doesn't stick together. Discuss the importance of not breaking the spaghetti and the traditional preparation methods.",
+    "dependencies": [
+      "Gather and Prepare Ingredients"
+    ],
+    "explanation": "Cooking the pasta correctly is essential for the texture of the dish and to ensure that it can absorb the sauce properly. Different videos might emphasize different cooking times or methods, such as not breaking spaghetti in half."
+  },
+  {
+    "title": "Combine Ingredients and Form Sauce",
+    "definition": "Combine the cooked spaghetti with the meat and cheese-egg mixture, using pasta water to adjust the consistency. Emphasize timing and technique to avoid scrambling the eggs and achieve a creamy sauce.",
+    "dependencies": [
+      "Cook Meat and Prepare Fat",
+      "Prepare Cheese and Egg Mixture",
+      "Cook Pasta"
+    ],
+    "explanation": "This is the culmination of all previous steps where the dish comes together. Avoiding scrambled eggs and achieving the perfect sauce consistency are critical to success. Videos might show variations in the order of combining ingredients or tips for achieving the right texture."
+  },
+  {
+    "title": "Final Presentation and Serving",
+    "definition": "Serve the dish with additional pepper and cheese as garnish. Optionally, discuss presentation tips, common mistakes to avoid, and offer a taste test with personal commentary on the dish's flavor and texture.",
+    "dependencies": [
+      "Combine Ingredients and Form Sauce"
+    ],
+    "explanation": "Presentation and immediate consumption are important for both aesthetic and taste reasons. Videos might include unique garnishing tips or emphasize traditional presentation styles. Serving and tasting the dish provides closure and highlights the success of the cooking process."
+  }
+]

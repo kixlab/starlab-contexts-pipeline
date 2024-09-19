@@ -1,0 +1,51 @@
+[
+  {
+    "title": "Prepare ingredients",
+    "definition": "Gather all necessary ingredients for the pasta carbonara: guanciale (or pancetta/bacon), pecorino romano cheese, eggs, pasta, black pepper, and optionally garlic. Ensure the meat is not too lean and the cheese is crumbly and salty.",
+    "dependencies": []
+  },
+  {
+    "title": "Prepare meat",
+    "definition": "Cut the guanciale, pancetta, or bacon into small pieces. Cook it in a pan over medium heat to render out the fat and make it crispy. Optionally, add garlic for flavor. Reserve some fat for later use.",
+    "dependencies": [
+      "Prepare ingredients"
+    ]
+  },
+  {
+    "title": "Grate cheese",
+    "definition": "Grate pecorino romano cheese, and optionally Parmigiano Reggiano, using a cheese grater. This cheese will be mixed with the eggs to form the sauce.",
+    "dependencies": [
+      "Prepare ingredients"
+    ]
+  },
+  {
+    "title": "Mix eggs",
+    "definition": "Separate egg yolks from whites or use whole eggs as desired. Whisk the eggs and gradually incorporate the grated cheese. Season with freshly ground black pepper to form a smooth sauce.",
+    "dependencies": [
+      "Grate cheese"
+    ]
+  },
+  {
+    "title": "Cook pasta",
+    "definition": "Boil the pasta in salted water until al dente. Reserve some pasta water for later use. This is the main component of the dish and should be cooked to the right texture.",
+    "dependencies": [
+      "Prepare ingredients"
+    ]
+  },
+  {
+    "title": "Combine ingredients",
+    "definition": "Add the cooked pasta directly to the pan with the rendered meat fat (off the heat). Mix in the egg and cheese mixture, stirring gently to coat the pasta without scrambling the eggs. Use reserved pasta water to adjust the consistency and create a creamy sauce.",
+    "dependencies": [
+      "Prepare meat",
+      "Cook pasta",
+      "Mix eggs"
+    ]
+  },
+  {
+    "title": "Finish dish",
+    "definition": "Finish the carbonara with additional grated cheese and cracked black pepper. Optionally, garnish with reserved crispy meat pieces. Serve immediately.",
+    "dependencies": [
+      "Combine ingredients"
+    ]
+  }
+]

@@ -1,0 +1,3 @@
+
+[2024-03-07 20:43:39] [34mINFO    [39m [train:84, rank=0] Saving config to runs/OLMo-7B/config.yaml
+[31mOlmoEnvironmentError:[39m R2 profile name is not set. Did you forget to set the 'R2_PROFILE' env var?

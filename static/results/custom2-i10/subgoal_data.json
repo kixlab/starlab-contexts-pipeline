@@ -1,0 +1,66 @@
+[
+  {
+    "title": "Prepare Ingredients",
+    "definition": "Gather all necessary ingredients for Pasta Carbonara, such as pasta (spaghetti), meat (bacon, guanciale, or pancetta), eggs, cheese (pecorino romano or parmesan), and seasonings such as salt and black pepper. Optionally, include garlic if used.",
+    "dependencies": [],
+    "explanation": "This subgoal ensures that all components needed for the dish are ready before cooking begins. Videos may show variations in ingredient choices, such as using pancetta instead of guanciale or adding garlic for extra flavor."
+  },
+  {
+    "title": "Prepare Meat",
+    "definition": "Chop the bacon, guanciale, or pancetta into pieces and cook until crispy, rendering the fat. Optionally, add cracked garlic and black pepper to infuse flavors. Set aside some fat for later use.",
+    "dependencies": [
+      "Prepare Ingredients"
+    ],
+    "explanation": "Cooking the meat is essential for flavor development in carbonara. Videos might show different techniques for rendering fat or seasoning, such as adding garlic or pepper."
+  },
+  {
+    "title": "Cook Pasta",
+    "definition": "Boil the pasta (spaghetti) in salted water until al dente. Reserve some pasta water for later use.",
+    "dependencies": [
+      "Prepare Ingredients"
+    ],
+    "explanation": "Cooking the pasta correctly is crucial for achieving the right texture. Videos might demonstrate different techniques to prevent sticking or vary the amount of salt used."
+  },
+  {
+    "title": "Grate Cheese",
+    "definition": "Grate pecorino romano or a mix of pecorino romano and parmesan cheese finely for the sauce.",
+    "dependencies": [
+      "Prepare Ingredients"
+    ],
+    "explanation": "Grating the cheese finely is important for it to incorporate well into the sauce. Videos may vary in the type of cheese used, but the process of grating it finely is consistent."
+  },
+  {
+    "title": "Prepare Egg Mixture",
+    "definition": "Combine egg yolks (and optionally whole eggs) with the grated cheese, whisking together to form a creamy mixture. Optionally, temper with a little pasta water.",
+    "dependencies": [
+      "Grate Cheese"
+    ],
+    "explanation": "The egg and cheese mixture is the base of the carbonara sauce. Different videos may vary in the ratio of yolks to whole eggs or methods of incorporating pasta water."
+  },
+  {
+    "title": "Combine Pasta and Meat",
+    "definition": "Add the cooked pasta directly into the pan with the cooked meat and its rendered fat. Use some reserved pasta water to help emulsify the sauce.",
+    "dependencies": [
+      "Cook Pasta",
+      "Prepare Meat"
+    ],
+    "explanation": "This step combines the flavors and begins the sauce's emulsification. Videos might vary in the amount of pasta water used or the timing of combining ingredients."
+  },
+  {
+    "title": "Finish with Egg Mixture",
+    "definition": "Remove the pan from heat and add the egg and cheese mixture to the pasta and meat. Toss quickly to create a creamy sauce without scrambling the eggs. Adjust with more pasta water if needed.",
+    "dependencies": [
+      "Prepare Egg Mixture",
+      "Combine Pasta and Meat"
+    ],
+    "explanation": "The timing and technique here are crucial to avoid scrambling the eggs. Videos may show different methods for achieving the desired creamy consistency."
+  },
+  {
+    "title": "Garnish and Serve",
+    "definition": "Plate the pasta and garnish with additional grated cheese and black pepper. Optionally, add crispy meat pieces or other garnishes before serving.",
+    "dependencies": [
+      "Finish with Egg Mixture"
+    ],
+    "explanation": "This final step enhances the dish with texture and flavor. Videos may show slight variations in presentation or garnishing techniques."
+  }
+]

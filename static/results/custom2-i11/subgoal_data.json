@@ -1,0 +1,58 @@
+[
+  {
+    "title": "Prepare Ingredients",
+    "definition": "Gather all necessary ingredients for making Pasta Carbonara, including pasta, meat (such as bacon, guanciale, or pancetta), cheese (such as Pecorino Romano or Parmigiano Reggiano), eggs, black pepper, and any optional ingredients like garlic or peas. This subgoal ensures all ingredients are ready for the recipe and covers any traditional or alternative options.",
+    "dependencies": [],
+    "explanation": "This subgoal consolidates the gathering of all ingredients required to make Pasta Carbonara. It is crucial as it ensures the viewer knows what is needed before starting. Different videos may suggest variations like using different meats or optional ingredients such as garlic or peas."
+  },
+  {
+    "title": "Prepare Meat",
+    "definition": "Cut and cook the chosen meat (such as guanciale, pancetta, or bacon) until the fat is rendered and the meat is crispy. Optionally, add garlic for flavor. Reserve some cooked meat for garnish if desired. This step is vital for developing the flavor base of the dish.",
+    "dependencies": [
+      "Prepare Ingredients"
+    ],
+    "explanation": "This subgoal includes preparing the meat, which is a key flavor component. Videos may vary in the type of meat used or whether garlic is included, but all emphasize rendering the fat and achieving crispiness."
+  },
+  {
+    "title": "Grate Cheese",
+    "definition": "Grate the selected cheese(s), such as Pecorino Romano and/or Parmigiano Reggiano, to a fine consistency for incorporation into the sauce. This ensures the cheese melts smoothly when mixed with the eggs.",
+    "dependencies": [
+      "Prepare Ingredients"
+    ],
+    "explanation": "Grating cheese is a crucial step for the sauce's texture. Videos might use different cheeses or techniques, but the goal is to achieve a fine consistency for smooth melting."
+  },
+  {
+    "title": "Mix Eggs and Cheese",
+    "definition": "Whisk together eggs with grated cheese to create a creamy sauce base. Add black pepper for seasoning. This mixture forms the foundation of the Carbonara sauce.",
+    "dependencies": [
+      "Grate Cheese"
+    ],
+    "explanation": "This subgoal focuses on preparing the egg and cheese mixture, which is essential for the sauce. Videos may vary in the ratio of eggs to cheese, but all aim for a smooth, creamy mixture."
+  },
+  {
+    "title": "Cook Pasta",
+    "definition": "Boil pasta in salted water until al dente, reserving some pasta water for later use. Properly cooked pasta forms the base of the dish and the reserved water helps adjust sauce consistency.",
+    "dependencies": [
+      "Prepare Ingredients"
+    ],
+    "explanation": "Cooking the pasta correctly is critical as it will finish in the sauce. Videos might show different pasta types or cooking techniques, but the focus is on achieving the right texture and reserving pasta water."
+  },
+  {
+    "title": "Combine Ingredients",
+    "definition": "Mix the cooked pasta with the rendered meat and its fat, and then add the egg and cheese mixture off the heat. Use reserved pasta water as needed to achieve a creamy sauce. This step ensures the sauce emulsifies without scrambling the eggs.",
+    "dependencies": [
+      "Prepare Meat",
+      "Mix Eggs and Cheese",
+      "Cook Pasta"
+    ],
+    "explanation": "This step combines all elements to form the dish, focusing on creating a creamy sauce without scrambling the eggs. Techniques may vary slightly but the goal is consistent across videos."
+  },
+  {
+    "title": "Finish and Serve",
+    "definition": "Plate the pasta, adding additional cheese and black pepper for garnish. Optionally, use reserved crispy meat or other garnishes like peas. This final step enhances presentation and flavor.",
+    "dependencies": [
+      "Combine Ingredients"
+    ],
+    "explanation": "Finishing the dish with garnishes like extra cheese or meat enhances its appeal. Videos might show different garnishing styles, but the focus is on presentation and final flavor adjustments."
+  }
+]

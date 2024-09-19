@@ -1,0 +1,54 @@
+[
+  {
+    "title": "Select and Prepare the Meat",
+    "definition": "Choose the appropriate meat (bacon, guanciale, or pancetta) for the carbonara. Remove any skin if necessary, then cut the meat into pieces and render the fat by cooking it in a pan until crispy and golden.",
+    "dependencies": [],
+    "explanation": "The meat provides essential flavor and fat for the carbonara. Although the type of meat might vary (e.g., bacon vs. guanciale), the preparation involves removing skin, cutting, and rendering fat, consistent across videos."
+  },
+  {
+    "title": "Grate the Cheese",
+    "definition": "Grate the cheese(s) to be used in the carbonara sauce, such as pecorino romano or parmigiano-reggiano. Ensure the cheese is finely grated to blend smoothly into the sauce.",
+    "dependencies": [],
+    "explanation": "Cheese is a key component of the sauce. Different videos might use different types or combinations, but the process of grating is consistent. Examples include using a microplane or box grater to finely grate pecorino romano."
+  },
+  {
+    "title": "Prepare the Egg and Cheese Mixture",
+    "definition": "Whisk together the eggs and grated cheese to form the base of the sauce. Add freshly cracked black pepper to taste. Adjust the ratio of egg yolks to whole eggs as desired for creaminess.",
+    "dependencies": [
+      "Grate the Cheese"
+    ],
+    "explanation": "This mixture is critical for the creamy texture of carbonara. Videos may vary in egg ratios but consistently involve whisking eggs with cheese and pepper. Examples include combining whole eggs with yolks and grated pecorino."
+  },
+  {
+    "title": "Cook the Pasta",
+    "definition": "Boil the spaghetti in a large pot of lightly salted water until al dente. Reserve a cup of pasta water before draining.",
+    "dependencies": [],
+    "explanation": "Cooking pasta is fundamental. Videos typically instruct on boiling spaghetti and reserving pasta water for sauce consistency. Examples include cooking spaghetti for 8-10 minutes and saving some starchy water."
+  },
+  {
+    "title": "Render the Meat and Infuse with Garlic and Pepper",
+    "definition": "Start with a cold pan to cook the meat, allowing the fat to render slowly. Add cracked garlic and pepper to infuse the fat with additional flavors as it cooks.",
+    "dependencies": [
+      "Select and Prepare the Meat"
+    ],
+    "explanation": "This step enhances the flavor profile by infusing the rendered fat with garlic and pepper. Different videos might emphasize the importance of starting with a cold pan to render fat effectively."
+  },
+  {
+    "title": "Combine Pasta with Meat and Sauce",
+    "definition": "Off the heat, combine the cooked pasta with the rendered meat and fat. Gradually add the egg and cheese mixture, stirring continuously to form a creamy sauce. Use reserved pasta water as needed to achieve desired consistency.",
+    "dependencies": [
+      "Prepare the Egg and Cheese Mixture",
+      "Cook the Pasta",
+      "Render the Meat and Infuse with Garlic and Pepper"
+    ],
+    "explanation": "Combining these elements off the heat prevents the eggs from scrambling, ensuring a smooth sauce. Videos highlight the importance of using pasta water to emulsify and adjust consistency."
+  },
+  {
+    "title": "Serve and Garnish with Cheese and Pepper",
+    "definition": "Plate the carbonara and garnish with additional grated cheese and freshly cracked black pepper. Optionally, add crispy pieces of meat on top for extra texture and flavor.",
+    "dependencies": [
+      "Combine Pasta with Meat and Sauce"
+    ],
+    "explanation": "This final step enhances presentation and flavor. Videos typically show garnishing with extra cheese and pepper, with optional crispy meat for added texture."
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "title": "Prepare the guanciale",
+    "definition": "Chop the guanciale into half-centimeter chunks and cook it in a cold pan on medium-high heat to render out the fat and achieve a golden color.",
+    "dependencies": [],
+    "explanation": "The guanciale is a key ingredient in carbonara, providing flavor and fat for the sauce. It must be cooked to render out the fat and achieve the desired texture."
+  },
+  {
+    "title": "Grate the cheese",
+    "definition": "Grate pecorino romano cheese to use in the egg mixture and for finishing the dish.",
+    "dependencies": [],
+    "explanation": "The cheese is a crucial component of the sauce and needs to be grated to mix with the eggs and for garnishing the dish."
+  },
+  {
+    "title": "Prepare the egg mixture",
+    "definition": "Crack eggs into a bowl and mix with grated pecorino cheese to form a creamy mixture.",
+    "dependencies": [],
+    "explanation": "The egg and cheese mixture forms the base of the carbonara sauce and must be prepared before it is combined with the pasta."
+  },
+  {
+    "title": "Crack and sieve the pepper",
+    "definition": "Crack whole peppercorns using a pestle and mortar and sieve to separate the hotter inner part of the peppercorns for use in the dish.",
+    "dependencies": [],
+    "explanation": "Using freshly cracked peppercorns enhances the flavor of the dish, and sieving ensures only the hotter, more flavorful parts are used."
+  },
+  {
+    "title": "Cook the pasta",
+    "definition": "Boil spaghetti in lightly salted water until al dente, twisting it to prevent sticking.",
+    "dependencies": [],
+    "explanation": "Pasta must be cooked to the right texture as it forms the base of the dish and will continue cooking slightly when mixed with the sauce."
+  },
+  {
+    "title": "Combine pasta with guanciale and sauce",
+    "definition": "Transfer the cooked pasta and some pasta water into the pan with guanciale, then mix in the egg mixture off the heat to create a creamy sauce.",
+    "dependencies": [
+      "Prepare the guanciale",
+      "Prepare the egg mixture",
+      "Cook the pasta"
+    ],
+    "explanation": "The final carbonara is created by combining the hot pasta with the egg mixture and rendered guanciale fat, using the heat from the pasta to cook the eggs gently without scrambling."
+  },
+  {
+    "title": "Serve the dish",
+    "definition": "Plate the carbonara and garnish with additional pecorino cheese and freshly cracked pepper.",
+    "dependencies": [
+      "Combine pasta with guanciale and sauce"
+    ],
+    "explanation": "Serving the dish involves plating it attractively and adding any final garnishes to enhance flavor and presentation."
+  }
+]

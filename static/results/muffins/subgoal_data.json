@@ -1,0 +1,60 @@
+[
+  {
+    "title": "Preheat Oven",
+    "definition": "Set the oven to the required temperature, typically starting at 425 degrees Fahrenheit, to ensure a high initial temperature for baking the muffins. This helps in forming a crisp edge and a dome-shaped top. Prepare the muffin tin by lining it with paper baking cups or greasing it.",
+    "dependencies": []
+  },
+  {
+    "title": "Prepare Wet Ingredients",
+    "definition": "Combine the wet ingredients, which may include milk, eggs, melted butter or oil, sugar, and vanilla extract, in a large mixing bowl. Whisk these ingredients together until they are well combined and smooth.",
+    "dependencies": []
+  },
+  {
+    "title": "Prepare Dry Ingredients",
+    "definition": "In a separate bowl, sift or whisk together the dry ingredients, such as all-purpose flour, baking powder, baking soda, salt, and any spices like cinnamon or cocoa powder. This ensures they are well combined and aerated.",
+    "dependencies": []
+  },
+  {
+    "title": "Combine Mixtures",
+    "definition": "Add the dry ingredients to the wet ingredients and mix until just combined. Be careful not to overmix to avoid dense muffins. The batter should be slightly lumpy.",
+    "dependencies": [
+      "Prepare Wet Ingredients",
+      "Prepare Dry Ingredients"
+    ]
+  },
+  {
+    "title": "Prepare Add-ins",
+    "definition": "Prepare any add-ins such as blueberries, chocolate chips, or other mix-ins. For fruits like blueberries, rinse and coat them with a bit of flour to prevent sinking. For chocolate chips, mix them with the dry ingredients to ensure even distribution.",
+    "dependencies": []
+  },
+  {
+    "title": "Incorporate Add-ins",
+    "definition": "Gently fold the prepared add-ins into the muffin batter, ensuring they are evenly distributed without crushing them.",
+    "dependencies": [
+      "Combine Mixtures",
+      "Prepare Add-ins"
+    ]
+  },
+  {
+    "title": "Fill Muffin Tins",
+    "definition": "Scoop the muffin batter into the prepared muffin tins, filling each cup to the desired level, typically about two-thirds to the brim. Optionally, add toppings like streusel or extra chocolate chips.",
+    "dependencies": [
+      "Incorporate Add-ins"
+    ]
+  },
+  {
+    "title": "Bake Muffins",
+    "definition": "Bake the muffins initially at a high temperature (e.g., 425 degrees Fahrenheit) for a few minutes, then reduce the temperature (e.g., to 350 degrees Fahrenheit) and continue baking until a toothpick inserted in the center comes out clean. The total baking time may vary but is generally around 20-30 minutes.",
+    "dependencies": [
+      "Preheat Oven",
+      "Fill Muffin Tins"
+    ]
+  },
+  {
+    "title": "Cool Muffins",
+    "definition": "Allow the baked muffins to cool in the tin for a few minutes before transferring them to a wire rack to cool completely. This helps set their structure and makes them easier to handle.",
+    "dependencies": [
+      "Bake Muffins"
+    ]
+  }
+]
