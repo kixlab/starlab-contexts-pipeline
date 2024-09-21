@@ -92,7 +92,7 @@ def get_response_pydantic(messages, response_format):
         print("REFUSED: ", response.refusal)
         return None
     
-    json_response = response.parsed.get_dict()
+    json_response = response.parsed.dict()
 
     print("RESPONSE:", json.dumps(json_response, indent=2))
     return json_response
@@ -116,8 +116,8 @@ LIBRARY = {
         "https://www.youtube.com/watch?v=dzyXBU3dIys",
         "https://www.youtube.com/watch?v=D_2DBLAt57c",
         "https://www.youtube.com/watch?v=3AAdKl1UYZs",
-        "https://www.youtube.com/watch?v=qoHnwOHLiMk",
-        "https://www.youtube.com/watch?v=NqFi90p38N8",
+        #"https://www.youtube.com/watch?v=qoHnwOHLiMk",
+        #"https://www.youtube.com/watch?v=NqFi90p38N8",
     ],
     "muffins": [
         "https://www.youtube.com/shorts/B-XGIGS4Ipw", # short
