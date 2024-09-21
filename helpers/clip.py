@@ -28,7 +28,8 @@ def clip_embed_text(texts):
     text_features /= text_features.norm(dim=-1, keepdim=True)
     return text_features
 
-def clip_similar_per_text(texts, image_paths):
+def clip_similar_per_text(texts, image_paths, top_k=1):
+    ### TODO: May need to consider the narrations for each image
     """
     Find the most similar image to a given text
     if multiple texts are given, return the most similar image to each text
@@ -38,7 +39,10 @@ def clip_similar_per_text(texts, image_paths):
     text_embeddings = clip_embed_text(texts)
 
     similarity = (100.0 * image_embeddings @ text_embeddings.T).softmax(dim=0)
-    values, indices = similarity.T.topk(1)
+    values, indices = similarity.T.topk(top_k)
+
     indices = indices.squeeze(1).tolist()
-    
-    return [image_paths[idx] for idx in indices]
+    if top_k == 1:
+        return [image_paths[idx] for idx in indices]
+    else:
+        return [[image_paths[idx] for idx in idxs] for idxs in indices]

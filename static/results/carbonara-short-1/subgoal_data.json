@@ -1,0 +1,50 @@
+[
+  {
+    "title": "Prepare Ingredients",
+    "definition": "Gather all necessary ingredients for making Pasta Carbonara, including bacon, guanciale, or pancetta, eggs, pecorino romano cheese, Parmigiano Reggiano cheese (optional), spaghetti, and black pepper. Ensure the meat is chopped, and the cheese is grated. Optionally, prepare garlic and olive oil if used.",
+    "dependencies": []
+  },
+  {
+    "title": "Boil Water",
+    "definition": "Bring a pot of water to a boil and add salt. Ensure the water is boiling before adding the pasta.",
+    "dependencies": []
+  },
+  {
+    "title": "Cook Pasta",
+    "definition": "Add spaghetti or your choice of pasta to the boiling salted water. Stir occasionally and cook until al dente. Reserve some pasta water before draining.",
+    "dependencies": [
+      "Boil Water",
+      "Prepare Ingredients"
+    ]
+  },
+  {
+    "title": "Prepare Meat",
+    "definition": "Cut the bacon, guanciale, or pancetta into chunks. Cook it in a pan over medium heat until crispy and the fat is rendered. Optionally, add olive oil or garlic for flavor. Reserve some fat in the pan for later use.",
+    "dependencies": [
+      "Prepare Ingredients"
+    ]
+  },
+  {
+    "title": "Mix Eggs and Cheese",
+    "definition": "Crack eggs into a bowl, using yolks or whole eggs as preferred. Beat the eggs and add grated pecorino romano cheese, Parmigiano Reggiano cheese (optional), and black pepper. Mix until well combined.",
+    "dependencies": [
+      "Prepare Ingredients"
+    ]
+  },
+  {
+    "title": "Combine Ingredients",
+    "definition": "Once the pasta is cooked, add it to the pan with the reserved meat fat. Pour the egg and cheese mixture over the hot pasta, stirring quickly to create a creamy sauce without scrambling the eggs. Use reserved pasta water to adjust the sauce consistency if needed.",
+    "dependencies": [
+      "Cook Pasta",
+      "Prepare Meat",
+      "Mix Eggs and Cheese"
+    ]
+  },
+  {
+    "title": "Finish Dish",
+    "definition": "Plate the Pasta Carbonara, adding extra grated cheese and black pepper on top before serving. Optionally, garnish with reserved crispy bacon or guanciale.",
+    "dependencies": [
+      "Combine Ingredients"
+    ]
+  }
+]

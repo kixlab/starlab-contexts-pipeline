@@ -38,7 +38,8 @@ def define_common_subgoals_v1(videos):
             {"role": "user", "content": "\n".join((f"Narration {idx + 1}:\n```{json.dumps(video)}```") for idx, video in enumerate(videos[:2]))}
         ]
     
-    subgoals = get_response_pydantic(messages, TaskGraph)
+    response = get_response_pydantic(messages, TaskGraph)
+    subgoals = response["subgoals"]
 
     ## refine subgoals
     if len(videos) < 3:
@@ -51,7 +52,8 @@ def define_common_subgoals_v1(videos):
             {"role": "user", "content": f"Narration:\n```{json.dumps(video)}```"},
             {"role": "user", "content": f"Subgoals:\n```{json.dumps(subgoals)}```"}
         ]
-        subgoals = get_response_pydantic(messages, TaskGraph)
+        response = get_response_pydantic(messages, TaskGraph)
+        subgoals = response["subgoals"]
     
     return subgoals
 ### only then segment the videos
@@ -63,7 +65,8 @@ def generate_common_subgoals_v1(subtitles, subgoals):
         {"role": "user", "content": f"Subgoals:\n```{json.dumps(subgoals)}```"}
     ]
 
-    common_subgoals = get_response_pydantic(messages, VideoSegmentation)
+    response = get_response_pydantic(messages, VideoSegmentation)
+    common_subgoals = response["segments"]
     return common_subgoals
 
 def get_meta_alignments_v1(summary1, summary2):
@@ -80,7 +83,7 @@ def get_meta_alignments_v1(summary1, summary2):
         {"role": "user", "content": f"Previous Video:\n```{json.dumps(summary2)}```"},
     ]
     response = get_response_pydantic(messages, AlignmentsSchema)
-    return response
+    return response["alignments"]
 
 def get_subgoal_alignments_v1(title, context1, context2, summary1, summary2):
     messages = [
@@ -96,7 +99,7 @@ def get_subgoal_alignments_v1(title, context1, context2, summary1, summary2):
         {"role": "user", "content": f"Previous Video:\n```{json.dumps(summary2)}```"},
     ]
     response = get_response_pydantic(messages, AlignmentsSchema)
-    return response
+    return response["alignments"]
 
 def get_meta_summary_v1(title, source):
     messages = [
@@ -165,7 +168,7 @@ def get_hooks_0_v1(classification, alignments):
     ]
 
     response = get_response_pydantic(messages, AlignmentHooksSchema)
-    return response
+    return response["hooks"]
 
 def get_hooks_v1(video_set, classification, title, alignments):
 

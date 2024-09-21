@@ -1,0 +1,84 @@
+[
+    {
+        "id": "75p4UHRIMcU",
+        "x": -0.6615601181983948,
+        "y": -0.0055845025926828384,
+        "color": "rgba(20, 88, 109, 1)",
+        "data": {
+            "longtext": [
+                "I'm gonna take some of my guanciale, put it on top, right?",
+                "I'm gonna take a little more of my toasted black peppercorns and just a little more of my pecorino and Parmesan cheese."
+            ]
+        }
+    },
+    {
+        "id": "75p4UHRIMcU",
+        "x": 1.5183192491531372,
+        "y": 1.9221245050430298,
+        "color": "rgba(20, 88, 109, 1)",
+        "data": {
+            "longtext": [
+                "Give it a little twist."
+            ]
+        }
+    },
+    {
+        "id": "dzyXBU3dIys",
+        "x": -0.6226406097412109,
+        "y": -0.03828139975667,
+        "color": "rgba(195, 132, 10, 1)",
+        "data": {
+            "longtext": [
+                "I'm gonna take some of my guanciale, put it on top, right?",
+                "I'm gonna take a little more of my toasted black peppercorns and just a little more of my pecorino and Parmesan cheese."
+            ]
+        }
+    },
+    {
+        "id": "D_2DBLAt57c",
+        "x": -0.6352604031562805,
+        "y": -0.012352787889540195,
+        "color": "rgba(187, 54, 99, 1)",
+        "data": {
+            "longtext": [
+                "I'm gonna take some of my guanciale, put it on top, right?",
+                "I'm gonna take a little more of my toasted black peppercorns and just a little more of my pecorino and Parmesan cheese."
+            ]
+        }
+    },
+    {
+        "id": "3AAdKl1UYZs",
+        "x": -0.6204047203063965,
+        "y": -0.024298857897520065,
+        "color": "rgba(118, 95, 21, 1)",
+        "data": {
+            "longtext": [
+                "I'm gonna take some of my guanciale, put it on top, right?",
+                "I'm gonna take a little more of my toasted black peppercorns and just a little more of my pecorino and Parmesan cheese."
+            ]
+        }
+    },
+    {
+        "id": "qoHnwOHLiMk",
+        "x": -0.6204047203063965,
+        "y": -0.024298857897520065,
+        "color": "rgba(123, 12, 6, 1)",
+        "data": {
+            "longtext": [
+                "I'm gonna take some of my guanciale, put it on top, right?",
+                "I'm gonna take a little more of my toasted black peppercorns and just a little more of my pecorino and Parmesan cheese."
+            ]
+        }
+    },
+    {
+        "id": "qoHnwOHLiMk",
+        "x": 1.641951322555542,
+        "y": -1.817307710647583,
+        "color": "rgba(123, 12, 6, 1)",
+        "data": {
+            "longtext": [
+                "Give it a little twist."
+            ]
+        }
+    }
+]

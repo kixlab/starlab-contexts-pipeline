@@ -1,0 +1,3398 @@
+[
+  {
+    "alignments": [
+      {
+        "title": "Include Egg Yolks",
+        "description": "The current video includes the use of egg yolks in the preparation of ingredients, which is not mentioned in the previous video. This is new because the previous video focused on bacon and cheese without mentioning eggs.",
+        "new_quotes": [
+          "Carbonara is typically made with egg yolks, which is irrelevant, since that's not what we're making."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Add Pepper",
+        "description": "The current video includes adding pepper to the egg mixture, which is not present in the previous video. This is a new step in the preparation process.",
+        "new_quotes": [
+          "Then we'll add some pepper pepper pepper, and we're good to go."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Humorous Approach",
+        "description": "The current video takes a humorous approach to the preparation of ingredients, deviating from traditional carbonara. This is different from the previous video, which was more traditional and instructional.",
+        "new_quotes": [
+          "Carbonara is typically made with egg yolks, which is irrelevant, since that's not what we're making.",
+          "This is pecorino romano, which you would use if you're making carbonara, which we are not."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale",
+          "context"
+        ]
+      },
+      {
+        "title": "Spaghetti Origin",
+        "description": "The current video mentions the use of handcrafted artisan spaghetti from the Veneto region, which is not mentioned in the previous video. This adds a new cultural context to the preparation.",
+        "new_quotes": [
+          "The original carbonara was made with handcrafted artisan spaghetti from the Veneto region."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "context"
+        ]
+      },
+      {
+        "title": "Spaghetti Tip",
+        "description": "The current video includes a humorous tip about not breaking spaghetti in half, which is not present in the previous video. This adds a cultural and humorous element.",
+        "new_quotes": [
+          "Breaking spaghetti in half is a crime in Italy and can land you in prison for up to nine months."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Prepare Ingredients",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Generous Salt Usage",
+        "description": "The current video emphasizes using a generous amount of salt to properly season the pasta, which is not mentioned in the previous video. This is new because the previous video suggests using less salt due to the salty elements in carbonara.",
+        "new_quotes": [
+          "Use a generous amount of salt to properly season the pasta."
+        ],
+        "prev_quotes": [
+          "Usually, I'm gonna put more salt, but because there's so many salty elements in carbonara, I wanna put less salt in the pasta water."
+        ],
+        "different_aspects": [
+          "rationale",
+          "tips"
+        ]
+      },
+      {
+        "title": "Salt Angry Water",
+        "description": "The current video uses the phrase 'salt this angry water,' which is a new and unique way to describe the process of salting boiling water. This phrase was not present in the previous video.",
+        "new_quotes": [
+          "Now we'll salt this angry water"
+        ],
+        "prev_quotes": [
+          "pasta water is coming up to a boil"
+        ],
+        "different_aspects": [
+          "instructions",
+          "subgoal"
+        ]
+      }
+    ],
+    "title": "Boil Water",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Direct-transfer Method",
+        "description": "The current video introduces the method of transferring noodles directly from the boiling water into the bacon pan without straining, which is not mentioned in the previous video. This method is highlighted as a way to integrate the pasta with the bacon immediately, enhancing flavor absorption.",
+        "new_quotes": [
+          "Noodles go straight from the water into the bacon pan for a wang jangulation."
+        ],
+        "prev_quotes": [
+          "We'll cook this spaghetti about 10 minutes in this pot, just slightly al dente, and then we'll finish it over in this baking pan."
+        ],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Reserve Pasta Water",
+        "description": "The current video emphasizes reserving pasta water if the spaghetti is strained, which is not mentioned in the previous video. This is important for creating a creamy sauce when combined with the bacon and egg mixture.",
+        "new_quotes": [
+          "if you do strain the spaghetti, make sure to set aside some pasta water"
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Initial Stirring Tip",
+        "description": "The current video provides a tip to keep stirring the spaghetti initially to prevent it from sticking, which is not mentioned in the previous video. This is a practical tip to ensure the pasta cooks evenly and doesn't clump together.",
+        "new_quotes": [
+          "Keep wang jangling that for the first bit to keep the spag from getting clingy."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Cook Pasta",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Cooling Bacon",
+        "description": "The current video introduces the step of cooling the bacon until there's no sizzle left and a bit longer to prevent overcooking the egg-based sauce. This step is new and not present in the previous video, which focused on rendering fat and using bacon for garnish.",
+        "new_quotes": [
+          "We're turning the burner off, waiting for this to cool, at least until there's no sizzle left, and a bit longer so we don't overcook the eggbased sauce."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Prepare Meat",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Hydration Benefit",
+        "description": "The current video introduces the idea that adding pasta water helps keep you hydrated while eating, which is not mentioned in the previous video.",
+        "new_quotes": [
+          "The reason we add pasta water is so that if you get thirsty while you eat it, you don't have to stop and have a drink."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Cheese Melting",
+        "description": "The current video suggests adding pasta water to the sauce ingredients to help the cheese start melting before combining with the pasta, which is a new step not present in the previous video.",
+        "new_quotes": [
+          "Now I'm gonna put in a bit of pasta water into our sauce ingredients to get that cheeseahead start on the melting."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Optional Heating",
+        "description": "The current video provides an option to put the pan on low heat to thicken the sauce, which is a different approach compared to the previous video.",
+        "new_quotes": [
+          "Then the sauce can go in and the egg will cook just enough from the noodle heat, although you can put your pan on low to thicken it as well, because here comes more pasta water making this nice and creamy."
+        ],
+        "prev_quotes": [
+          "And if it looks too thick to you, also what you can do is just add a little bit of that pasta water."
+        ],
+        "different_aspects": [
+          "instructions",
+          "tips"
+        ]
+      },
+      {
+        "title": "Fancy Twist Attempt",
+        "description": "The current video humorously mentions attempting a fancy twist with the pasta, acknowledging the wrong tool and lack of skill, which adds a new, light-hearted element not present in the previous video.",
+        "new_quotes": [
+          "Here I'm trying to do that fancy twist thing, but it's not the right tool, and I don't know what I'm doing."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Combine Ingredients",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Add Pepper",
+        "description": "The current video introduces the addition of pepper as a finishing touch, which was not mentioned in the previous video. This is new because the previous video focused on adding Parmesan cheese and crispy bacon without mentioning pepper.",
+        "new_quotes": [
+          "We'll finish with some pepper pepper pepper and some more pecorino or parmesan."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Humorous Outcome",
+        "description": "The current video humorously presents the dish as a non-traditional version of carbonara, which is a new and different approach compared to the previous video that focused on enhancing flavor and texture traditionally.",
+        "new_quotes": [
+          "and here we don't have carbonara.",
+          "Hang my head as I eat this not carbonara in shame."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "outcome",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Humorous Rationale",
+        "description": "The current video humorously suggests that adding certain ingredients can alter the authenticity of carbonara, which is a new rationale not present in the previous video.",
+        "new_quotes": [
+          "If this was carbonara, you'd have to be careful, because the carbonistic properties are so fragile that if you put in a single pea, it would no longer be carbonara.",
+          "It's a mysterious chemical reaction that only Italian scientists understand."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Humorous Tips",
+        "description": "The current video humorously implies that traditional carbonara should not include peas or cream, and that using whole eggs can affect the outcome. This humorous take on tips is new compared to the straightforward tips in the previous video.",
+        "new_quotes": [
+          "If this was carbonara, you'd have to be careful, because the carbonistic properties are so fragile that if you put in a single pea, it would no longer be carbonara.",
+          "Oh no, what have I done? I've added peas to a dish that is otherwise vegetable free."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Finish Dish",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Bacon Instead",
+        "description": "The current video uses bacon instead of guanciale, emphasizing a non-traditional approach to making carbonara. This is new because the previous video focused on using authentic ingredients like guanciale for a traditional flavor.",
+        "new_quotes": [
+          "The first thing we're gonna do is chop up some bacon."
+        ],
+        "prev_quotes": [
+          "Guanciale. This is the cured cheek of pork."
+        ],
+        "different_aspects": [
+          "materials",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Humorous Approach",
+        "description": "The current video takes a humorous approach to making carbonara, stating that they are not actually making carbonara. This is different from the previous video, which aimed to provide an authentic recipe.",
+        "new_quotes": [
+          "Carbonara is typically made with egg yolks, which is irrelevant, since that's not what we're making.",
+          "This is pecorino romano, which you would use if you're making carbonara, which we are not."
+        ],
+        "prev_quotes": [
+          "I want to give you what I think is the most authentic recipe."
+        ],
+        "different_aspects": [
+          "context",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Artisan Spaghetti Mention",
+        "description": "The current video mentions the use of handcrafted artisan spaghetti from the Veneto region, which was not mentioned in the previous video. This adds a new context to the preparation of ingredients.",
+        "new_quotes": [
+          "The original carbonara was made with handcrafted artisan spaghetti from the Veneto region."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "context"
+        ]
+      },
+      {
+        "title": "Spaghetti Breaking Tip",
+        "description": "The current video humorously advises against breaking spaghetti in half, claiming it is a crime in Italy. This tip is new and was not present in the previous video.",
+        "new_quotes": [
+          "Breaking spaghetti in half is a crime in Italy and can land you in prison for up to nine months."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Prepare Ingredients",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Direct-to-pan",
+        "description": "The current video introduces the step of transferring noodles directly from the boiling water into the bacon pan, which is not mentioned in the previous video. This is new because the previous video only describes cooking the pasta in water and does not include the step of moving it directly to another pan.",
+        "new_quotes": [
+          "Noodles go straight from the water into the bacon pan for a wang jangulation."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Reserve-water",
+        "description": "The current video advises setting aside some pasta water if straining the spaghetti, which is not mentioned in the previous video. This is new because the previous video does not discuss reserving pasta water for sauce preparation.",
+        "new_quotes": [
+          "if you do strain the spaghetti, make sure to set aside some pasta water"
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Stirring-tip",
+        "description": "The current video provides a tip to keep stirring the spaghetti initially to prevent it from sticking, which is not present in the previous video. This is new because the previous video does not include this specific tip for preventing the pasta from sticking.",
+        "new_quotes": [
+          "Keep wang jangling that for the first bit to keep the spag from getting clingy."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Cook Pasta",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Cook Bacon",
+        "description": "The current video introduces the use of bacon instead of guanciale, which is a significant change in the type of meat used for the carbonara. This is new because the previous video specifically used guanciale, a traditional ingredient for carbonara, while the current video opts for bacon, which is a more common and accessible alternative.",
+        "new_quotes": [
+          "Now our bacon is cooked."
+        ],
+        "prev_quotes": [
+          "So I've got my guanciale."
+        ],
+        "different_aspects": [
+          "materials"
+        ]
+      },
+      {
+        "title": "Cooling Process",
+        "description": "The current video emphasizes cooling the bacon after cooking to prevent overcooking the egg-based sauce. This step is new as the previous video did not mention cooling the meat after cooking, focusing instead on rendering the fat slowly from a cold start.",
+        "new_quotes": [
+          "We're turning the burner off, waiting for this to cool, at least until there's no sizzle left, and a bit longer so we don't overcook the eggbased sauce."
+        ],
+        "prev_quotes": [
+          "The pan is cold. Turn it on to a mediumhigh heat."
+        ],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Prepare Meat",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Cheese Melting Start",
+        "description": "The current video introduces the step of adding pasta water to the sauce ingredients to start melting the cheese before combining with the noodles. This step is new as it emphasizes pre-melting the cheese, which was not mentioned in the previous video.",
+        "new_quotes": [
+          "Now I'm gonna put in a bit of pasta water into our sauce ingredients to get that cheeseahead start on the melting."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Hydration Rationale",
+        "description": "The current video provides a unique rationale for adding pasta water, suggesting it helps keep you hydrated while eating. This rationale is not present in the previous video.",
+        "new_quotes": [
+          "The reason we add pasta water is so that if you get thirsty while you eat it, you don't have to stop and have a drink."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Optional Heating",
+        "description": "The current video suggests optionally putting the pan on low heat to thicken the sauce, which is a new tip not mentioned in the previous video.",
+        "new_quotes": [
+          "although you can put your pan on low to thicken it as well"
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      },
+      {
+        "title": "Fancy Twist Attempt",
+        "description": "The current video includes a tip about attempting a fancy twist with the pasta, acknowledging the need for the right tool. This is a new aspect not covered in the previous video.",
+        "new_quotes": [
+          "Here I'm trying to do that fancy twist thing, but it's not the right tool, and I don't know what I'm doing."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Combine Ingredients",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Humorous Outcome",
+        "description": "The current video presents a humorous, non-traditional version of carbonara, which is different from the classic approach in the previous video. This is particularly new as it adds a comedic element to the dish's completion, suggesting it's not authentic carbonara.",
+        "new_quotes": [
+          "and here we don't have carbonara.",
+          "Hang my head as I eat this not carbonara in shame."
+        ],
+        "prev_quotes": [
+          "Look at that guys, look at that.",
+          "That my friends, is a thing of joy."
+        ],
+        "different_aspects": [
+          "outcome"
+        ]
+      },
+      {
+        "title": "Parmesan Option",
+        "description": "The current video introduces the option of using parmesan cheese instead of just pecorino, which was not mentioned in the previous video. This is new as it provides an alternative ingredient for finishing the dish.",
+        "new_quotes": [
+          "We'll finish with some pepper pepper pepper and some more pecorino or parmesan."
+        ],
+        "prev_quotes": [
+          "Spaghetti, carbonara with a beautiful little finishing of pecorino."
+        ],
+        "different_aspects": [
+          "materials"
+        ]
+      },
+      {
+        "title": "Humorous Rationale",
+        "description": "The current video humorously suggests that adding certain ingredients or making specific changes can alter the authenticity of carbonara. This is new as it adds a comedic rationale to the dish preparation, which was not present in the previous video.",
+        "new_quotes": [
+          "If this was carbonara, you'd have to be careful, because the carbonistic properties are so fragile that if you put in a single pea, it would no longer be carbonara.",
+          "It's a mysterious chemical reaction that only Italian scientists understand."
+        ],
+        "prev_quotes": [
+          "It's about quality ingredients, the guanciale, the pecorino romana, quality eggs, the pepper, the technique of the pepper, good pasta and then the sensitivity of cooking it right."
+        ],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Humorous Tips",
+        "description": "The current video humorously implies that traditional carbonara should not include peas or cream, and that using whole eggs can affect the outcome. This is new as it provides comedic tips on what not to include in carbonara, which was not present in the previous video.",
+        "new_quotes": [
+          "If this was carbonara, you'd have to be careful, because the carbonistic properties are so fragile that if you put in a single pea, it would no longer be carbonara.",
+          "Oh no, what have I done? I've added peas to a dish that is otherwise vegetable free."
+        ],
+        "prev_quotes": [
+          "Get your friends, your family, get them around the table.",
+          "The most important thing when you eat pasta is don't watch it, eat it."
+        ],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Finish Dish",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Generous Salt Usage",
+        "description": "The current video emphasizes using a generous amount of salt to properly season the pasta, which is not mentioned in the previous video. This is new because the previous video specifies a precise ratio of salt to water, whereas the current video focuses on the importance of seasoning.",
+        "new_quotes": [
+          "Use a generous amount of salt to properly season the pasta."
+        ],
+        "prev_quotes": [
+          "Now, this is boiling water to which we add in the ratio of 10 grams per liter of water, salt."
+        ],
+        "different_aspects": [
+          "tips"
+        ]
+      },
+      {
+        "title": "Seasoning Importance",
+        "description": "The current video highlights the importance of salting the water for seasoning the pasta as it cooks, which is not explicitly stated in the previous video. This rationale is new as it provides a reason for salting beyond just boiling.",
+        "new_quotes": [
+          "Salting the water is important for seasoning the pasta as it cooks."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Boil Water",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Transfer Directly",
+        "description": "The current video introduces the step of transferring noodles directly from the water into the bacon pan, which is not mentioned in the previous video. This is new because the previous video only mentioned cooking the pasta and stirring it, without specifying the transfer method or the use of a bacon pan.",
+        "new_quotes": [
+          "Noodles go straight from the water into the bacon pan for a wang jangulation."
+        ],
+        "prev_quotes": [
+          "While this is cooking, it takes good 10 minutes.",
+          "You just need to stir a little bit when it's in it, and that's it."
+        ],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Reserve Water",
+        "description": "The current video advises reserving some pasta water if straining the spaghetti, which is not mentioned in the previous video. This is new because the previous video does not discuss the use of pasta water at all.",
+        "new_quotes": [
+          "if you do strain the spaghetti, make sure to set aside some pasta water"
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Initial Stirring",
+        "description": "The current video provides a tip to keep stirring the spaghetti initially to prevent it from sticking, which is not mentioned in the previous video. This is new because the previous video only mentioned stirring a little bit without specifying the purpose or timing.",
+        "new_quotes": [
+          "Keep wang jangling that for the first bit to keep the spag from getting clingy."
+        ],
+        "prev_quotes": [
+          "You just need to stir a little bit when it's in it, and that's it."
+        ],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Cook Pasta",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Bacon",
+        "description": "The current video uses bacon instead of guanciale, which is a significant change from the traditional ingredient used in the previous video. This is new because the previous video emphasized using guanciale for its traditional and tender qualities.",
+        "new_quotes": [
+          "Now our bacon is cooked."
+        ],
+        "prev_quotes": [
+          "Now, for the original Carbonara, you need the guanciale, which is the cheek, the pork cheek."
+        ],
+        "different_aspects": [
+          "materials"
+        ]
+      },
+      {
+        "title": "Cooling Bacon",
+        "description": "The current video includes a step to cool the bacon after cooking to prevent overcooking the egg-based sauce. This step is new as the previous video did not mention cooling the meat after cooking.",
+        "new_quotes": [
+          "We're turning the burner off, waiting for this to cool, at least until there's no sizzle left, and a bit longer so we don't overcook the eggbased sauce."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Prepare Meat",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Add Pasta Water",
+        "description": "The current video introduces the step of adding pasta water to the sauce ingredients to help melt the cheese and create a creamy texture. This step is new and not present in the previous video, which did not mention using pasta water in the sauce preparation.",
+        "new_quotes": [
+          "Now I'm gonna put in a bit of pasta water into our sauce ingredients to get that cheeseahead start on the melting."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Optional Heating Step",
+        "description": "The current video suggests optionally putting the pan on low heat to thicken the sauce, which is a new instruction not mentioned in the previous video. This provides an additional method to achieve the desired sauce consistency.",
+        "new_quotes": [
+          "Then the sauce can go in and the egg will cook just enough from the noodle heat, although you can put your pan on low to thicken it as well, because here comes more pasta water making this nice and creamy."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "tips"
+        ]
+      },
+      {
+        "title": "Hydration Rationale",
+        "description": "The current video provides a unique rationale for adding pasta water, suggesting it helps keep you hydrated while eating. This rationale is not present in the previous video.",
+        "new_quotes": [
+          "The reason we add pasta water is so that if you get thirsty while you eat it, you don't have to stop and have a drink."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Fancy Twist Tip",
+        "description": "The current video includes a tip about attempting a fancy twist with the pasta, noting the importance of using the right tool. This tip is new and not mentioned in the previous video.",
+        "new_quotes": [
+          "Here I'm trying to do that fancy twist thing, but it's not the right tool, and I don't know what I'm doing."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Combine Ingredients",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Humorous Outcome",
+        "description": "The current video presents a humorous, non-traditional version of carbonara, contrasting with the previous video's focus on authenticity. This is new because the previous video emphasized creating an authentic carbonara, while the current video humorously acknowledges deviations from tradition.",
+        "new_quotes": [
+          "and here we don't have carbonara.",
+          "Hang my head as I eat this not carbonara in shame."
+        ],
+        "prev_quotes": [
+          "And this is the real carbonara.",
+          "The only one. And it's exactly how it should be."
+        ],
+        "different_aspects": [
+          "outcome",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Humorous Rationale",
+        "description": "The current video humorously suggests that adding certain ingredients or making specific changes can alter the authenticity of carbonara. This is new because the previous video did not include humor or discuss the fragility of carbonara's authenticity.",
+        "new_quotes": [
+          "If this was carbonara, you'd have to be careful, because the carbonistic properties are so fragile that if you put in a single pea, it would no longer be carbonara.",
+          "It's a mysterious chemical reaction that only Italian scientists understand."
+        ],
+        "prev_quotes": [
+          "This is decoration for me.",
+          "And this is the real carbonara."
+        ],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Humorous Tips",
+        "description": "The current video humorously implies that traditional carbonara should not include peas or cream, and that using whole eggs can affect the outcome. This is new because the previous video did not provide such humorous tips or warnings about ingredient choices.",
+        "new_quotes": [
+          "If this was carbonara, you'd have to be careful, because the carbonistic properties are so fragile that if you put in a single pea, it would no longer be carbonara.",
+          "Oh no, what have I done? I've added peas to a dish that is otherwise vegetable free."
+        ],
+        "prev_quotes": [
+          "Parmesan or pecorino, depending what you like."
+        ],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Finish Dish",
+    "new_video": "75p4UHRIMcU",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Cheese Mixture",
+        "description": "The current video introduces the use of a mixture of Pecorino Romano and Parmigiano Reggiano cheeses, which is not mentioned in the previous video. This is new because the previous video only mentions using Pecorino Romano.",
+        "new_quotes": [
+          "So what I'm gonna do is a mixture of both these cheeses, and you want them to be pretty fine."
+        ],
+        "prev_quotes": [
+          "This is pecorino romano, which you would use if you're making carbonara, which we are not."
+        ],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Thick-Cut Bacon",
+        "description": "The current video specifies using thick-cut bacon for better texture, which is not mentioned in the previous video. This detail is new as the previous video only mentions chopping bacon without specifying the cut.",
+        "new_quotes": [
+          "And thickcut bacon would be best."
+        ],
+        "prev_quotes": [
+          "The first thing we're gonna do is chop up some bacon."
+        ],
+        "different_aspects": [
+          "materials",
+          "tips"
+        ]
+      },
+      {
+        "title": "Cheese Grating",
+        "description": "The current video provides specific instructions on grating cheese using a cheese grater or box grater, which is not detailed in the previous video. This is new because the previous video does not mention the grating process or tools.",
+        "new_quotes": [
+          "So I'm gonna be using this cheese grater, and if you don't have one of those, just use this setting on a box grater, and just get to shredding."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "tips"
+        ]
+      },
+      {
+        "title": "American Audience",
+        "description": "The current video explains the choice of bacon over guanciale to cater to an American audience, which is a new rationale not present in the previous video. The previous video humorously deviates from tradition without this specific reasoning.",
+        "new_quotes": [
+          "So for this video, of course, I could have ordered guanciale, but I know most of my audience is American, so I want the most people possible to actually make this, so we're gonna use bacon."
+        ],
+        "prev_quotes": [
+          "Bacon is used instead of guanciale to emphasize the non-traditional approach."
+        ],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Authentic Parmigiano",
+        "description": "The current video advises ensuring Parmigiano Reggiano is authentic by checking its origin, which is not mentioned in the previous video. This is new as the previous video does not discuss authenticity of ingredients.",
+        "new_quotes": [
+          "That's not to be confused with Parmesan, make sure it says ParmigianoReggiano, and it's from Italy, and you'll know you have the good stuff."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Prepare Ingredients",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Specific Water Quantity",
+        "description": "The current video specifies using four quarts of water, which was not mentioned in the previous video. This is new because the previous video did not provide a specific measurement for the water used.",
+        "new_quotes": [
+          "about a tablespoon of salt, kosher salt, into about four quarts of water"
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Kosher Salt Usage",
+        "description": "The current video specifies using kosher salt, whereas the previous video only mentioned salt in general. This is new as it provides a specific type of salt to use.",
+        "new_quotes": [
+          "about a tablespoon of salt, kosher salt, into about four quarts of water"
+        ],
+        "prev_quotes": [
+          "Now we'll salt this angry water"
+        ],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Reduced Salt Rationale",
+        "description": "The current video explains that less salt is used because carbonara contains many salty elements. This rationale for using less salt is new and was not present in the previous video.",
+        "new_quotes": [
+          "Usually, I'm gonna put more salt, but because there's so many salty elements in carbonara, I wanna put less salt in the pasta water."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Boil Water",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Cooking Duration",
+        "description": "The current video specifies cooking the spaghetti for about 10 minutes until slightly al dente, which is not mentioned in the previous video. This detail provides a specific time frame for cooking the pasta, ensuring it is slightly undercooked before finishing in the sauce.",
+        "new_quotes": [
+          "We'll cook this spaghetti about 10 minutes in this pot, just slightly al dente, and then we'll finish it over in this baking pan."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "No Olive Oil",
+        "description": "The current video advises against adding olive oil to the pasta water, stating it serves no purpose. This tip is new and not present in the previous video, which did not address the use of olive oil in pasta water.",
+        "new_quotes": [
+          "Okay, and of course, we're going to put some olive oil in this pasta. No, we're not going to do that. Why do people do that? It's a myth."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      },
+      {
+        "title": "Pasta Brand Tip",
+        "description": "The current video suggests using affordable Italian pasta brands for good quality, which is a new tip not mentioned in the previous video. This provides guidance on selecting pasta brands without overspending.",
+        "new_quotes": [
+          "Another thing I want to share with you, there are tons of expensive pasta brands out in the world, but honestly, like, I like these cheap Italian brands, like this one, Giacchecco."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Cook Pasta",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Add Olive Oil",
+        "description": "The current video introduces the use of a tiny bit of olive oil when cooking the bacon, which is not mentioned in the previous video. This is particularly new as it adds a non-traditional element to the preparation, enhancing the cooking process by preventing sticking and adding flavor.",
+        "new_quotes": [
+          "I'm doing a tiny bit of olive oil, I don't think it's traditional, but when I'm cooking Italian food, it just feels right."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "tips"
+        ]
+      },
+      {
+        "title": "Render Fat Slowly",
+        "description": "The current video emphasizes slowly rendering out the fat from the bacon to make it crispy, which is not detailed in the previous video. This is new as it provides a specific technique to enhance the texture and flavor of the bacon.",
+        "new_quotes": [
+          "Then go ahead and break your bacon into that pan, and what we're gonna do here is slowly render out the fat from this bacon, get it nice and crispy."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Reserve for Garnish",
+        "description": "The current video includes the step of reserving some bacon for garnish, which is not mentioned in the previous video. This is new as it adds a decorative and flavorful element to the final dish.",
+        "new_quotes": [
+          "We'll use most of it in the pasta, and then we'll actually use some for garnish, because who doesn't like crispy bacon on top?",
+          "First, I'm going to take some out for garnish. Drain it on a paper towel."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "outcome"
+        ]
+      },
+      {
+        "title": "Drain Fat",
+        "description": "The current video instructs to drain off most of the fat, leaving about two tablespoons in the pan, which is not specified in the previous video. This is new as it provides a precise amount of fat to retain for emulsifying the sauce.",
+        "new_quotes": [
+          "Now I'm turning off the heat of this pan, and I'm going to drain off most of the fat, all except for about two tablespoons or so."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Prepare Meat",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use La Crusade",
+        "description": "The current video introduces the use of La Crusade pans, which are noted for their ability to retain heat. This detail is new as the previous video did not mention any specific type of pan being used.",
+        "new_quotes": [
+          "I'm also using these La Crusade pans, which I'll link in the description, and they hold a lot of heat."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "tips"
+        ]
+      },
+      {
+        "title": "Bain-marie Technique",
+        "description": "The current video suggests using a bain-marie technique to thicken the sauce if needed. This method was not mentioned in the previous video, which only suggested putting the pan on low heat.",
+        "new_quotes": [
+          "But I can show you why I left that pasta water on. Because if it doesn't thicken up like you like, literally what you can do is set that pan back on top of that pasta water and like a double boil or bainmarie, it will keep cooking the egg mixture."
+        ],
+        "prev_quotes": [
+          "although you can put your pan on low to thicken it as well"
+        ],
+        "different_aspects": [
+          "tips"
+        ]
+      },
+      {
+        "title": "Avoid Scrambling",
+        "description": "The current video emphasizes the importance of not scrambling the eggs, which is a new focus compared to the previous video. The previous video did not explicitly mention avoiding scrambling.",
+        "new_quotes": [
+          "The whole trick here, and what you really need to keep in mind is that we do not want to scramble these eggs."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Bacon Fat Use",
+        "description": "The current video includes bacon fat as a material for emulsifying the sauce, which was not mentioned in the previous video.",
+        "new_quotes": [
+          "And the pasta water, the bacon fat, the cheese and egg mixture is now emulsifying all over this pasta."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Combine Ingredients",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Add Crispy Bacon",
+        "description": "The current video introduces the addition of crispy bacon as a finishing touch, which is not present in the previous video. This addition is new because it enhances the flavor and texture of the dish, providing a crunch that was not mentioned before.",
+        "new_quotes": [
+          "And of course, some of your crispy bacon."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "rationale",
+          "tips"
+        ]
+      },
+      {
+        "title": "Plate the Pasta",
+        "description": "The current video includes the step of plating the pasta, which is not mentioned in the previous video. This is new as it provides a clear instruction on how to present the dish, emphasizing the importance of presentation.",
+        "new_quotes": [
+          "Go ahead and plate this up."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Enhance Flavor Texture",
+        "description": "The current video emphasizes enhancing the flavor and texture by adding more Parmesan and crispy bacon. This rationale is new as it highlights the importance of these ingredients for added crunch and flavor, which was not discussed in the previous video.",
+        "new_quotes": [
+          "Just for an added crunch. That is a bonus no one is going to complain about."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale",
+          "tips"
+        ]
+      },
+      {
+        "title": "Positive Outcome",
+        "description": "The current video describes a positive outcome with a strong recommendation to make the dish, which contrasts with the humorous, non-traditional outcome in the previous video. This is new as it provides a more serious endorsement of the dish's quality.",
+        "new_quotes": [
+          "Oh, God, that's good. You've got to make this."
+        ],
+        "prev_quotes": [
+          "and here we don't have carbonara.",
+          "Hang my head as I eat this not carbonara in shame."
+        ],
+        "different_aspects": [
+          "outcome"
+        ]
+      }
+    ],
+    "title": "Finish Dish",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Bacon",
+        "description": "The current video uses bacon instead of guanciale to make the recipe more accessible to an American audience. This is new because the previous video used guanciale, emphasizing authenticity.",
+        "new_quotes": [
+          "So for this video, of course, I could have ordered guanciale, but I know most of my audience is American, so I want the most people possible to actually make this, so we're gonna use bacon.",
+          "And thickcut bacon would be best."
+        ],
+        "prev_quotes": [
+          "Guanciale. This is the cured cheek of pork."
+        ],
+        "different_aspects": [
+          "materials",
+          "rationale",
+          "tips"
+        ]
+      },
+      {
+        "title": "Cheese Mixture",
+        "description": "The current video introduces a mixture of Pecorino Romano and Parmigiano Reggiano cheeses for a balanced flavor. This is different because the previous video only used Pecorino Romano.",
+        "new_quotes": [
+          "Here we have Pecorino Romano, it's a sheep's milk cheese, this one is aged.",
+          "I think this is what is traditionally used when you're making spaghetti carbonara, but as always, if you watch this channel, you know I love ParmigianoReggiano.",
+          "So what I'm gonna do is a mixture of both these cheeses, and you want them to be pretty fine."
+        ],
+        "prev_quotes": [
+          "Then, most people use parmesan. But actually, the more classic is pecorino romano."
+        ],
+        "different_aspects": [
+          "materials",
+          "rationale",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Grating Cheese",
+        "description": "The current video specifies using a cheese grater or box grater to finely grate the cheese. This detail about the grating method is not present in the previous video.",
+        "new_quotes": [
+          "So what I'm gonna do is a mixture of both these cheeses, and you want them to be pretty fine, so I'm gonna be using this cheese grater, and if you don't have one of those, just use this setting on a box grater, and just get to shredding."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "tips"
+        ]
+      },
+      {
+        "title": "Bacon Preparation",
+        "description": "The current video provides specific instructions to slice about a half pound of thick-cut bacon into three-quarter inch pieces. This level of detail in preparation is new compared to the previous video.",
+        "new_quotes": [
+          "So I'll take about a half pound of bacon, and we're gonna slice this just pretty thick, this way."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Authenticity Check",
+        "description": "The current video includes a tip to ensure Parmigiano Reggiano is authentic by checking it is from Italy. This tip is new and not mentioned in the previous video.",
+        "new_quotes": [
+          "That's not to be confused with Parmesan, make sure it says ParmigianoReggiano, and it's from Italy, and you'll know you have the good stuff."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Prepare Ingredients",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Cooking Duration Change",
+        "description": "The current video suggests cooking the spaghetti for about 10 minutes until slightly al dente, whereas the previous video recommended cooking the pasta for eight minutes. This change in cooking duration is new and not present in the previous video.",
+        "new_quotes": [
+          "We'll cook this spaghetti about 10 minutes in this pot, just slightly al dente, and then we'll finish it over in this baking pan."
+        ],
+        "prev_quotes": [
+          "This beautiful pasta takes eight minutes to cook."
+        ],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Use of Tongs",
+        "description": "The current video introduces the use of tongs to transfer the spaghetti to the baking pan, which was not mentioned in the previous video. This is a new instruction and material not present before.",
+        "new_quotes": [
+          "We're just going to use our tongs here. Drop that in there."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "No Olive Oil",
+        "description": "The current video explicitly advises against adding olive oil to the pasta water, calling it a myth. This tip is new and was not mentioned in the previous video.",
+        "new_quotes": [
+          "Okay, and of course, we're going to put some olive oil in this pasta. No, we're not going to do that. Why do people do that? It's a myth."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      },
+      {
+        "title": "Pasta Brand Suggestion",
+        "description": "The current video suggests using affordable Italian pasta brands, which is a new tip not present in the previous video.",
+        "new_quotes": [
+          "Another thing I want to share with you, there are tons of expensive pasta brands out in the world, but honestly, like, I like these cheap Italian brands, like this one, Giacchecco."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      },
+      {
+        "title": "Finish in Baking Pan",
+        "description": "The current video includes a step to finish cooking the pasta in a baking pan, which is a new instruction not present in the previous video.",
+        "new_quotes": [
+          "We'll cook this spaghetti about 10 minutes in this pot, just slightly al dente, and then we'll finish it over in this baking pan."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      }
+    ],
+    "title": "Cook Pasta",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Bacon",
+        "description": "The current video uses bacon instead of guanciale, which is a significant change in the type of meat used for the carbonara. This is new because the previous video specifically used guanciale, a traditional ingredient for carbonara.",
+        "new_quotes": [
+          "Then go ahead and break your bacon into that pan, and what we're gonna do here is slowly render out the fat from this bacon, get it nice and crispy."
+        ],
+        "prev_quotes": [
+          "So I've got my guanciale."
+        ],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Add Olive Oil",
+        "description": "The current video includes the use of olive oil, which is not traditional for carbonara and was not mentioned in the previous video. This addition is new and provides a different approach to cooking the meat.",
+        "new_quotes": [
+          "I'm doing a tiny bit of olive oil, I don't think it's traditional, but when I'm cooking Italian food, it just feels right."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "tips"
+        ]
+      },
+      {
+        "title": "Garnish Bacon",
+        "description": "The current video suggests reserving some bacon for garnish, which was not mentioned in the previous video. This adds a new step and outcome to the preparation process.",
+        "new_quotes": [
+          "We'll use most of it in the pasta, and then we'll actually use some for garnish, because who doesn't like crispy bacon on top?"
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "outcome",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Drain Fat",
+        "description": "The current video includes draining most of the bacon fat and leaving about two tablespoons in the pan, which was not specified in the previous video. This is a new instruction that affects the final dish's texture and flavor.",
+        "new_quotes": [
+          "Now I'm turning off the heat of this pan, and I'm going to drain off most of the fat, all except for about two tablespoons or so."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Paper Towel Use",
+        "description": "The current video uses a paper towel to drain the bacon, which was not mentioned in the previous video. This is a new material and step in the process.",
+        "new_quotes": [
+          "First, I'm going to take some out for garnish. Drain it on a paper towel."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      }
+    ],
+    "title": "Prepare Meat",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Egg Yolks",
+        "description": "The current video introduces the use of three whole eggs and two egg yolks, which is not mentioned in the previous video. This adds a new layer of richness to the mixture.",
+        "new_quotes": [
+          "So I'm doing three whole eggs, as well as two egg yolks."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Add Black Pepper",
+        "description": "The current video includes the addition of fresh ground black pepper to the egg and cheese mixture, which is not present in the previous video. This adds a new flavor element to the dish.",
+        "new_quotes": [
+          "Gilbert is just fresh ground black pepper.",
+          "Put as much pepper or as little pepper as you like, and whisk it in."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "tips"
+        ]
+      },
+      {
+        "title": "Use Boiling Water",
+        "description": "The current video suggests adding a little boiling water to the egg mixture, which is not mentioned in the previous video. This helps in equalizing temperatures and loosening the mixture.",
+        "new_quotes": [
+          "Another thing you can do is just take a little bit of that boiling water and add it to the eggs. Quickly whisk that in.",
+          "We're kind of equalizing the temperatures here and loosening up this egg mixture a little bit, and it's going to make the whole pasta come together a lot easier in the end."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "rationale",
+          "tips"
+        ]
+      },
+      {
+        "title": "Smooth Consistency",
+        "description": "The current video emphasizes achieving a smooth consistency in the egg and cheese mixture, which is not highlighted in the previous video.",
+        "new_quotes": [
+          "And so now we have a consistency like this."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "outcome"
+        ]
+      }
+    ],
+    "title": "Mix Eggs and Cheese",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use La Crusade",
+        "description": "The current video introduces the use of La Crusade pans, which are noted for their ability to hold a lot of heat. This is new because the previous video did not mention any specific type of pan or its heat retention properties.",
+        "new_quotes": [
+          "I'm also using these La Crusade pans, which I'll link in the description, and they hold a lot of heat."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "tips"
+        ]
+      },
+      {
+        "title": "Bain-marie Technique",
+        "description": "The current video suggests using a bain-marie technique if the sauce isn't thick enough. This is new because the previous video did not mention this technique for adjusting the sauce consistency.",
+        "new_quotes": [
+          "But I can show you why I left that pasta water on. Because if it doesn't thicken up like you like, literally what you can do is set that pan back on top of that pasta water and like a double boil or bainmarie, it will keep cooking the egg mixture."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      },
+      {
+        "title": "No Scramble Emphasis",
+        "description": "The current video emphasizes ensuring the eggs do not scramble by using the heat of the pasta to cook them gently. This is a more detailed explanation compared to the previous video, which only mentioned turning off the heat to prevent scrambling.",
+        "new_quotes": [
+          "The whole trick here, and what you really need to keep in mind is that we do not want to scramble these eggs.",
+          "The eggs are going to cook from the heat of this pasta and very gently and beautifully in a velvety, fluffy, creamy way, coat it all up, right?"
+        ],
+        "prev_quotes": [
+          "Ensure the heat is off before adding the egg mixture to prevent scrambling."
+        ],
+        "different_aspects": [
+          "rationale",
+          "tips"
+        ]
+      }
+    ],
+    "title": "Combine Ingredients",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Parmesan cheese",
+        "description": "The current video introduces the use of Parmesan cheese instead of Pecorino cheese for finishing the dish. This is new because the previous video specifically used Pecorino cheese as the finishing touch.",
+        "new_quotes": [
+          "Now to finish a little more pan migliano reggiano."
+        ],
+        "prev_quotes": [
+          "Spaghetti, carbonara with a beautiful little finishing of pecorino."
+        ],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Add crispy bacon",
+        "description": "The current video includes adding crispy bacon as a finishing touch, which was not mentioned in the previous video. This addition provides extra texture and flavor to the dish.",
+        "new_quotes": [
+          "And of course, some of your crispy bacon."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "rationale",
+          "tips"
+        ]
+      },
+      {
+        "title": "Plating instructions",
+        "description": "The current video provides specific instructions to plate the pasta, which was not detailed in the previous video. This adds a step to the presentation of the dish.",
+        "new_quotes": [
+          "Go ahead and plate this up."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Enhanced texture",
+        "description": "The rationale in the current video emphasizes the added texture from the crispy bacon, which is a new aspect not covered in the previous video.",
+        "new_quotes": [
+          "Just for an added crunch. That is a bonus no one is going to complain about."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale",
+          "tips"
+        ]
+      }
+    ],
+    "title": "Finish Dish",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Water Quantity",
+        "description": "The current video specifies using four quarts of water, which is a new detail not present in the previous video. The previous video did not specify the exact quantity of water to be used.",
+        "new_quotes": [
+          "about four quarts of water"
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials"
+        ]
+      },
+      {
+        "title": "Salt Type",
+        "description": "The current video specifies using kosher salt, which is a new detail not present in the previous video. The previous video only mentioned salt without specifying the type.",
+        "new_quotes": [
+          "about a tablespoon of salt, kosher salt"
+        ],
+        "prev_quotes": [
+          "Now, this is boiling water to which we add in the ratio of 10 grams per liter of water, salt."
+        ],
+        "different_aspects": [
+          "materials"
+        ]
+      },
+      {
+        "title": "Salt Quantity",
+        "description": "The current video specifies using about a tablespoon of salt, which is a new measurement compared to the previous video's ratio of 10 grams per liter of water.",
+        "new_quotes": [
+          "about a tablespoon of salt, kosher salt"
+        ],
+        "prev_quotes": [
+          "Now, this is boiling water to which we add in the ratio of 10 grams per liter of water, salt."
+        ],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Salt Rationale",
+        "description": "The current video provides a rationale for using less salt due to the salty elements in carbonara, which is a new explanation not present in the previous video.",
+        "new_quotes": [
+          "Usually, I'm gonna put more salt, but because there's so many salty elements in carbonara, I wanna put less salt in the pasta water."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Boil Water",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Slightly Al Dente",
+        "description": "The current video introduces the concept of cooking the spaghetti until slightly al dente, which is not mentioned in the previous video. This is new because it specifies a particular texture for the pasta, allowing it to finish cooking in the sauce and absorb flavors.",
+        "new_quotes": [
+          "We'll cook this spaghetti about 10 minutes in this pot, just slightly al dente, and then we'll finish it over in this baking pan."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Use Tongs",
+        "description": "The current video suggests using tongs to transfer the spaghetti to the baking pan, which is not mentioned in the previous video. This is new as it introduces a specific tool for handling the pasta.",
+        "new_quotes": [
+          "We're just going to use our tongs here. Drop that in there."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "materials"
+        ]
+      },
+      {
+        "title": "Finish in Pan",
+        "description": "The current video includes the step of finishing the pasta in a baking pan, which is not present in the previous video. This is new as it adds an additional cooking step to enhance flavor absorption.",
+        "new_quotes": [
+          "We'll cook this spaghetti about 10 minutes in this pot, just slightly al dente, and then we'll finish it over in this baking pan."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Salted Water",
+        "description": "The current video mentions seasoning the boiling water with salt, which is not mentioned in the previous video. This is new as it adds a step to enhance the pasta's flavor during cooking.",
+        "new_quotes": [
+          "Pasta water is boiling and seasoned with salt, ready for cooking pasta."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "context",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Affordable Brands",
+        "description": "The current video suggests using affordable Italian pasta brands, which is not mentioned in the previous video. This is new as it provides a tip on selecting pasta brands for quality and cost-effectiveness.",
+        "new_quotes": [
+          "Another thing I want to share with you, there are tons of expensive pasta brands out in the world, but honestly, like, I like these cheap Italian brands, like this one, Giacchecco."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Cook Pasta",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Bacon Instead",
+        "description": "The current video uses bacon instead of guanciale, which is a significant change from the previous video that emphasized using guanciale as a traditional ingredient. This change introduces a different flavor and texture profile to the dish.",
+        "new_quotes": [
+          "Then go ahead and break your bacon into that pan, and what we're gonna do here is slowly render out the fat from this bacon, get it nice and crispy."
+        ],
+        "prev_quotes": [
+          "Now, for the original Carbonara, you need the guanciale, which is the cheek, the pork cheek."
+        ],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Crispy Bacon Garnish",
+        "description": "The current video includes a step to reserve some crispy bacon for garnish, which was not mentioned in the previous video. This adds a new texture and visual appeal to the dish.",
+        "new_quotes": [
+          "We'll use most of it in the pasta, and then we'll actually use some for garnish, because who doesn't like crispy bacon on top?"
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "outcome"
+        ]
+      },
+      {
+        "title": "Olive Oil Addition",
+        "description": "The current video adds a tiny bit of olive oil to the pan, acknowledging that it might not be traditional but feels right for Italian cooking. This was not mentioned in the previous video, which used olive oil as a standard step.",
+        "new_quotes": [
+          "I'm doing a tiny bit of olive oil, I don't think it's traditional, but when I'm cooking Italian food, it just feels right."
+        ],
+        "prev_quotes": [
+          "And the only thing you have to do now to make the sauce is to take good olive oil, put it in the pan."
+        ],
+        "different_aspects": [
+          "materials",
+          "rationale",
+          "tips"
+        ]
+      },
+      {
+        "title": "Fat Retention Technique",
+        "description": "The current video specifies draining off most of the fat but leaving about two tablespoons in the pan, which is a more precise instruction compared to the previous video's optional fat absorption step.",
+        "new_quotes": [
+          "Now I'm turning off the heat of this pan, and I'm going to drain off most of the fat, all except for about two tablespoons or so."
+        ],
+        "prev_quotes": [
+          "You absorb a little bit of the fat, and you take it off like this."
+        ],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Prepare Meat",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Whole Eggs",
+        "description": "The current video introduces the use of three whole eggs in addition to two egg yolks, which is different from the previous video that only used egg yolks. This change is new as it balances the richness of the sauce.",
+        "new_quotes": [
+          "So I'm doing three whole eggs, as well as two egg yolks."
+        ],
+        "prev_quotes": [
+          "To be a little bit naughty, I take just the yolk, and we beat it."
+        ],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Add Boiling Water",
+        "description": "The current video suggests adding a little boiling water to the egg mixture, which is not mentioned in the previous video. This step is new as it helps equalize temperatures and loosens the mixture for easier integration with pasta.",
+        "new_quotes": [
+          "Another thing you can do is just take a little bit of that boiling water and add it to the eggs. Quickly whisk that in."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale",
+          "tips"
+        ]
+      },
+      {
+        "title": "Finely Grated Cheese",
+        "description": "The current video specifies using finely grated cheese, which is a new detail compared to the previous video that did not specify the texture of the cheese. This detail is new as it affects the texture and integration of the cheese in the sauce.",
+        "new_quotes": [
+          "And you'll see all that, and it looked like so much cheese, right?"
+        ],
+        "prev_quotes": [
+          "So we put a little bit of parmesan."
+        ],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Adjust Pepper Amount",
+        "description": "The current video emphasizes adjusting the amount of black pepper to personal preference, which is a new tip compared to the previous video that suggested using abundant pepper. This is new as it allows for customization of flavor.",
+        "new_quotes": [
+          "Put as much pepper or as little pepper as you like, and whisk it in."
+        ],
+        "prev_quotes": [
+          "Abundant pepper."
+        ],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Mix Eggs and Cheese",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Pasta Water",
+        "description": "The current video introduces the use of pasta water to adjust the sauce's consistency, which is not mentioned in the previous video. This is new because it provides a method to ensure the sauce is creamy without scrambling the eggs, enhancing the emulsification process.",
+        "new_quotes": [
+          "And if it looks too thick to you, also what you can do is just add a little bit of that pasta water.",
+          "And the pasta water, the bacon fat, the cheese and egg mixture is now emulsifying all over this pasta."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale",
+          "tips"
+        ]
+      },
+      {
+        "title": "Thick Pan Use",
+        "description": "The current video suggests using a thick pan like La Crusade to retain heat, which is not mentioned in the previous video. This is new as it provides a tip to maintain the right temperature for the sauce, preventing the eggs from scrambling.",
+        "new_quotes": [
+          "I'm also using these La Crusade pans, which I'll link in the description, and they hold a lot of heat."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "tips"
+        ]
+      },
+      {
+        "title": "Bain-Marie Technique",
+        "description": "The current video introduces the bain-marie technique to thicken the sauce if needed, which is not present in the previous video. This is new as it offers an alternative method to adjust the sauce's consistency without scrambling the eggs.",
+        "new_quotes": [
+          "But I can show you why I left that pasta water on. Because if it doesn't thicken up like you like, literally what you can do is set that pan back on top of that pasta water and like a double boil or bainmarie, it will keep cooking the egg mixture."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Combine Ingredients",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Add Crispy Bacon",
+        "description": "The current video introduces the addition of crispy bacon as a topping for the finished dish, which is not present in the previous video. This addition is new because the previous video only mentioned cheese and pepper as final touches, without any mention of bacon.",
+        "new_quotes": [
+          "And of course, some of your crispy bacon."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "rationale",
+          "tips"
+        ]
+      },
+      {
+        "title": "Plate the Pasta",
+        "description": "The current video includes the instruction to plate the pasta, which is not explicitly mentioned in the previous video. This is new as the previous video focused on adding cheese and pepper without specific instructions on plating.",
+        "new_quotes": [
+          "Go ahead and plate this up."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Enhance Texture",
+        "description": "The current video emphasizes enhancing the texture with crispy bacon, which is not discussed in the previous video. This is new because the previous video focused on flavor enhancement through cheese and pepper without mentioning texture.",
+        "new_quotes": [
+          "Just for an added crunch. That is a bonus no one is going to complain about."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale",
+          "tips"
+        ]
+      }
+    ],
+    "title": "Finish Dish",
+    "new_video": "dzyXBU3dIys",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Guanciale",
+        "description": "The current video introduces guanciale as a key ingredient, emphasizing its authenticity for traditional carbonara. This is new because the previous video used bacon instead, highlighting a non-traditional approach.",
+        "new_quotes": [
+          "Guanciale. This is the cured cheek of pork."
+        ],
+        "prev_quotes": [
+          "That's how you know this isn't carbonara, because if you were making carbonara, you'd be using guanciale."
+        ],
+        "different_aspects": [
+          "materials",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Organic Eggs",
+        "description": "The current video specifies the use of free-range organic eggs, which is a new detail not mentioned in the previous video. This highlights a focus on quality ingredients.",
+        "new_quotes": [
+          "Sheep's cheese. It's crumbly, it's salty, freerange organic egg."
+        ],
+        "prev_quotes": [
+          "Carbonara is typically made with egg yolks, which is irrelevant, since that's not what we're making."
+        ],
+        "different_aspects": [
+          "materials"
+        ]
+      },
+      {
+        "title": "Optional Garlic",
+        "description": "The current video includes garlic as an optional ingredient, which was not mentioned in the previous video. This adds a new flavor option for the dish.",
+        "new_quotes": [
+          "Pasta, black pepper and then optional, garlic."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials"
+        ]
+      },
+      {
+        "title": "Authentic Recipe",
+        "description": "The current video emphasizes providing an authentic recipe, which contrasts with the humorous, non-traditional approach of the previous video.",
+        "new_quotes": [
+          "I want to give you what I think is the most authentic recipe."
+        ],
+        "prev_quotes": [
+          "Carbonara is typically made with egg yolks, which is irrelevant, since that's not what we're making."
+        ],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Fat Intact",
+        "description": "The current video advises keeping the fat on the guanciale for better flavor, a tip not present in the previous video.",
+        "new_quotes": [
+          "So try and get them to not cut off the fat because you need it."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Prepare Ingredients",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Twist Pasta Technique",
+        "description": "The current video introduces the technique of twisting the pasta into the water to prevent it from sticking together. This method is new and not mentioned in the previous video, which only suggests stirring the pasta initially to prevent sticking.",
+        "new_quotes": [
+          "So first up guys, grab the pasta by two hands. Twist it into the water.",
+          "By twisting it, it won't stick together."
+        ],
+        "prev_quotes": [
+          "Keep wang jangling that for the first bit to keep the spag from getting clingy."
+        ],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Salt Amount Adjustment",
+        "description": "The current video specifies adding only a tiny amount of salt to the pasta water because the cheese and guanciale are already salty. This specific adjustment is new and not present in the previous video, which does not mention the amount of salt to be used.",
+        "new_quotes": [
+          "Put a tiny amount of salt in this water.",
+          "Put a tiny amount of salt in this water because the cheese and the guanciale is salty."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Cooking Time Specification",
+        "description": "The current video specifies that the pasta should be cooked for eight minutes, which is a new detail not provided in the previous video.",
+        "new_quotes": [
+          "This beautiful pasta takes eight minutes to cook."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      }
+    ],
+    "title": "Cook Pasta",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Guanciale",
+        "description": "The current video uses guanciale instead of bacon, which is a new material not present in the previous video. This change is significant as guanciale is a traditional ingredient in classic carbonara, unlike bacon which was used in the previous video.",
+        "new_quotes": [
+          "So I've got my guanciale.",
+          "The guanciale goes in to the pan and this pan is getting hot."
+        ],
+        "prev_quotes": [
+          "Now our bacon is cooked."
+        ],
+        "different_aspects": [
+          "materials"
+        ]
+      },
+      {
+        "title": "Add Garlic",
+        "description": "The current video includes garlic as a material and part of the cooking process, which was not mentioned in the previous video. This addition is new and adds a different flavor profile to the dish.",
+        "new_quotes": [
+          "Give the garlic a crack and then put it in the pan."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Use Peppercorns",
+        "description": "The current video introduces the use of black peppercorns, cracked with a pestle and mortar, and sieved to separate the outer skin. This is a new step not present in the previous video, adding a specific flavor technique to the dish.",
+        "new_quotes": [
+          "Get your peppercorns in a pestle and mortar.",
+          "Get a little sieve.",
+          "What we have here is the inside part, the peppercorn, which is hotter."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "rationale",
+          "tips"
+        ]
+      },
+      {
+        "title": "Cold Pan Start",
+        "description": "The current video starts cooking the guanciale in a cold pan to render the fat slowly, which is a new technique not mentioned in the previous video. This method enhances the flavor by allowing the fat to render out slowly.",
+        "new_quotes": [
+          "The pan is cold. Turn it on to a mediumhigh heat.",
+          "The reason I want it cold is because I want to render the fat out."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale",
+          "tips"
+        ]
+      }
+    ],
+    "title": "Prepare Meat",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Remove Garlic Step",
+        "description": "The current video includes a step to remove the garlic from the pan before combining the ingredients, which is not mentioned in the previous video. This is new because it adds a specific instruction to ensure the garlic does not overpower the dish.",
+        "new_quotes": [
+          "Now, I'm gonna remove that garlic."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Turn Off Heat",
+        "description": "The current video emphasizes turning off the heat before adding the egg mixture to prevent scrambling, which is not mentioned in the previous video. This is new as it provides a crucial step to avoid overcooking the eggs.",
+        "new_quotes": [
+          "Turn the heat off and you're gonna drag the pasta and the water into the pan."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "tips"
+        ]
+      },
+      {
+        "title": "Emulsification Explanation",
+        "description": "The current video explains that the creaminess of the sauce comes from the emulsification of the pasta water and fat, which is not detailed in the previous video. This is new as it provides a deeper understanding of the technique involved.",
+        "new_quotes": [
+          "That water and the fat, that is what's going to emulsify to become a creamy sauce.",
+          "That's the cream. You get the cream through the emulsification of the cooking water and the fat and technique and timing."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Technical Emphasis",
+        "description": "The current video highlights the technical nature of the process, emphasizing the need for precise technique and timing, which is not mentioned in the previous video. This is new as it underscores the skill required to achieve the desired consistency.",
+        "new_quotes": [
+          "So, as simple as this is, it's technical."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Combine Ingredients",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Classic Outcome",
+        "description": "The current video presents a classic spaghetti carbonara dish as the outcome, emphasizing its readiness to be enjoyed with friends and family. This is different from the previous video, which humorously presented a non-traditional version of carbonara.",
+        "new_quotes": [
+          "Look at that guys, look at that.",
+          "That my friends, is a thing of joy."
+        ],
+        "prev_quotes": [
+          "and here we don't have carbonara.",
+          "Hang my head as I eat this not carbonara in shame."
+        ],
+        "different_aspects": [
+          "outcome"
+        ]
+      },
+      {
+        "title": "Authentic Rationale",
+        "description": "The current video emphasizes the importance of quality ingredients and proper technique to enhance the flavor and authenticity of the dish. This rationale is new compared to the previous video, which humorously suggested that certain changes could alter the authenticity of carbonara.",
+        "new_quotes": [
+          "It's about quality ingredients, the guanciale, the pecorino romana, quality eggs, the pepper, the technique of the pepper, good pasta and then the sensitivity of cooking it right."
+        ],
+        "prev_quotes": [
+          "If this was carbonara, you'd have to be careful, because the carbonistic properties are so fragile that if you put in a single pea, it would no longer be carbonara.",
+          "It's a mysterious chemical reaction that only Italian scientists understand."
+        ],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Enjoyment Tips",
+        "description": "The current video includes tips about gathering friends and family to enjoy the dish together, which is a new aspect not present in the previous video.",
+        "new_quotes": [
+          "Get your friends, your family, get them around the table.",
+          "The most important thing when you eat pasta is don't watch it, eat it."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Finish Dish",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Five Ingredients Only",
+        "description": "The current video emphasizes that only five ingredients are needed for the recipe, which is a new simplification not mentioned in the previous video.",
+        "new_quotes": [
+          "So first up guys, you only need five ingredients."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "subgoal"
+        ]
+      },
+      {
+        "title": "Use of Guanciale",
+        "description": "The current video uses guanciale, highlighting its authenticity, which differs from the previous video that used bacon for accessibility.",
+        "new_quotes": [
+          "Guanciale. This is the cured cheek of pork."
+        ],
+        "prev_quotes": [
+          "So for this video, of course, I could have ordered guanciale, but I know most of my audience is American, so I want the most people possible to actually make this, so we're gonna use bacon."
+        ],
+        "different_aspects": [
+          "materials",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Free-range Eggs",
+        "description": "The current video specifies using free-range organic eggs, which is a new detail not mentioned in the previous video.",
+        "new_quotes": [
+          "Sheep's cheese. It's crumbly, it's salty, freerange organic egg."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials"
+        ]
+      },
+      {
+        "title": "Optional Garlic",
+        "description": "The current video includes garlic as an optional ingredient, which was not mentioned in the previous video.",
+        "new_quotes": [
+          "Pasta, black pepper and then optional, garlic."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials"
+        ]
+      },
+      {
+        "title": "Authentic Recipe Focus",
+        "description": "The current video focuses on providing the most authentic recipe, emphasizing traditional ingredients, which is a shift from the previous video's focus on accessibility.",
+        "new_quotes": [
+          "I want to give you what I think is the most authentic recipe."
+        ],
+        "prev_quotes": [
+          "So for this video, of course, I could have ordered guanciale, but I know most of my audience is American, so I want the most people possible to actually make this, so we're gonna use bacon."
+        ],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Guanciale Fat Tip",
+        "description": "The current video advises keeping the fat on the guanciale for better flavor, a tip not present in the previous video.",
+        "new_quotes": [
+          "So try and get them to not cut off the fat because you need it."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Prepare Ingredients",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Twist Pasta Technique",
+        "description": "The current video introduces the technique of twisting the pasta into the water to prevent it from sticking together. This method is new and not present in the previous video, which did not mention any specific technique for adding pasta to the water.",
+        "new_quotes": [
+          "So first up guys, grab the pasta by two hands. Twist it into the water."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Salt Amount Adjustment",
+        "description": "The current video specifies adding only a tiny amount of salt to the pasta water due to the saltiness of the cheese and guanciale. This detail is new and not mentioned in the previous video, which did not specify the amount of salt to be used.",
+        "new_quotes": [
+          "Put a tiny amount of salt in this water because the cheese and the guanciale is salty."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Cooking Time Change",
+        "description": "The current video specifies cooking the pasta for eight minutes, which is different from the previous video's instruction to cook for about ten minutes. This change in cooking time is new and not present in the previous video.",
+        "new_quotes": [
+          "This beautiful pasta takes eight minutes to cook."
+        ],
+        "prev_quotes": [
+          "We'll cook this spaghetti about 10 minutes in this pot, just slightly al dente, and then we'll finish it over in this baking pan."
+        ],
+        "different_aspects": [
+          "instructions"
+        ]
+      }
+    ],
+    "title": "Cook Pasta",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Guanciale",
+        "description": "The current video uses guanciale instead of bacon, which is a new material not present in the previous video. This change is significant as guanciale is a traditional ingredient in carbonara, offering a different flavor profile compared to bacon.",
+        "new_quotes": [
+          "So I've got my guanciale.",
+          "The guanciale goes in to the pan and this pan is getting hot."
+        ],
+        "prev_quotes": [
+          "Then go ahead and break your bacon into that pan, and what we're gonna do here is slowly render out the fat from this bacon, get it nice and crispy."
+        ],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Add Garlic",
+        "description": "The current video includes garlic as a new material and step in the preparation process, which was not present in the previous video. This addition introduces a new flavor element to the dish.",
+        "new_quotes": [
+          "Give the garlic a crack and then put it in the pan."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Use Peppercorns",
+        "description": "The current video introduces the use of black peppercorns, cracked and sieved to use the hotter inner part, which is a new step not present in the previous video. This adds a unique spicy element to the dish.",
+        "new_quotes": [
+          "Get your peppercorns in a pestle and mortar.",
+          "Get a little sieve.",
+          "What we have here is the inside part, the peppercorn, which is hotter."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "rationale",
+          "tips"
+        ]
+      },
+      {
+        "title": "Cold Pan Start",
+        "description": "The current video starts cooking the guanciale in a cold pan, which is a different technique from the previous video where the pan was preheated. This method is used to render the fat more effectively.",
+        "new_quotes": [
+          "The pan is cold. Turn it on to a mediumhigh heat.",
+          "The reason I want it cold is because I want to render the fat out."
+        ],
+        "prev_quotes": [
+          "Turn this pan on to medium heat."
+        ],
+        "different_aspects": [
+          "instructions",
+          "rationale",
+          "tips"
+        ]
+      }
+    ],
+    "title": "Prepare Meat",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Pecorino Cheese",
+        "description": "The current video specifies using pecorino cheese instead of just finely grated cheese. This is new because the previous video did not specify the type of cheese, only mentioning 'finely grated cheese.'",
+        "new_quotes": [
+          "I'm gonna take a bowl and I'm gonna crack the egg straight into there and I'm just gonna add a little pecorino to that.",
+          "So, like 20 grams."
+        ],
+        "prev_quotes": [
+          "And you'll see all that, and it looked like so much cheese, right?"
+        ],
+        "different_aspects": [
+          "materials"
+        ]
+      },
+      {
+        "title": "Time Sensitivity Emphasis",
+        "description": "The current video emphasizes the importance of being time sensitive when whisking the eggs and cheese to prevent them from cooking too early. This aspect was not mentioned in the previous video.",
+        "new_quotes": [
+          "Now, we're time sensitive so we're gonna have a little whisk up.",
+          "Eggs are really, really delicate and if you don't treat these right, you end up with stirfried noodles and we don't want that."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale",
+          "tips"
+        ]
+      }
+    ],
+    "title": "Mix Eggs and Cheese",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Guanciale",
+        "description": "The current video uses guanciale instead of bacon, which is a different type of meat not mentioned in the previous video. This change in ingredient is significant as it alters the flavor profile of the dish.",
+        "new_quotes": [
+          "We've got dark guanciale."
+        ],
+        "prev_quotes": [
+          "And the pasta water, the bacon fat, the cheese and egg mixture is now emulsifying all over this pasta."
+        ],
+        "different_aspects": [
+          "materials"
+        ]
+      },
+      {
+        "title": "Remove Garlic",
+        "description": "The current video includes a step to remove garlic from the pan before combining the ingredients, which was not present in the previous video. This step is new and adds a layer of flavor management not previously mentioned.",
+        "new_quotes": [
+          "Now, I'm gonna remove that garlic."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Turn Off Heat",
+        "description": "The current video emphasizes turning off the heat before adding the egg mixture, which is a new instruction not highlighted in the previous video. This is crucial to prevent scrambling the eggs.",
+        "new_quotes": [
+          "Turn the heat off and you're gonna drag the pasta and the water into the pan."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "tips"
+        ]
+      },
+      {
+        "title": "Emulsification Focus",
+        "description": "The current video focuses on the emulsification of pasta water and fat to create the sauce, which is a new emphasis compared to the previous video. This highlights the technique and timing required for the desired consistency.",
+        "new_quotes": [
+          "That water and the fat, that is what's going to emulsify to become a creamy sauce.",
+          "You get the cream through the emulsification of the cooking water and the fat and technique and timing."
+        ],
+        "prev_quotes": [
+          "And the pasta water, the bacon fat, the cheese and egg mixture is now emulsifying all over this pasta."
+        ],
+        "different_aspects": [
+          "rationale",
+          "outcome"
+        ]
+      },
+      {
+        "title": "Technical Emphasis",
+        "description": "The current video describes the process as simple but technical, requiring precise technique and timing, which is a new tip not mentioned in the previous video. This adds a layer of complexity to the preparation.",
+        "new_quotes": [
+          "So, as simple as this is, it's technical."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Combine Ingredients",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Pecorino Cheese",
+        "description": "The current video introduces the use of Pecorino cheese as a finishing touch, which is different from the previous video that used Parmesan cheese. This change highlights a variation in the choice of cheese, emphasizing authenticity and flavor enhancement.",
+        "new_quotes": [
+          "Spaghetti, carbonara with a beautiful little finishing of pecorino."
+        ],
+        "prev_quotes": [
+          "Now to finish a little more pan migliano reggiano."
+        ],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Add Black Pepper",
+        "description": "The current video includes adding more black pepper as a finishing touch, which was not mentioned in the previous video. This addition is intended to enhance the flavor and authenticity of the dish.",
+        "new_quotes": [
+          "Carbonara and you finish with more pepper."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Emphasize Enjoyment",
+        "description": "The current video emphasizes gathering friends and family to enjoy the dish together, which was not a focus in the previous video. This aspect adds a social and experiential dimension to the dish preparation.",
+        "new_quotes": [
+          "Get your friends, your family, get them around the table.",
+          "The most important thing when you eat pasta is don't watch it, eat it."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Finish Dish",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Twist Pasta Technique",
+        "description": "The current video introduces the technique of grabbing the pasta by two hands and twisting it into the water, which is not mentioned in the previous video. This technique is new and is explained to prevent the pasta from sticking together, providing a different approach to cooking pasta.",
+        "new_quotes": [
+          "So first up guys, grab the pasta by two hands. Twist it into the water.",
+          "By twisting it, it won't stick together."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Salt Usage Explanation",
+        "description": "The current video includes the addition of a tiny amount of salt to the water, with a rationale that the cheese and guanciale are already salty. This detail about salt usage and its rationale is new compared to the previous video, which did not mention adding salt.",
+        "new_quotes": [
+          "Put a tiny amount of salt in this water.",
+          "Put a tiny amount of salt in this water because the cheese and the guanciale is salty."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Cooking Time Adjustment",
+        "description": "The current video specifies cooking the pasta for eight minutes, which differs from the previous video's instruction of cooking for ten minutes. This change in cooking time is a new aspect in the current video.",
+        "new_quotes": [
+          "This beautiful pasta takes eight minutes to cook."
+        ],
+        "prev_quotes": [
+          "While this is cooking, it takes good 10 minutes."
+        ],
+        "different_aspects": [
+          "instructions"
+        ]
+      }
+    ],
+    "title": "Cook Pasta",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Add Garlic",
+        "description": "The current video introduces the use of garlic in the preparation of the meat, which was not present in the previous video. This addition is new as the previous video did not mention garlic as a material or in the instructions.",
+        "new_quotes": [
+          "Give the garlic a crack and then put it in the pan."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Use Peppercorns",
+        "description": "The current video includes the use of black peppercorns, which are cracked and sieved to use the hotter inner part. This is a new addition as the previous video did not mention peppercorns at all.",
+        "new_quotes": [
+          "Get your peppercorns in a pestle and mortar.",
+          "Get a little sieve.",
+          "What we have here is the inside part, the peppercorn, which is hotter."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Cold Pan Start",
+        "description": "The current video starts cooking the guanciale in a cold pan to slowly render the fat, which is a different technique from the previous video that started with a hot pan.",
+        "new_quotes": [
+          "The pan is cold. Turn it on to a mediumhigh heat.",
+          "The reason I want it cold is because I want to render the fat out."
+        ],
+        "prev_quotes": [
+          "And the only thing you have to do now to make the sauce is to take good olive oil, put it in the pan."
+        ],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Remove Skin",
+        "description": "The current video includes the step of removing the skin from the guanciale before slicing, which was not mentioned in the previous video.",
+        "new_quotes": [
+          "I'm gonna remove the skin and I'm gonna take a nice centimetre slice of the guanciale."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      }
+    ],
+    "title": "Prepare Meat",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Bowl Whisk",
+        "description": "The current video introduces the use of a bowl and whisk for mixing the eggs and cheese, which is not mentioned in the previous video. This is new because the previous video does not specify the tools used for mixing.",
+        "new_quotes": [
+          "I'm gonna take a bowl and I'm gonna crack the egg straight into there and I'm just gonna add a little pecorino to that.",
+          "Now, we're time sensitive so we're gonna have a little whisk up."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Time Sensitivity Emphasis",
+        "description": "The current video emphasizes the importance of being time sensitive when whisking the eggs and cheese to prevent them from cooking too early. This aspect is not present in the previous video.",
+        "new_quotes": [
+          "Now, we're time sensitive so we're gonna have a little whisk up.",
+          "Eggs are really, really delicate and if you don't treat these right, you end up with stirfried noodles and we don't want that."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale",
+          "tips"
+        ]
+      }
+    ],
+    "title": "Mix Eggs and Cheese",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Remove Garlic Step",
+        "description": "The current video includes a step to remove garlic from the pan before combining the ingredients, which is not mentioned in the previous video. This step is new and adds a layer of preparation before mixing the pasta with the guanciale and egg mixture.",
+        "new_quotes": [
+          "Now, I'm gonna remove that garlic."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Emulsification Focus",
+        "description": "The current video emphasizes the emulsification of pasta water and fat to create a creamy sauce, which is a new focus compared to the previous video. This highlights a different technique and rationale for achieving the desired sauce consistency.",
+        "new_quotes": [
+          "That water and the fat, that is what's going to emulsify to become a creamy sauce.",
+          "That's the cream. You get the cream through the emulsification of the cooking water and the fat and technique and timing."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale",
+          "outcome"
+        ]
+      },
+      {
+        "title": "Pasta Water Use",
+        "description": "The current video introduces the use of pasta cooking water to stop the frying and aid in creating the sauce, which is not mentioned in the previous video. This is a new technique to control the cooking process and achieve the right sauce texture.",
+        "new_quotes": [
+          "Turn the heat off and you're gonna drag the pasta and the water into the pan.",
+          "Use the water to stop the frying."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "tips"
+        ]
+      },
+      {
+        "title": "Technical Emphasis",
+        "description": "The current video stresses the technical nature of the process, requiring precise technique and timing, which is a new emphasis compared to the previous video. This highlights the importance of skill in achieving the perfect carbonara.",
+        "new_quotes": [
+          "So, as simple as this is, it's technical."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Combine Ingredients",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Emphasize Sharing",
+        "description": "The current video introduces the idea of gathering friends and family to enjoy the dish together, emphasizing the social aspect of eating carbonara. This is new as the previous video focused more on the individual experience of making and enjoying the dish.",
+        "new_quotes": [
+          "Get your friends, your family, get them around the table.",
+          "The most important thing when you eat pasta is don't watch it, eat it."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      },
+      {
+        "title": "Quality Ingredients",
+        "description": "The current video highlights the importance of using quality ingredients like guanciale, pecorino romana, and quality eggs, which is not explicitly mentioned in the previous video. This adds a new layer of rationale for achieving the authentic taste of carbonara.",
+        "new_quotes": [
+          "It's about quality ingredients, the guanciale, the pecorino romana, quality eggs, the pepper, the technique of the pepper, good pasta and then the sensitivity of cooking it right."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Finish Dish",
+    "new_video": "D_2DBLAt57c",
+    "prev_video": "3AAdKl1UYZs"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Salt Ratio Instruction",
+        "description": "The current video specifies adding salt in the ratio of 10 grams per liter of water, which is a precise measurement not mentioned in the previous video.",
+        "new_quotes": [
+          "Now, this is boiling water to which we add in the ratio of 10 grams per liter of water, salt."
+        ],
+        "prev_quotes": [
+          "Now we'll salt this angry water"
+        ],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Pasta Type Tip",
+        "description": "The current video suggests using spaghettoni, the biggest size of spaghetti, which is a specific tip not present in the previous video.",
+        "new_quotes": [
+          "In this case, it's sort of spaghettoni, the biggest size of spaghetti."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      },
+      {
+        "title": "Boiling Requirement Rationale",
+        "description": "The current video emphasizes that the water must be boiling to properly cook the pasta, which is a rationale not explicitly stated in the previous video.",
+        "new_quotes": [
+          "Has to be like this.",
+          "Has to be boiling."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Boil Water",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Cooking Duration",
+        "description": "The current video specifies that the pasta should be cooked for about 10 minutes, which is a specific duration not mentioned in the previous video.",
+        "new_quotes": [
+          "While this is cooking, it takes good 10 minutes."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "No Oil Needed",
+        "description": "The current video explicitly states that oil is not needed when cooking pasta, which is a rationale not present in the previous video.",
+        "new_quotes": [
+          "No oil, please. No oil, because you don't need it."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Cook Pasta",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Guanciale Chunks",
+        "description": "The current video introduces the use of guanciale, a traditional ingredient in Roman Carbonara, instead of bacon. This is new because the previous video used bacon, which is not the traditional choice for Carbonara.",
+        "new_quotes": [
+          "Now, for the original Carbonara, you need the guanciale, which is the cheek, the pork cheek.",
+          "Put the guanciale into that, and this is the beginning of the sauce, and mostly also the end of it."
+        ],
+        "prev_quotes": [
+          "Now our bacon is cooked."
+        ],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Olive Oil Addition",
+        "description": "The current video includes the use of olive oil to cook the guanciale, which was not mentioned in the previous video. This addition is significant as it forms the base of the sauce with the rendered fat from the guanciale.",
+        "new_quotes": [
+          "And the only thing you have to do now to make the sauce is to take good olive oil, put it in the pan."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Excess Fat Removal",
+        "description": "The current video suggests using a paper towel to absorb excess fat from the guanciale, which is a new tip not present in the previous video. This is aimed at making the dish lighter.",
+        "new_quotes": [
+          "You absorb a little bit of the fat, and you take it off like this."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      },
+      {
+        "title": "Avoid Adding Salt",
+        "description": "The current video advises against adding salt due to the saltiness of the guanciale, which is a new tip compared to the previous video. This is important for balancing the dish's flavor.",
+        "new_quotes": [
+          "I wouldn't put any salt here because the bacon here is quite salty, it's preserved."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      },
+      {
+        "title": "Pancetta Substitute",
+        "description": "The current video offers pancetta as a substitute for guanciale, which is a new tip not mentioned in the previous video. This provides an alternative for those who cannot find guanciale.",
+        "new_quotes": [
+          "You can use naturally also pancetta, the normal pancetta, which is this one here."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Prepare Meat",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Guanciale",
+        "description": "The current video uses guanciale cooked in olive oil as the meat component, forming the base of the sauce with rendered fat. This is different from the previous video, which used bacon without mentioning olive oil or rendered fat as part of the sauce base.",
+        "new_quotes": [
+          "Guanciale is cooked in olive oil, forming the base of the sauce with rendered fat."
+        ],
+        "prev_quotes": [
+          "Bacon is cooked and cooled, ready to be combined with other ingredients without overcooking the sauce."
+        ],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Prevent Scrambling",
+        "description": "The current video emphasizes ensuring the pasta is not too hot when adding the egg mixture to avoid scrambling, which is not mentioned in the previous video. This is a new tip and rationale to achieve a smooth sauce.",
+        "new_quotes": [
+          "I switched off the guanciale because it's too hot and this is exactly what I don't want to be too hot.",
+          "And it shouldn't be too hot because what is going to happen now should be the temperature enough to coat the egg around the pasta.",
+          "You see usually by this stage the heat is so much in the wrong cooking that the eggs become scrambled eggs."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale",
+          "tips"
+        ]
+      },
+      {
+        "title": "Stirring Technique",
+        "description": "The current video includes specific instructions on stirring the pasta to cool it slightly before adding the egg and cheese mixture, which is not present in the previous video. This is a new instruction to ensure proper sauce consistency.",
+        "new_quotes": [
+          "Stir the pasta to cool it slightly.",
+          "And now we stir it like this."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      }
+    ],
+    "title": "Combine Ingredients",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Decorative Touch",
+        "description": "The current video introduces the concept of adding a final decorative touch of cheese and pepper to enhance the dish's appearance and flavor, which is not present in the previous video. The previous video focuses on humor and non-traditional elements, while the current video emphasizes authenticity and presentation.",
+        "new_quotes": [
+          "And now the last touch, which is the embellishment.",
+          "This is decoration for me."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Authentic Outcome",
+        "description": "The current video emphasizes achieving an authentic carbonara without scrambling the eggs, which contrasts with the previous video's humorous take on a non-traditional version. This focus on authenticity and the correct technique is new.",
+        "new_quotes": [
+          "And this is the real carbonara.",
+          "Creamy, without adding cream because this is the usual thing.",
+          "Like this is just fantastic.",
+          "It's just wonderful."
+        ],
+        "prev_quotes": [
+          "and here we don't have carbonara.",
+          "Hang my head as I eat this not carbonara in shame."
+        ],
+        "different_aspects": [
+          "outcome",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Cheese Choice",
+        "description": "The current video suggests choosing between Parmesan or pecorino based on personal preference, which is a new tip not mentioned in the previous video. The previous video simply lists the cheeses without discussing choice.",
+        "new_quotes": [
+          "Parmesan or pecorino, depending what you like."
+        ],
+        "prev_quotes": [
+          "We'll finish with some pepper pepper pepper and some more pecorino or parmesan."
+        ],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Finish Dish",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "75p4UHRIMcU"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Salt Ratio",
+        "description": "The current video introduces a specific salt ratio of 10 grams per liter of water, which is not mentioned in the previous video. This provides a precise measurement for salting the water, unlike the previous video's general tablespoon measurement.",
+        "new_quotes": [
+          "Now, this is boiling water to which we add in the ratio of 10 grams per liter of water, salt."
+        ],
+        "prev_quotes": [
+          "about a tablespoon of salt, kosher salt, into about four quarts of water"
+        ],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Pasta Type",
+        "description": "The current video specifies using 'spaghettoni,' the biggest size of spaghetti, which is not mentioned in the previous video. This suggests a preference for a specific pasta type for the recipe.",
+        "new_quotes": [
+          "In this case, it's sort of spaghettoni, the biggest size of spaghetti."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "tips"
+        ]
+      },
+      {
+        "title": "Boiling Requirement",
+        "description": "The current video emphasizes that the water must be boiling before adding pasta, which is a specific instruction not highlighted in the previous video.",
+        "new_quotes": [
+          "And immediately then, we put in, has to be boiling, a pasta."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Boil Water",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Stir Pasta",
+        "description": "The current video introduces the step of stirring the pasta while it's cooking, which is not mentioned in the previous video. This is new because the previous video only instructs to cook the pasta without any mention of stirring.",
+        "new_quotes": [
+          "You just need to stir a little bit when it's in it, and that's it."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      }
+    ],
+    "title": "Cook Pasta",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Guanciale Chunks",
+        "description": "The current video introduces the use of guanciale, a traditional ingredient for Carbonara, instead of bacon. This is new because the previous video used bacon, not guanciale.",
+        "new_quotes": [
+          "Now, for the original Carbonara, you need the guanciale, which is the cheek, the pork cheek.",
+          "Put the guanciale into that, and this is the beginning of the sauce, and mostly also the end of it."
+        ],
+        "prev_quotes": [
+          "Then go ahead and break your bacon into that pan, and what we're gonna do here is slowly render out the fat from this bacon, get it nice and crispy."
+        ],
+        "different_aspects": [
+          "subgoal",
+          "materials",
+          "rationale"
+        ]
+      },
+      {
+        "title": "Chunk Cutting Instruction",
+        "description": "The current video specifies cutting the guanciale into big chunks, which was not mentioned in the previous video that used bacon.",
+        "new_quotes": [
+          "Now, you have to cut it in chunks."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Traditional Ingredient Rationale",
+        "description": "The current video explains the use of guanciale as a traditional Roman ingredient, which is not mentioned in the previous video.",
+        "new_quotes": [
+          "Now, for the original Carbonara, you need the guanciale, which is the cheek, the pork cheek.",
+          "And the Romans, they're very special in that because they do it, they cure it like ham, or like pancetta, and it's very tender, very tasty and tender."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Fat Absorption Tip",
+        "description": "The current video provides a tip to absorb excess fat with a paper towel, which is optional and not mentioned in the previous video.",
+        "new_quotes": [
+          "You absorb a little bit of the fat, and you take it off like this."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      },
+      {
+        "title": "Salt Avoidance Tip",
+        "description": "The current video advises against adding salt due to the saltiness of guanciale, which is not mentioned in the previous video.",
+        "new_quotes": [
+          "I wouldn't put any salt here because the bacon here is quite salty, it's preserved."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Prepare Meat",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Pecorino Cheese",
+        "description": "The current video introduces the use of pecorino cheese in addition to parmesan cheese, which is not mentioned in the previous video. This addition is particularly new as it highlights a traditional Roman ingredient that adds a distinct flavor to the carbonara sauce.",
+        "new_quotes": [
+          "In Roma, they use also pecorino cheese, which is a cheese to be grated."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "tips"
+        ]
+      },
+      {
+        "title": "Separate Egg Yolks",
+        "description": "The current video specifies separating the yolks from the eggs and using only the yolks, which is different from the previous video that uses whole eggs and additional yolks. This change affects the richness and texture of the sauce.",
+        "new_quotes": [
+          "To be a little bit naughty, I take just the yolk, and we beat it."
+        ],
+        "prev_quotes": [
+          "So I'm doing three whole eggs, as well as two egg yolks."
+        ],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "No Cream Allowed",
+        "description": "The current video explicitly states that no cream should be added to the carbonara sauce, emphasizing the traditional method. This rationale is not present in the previous video.",
+        "new_quotes": [
+          "To this, you don't add any, any, any cream. Absolutely forbidden."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Quality Egg Emphasis",
+        "description": "The current video emphasizes using good quality eggs for better color and flavor, which is not mentioned in the previous video. This tip highlights the importance of ingredient quality in achieving the best results.",
+        "new_quotes": [
+          "Oh, lovely colour, look at this."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Mix Eggs and Cheese",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Guanciale",
+        "description": "The current video uses guanciale cooked in olive oil as the meat component, whereas the previous video used bacon. This is new because it changes the flavor profile and authenticity of the dish.",
+        "new_quotes": [
+          "Guanciale is cooked in olive oil, forming the base of the sauce with rendered fat."
+        ],
+        "prev_quotes": [
+          "Crispy bacon with rendered fat, some reserved for garnish and some fat retained for the pasta."
+        ],
+        "different_aspects": [
+          "materials"
+        ]
+      },
+      {
+        "title": "Cool Pasta First",
+        "description": "The current video emphasizes cooling the pasta slightly before adding the egg mixture to prevent scrambling, which was not mentioned in the previous video. This is new as it provides a different technique to achieve a creamy sauce.",
+        "new_quotes": [
+          "Stir the pasta to cool it slightly.",
+          "I switched off the guanciale because it's too hot and this is exactly what I don't want to be too hot."
+        ],
+        "prev_quotes": [
+          "The heat from the pasta cooks the eggs gently, creating a creamy sauce without scrambling them."
+        ],
+        "different_aspects": [
+          "instructions",
+          "rationale",
+          "tips"
+        ]
+      }
+    ],
+    "title": "Combine Ingredients",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Pepper Addition",
+        "description": "The current video introduces the addition of pepper as a final touch, which is not present in the previous video. This is new because the previous video only mentions adding Parmesan cheese and crispy bacon, without any mention of pepper.",
+        "new_quotes": [
+          "And in my opinion also a nice touch of pepper."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "tips"
+        ]
+      },
+      {
+        "title": "Cheese Choice",
+        "description": "The current video offers a choice between Parmesan or pecorino cheese, which is not mentioned in the previous video. This is different because the previous video only specifies Parmesan cheese.",
+        "new_quotes": [
+          "Parmesan or pecorino, depending what you like."
+        ],
+        "prev_quotes": [
+          "Now to finish a little more pan migliano reggiano."
+        ],
+        "different_aspects": [
+          "materials",
+          "instructions",
+          "tips"
+        ]
+      },
+      {
+        "title": "Authentic Emphasis",
+        "description": "The current video emphasizes the authenticity of the carbonara by stating it is the real carbonara without adding cream. This emphasis on authenticity is not present in the previous video.",
+        "new_quotes": [
+          "And this is the real carbonara.",
+          "Creamy, without adding cream because this is the usual thing.",
+          "The only one. And it's exactly how it should be."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "outcome",
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Finish Dish",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "dzyXBU3dIys"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Stir Pasta Gently",
+        "description": "The current video introduces the step of stirring the pasta a little bit while it's cooking, which is not mentioned in the previous video. This is new because the previous video only focused on twisting the pasta into the water to prevent sticking, without mentioning stirring during cooking.",
+        "new_quotes": [
+          "You just need to stir a little bit when it's in it, and that's it."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "No Oil Needed",
+        "description": "The current video explicitly states that oil is not needed when cooking pasta, which is a new rationale not present in the previous video. The previous video focused on the amount of salt due to the saltiness of other ingredients, but did not address the use of oil.",
+        "new_quotes": [
+          "No oil, please. No oil, because you don't need it."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Cooking Time Change",
+        "description": "The current video specifies a cooking time of about 10 minutes for the pasta, which differs from the 8 minutes mentioned in the previous video. This change in cooking time is new and affects the instructions and outcome.",
+        "new_quotes": [
+          "While this is cooking, it takes good 10 minutes."
+        ],
+        "prev_quotes": [
+          "This beautiful pasta takes eight minutes to cook."
+        ],
+        "different_aspects": [
+          "instructions",
+          "outcome"
+        ]
+      }
+    ],
+    "title": "Cook Pasta",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Use Olive Oil",
+        "description": "The current video introduces the use of olive oil to cook the guanciale, which is not mentioned in the previous video. This is new because the previous video only uses the fat rendered from the guanciale itself without adding any additional oil.",
+        "new_quotes": [
+          "And the only thing you have to do now to make the sauce is to take good olive oil, put it in the pan."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Optional Fat Removal",
+        "description": "The current video suggests using a paper towel to absorb excess fat, which is not mentioned in the previous video. This is new as it provides an option to make the dish lighter by removing some of the rendered fat.",
+        "new_quotes": [
+          "You absorb a little bit of the fat, and you take it off like this."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "instructions",
+          "tips"
+        ]
+      },
+      {
+        "title": "Guanciale Description",
+        "description": "The current video provides a detailed description of guanciale, explaining it as pork cheek and its traditional use in Roman Carbonara. This contextual information is not present in the previous video.",
+        "new_quotes": [
+          "Now, for the original Carbonara, you need the guanciale, which is the cheek, the pork cheek.",
+          "And the Romans, they're very special in that because they do it, they cure it like ham, or like pancetta, and it's very tender, very tasty and tender."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "context",
+          "rationale"
+        ]
+      },
+      {
+        "title": "No Added Salt",
+        "description": "The current video advises against adding salt due to the saltiness of the guanciale, which is not mentioned in the previous video. This is new as it provides a tip to avoid over-salting the dish.",
+        "new_quotes": [
+          "I wouldn't put any salt here because the bacon here is quite salty, it's preserved."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      },
+      {
+        "title": "Pancetta Substitute",
+        "description": "The current video suggests using pancetta as a substitute for guanciale if unavailable, which is not mentioned in the previous video. This is new as it offers an alternative ingredient option.",
+        "new_quotes": [
+          "You can use naturally also pancetta, the normal pancetta, which is this one here."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Prepare Meat",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Separate Yolks",
+        "description": "The current video introduces the step of separating the yolks from the eggs before mixing, which is not mentioned in the previous video. This is new because the previous video simply instructs to crack the eggs into a bowl without separating the yolks.",
+        "new_quotes": [
+          "To be a little bit naughty, I take just the yolk, and we beat it."
+        ],
+        "prev_quotes": [
+          "I'm gonna take a bowl and I'm gonna crack the egg straight into there and I'm just gonna add a little pecorino to that."
+        ],
+        "different_aspects": [
+          "instructions"
+        ]
+      },
+      {
+        "title": "Add Pepper",
+        "description": "The current video includes adding abundant pepper to the egg and cheese mixture, which is not present in the previous video. This addition is new and adds a different flavor profile to the sauce.",
+        "new_quotes": [
+          "Abundant pepper."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "materials",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Use Parmesan Cheese",
+        "description": "The current video uses both parmesan and pecorino cheese, whereas the previous video only uses pecorino. This introduces a new ingredient and alters the flavor of the sauce.",
+        "new_quotes": [
+          "So we put a little bit of parmesan."
+        ],
+        "prev_quotes": [
+          "I'm gonna take a bowl and I'm gonna crack the egg straight into there and I'm just gonna add a little pecorino to that."
+        ],
+        "different_aspects": [
+          "materials"
+        ]
+      },
+      {
+        "title": "No Cream Allowed",
+        "description": "The current video explicitly states that no cream should be added to the sauce, emphasizing the traditional method. This rationale is not mentioned in the previous video.",
+        "new_quotes": [
+          "To this, you don't add any, any, any cream. Absolutely forbidden."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "rationale"
+        ]
+      },
+      {
+        "title": "Quality Eggs Tip",
+        "description": "The current video suggests using good quality eggs for better color and flavor, which is a new tip not mentioned in the previous video.",
+        "new_quotes": [
+          "Oh, lovely colour, look at this."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      },
+      {
+        "title": "Pecorino Variations",
+        "description": "The current video discusses the use of fresh or aged pecorino cheese, providing additional information on flavor variations, which is not covered in the previous video.",
+        "new_quotes": [
+          "There are fresh pecorino and aged pecorino. But it's lovely to have a little bit of this."
+        ],
+        "prev_quotes": [],
+        "different_aspects": [
+          "tips"
+        ]
+      }
+    ],
+    "title": "Mix Eggs and Cheese",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Properly Combine Ingredients",
+        "description": "The current video emphasizes the importance of properly combining the ingredients to avoid scrambling the eggs, which is not explicitly mentioned in the previous video. This is particularly new as it highlights the technique of stirring the pasta to cool it slightly before adding the egg mixture, ensuring a smooth coating without scrambling.",
+        "new_quotes": [
+          "So now I take the pasta and I put it into the, yes, that.",
+          "And now we stir it like this.",
+          "Not too scrambly."
+        ],
+        "prev_quotes": [
+          "Turn the heat off and you're gonna drag the pasta and the water into the pan.",
+          "Only then can we think about adding our egg."
+        ],
+        "different_aspects": [
+          "subgoal",
+          "instructions",
+          "rationale",
+          "tips"
+        ]
+      },
+      {
+        "title": "Temperature Control Emphasis",
+        "description": "The current video places a strong emphasis on controlling the temperature to prevent the eggs from scrambling, which is a new focus compared to the previous video. This is different as it provides specific instructions and rationale about ensuring the pasta and guanciale are not too hot before adding the egg mixture.",
+        "new_quotes": [
+          "I switched off the guanciale because it's too hot and this is exactly what I don't want to be too hot.",
+          "And it shouldn't be too hot because what is going to happen now should be the temperature enough to coat the egg around the pasta.",
+          "You see usually by this stage the heat is so much in the wrong cooking that the eggs become scrambled eggs."
+        ],
+        "prev_quotes": [
+          "Turn the heat off and you're gonna drag the pasta and the water into the pan.",
+          "So, as simple as this is, it's technical."
+        ],
+        "different_aspects": [
+          "rationale",
+          "tips"
+        ]
+      }
+    ],
+    "title": "Combine Ingredients",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "D_2DBLAt57c"
+  },
+  {
+    "alignments": [
+      {
+        "title": "Cheese Choice",
+        "description": "The current video introduces the option to choose between Parmesan or pecorino cheese for the final touch, which was not present in the previous video. This adds a personal preference element to the dish's finishing.",
+        "new_quotes": [
+          "Parmesan or pecorino, depending what you like."
+        ],
+        "prev_quotes": [
+          "Spaghetti, carbonara with a beautiful little finishing of pecorino."
+        ],
+        "different_aspects": [
+          "materials",
+          "tips"
+        ]
+      },
+      {
+        "title": "Decorative Touch",
+        "description": "The current video emphasizes the final touch of cheese and pepper as a decorative element, which is a new perspective compared to the previous video. This highlights the aesthetic aspect of the dish's presentation.",
+        "new_quotes": [
+          "And now the last touch, which is the embellishment.",
+          "This is decoration for me."
+        ],
+        "prev_quotes": [
+          "Spaghetti, carbonara with a beautiful little finishing of pecorino."
+        ],
+        "different_aspects": [
+          "rationale",
+          "instructions"
+        ]
+      },
+      {
+        "title": "Authenticity Emphasis",
+        "description": "The current video stresses the authenticity of the carbonara by highlighting that the creaminess is achieved without adding cream, which was not explicitly mentioned in the previous video.",
+        "new_quotes": [
+          "Creamy, without adding cream because this is the usual thing.",
+          "And this is the real carbonara."
+        ],
+        "prev_quotes": [
+          "That my friends, is a thing of joy."
+        ],
+        "different_aspects": [
+          "outcome",
+          "rationale"
+        ]
+      }
+    ],
+    "title": "Finish Dish",
+    "new_video": "3AAdKl1UYZs",
+    "prev_video": "D_2DBLAt57c"
+  }
+]

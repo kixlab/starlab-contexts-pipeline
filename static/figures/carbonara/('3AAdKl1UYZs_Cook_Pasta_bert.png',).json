@@ -1,0 +1,75 @@
+[
+    {
+        "id": "75p4UHRIMcU",
+        "x": 1.4292482137680054,
+        "y": -0.21819168329238892,
+        "color": "rgba(82, 84, 201, 1)",
+        "data": {
+            "longtext": [
+                "While this is cooking, it takes good 10 minutes, and no oil, please.",
+                "You just need to stir a little bit when it's in it, and that's it.",
+                "I can see it is still stiff. So I put it back again another three or four minutes.",
+                "No oil, because you don't need it.",
+                "So the pasta seems to be doing well here, the taste now should be enough."
+            ]
+        }
+    },
+    {
+        "id": "dzyXBU3dIys",
+        "x": 0.925923764705658,
+        "y": 0.40384119749069214,
+        "color": "rgba(154, 102, 179, 1)",
+        "data": {
+            "longtext": [
+                "While this is cooking, it takes good 10 minutes, and no oil, please.",
+                "You just need to stir a little bit when it's in it, and that's it.",
+                "I can see it is still stiff. So I put it back again another three or four minutes.",
+                "No oil, because you don't need it."
+            ]
+        }
+    },
+    {
+        "id": "D_2DBLAt57c",
+        "x": -1.0431559085845947,
+        "y": -1.2075666189193726,
+        "color": "rgba(19, 5, 181, 1)",
+        "data": {
+            "longtext": [
+                "While this is cooking, it takes good 10 minutes, and no oil, please.",
+                "You just need to stir a little bit when it's in it, and that's it.",
+                "I can see it is still stiff. So I put it back again another three or four minutes.",
+                "No oil, because you don't need it.",
+                "You just need to stir a little bit when it's in it, and that's it.",
+                "So the pasta seems to be doing well here, the taste now should be enough."
+            ]
+        }
+    },
+    {
+        "id": "qoHnwOHLiMk",
+        "x": -0.38119226694107056,
+        "y": -0.674142599105835,
+        "color": "rgba(148, 103, 194, 1)",
+        "data": {
+            "longtext": [
+                "While this is cooking, it takes good 10 minutes, and no oil, please.",
+                "You just need to stir a little bit when it's in it, and that's it.",
+                "I can see it is still stiff. So I put it back again another three or four minutes.",
+                "No oil, because you don't need it."
+            ]
+        }
+    },
+    {
+        "id": "NqFi90p38N8",
+        "x": -0.930823802947998,
+        "y": 1.6960598230361938,
+        "color": "rgba(77, 232, 5, 1)",
+        "data": {
+            "longtext": [
+                "While this is cooking, it takes good 10 minutes, and no oil, please.",
+                "You just need to stir a little bit when it's in it, and that's it.",
+                "I can see it is still stiff. So I put it back again another three or four minutes.",
+                "No oil, because you don't need it."
+            ]
+        }
+    }
+]

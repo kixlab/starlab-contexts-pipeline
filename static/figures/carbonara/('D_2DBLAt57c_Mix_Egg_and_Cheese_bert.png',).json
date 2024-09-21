@@ -1,0 +1,51 @@
+[
+    {
+        "id": "75p4UHRIMcU",
+        "x": -0.12703244388103485,
+        "y": -0.4299958646297455,
+        "color": "rgba(232, 213, 148, 1)",
+        "data": {
+            "longtext": [
+                "I'm gonna take a bowl and I'm gonna crack the egg straight into there and I'm just gonna add a little pecorino to that.",
+                "Now, we're time sensitive so we're gonna have a little whisk up.",
+                "Eggs are really, really delicate and if you don't treat these right, you end up with stirfried noodles and we don't want that."
+            ]
+        }
+    },
+    {
+        "id": "dzyXBU3dIys",
+        "x": -0.6447247266769409,
+        "y": 1.5898617506027222,
+        "color": "rgba(176, 139, 113, 1)",
+        "data": {
+            "longtext": [
+                "I'm gonna take a bowl and I'm gonna crack the egg straight into there and I'm just gonna add a little pecorino to that.",
+                "Now, we're time sensitive so we're gonna have a little whisk up.",
+                "Eggs are really, really delicate and if you don't treat these right, you end up with stirfried noodles and we don't want that."
+            ]
+        }
+    },
+    {
+        "id": "3AAdKl1UYZs",
+        "x": -0.8928684592247009,
+        "y": -1.134369134902954,
+        "color": "rgba(236, 144, 78, 1)",
+        "data": {
+            "longtext": [
+                "I'm gonna take a bowl and I'm gonna crack the egg straight into there and I'm just gonna add a little pecorino to that.",
+                "Now, we're time sensitive so we're gonna have a little whisk up."
+            ]
+        }
+    },
+    {
+        "id": "3AAdKl1UYZs",
+        "x": 1.664625644683838,
+        "y": -0.02549661323428154,
+        "color": "rgba(236, 144, 78, 1)",
+        "data": {
+            "longtext": [
+                "Eggs are really, really delicate and if you don't treat these right, you end up with stirfried noodles and we don't want that."
+            ]
+        }
+    }
+]

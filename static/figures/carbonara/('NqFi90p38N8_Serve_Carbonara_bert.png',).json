@@ -1,0 +1,71 @@
+[
+    {
+        "id": "75p4UHRIMcU",
+        "x": 1.6172361373901367,
+        "y": -1.1751787662506104,
+        "color": "rgba(17, 171, 242, 1)",
+        "data": {
+            "longtext": [
+                "Time to dig in.",
+                "You want to make sure you eat it while it's hot and ready to go.",
+                "Make sure you get a little bit of everything in there.",
+                "The sauce is silky and creamy because I took the time to get everything mixed really well.",
+                "The guanciale has some chew to it.",
+                "We get a little bit of spiciness from that black peppercorn and the mixture of both cheeses, sharp and kind of earthy, I think makes this carbonara one of the best versions you'll ever have.",
+                "It takes a little technique, a little bit of love, and just makes every part of you happy. Not only your tummy, but your soul as well."
+            ]
+        }
+    },
+    {
+        "id": "dzyXBU3dIys",
+        "x": -1.122485637664795,
+        "y": -0.6395239233970642,
+        "color": "rgba(121, 24, 80, 1)",
+        "data": {
+            "longtext": [
+                "Time to dig in.",
+                "You want to make sure you eat it while it's hot and ready to go.",
+                "Make sure you get a little bit of everything in there."
+            ]
+        }
+    },
+    {
+        "id": "D_2DBLAt57c",
+        "x": -0.9943661689758301,
+        "y": -0.5804405808448792,
+        "color": "rgba(143, 135, 36, 1)",
+        "data": {
+            "longtext": [
+                "Time to dig in.",
+                "You want to make sure you eat it while it's hot and ready to go.",
+                "Make sure you get a little bit of everything in there."
+            ]
+        }
+    },
+    {
+        "id": "3AAdKl1UYZs",
+        "x": 0.3239731788635254,
+        "y": 1.2460347414016724,
+        "color": "rgba(144, 150, 232, 1)",
+        "data": {
+            "longtext": [
+                "Time to dig in.",
+                "You want to make sure you eat it while it's hot and ready to go.",
+                "Make sure you get a little bit of everything in there."
+            ]
+        }
+    },
+    {
+        "id": "qoHnwOHLiMk",
+        "x": 0.1756424456834793,
+        "y": 1.1491085290908813,
+        "color": "rgba(77, 27, 58, 1)",
+        "data": {
+            "longtext": [
+                "Time to dig in.",
+                "You want to make sure you eat it while it's hot and ready to go.",
+                "Make sure you get a little bit of everything in there."
+            ]
+        }
+    }
+]

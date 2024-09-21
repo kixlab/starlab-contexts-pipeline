@@ -5,21 +5,20 @@ from helpers import PATH, LIBRARY, TASK_DESCRIPTIONS, META_TITLE, VIDEO_SETS
 from helpers.Video import Video
 from helpers.llm_prompting_v1 import define_common_subgoals_v1, generate_common_subgoals_v1, get_meta_summary_v1, get_subgoal_summary_v1, get_meta_alignments_v1, get_subgoal_alignments_v1, get_alignment_classification_v1, get_hooks_v1
 
-from helpers.llm_prompting_v2 import define_common_subgoals_v2, align_common_subgoals_v2, generate_common_subgoals_v2, get_meta_summary_v2, get_subgoal_summary_v2, generate_common_subgoals_v3, get_subgoal_summaries_v2
+from helpers.llm_prompting_v2 import define_common_subgoals_v2, align_common_subgoals_v2, get_meta_summary_v2, get_subgoal_summary_v2, generate_common_subgoals_v3, get_subgoal_alignments_v2, get_meta_alignments_v2
 
 from helpers.clip import clip_similar_per_text
 from helpers.mdprint import print_hooks
 
 
-def save_data(task_id, videos=None, subgoals=None, alignments=None, hooks=None):
-    if videos is None:
-        videos = []
-    if subgoals is None:
-        subgoals = []
-    if alignments is None:
-        alignments = []
-    if hooks is None:
-        hooks = {}
+def save_data(task_id, ds):
+    videos = ds.videos
+    subgoals = ds.subgoals
+    alignments = ds.alignments
+    alignments_baseline_1 = ds.alignments_baseline_1
+    alignments_baseline_2 = ds.alignments_baseline_2
+    hooks = ds.hooks
+
     ### save all the video objects
     save_dict = []
 
@@ -39,6 +38,14 @@ def save_data(task_id, videos=None, subgoals=None, alignments=None, hooks=None):
     ### save all the information alignments
     with open(f"{PATH}{task_id}/alignments.json", "w") as file:
         json.dump(alignments, file, indent=2)
+
+    ### save all the information alignments
+    with open(f"{PATH}{task_id}/alignments_baseline_1.json", "w") as file:
+        json.dump(alignments_baseline_1, file, indent=2)
+
+    ### save all the information alignments
+    with open(f"{PATH}{task_id}/alignments_baseline_2.json", "w") as file:
+        json.dump(alignments_baseline_2, file, indent=2)
 
     ### save all the hooks
     with open(f"{PATH}{task_id}/hooks.json", "w") as file:
@@ -65,6 +72,8 @@ class DynamicSummary:
     subgoals = []
 
     alignments = []
+    alignments_baseline_1 = []
+    alignments_baseline_2 = []
 
     hooks = {}
 
@@ -158,43 +167,148 @@ class DynamicSummary:
                     "title": META_TITLE,
                     **summary,
                 }
-            video.meta_summary["frame_paths"] = clip_similar_per_text([video.meta_summary["outcome"]], video.common_subgoals[-1]["frame_paths"])
+                # ASSUMPTION: The video has a single major outcome
+                video.meta_summary["frame_paths"] = clip_similar_per_text([video.meta_summary["outcome"]], video.common_subgoals[-1]["frame_paths"])
 
-            ## Summarize (for each subgoal)
-            # if len(video.subgoal_summaries) == 0:
-            #     subgoal_summaries = get_subgoal_summaries_v2(video.common_subgoals, self.task)
-            
+                extension = {}
+                ### turn _quotes into content ids
+                for key in video.meta_summary:
+                    if key.endswith("_quotes"):
+                        new_key = key.replace("_quotes", "_content_ids")
+                        extension[new_key] = video.quotes_to_content_ids(video.meta_summary[key])
+                video.meta_summary = {
+                    **video.meta_summary,
+                    **extension
+                }
+
+            # Summarize (for each subgoal)
+            if len(video.subgoal_summaries) == 0:
+                for subgoal_def in self.subgoals:
+                    contents = []
+                    for subgoal in video.common_subgoals:
+                        if subgoal["title"] == subgoal_def["title"]:
+                            contents.append({
+                                "text": subgoal["text"],
+                                "frame_paths": subgoal["frame_paths"],
+                            })
+                    
+                    if len(contents) == 0:
+                        continue
+
+                    context = video.get_meta_summary_contents()
+                    for parent_title in subgoal_def["dependencies"]:
+                        context += video.get_subgoal_summary_contents(parent_title, True)
+                    subgoal_summary = get_subgoal_summary_v2(contents, context, subgoal_def["title"], self.task)
+                    summary = {
+                        "title": subgoal_def["title"],
+                        **subgoal_summary,
+                    }
+                    summary["frame_paths"] = clip_similar_per_text([summary["outcome"]], summary["frame_paths"])
+                    
+                    extension = {}
+                    for key in summary:
+                        if key.endswith("_quotes"):
+                            new_key = key.replace("_quotes", "_content_ids")
+                            extension[new_key] = video.quotes_to_content_ids(summary[key])
+                    summary = {
+                        **summary,
+                        **extension,
+                        "context": context[1:],
+                    }
+                    video.subgoal_summaries.append(summary)
 
     def generate_alignments(self):
+        if len(self.videos) < 2 or len(self.alignments) > 0:
+            return
+        if len(self.subgoals) == 0:
+            return
         self.alignments = []
-
         for v1_idx, video1 in enumerate(self.videos):
             for v2_idx, video2 in enumerate(self.videos):
                 if v1_idx == v2_idx:
                     continue
-                ### between meta
-                meta_alignments = get_meta_alignments_v1(video1.meta_summary, video2.meta_summary)
-                self.alignments.append({
-                    "alignments": meta_alignments,
-                    "title": META_TITLE,
-                    "new_video": video1.video_id,
-                    "prev_video": video2.video_id,
-                })
                 ### between subgoals
-                for subgoal in self.subgoals:
-                    summary1 = video1.find_subgoal_summary(subgoal["title"])
-                    if summary1 is None:
-                        continue    
-                    summary2 = video2.find_subgoal_summary(subgoal["title"])
-                    if summary2 is None:
+                for subgoal_def in self.subgoals:
+                    contents1 = video1.get_subgoal_summary_contents(subgoal_def["title"])
+                    contents2 = video2.get_subgoal_summary_contents(subgoal_def["title"])
+                    if len(contents1) == 0 or len(contents2) == 0:
                         continue
-                    subgoal_alignments = get_subgoal_alignments_v1(subgoal["title"], video1.meta_summary, video2.meta_summary, summary1, summary2)
+                    subgoal_alignments = get_subgoal_alignments_v2(
+                        contents1, contents2, subgoal_def["title"], self.task
+                    )
+                    for alignment in subgoal_alignments:
+                        ### convert `cur_quotes` and `prev_quotes` to content ids
+                        alignment["cur_content_ids"] = video1.quotes_to_content_ids(alignment["cur_quotes"])
+                        alignment["prev_content_ids"] = video2.quotes_to_content_ids(alignment["prev_quotes"])
                     self.alignments.append({
                         "alignments": subgoal_alignments,
-                        "title": subgoal["title"],
-                        "new_video": video1.video_id,
+                        "title": subgoal_def["title"],
+                        "video": video1.video_id,
                         "prev_video": video2.video_id,
                     })
+    
+    def generate_alignments_baseline_1(self):
+        if len(self.videos) < 2 or len(self.alignments_baseline_1) > 0:
+            return
+        if len(self.subgoals) == 0:
+            return
+        for v1_idx, video1 in enumerate(self.videos):
+            for v2_idx, video2 in enumerate(self.videos):
+                if v1_idx == v2_idx:
+                    continue
+                ### between subgoals
+                for subgoal_def in self.subgoals:
+                    contents1 = video1.get_subgoal_contents(subgoal_def["title"])
+                    contents2 = video2.get_subgoal_contents(subgoal_def["title"])
+                    if len(contents1) == 0 or len(contents2) == 0:
+                        continue
+                    context1 = []
+                    context2 = []
+                    for parent_title in subgoal_def["dependencies"]:
+                        context1 += video1.get_subgoal_contents(parent_title, True)
+                        context2 += video2.get_subgoal_contents(parent_title, True)
+                    subgoal_alignments = get_subgoal_alignments_v2(
+                        context1 + contents1, context2 + contents2, subgoal_def["title"], self.task
+                    )
+                    for alignment in subgoal_alignments:
+                        ### convert `cur_quotes` and `prev_quotes` to content ids
+                        alignment["cur_content_ids"] = video1.quotes_to_content_ids(alignment["cur_quotes"])
+                        alignment["prev_content_ids"] = video2.quotes_to_content_ids(alignment["prev_quotes"])
+
+                    self.alignments_baseline_1.append({
+                        "alignments": subgoal_alignments,
+                        "title": subgoal_def["title"],
+                        "cur_video": video1.video_id,
+                        "prev_video": video2.video_id,
+                    })
+    
+    def generate_alignments_baseline_2(self):
+        if len(self.videos) < 2 or len(self.alignments_baseline_2) > 0:
+            return
+        if len(self.subgoals) == 0:
+            return
+        for v1_idx, video1 in enumerate(self.videos):
+            for v2_idx, video2 in enumerate(self.videos):
+                if v1_idx == v2_idx:
+                    continue
+                contents1 = video1.get_all_contents()
+                contents2 = video2.get_all_contents()
+                if len(contents1) == 0 or len(contents2) == 0:
+                    continue
+                subgoal_alignments = get_meta_alignments_v2(
+                    contents1, contents2, self.task
+                )
+                for alignment in subgoal_alignments:
+                    ### convert `cur_quotes` and `prev_quotes` to content ids
+                    alignment["cur_content_ids"] = video1.quotes_to_content_ids(alignment["cur_quotes"])
+                    alignment["prev_content_ids"] = video2.quotes_to_content_ids(alignment["prev_quotes"])
+
+                self.alignments_baseline_2.append({
+                    "alignments": subgoal_alignments,
+                    "title": META_TITLE,
+                    "cur_video": video1.video_id,
+                    "prev_video": video2.video_id,
+                })
     
     def classify_alignments(self):
         for video_pair in self.alignments:
@@ -354,6 +468,8 @@ def setup_ds(task_id):
     video_data_path = f"{PATH}{task_id}/video_data.json"
     subgoal_data_path = f"{PATH}{task_id}/subgoal_data.json"
     alignments_path = f"{PATH}{task_id}/alignments.json"
+    alignments_baseline_1_path = f"{PATH}{task_id}/alignments_baseline_1.json"
+    alignments_baseline_2_path = f"{PATH}{task_id}/alignments_baseline_2.json"
     hooks_path = f"{PATH}{task_id}/hooks.json"
 
     if os.path.exists(video_data_path):
@@ -385,13 +501,30 @@ def setup_ds(task_id):
     else:
         ds.alignments = []
 
-    ds.process_videos()
-    # if len(ds.videos) >= 2 and len(ds.alignments) == 0:
-    #     ds.generate_alignments()
-    #     ds.classify_alignments()
-    #     ds.genenerate_all_hooks()
+    if os.path.exists(alignments_baseline_1_path):
+        with open(alignments_baseline_1_path, "r") as file:
+            alignments = json.load(file)
+            ds.alignments_baseline_1 = alignments
+    else:
+        ds.alignments_baseline_1 = []
 
-    save_data(task_id, videos=ds.videos, subgoals=ds.subgoals, alignments=ds.alignments, hooks=ds.hooks)
+    if os.path.exists(alignments_baseline_2_path):
+        with open(alignments_baseline_2_path, "r") as file:
+            alignments = json.load(file)
+            ds.alignments_baseline_2 = alignments
+    else:
+        ds.alignments_baseline_2 = []
+
+    ds.process_videos()
+    
+    ds.generate_alignments()
+    ds.generate_alignments_baseline_1()
+    ds.generate_alignments_baseline_2()
+    
+    # ds.classify_alignments()
+    # ds.genenerate_all_hooks()
+
+    save_data(task_id, ds)
     return ds
 
 def main():
@@ -403,15 +536,8 @@ def main():
     #             print(subgoal["title"], end=";")
     #         print()
 
-    task_id = "remove-objects"
+    task_id = list(TASK_DESCRIPTIONS.keys())[0]
     ds = setup_ds(task_id)
-    for video in ds.videos:
-        for subgoal in video.common_subgoals:
-            print(subgoal["title"], end="; ")
-        print()
-        print(video.meta_summary["outcome"], video.meta_summary["frame_paths"])
-        print()
-        print()
 
 if __name__ == "__main__":
     main()
