@@ -6,6 +6,12 @@ import json
 from PIL import Image
 from openai import OpenAI
 
+from uuid import uuid4
+
+def random_uid():
+    return str(uuid4())
+
+
 def encode_image(image_path):
     with open(image_path, "rb") as image:
         return base64.b64encode(image.read()).decode("utf-8")
