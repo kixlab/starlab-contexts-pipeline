@@ -208,8 +208,7 @@ def process_video(video_link):
     subtitles_path = os.path.join(DATABASE, f'{video_title}.en.vtt')
     audio_path = os.path.join(DATABASE, f'{video_title}.mp3')
 
-    if os.path.exists(video_path) is False:
-        download_video(video_link)
+    metadata = download_video(video_link)
     
     # video_title = metadata.get('id')
     # print(f"'{video_title}'")
@@ -221,4 +220,4 @@ def process_video(video_link):
 
     subtitles_openai = extract_transcript_from_audio_openai(audio_path)
 
-    return video_title, video_frame_paths, subtitles_openai
+    return video_title, video_frame_paths, subtitles_openai, metadata
