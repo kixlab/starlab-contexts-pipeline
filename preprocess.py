@@ -1,18 +1,16 @@
 import os
 import json
 
-from helpers import PATH, LIBRARY, TASK_DESCRIPTIONS, META_TITLE, VIDEO_SETS
-from helpers import segment_into_sentences, random_uid
+from helpers import PATH, LIBRARY, TASK_DESCRIPTIONS, META_TITLE
+from helpers import random_uid, paraphrase
 
 from helpers.Video import Video
-from helpers.llm_prompting_v1 import define_common_subgoals_v1, generate_common_subgoals_v1, get_meta_summary_v1, get_subgoal_summary_v1, get_meta_alignments_v1, get_subgoal_alignments_v1, get_alignment_classification_v1, get_hooks_v1
 
-from helpers.llm_prompting_v2 import define_common_subgoals_v2, align_common_subgoals_v2, get_meta_summary_v2, get_subgoal_summary_v2, generate_common_subgoals_v3, get_subgoal_alignments_v2, get_meta_alignments_v2, get_notable_v2, get_hook_v2
+from helpers.llm_prompting_v2 import define_common_subgoals_v2, align_common_subgoals_v2, get_meta_summary_v2, get_subgoal_summary_v2, generate_common_subgoals_v3, get_subgoal_alignments_v2, get_meta_alignments_v2, get_alignments_summary_v2, get_notable_v2, get_hook_v2
 
 from helpers.clip import clip_similar_per_text
-from helpers.mdprint import print_hooks
-from helpers.sklearn import cluster_texts
-from helpers.bert import bert_embedding
+from helpers.sklearn import cluster_tagged_texts, cluster_texts
+from helpers.bert import bert_embedding, find_most_similar
 
 
 def save_data(task_id, ds):
@@ -61,6 +59,24 @@ def export(task_id, ds):
     
     ## alignments & hooks should be in the "same" format!!!
 
+    videos = [video.to_dict(short_metadata=True, fixed_subgoals=True) for video in ds.videos]
+
+    def fix_subgoals(items):
+        for item in items:
+            seconds = item["seconds"]
+            new_subgoal = None
+            for video in videos:
+                if video["video_id"] == item["video_id"]:
+                    for subgoal in video["common_subgoals"]:
+                        if subgoal["start"] <= seconds and subgoal["finish"] >= seconds:
+                            new_subgoal = subgoal["title"]
+                            break
+                    if new_subgoal is None:
+                        new_subgoal = META_TITLE
+                    break
+            item["subgoal"] = new_subgoal
+        return items
+
     def find_seconds(video_id, content_ids, is_link):
         video = None
         for v in ds.videos:
@@ -100,30 +116,13 @@ def export(task_id, ds):
         if is_link:
             return content["start"]
         return content["finish"]
-    
-    def find_subgoal(links):
-        subgoal_counter = {}
-        for link in links:
-            if link["subgoal"] not in subgoal_counter:
-                subgoal_counter[link["subgoal"]] = 0
-            subgoal_counter[link["subgoal"]] += 1
-        
-        ### if there is a tie, return meta, otherwise the most common subgoal
-        max_subgoal = META_TITLE
-        max_count = 0
-        for subgoal, count in subgoal_counter.items():
-            if count > max_count:
-                max_count = count
-                max_subgoal = subgoal
-            elif count == max_count:
-                max_subgoal = META_TITLE
-        return max_subgoal
 
     def fix_alignments(items, video_id):
         new_items = []
         for item in items:
             title = None
             description = None
+            comparison = None
             content_ids = []
             other_video_id = None
             other_content_ids = []
@@ -135,16 +134,17 @@ def export(task_id, ds):
                 description = item["notable_description"]
                 other_video_id = item["video_id"]
                 other_content_ids = item["notable_content_ids"]
-                subgoal = item["subgoal_title"]
+                comparison = paraphrase(item["alignment_comparison"], "previous", "current") ## previous -> current
             else:
                 content_ids = item["content_ids"]
                 title = item["alignment_title"]
                 description = item["alignment_description"]
                 other_video_id = item["other_video_id"]
                 other_content_ids = item["other_content_ids"]
-                subgoal = item["subgoal_title"]
+                comparison = item["alignment_comparison"]
 
-            id = f"link-{video_id}-{random_uid()}"
+            id = item["id"]
+            subgoal = item["subgoal_title"]
             other_seconds = find_seconds(other_video_id, other_content_ids, True)
             seconds = find_seconds(video_id, content_ids, True)
             
@@ -153,6 +153,7 @@ def export(task_id, ds):
                 "video_id": video_id,
                 "title": title,
                 "description": description,
+                "comparison": comparison,
                 "content_ids": content_ids,
                 "other_video_id": other_video_id,
                 "other_content_ids": other_content_ids,
@@ -160,6 +161,7 @@ def export(task_id, ds):
                 "seconds": seconds,
                 "other_seconds": other_seconds,
             })
+        new_items = fix_subgoals(new_items)
         return new_items
 
     def fix_hooks(items, label):
@@ -171,6 +173,9 @@ def export(task_id, ds):
             content_ids = []
             tag = None
             links = []
+            parent_id = None
+            subgoal = None
+
             if label == "hook":
                 title = item["hook_title"]
                 description = item["hook_description"]
@@ -183,9 +188,10 @@ def export(task_id, ds):
                 content_ids = item["notable_content_ids"]
                 links = fix_alignments(item["alignments"], video_id)
 
-            id = f"{label}-{video_id}-{random_uid()}"
+            id = item["id"]
+            subgoal = item["subgoal_title"]
+            parent_id = item["parent_id"]
             seconds = find_seconds(video_id, content_ids, False)
-            subgoal = find_subgoal(links)
             
             new_items.append({
                 "id": id,
@@ -198,7 +204,9 @@ def export(task_id, ds):
                 "seconds": seconds,
                 "links": links,
                 "subgoal": subgoal,
+                "parent_id": parent_id,
             })
+        new_items = fix_subgoals(new_items)
         return new_items
 
     def fix_raw_alignments(items):
@@ -216,9 +224,10 @@ def export(task_id, ds):
             links = fix_alignments(item["alignments"], video_id)
             
             seconds = find_seconds(video_id, content_ids, False)
-            subgoal = find_subgoal(links)
+            subgoal = META_TITLE
+            parent_id = None
 
-            id = f"raw-{video_id}-{random_uid()}"
+            id = f"{label}-{video_id}-{random_uid()}"
             new_items.append({
                 "id": id,
                 "label": label,
@@ -230,13 +239,14 @@ def export(task_id, ds):
                 "seconds": seconds,
                 "links": links,
                 "subgoal": subgoal,
+                "parent_id": parent_id,
             })
-
+        new_items = fix_subgoals(new_items)
         return new_items
 
     output = {
         "task": ds.task,
-        "videos": [video.to_dict() for video in ds.videos],
+        "videos": videos,
         "subgoal_definitions": ds.subgoals,
         "hooks": {
             "ours": [],
@@ -246,7 +256,7 @@ def export(task_id, ds):
     }
 
     if "hooks" in ds.hooks:
-        output["hooks"]["our"] = (
+        output["hooks"]["ours"] = (
             fix_hooks(ds.hooks["hooks"], "hook") +
             fix_hooks(ds.hooks["notables"], "notable") +
             fix_raw_alignments(ds.alignments)
@@ -299,6 +309,12 @@ class DynamicSummary:
         self.videos = videos
         self.subgoals = subgoals
 
+    def get_video(self, video_id):
+        for video in self.videos:
+            if video.video_id == video_id:
+                return video
+        return None
+
     def process_videos(self):
         ### feed each narration separately to identify common subgoals
         # self.__process_videos_v1()
@@ -319,14 +335,16 @@ class DynamicSummary:
             if len(video.common_subgoals) == 0:
                 common_subgoals = generate_common_subgoals_v3(video.get_all_contents(), self.subgoals, self.task)
                 ### `segmentation` has `text`, `quotes`, `explanation`
-                for subgoal in common_subgoals:
+                for index, subgoal in enumerate(common_subgoals):
                     video.common_subgoals.append({
+                        "id": f"{video.video_id}-subgoal-{index}",
                         "title": subgoal["title"],
                         "explanation": subgoal["explanation"],
                         "start": subgoal["start"],
                         "finish": subgoal["finish"],
                         "text": subgoal["text"],
                         "frame_paths": subgoal["frame_paths"],
+                        "content_ids": subgoal["content_ids"],
                     })
             
             ## Summarize (for each video) (1) context, (2) method, (3) outcome
@@ -336,8 +354,15 @@ class DynamicSummary:
                     "title": META_TITLE,
                     **summary,
                 }
+                last_subgoals = []
+                subgoal_idx = len(self.subgoals) - 1
+                while len(last_subgoals) == 0:
+                    last_subgoals = video.get_common_subgoals(self.subgoals[subgoal_idx]["title"])
+                    subgoal_idx -= 1
+                if len(last_subgoals) == 0:
+                    last_subgoals = video.common_subgoals
                 # ASSUMPTION: The video has a single major outcome
-                video.meta_summary["frame_paths"] = clip_similar_per_text([video.meta_summary["outcome"]], video.common_subgoals[-1]["frame_paths"])
+                video.meta_summary["frame_paths"] = clip_similar_per_text([video.meta_summary["outcome"]], last_subgoals[-1]["frame_paths"])
 
                 extension = {}
                 ### turn _quotes into content ids
@@ -353,18 +378,11 @@ class DynamicSummary:
             # Summarize (for each subgoal)
             if len(video.subgoal_summaries) == 0:
                 for subgoal_def in self.subgoals:
-                    contents = []
-                    for subgoal in video.common_subgoals:
-                        if subgoal["title"] == subgoal_def["title"]:
-                            contents.append({
-                                "text": subgoal["text"],
-                                "frame_paths": subgoal["frame_paths"],
-                            })
-                    
+                    contents = video.get_subgoal_contents(subgoal_def["title"])
                     if len(contents) == 0:
                         continue
 
-                    context = video.get_meta_summary_contents()
+                    context = video.get_meta_summary_contents(True)
                     for parent_title in subgoal_def["dependencies"]:
                         context += video.get_subgoal_summary_contents(parent_title, True)
                     subgoal_summary = get_subgoal_summary_v2(contents, context, subgoal_def["title"], self.task)
@@ -382,20 +400,105 @@ class DynamicSummary:
                     summary = {
                         **summary,
                         **extension,
-                        "context": context[1:],
+                        "context": context,
                     }
                     video.subgoal_summaries.append(summary)
 
+    def __reformat_alignments(self, alignments_set, video1, video2):
+        for alignment in alignments_set:
+            alignment["alignment_title"] = alignment["title"]
+            alignment["alignment_description"] = alignment["description"]
+            alignment["alignment_comparison"] = alignment["comparison_description"]
+            del alignment["comparison_description"]
+            del alignment["title"]
+            del alignment["description"]
+            
+            if "content_ids" not in alignment:
+                alignment["content_ids"] = video1.quotes_to_content_ids(alignment["quotes"])
+            if "other_content_ids" not in alignment:
+                alignment["other_content_ids"] = video2.quotes_to_content_ids(alignment["other_quotes"])
+            alignment["other_video_id"] = video2.video_id
+            alignment["id"] = f"link-{video1.video_id}-{random_uid()}"
+            
+            subgoal_title = alignment["subgoal_title"]
+
+            if len(alignment["other_content_ids"]) == 0:
+                ## ASSUMPTION: probably need to show at the end of the subgoal
+                if subgoal_title == META_TITLE:
+                    alignment["other_content_ids"] = [video2.custom_subgoals[-1]["id"]]
+                    continue
+                subgoals = video2.get_common_subgoals(subgoal_title)
+                for subgoal in reversed(subgoals):
+                    if subgoal["title"] == subgoal_title and len(subgoal["content_ids"]) > 0:
+                        alignment["other_content_ids"] = [subgoal["content_ids"][-1]]
+                        break
+        return alignments_set
+    
+    def __cluster(self, source, items, summarization_f = None):
+        if len(items) == 0:
+            return []
+        prefix = ""
+        if source == "alignment" or source == "notable":
+            prefix = "alignment"
+        else:
+            prefix = "notable"
+        texts = []
+        tags = []
+        for item in items:
+            texts.append(item[f"{prefix}_description"])
+            if prefix == "alignment":
+                ## ASSUMPTION: since comparisons are on the subgoal-level, same cluster should not have alignments from same video&subgoal
+                tags.append(item["other_video_id"] + "-" + item["subgoal_title"])
+            else:
+                ## ASSUMPTION: a hook should not lead to same subgoal of the video twice!
+                tags.append(item["video_id"] + "-" + item["subgoal_title"])
+        cluster_labels = cluster_tagged_texts(texts, tags)
+        # cluster_labels = cluster_texts(texts)
+        clusters = {}
+        for index, label in enumerate(cluster_labels):
+            if label not in clusters:
+                clusters[label] = []
+            clusters[label].append(items[index])
+
+        if summarization_f is None:
+            return list(clusters.values()), []
+        
+        results = []
+        for cluster in clusters.values():
+            if len(cluster) < 1:
+                continue
+            contents = []
+            for a in cluster:
+                text = (a[f"{prefix}_title"] + ": " + a[f"{prefix}_description"])
+                if prefix == "alignment":
+                    text += " " + a['alignment_comparison']
+                
+                contents.append({
+                    "type": "text",
+                    "text": text
+                })
+            if source == "alignment" and len(cluster) == 1:
+                results.append({
+                    "title": cluster[0][f"{prefix}_title"],
+                    "description": cluster[0][f"{prefix}_description"],
+                    "comparison_description": cluster[0][f"{prefix}_comparison"],
+                })
+            else:
+                results.append(summarization_f(contents, self.task))
+        return results, list(clusters.values())
+    
     def generate_alignments(self):
         if len(self.videos) < 2 or len(self.alignments) > 0:
             return
         if len(self.subgoals) == 0:
             return
+        
         self.alignments = []
         for v1_idx, video1 in enumerate(self.videos):
             for v2_idx, video2 in enumerate(self.videos):
                 if v1_idx == v2_idx:
                     continue
+                cur_alignments = []
                 ### between subgoals
                 for subgoal_def in self.subgoals:
                     contents1 = video1.get_subgoal_summary_contents(subgoal_def["title"])
@@ -406,26 +509,45 @@ class DynamicSummary:
                         contents1, contents2, subgoal_def["title"], self.task
                     )
                     for alignment in subgoal_alignments:
-                        alignment["alignment_title"] = alignment["title"]
-                        alignment["alignment_description"] = alignment["description"]
-                        del alignment["title"]
-                        del alignment["description"]
-
-                        alignment["content_ids"] = video1.quotes_to_content_ids(alignment["quotes"])
-                        alignment["other_content_ids"] = video2.quotes_to_content_ids(alignment["other_quotes"])
-                        alignment["other_video_id"] = video2.video_id
                         alignment["subgoal_title"] = subgoal_def["title"]
 
-                        if len(alignment["other_content_ids"]) == 0:
-                            ## ASSUMPTION: probably need to show at the end of the subgoal
-                            alignment["other_content_ids"] = video2.quotes_to_content_ids([contents2[-1]["text"]])
+                    cur_alignments.extend(self.__reformat_alignments(subgoal_alignments, video1, video2))
+                
+                ### between meta
+                contents1 = video1.get_meta_summary_contents(False)
+                contents2 = video2.get_meta_summary_contents(False)
+                meta_alignments = get_meta_alignments_v2(
+                    contents1, contents2, self.task
+                )
+                for alignment in meta_alignments:
+                    alignment["subgoal_title"] = META_TITLE
+                cur_alignments.extend(self.__reformat_alignments(meta_alignments, video1, video2))
 
-                    self.alignments.append({
-                        "alignments": subgoal_alignments,
-                        "video_id": video1.video_id,
-                    })
+                ## TODO: combine cur_alignments!!!! and assign subgoal_title as the earliest subgoal (or META_TITLE)
+
+                summarized_alignments, clusters = self.__cluster("alignment", cur_alignments, get_alignments_summary_v2)
+
+                for summarized_alignment, cluster in zip(summarized_alignments, clusters):
+                    summarized_alignment["content_ids"] = []
+                    summarized_alignment["quotes"] = []
+                    summarized_alignment["other_content_ids"] = []
+                    summarized_alignment["other_quotes"] = []
+                    for alignment in cluster:
+                        summarized_alignment["content_ids"] += alignment["content_ids"]
+                        summarized_alignment["quotes"] += alignment["quotes"]
+                        summarized_alignment["other_content_ids"] += alignment["other_content_ids"]
+                        summarized_alignment["other_quotes"] += alignment["other_quotes"]
+                    summarized_alignment["subgoal_title"] = cluster[0]["subgoal_title"]
+
+                summarized_alignments = self.__reformat_alignments(summarized_alignments, video1, video2)    
+                    
+                self.alignments.append({
+                    "alignments": summarized_alignments,
+                    "video_id": video1.video_id,
+                })
     
     def generate_alignments_baseline_1(self):
+        ## UPDATE
         if len(self.videos) < 2 or len(self.alignments_baseline_1) > 0:
             return
         if len(self.subgoals) == 0:
@@ -448,25 +570,13 @@ class DynamicSummary:
                     subgoal_alignments = get_subgoal_alignments_v2(
                         context1 + contents1, context2 + contents2, subgoal_def["title"], self.task
                     )
-                    for alignment in subgoal_alignments:
-                        alignment["alignment_title"] = alignment["title"]
-                        alignment["alignment_description"] = alignment["description"]
-                        del alignment["title"]
-                        del alignment["description"]
-
-                        alignment["content_ids"] = video1.quotes_to_content_ids(alignment["quotes"])
-                        alignment["other_content_ids"] = video2.quotes_to_content_ids(alignment["other_quotes"])
-                        alignment["other_video_id"] = video2.video_id
-                        alignment["subgoal_title"] = subgoal_def["title"]
-
-                        if len(alignment["other_content_ids"]) == 0:
-                            alignment["other_content_ids"] = video2.quotes_to_content_ids([contents2[-1]["text"]])
                     self.alignments_baseline_1.append({
-                        "alignments": subgoal_alignments,
+                        "alignments": self.__reformat_alignments(subgoal_alignments, video1, video2, subgoal_def["title"]),
                         "video_id": video1.video_id,
                     })
     
     def generate_alignments_baseline_2(self):
+        ## UPDATE
         if len(self.videos) < 2 or len(self.alignments_baseline_2) > 0:
             return
         if len(self.subgoals) == 0:
@@ -479,29 +589,16 @@ class DynamicSummary:
                 contents2 = video2.get_all_contents()
                 if len(contents1) == 0 or len(contents2) == 0:
                     continue
-                subgoal_alignments = get_meta_alignments_v2(
+                meta_alignments = get_meta_alignments_v2(
                     contents1, contents2, self.task
                 )
-                for alignment in subgoal_alignments:
-                    alignment["alignment_title"] = alignment["title"]
-                    alignment["alignment_description"] = alignment["description"]
-                    del alignment["title"]
-                    del alignment["description"]
-
-                    alignment["content_ids"] = video1.quotes_to_content_ids(alignment["quotes"])
-                    alignment["other_content_ids"] = video2.quotes_to_content_ids(alignment["other_quotes"])
-                    alignment["other_video_id"] = video2.video_id
-                    alignment["subgoal_title"] = META_TITLE
-
-                    if len(alignment["other_content_ids"]) == 0:
-                        alignment["other_content_ids"] = video2.quotes_to_content_ids([contents2[-1]["text"]])
                 self.alignments_baseline_2.append({
-                    "alignments": subgoal_alignments,
+                    "alignments": self.__reformat_alignments(meta_alignments, video1, video2, META_TITLE),
                     "video_id": video1.video_id,
                 })
 
-    def __cluster_alignments(self, root_alignments):
-        clusters = []
+    def __generate_notable(self, root_alignments):
+        notables = []
         alignments_per_video = {}
         for alignment in root_alignments:
             video_id = alignment["video_id"]
@@ -510,68 +607,47 @@ class DynamicSummary:
             alignments_per_video[video_id] += alignment["alignments"]
         
         for video_id, all_alignments in alignments_per_video.items():
-            if len(all_alignments) == 0:
+            if len(all_alignments) < 1:
                 continue
-            texts = []
-            for a in all_alignments:
-                alignment_description = segment_into_sentences(a["alignment_description"])[0]
-                texts.append(alignment_description)
-            cluster_labels, _, _ = cluster_texts(texts)
-            cur_clusters = {}
-            for index, label in enumerate(cluster_labels):
-                if label not in cur_clusters:
-                    cur_clusters[label] = []
-                cur_clusters[label].append(all_alignments[index])
 
-            for alignments in cur_clusters.values():
+            video = self.get_video(video_id)
+            if video is None:
+                continue
+
+            cur_notables, clusters = self.__cluster("notable", all_alignments, get_notable_v2)
+            for notable, alignments in zip(cur_notables, clusters):
                 if len(alignments) < 1:
                     continue
-                contents = []
-                content_ids_count = {}
-                for a in alignments:
-                    contents.append({
-                        "type": "text",
-                        "text": f"{a['alignment_title']}: {a['alignment_description']}"
-                    })
-                    content_ids = list(set(a["content_ids"]))
-                    for content_id in content_ids:
-                        if content_id not in content_ids_count:
-                            content_ids_count[content_id] = 0
-                        content_ids_count[content_id] += 1
-
-                notable = get_notable_v2(contents, self.task)
-                
+                ### ASSUMPTION: the smallest content_id & earliest subgoals are the most relevant
                 notable_content_id = None
-                for content_id, count in content_ids_count.items():
-                    if notable_content_id is None:
-                        notable_content_id = content_id
-                        continue
-                    if count < content_ids_count[notable_content_id]:
-                        continue
-                    if count > content_ids_count[notable_content_id]:
-                        notable_content_id = content_id
-                        continue
-                    if int(content_id.split("-")[-1]) < int(notable_content_id.split("-")[-1]):
-                        notable_content_id = content_id
-                        
-                clusters.append({
+                subgoal_title = None
+                for a in alignments:
+                    for content_id in a["content_ids"]:
+                        if notable_content_id is None or int(notable_content_id.split("-")[-1]) > int(content_id.split("-")[-1]):
+                            notable_content_id = content_id
+                            subgoal_title = a["subgoal_title"]     
+                notables.append({
                     "alignments": alignments,
                     "notable_content_ids": [notable_content_id],
                     "notable_title": notable["title"],
                     "notable_description": notable["description"],
                     "video_id": video_id,
-                }) 
-        return clusters
+                    "id": f"notable-{video_id}-{random_uid()}",
+                    "parent_id": None,
+                    "subgoal_title": subgoal_title,
+                })
+        return notables
     
     def find_notables(self):
         if not ("notables" in self.hooks):
-            self.hooks["notables"] = self.__cluster_alignments(self.alignments)
+            self.hooks["notables"] = self.__generate_notable(self.alignments)
         # if not ("notables_baseline_1" in self.hooks):
-        #     self.hooks["notables_baseline_1"] = self.__cluster_alignments(self.alignments_baseline_1)
+        #     self.hooks["notables_baseline_1"] = self.__generate_notable(self.alignments_baseline_1)
         # if not ("notables_baseline_2" in self.hooks):
-        #     self.hooks["notables_baseline_2"] = self.__cluster_alignments(self.alignments_baseline_2)
+        #     self.hooks["notables_baseline_2"] = self.__generate_notable(self.alignments_baseline_2)
 
     def __generate_hooks(self, notables):
+        hook_parents_per_video = {}
         links_per_video = {}
         for notable in notables:
             video_id = notable["video_id"]
@@ -579,6 +655,7 @@ class DynamicSummary:
             notable_title = notable["notable_title"]
             notable_description = notable["notable_description"]
             notable_content_ids = notable["notable_content_ids"]
+            notable_id = notable["id"]
             for alignment in alignments:
                 other_video_id = alignment["other_video_id"]
                 if other_video_id not in links_per_video:
@@ -589,49 +666,58 @@ class DynamicSummary:
                     "notable_title": notable_title,
                     "notable_description": notable_description,
                     "video_id": video_id,
+                    "id": notable_id,
                 })
+
+            if video_id not in hook_parents_per_video:
+                hook_parents_per_video[video_id] = []
+            hook_parents_per_video[video_id].append({
+                "id": notable_id,
+                "title": notable_title,
+                "description": notable_description,
+                "content_ids": notable_content_ids,
+                "subgoal_title": notable["subgoal_title"],
+            })
         
         hooks = []
         for video_id, links in links_per_video.items():
-            video = None
-            for v in self.videos:
-                if v.video_id == video_id:
-                    video = v
-                    break
+            video = self.get_video(video_id)
             if video is None:
                 continue
-            ### TODO: can try alignment description last sentences!
-            texts = []
-            for link in links:
-                texts.append(link['notable_description'])
-            cluster_labels, _, _ = cluster_texts(texts)
-            clusters = {}
-            for index, label in enumerate(cluster_labels):
-                if label not in clusters:
-                    clusters[label] = []
-                clusters[label].append(links[index])
+            hook_parents_embeddings = bert_embedding([hook["description"] for hook in hook_parents_per_video[video_id]])
             
-            for cluster in clusters.values():
+            ### TODO: can try alignment description last sentences!
+            cur_hooks, clusters = self.__cluster("hook", links, get_hook_v2)
+            
+            for hook, cluster in zip(cur_hooks, clusters):
                 if (len(cluster) < 1):
                     continue
-                contents = []
-                for link in cluster:
-                    contents.append({
-                        "type": "text",
-                        "text": f"{link['notable_title']}: {link['notable_description']}"
-                    })
-
-                hook = get_hook_v2(contents, self.task)
                 
-                ### TODO: Instead of choosing the content_id, map it to the notable information
+                ### ASSUMPTION: the most semantiaclly similar content_id is the most relevant
                 hook_content_ids = video.get_most_similar_content_ids([hook["description"]])
                 
+                hook_embedding = bert_embedding([hook["description"]])
+                print(hook["description"], hook_content_ids)
+                parent_indexes, scores = find_most_similar(hook_parents_embeddings, hook_embedding)
+                print(parent_indexes, scores)
+                print(hook_parents_per_video[video_id])
+                
+                parent_id = hook_parents_per_video[video_id][parent_indexes[0]]["id"]
+                subgoal_title = hook_parents_per_video[video_id][parent_indexes[0]]["subgoal_title"]
+                
+                if scores[0] < 0.5:
+                    ## ASSUMPTION: If the hook is too dissimilar put it under `undefined`
+                    parent_id = None
+
                 hooks.append({
                     "links": cluster,
                     "hook_content_ids": hook_content_ids,
                     "hook_title": hook["title"],
                     "hook_description": hook["description"],
                     "video_id": video_id,
+                    "id": f"hook-{video_id}-{random_uid()}",
+                    "parent_id": parent_id,
+                    "subgoal_title": subgoal_title,
                 })
         return hooks
 

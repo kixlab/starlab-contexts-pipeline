@@ -17,9 +17,12 @@ class InformationRelations(BaseModel):
     complementary: list[Relation] = Field(..., title="The list of complementary information between sources.")
     contradictory: list[Relation] = Field(..., title="The list of contradictory information between sources.")
 
-class InformationAlignmentSchema(BaseModel):
+class SummarizedAlignmentSchema(BaseModel):
     title: str = Field(..., title="the 3-word title of the new content in the current video.")
-    description: str = Field(..., title="the description of the new content in the current video that is not present in the previous video. When describing, follow the template `The video ... But, the previous video ...`. First, state the `new` information and then why is it particularly new, different, or not present in the previous video.`")
+    description: str = Field(..., title="the detailed description of the new content in the current video that is not present in the previous video. When describing, follow the template `The video ...`.")
+    comparison_description: str = Field(..., title="the comparison description of the new content in the current video that is not present in the previous video. When describing, follow the template `Such information is presented because the previous video ..., while this video ...`. State why is the `new` information is particularly new, different, or not present in the previous video.` It should be a continuation of the `description`.")
+    
+class InformationAlignmentSchema(SummarizedAlignmentSchema):
     quotes: list[str] = Field(..., title="(must be nonempty) the list of relevant quotes from the current video.")
     other_quotes: list[str] = Field(..., title="(if any) the list of relevant quotes from the previous video.")
     # different_aspects: list[Literal["subgoal", "context", "outcome", "materials", "instructions", "rationale", "tips"]] = Field(..., title="a list of different aspects that the new content pertains to.")

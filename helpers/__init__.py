@@ -196,3 +196,6 @@ def segment_into_sentences(text):
     ### do gpt-4 call to get punctuations
     seg = pysbd.Segmenter(language="en", clean=False)
     return seg.segment(text)
+
+def paraphrase(text, former_word, new_word):
+    text = text.replace(former_word, new_word)

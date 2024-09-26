@@ -6,6 +6,7 @@ from helpers.bert import bert_embedding, find_most_similar
 
 class Video:
     video_link = ""
+    metadata = {}
     video_id = None
     ### list of frames in base64 sec: {"path": "", caption: ""}
     frames = {}
@@ -37,7 +38,8 @@ class Video:
         self.process_subtitles()
 
     def process_video(self):
-        video_title, video_frame_paths, subtitles = process_video(self.video_link)
+        video_title, video_frame_paths, subtitles, metadata = process_video(self.video_link)
+        self.metadata = metadata
         self.video_id = video_title
         self.frames = {}
         
@@ -74,43 +76,27 @@ class Video:
         
         self.custom_subgoals = sorted(self.custom_subgoals, key=lambda x: x["start"])
 
-        for subgoal in self.custom_subgoals:
+        for index, subgoal in enumerate(self.custom_subgoals):
             frame_sec = round((subgoal["start"] + subgoal["finish"]) / 2)
             if frame_sec in self.frames:
                 subgoal["frame_paths"].append(self.frames[frame_sec]["path"])
-
-    def get_overlapping_subgoals(self, segments):
-        # segments = [(start, finish)] 
-        if len(self.common_subgoals) == 0:
-            return []
+            subgoal["id"] = f"{self.video_id}-{index}",
+    
+    def get_common_subgoals(self, title):
         subgoals = []
         for subgoal in self.common_subgoals:
-            ## check if it overlaps with any of the segments
-            for start, finish in segments:
-                if max(start, subgoal["start"]) < min(finish, subgoal["finish"]):
-                    subgoals.append(subgoal)
-                    break
+            if subgoal["title"] == title:
+                subgoals.append(subgoal)
         return subgoals
-    
-    def get_common_subgoal(self, timestamp):
-        if len(self.common_subgoals) == 0:
-            return None
-        for subgoal in self.common_subgoals:
-            if subgoal["start"] <= timestamp <= subgoal["finish"]:
-                return subgoal
-        for subgoal in self.common_subgoals:
-            if timestamp <= subgoal["finish"]:
-                return subgoal
-        return self.common_subgoals[-1]
     
     def get_full_narration(self):
         return "\n".join([subtitle["text"] for subtitle in self.subtitles])
     
     def get_all_contents(self):
         contents = []
-        for index, subgoal in enumerate(self.custom_subgoals):
+        for subgoal in self.custom_subgoals:
             contents.append({
-                "id": f"content-{index}",
+                "id": subgoal["id"],
                 "start": subgoal["start"],
                 "finish": subgoal["finish"],
                 "text": subgoal["text"],
@@ -118,7 +104,7 @@ class Video:
             })
         return contents
 
-    def get_meta_summary_contents(self) -> list:
+    def get_meta_summary_contents(self, as_context=False) -> list:
         ### TODO: If going bad, may need to add quotes
         if self.meta_summary is None:
             return None
@@ -134,12 +120,12 @@ class Video:
             key = "Overall " + k.capitalize().replace("_", " ")
             value = v if isinstance(v, str) else ", ".join(v)
             text += f"- **{key}**: {value}\n"
-            if len(quotes[k]) > 0:
+            if len(quotes[k]) > 0 and not as_context:
                 text += f"\t- **{key} Quotes**:"
                 text += "; ".join([f"`{quote}`" for quote in quotes[k]])
                 text += "\n"
         return [{
-            "id": f"meta-summary",
+            "id": f"{self.video_id}-meta",
             "text": text,
             "frame_paths": [path for path in self.meta_summary["frame_paths"]],
         }]
@@ -172,7 +158,7 @@ class Video:
                     text += "; ".join([f"`{quote}`" for quote in quotes[k]])
                     text += "\n"
             content = {
-                "id": f"subgoal-summary-{index}",
+                "id": f"{self.video_id}-subgoal-summary-{index}",
                 "title": summary["title"],
                 "text": text,
                 "frame_paths": [path for path in summary["frame_paths"]],
@@ -183,9 +169,9 @@ class Video:
         return []
 
     def get_subgoal_contents(self, title, as_parent=False) -> list:
-        for index, subgoal in enumerate(self.common_subgoals):
-            if subgoal["title"] != title:
-                continue
+        contents = []
+        subgoals = self.get_common_subgoals(title)
+        for subgoal in subgoals:
             text = ""
             if as_parent:
                 ### indicate that this is a parent
@@ -195,12 +181,13 @@ class Video:
                 text += f"#### Subgoal Contents**\n"
             
             text += subgoal["text"] + "\n"
-            return [{
-                "id": f"subgoal-content-{index}",
+            contents.append({
+                "id": subgoal['id'],
                 "text": text,
                 "frame_paths": [path for path in subgoal["frame_paths"]],
-            }]
-        return []
+                "content_ids": subgoal["content_ids"]
+            })
+        return contents
     
     def quotes_to_content_ids(self, quotes):
         """
@@ -208,15 +195,14 @@ class Video:
         """
         if len(quotes) == 0:
             return []
-        contents = self.get_all_contents()
         if len(self.custom_subgoals_embeddings) == 0:
             self.calculate_custom_subgoals_embeddings()
         content_ids = []
         quotes_embeddings = bert_embedding(quotes)
 
-        indexes = find_most_similar(self.custom_subgoals_embeddings, quotes_embeddings)
+        indexes, scores = find_most_similar(self.custom_subgoals_embeddings, quotes_embeddings)
         for idx in indexes:
-            content_ids.append(contents[idx]["id"])
+            content_ids.append(self.custom_subgoals[idx]["id"])
 
         return content_ids
                         
@@ -233,20 +219,19 @@ class Video:
         """
         if len(texts) == 0:
             return []
-        contents = self.get_all_contents()
         if len(self.custom_subgoals_embeddings) == 0:
             self.calculate_custom_subgoals_embeddings()
         text_embeddings = bert_embedding(texts)
 
-        indexes = find_most_similar(self.custom_subgoals_embeddings, text_embeddings)
+        indexes, scores = find_most_similar(self.custom_subgoals_embeddings, text_embeddings)
 
         content_ids = []
         for idx in indexes:
-            content_ids.append(contents[idx]["id"])
+            content_ids.append(self.custom_subgoals[idx]["id"])
         return content_ids
 
-    def to_dict(self):
-        return {
+    def to_dict(self, short_metadata=False, fixed_subgoals=False):
+        result = {
             "video_id": self.video_id,
             "video_link": self.video_link,
             "frames": self.frames,
@@ -255,13 +240,33 @@ class Video:
             "common_subgoals": self.common_subgoals,
             "meta_summary": self.meta_summary,
             "subgoal_summaries": self.subgoal_summaries,
+            "metadata": self.metadata
         }
+        if short_metadata:
+            result["metadata"] = {
+                "title": self.metadata["title"],
+                "duration": self.metadata["duration"],
+                "width": self.metadata["width"],
+                "height": self.metadata["height"],
+                "fps": self.metadata["fps"],
+            }
+        
+        if fixed_subgoals:
+            for index, subgoal in enumerate(result["common_subgoals"]):
+                subgoal["original_title"] = subgoal["title"]
+                subgoal["title"] = subgoal["original_title"] + "-" + str(index)
+            
+            for index, subgoal_summary in enumerate(result["subgoal_summaries"]):
+                for subgoal in result["common_subgoals"]:
+                    if subgoal_summary["title"] == subgoal["original_title"]:
+                        subgoal_summary["original_title"] = subgoal["original_title"]
+                        subgoal_summary["title"] = subgoal["title"]
+        return result
 
-    ### TODO: Save frames to disk & retrieve based on filename
     def from_dict(self, 
         video_link=None, video_id=None, subtitles=None,
         frames=None, custom_subgoals=None, common_subgoals=None,
-        meta_summary=None, subgoal_summaries=None
+        meta_summary=None, subgoal_summaries=None, metadata=None
     ):
         if video_link is not None:
             self.video_link = video_link
@@ -279,3 +284,5 @@ class Video:
             self.meta_summary = meta_summary
         if subgoal_summaries is not None:
             self.subgoal_summaries = subgoal_summaries
+        if metadata is not None:
+            self.metadata = metadata
