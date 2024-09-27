@@ -198,8 +198,6 @@ def extract_transcript(subtitles_path, audio_path):
         for caption in transcript:
             caption["start"] = str_to_float(caption["start"])
             caption["finish"] = str_to_float(caption["finish"])
-    
-    ### TODO: add punctuations to the transcript, split into sentences, and redefine start/finish times for each sentence by linear interpolation
     return transcript
 
 def process_video(video_link):
