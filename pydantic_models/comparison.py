@@ -17,26 +17,11 @@ class InformationRelations(BaseModel):
     complementary: list[Relation] = Field(..., title="The list of complementary information between sources.")
     contradictory: list[Relation] = Field(..., title="The list of contradictory information between sources.")
 
-class SummarizedAlignmentSchema(BaseModel):
-    title: str = Field(..., title="the 3-word title of the new content in the current video.")
-    description: str = Field(..., title="the detailed description of the new content in the current video that is not present in the previous video. When describing, follow the template `The video ...`.")
-    comparison_description: str = Field(..., title="the comparison description of the new content in the current video that is not present in the previous video. When describing, follow the template `Such information is presented because the previous video ..., while this video ...`. State why is the `new` information is particularly new, different, or not present in the previous video.` It should be a continuation of the `description`.")
-    
-class InformationAlignmentSchema(SummarizedAlignmentSchema):
-    quotes: list[str] = Field(..., title="(must be nonempty) the list of relevant quotes from the current video.")
-    other_quotes: list[str] = Field(..., title="(if any) the list of relevant quotes from the previous video.")
-    # different_aspects: list[Literal["subgoal", "context", "outcome", "materials", "instructions", "rationale", "tips"]] = Field(..., title="a list of different aspects that the new content pertains to.")
-
-class AlignmentsSchema(BaseModel):
-    alignments: list[InformationAlignmentSchema] = Field(..., title="The comprehensive and exhaustive list of new content in the current video")
-
-
 class InformationEnum(str, Enum):
     additional_information = "`Additional Information`"
     alternative_method = "`Alternative Method`"
     alternative_setting = "`Alternative Setting`"
     alternative_example = "`Alternative Example`"
-
     
 class AlignmentClassificationSchema(BaseModel):
     classification: InformationEnum = Field(..., title="the classification of the new information into one of (1) additional_information, (2) alternative method, (3) alternative_setting, (4) alternative_example.")
@@ -56,6 +41,8 @@ class AlignmentHookSchema(BaseModel):
 class AlignmentHooksSchema(BaseModel):
     hooks: list[AlignmentHookSchema] = Field(..., title="The comprehensive and exhaustive list of hooks cover all information alignments")
 
+## V2
+
 class NotableInformationSchema(BaseModel):
     title: str = Field(..., title="the concise title of the notable information that is present in the current video.")
     description: str = Field(..., title="the description of the notable information.")
@@ -64,11 +51,24 @@ class HookSchema(BaseModel):
     title: str = Field(..., title="the title of the hook in a conversational manner. It should be interesting and engaging, but short!")
     description: str = Field(..., title="the elaboration on the hook. It should look like continuation of the title.")
 
+class SummarizedAlignmentSchema(BaseModel):
+    title: str = Field(..., title="the 5-word title of the new content in the current video.")
+    description: str = Field(..., title="a brief, specific, and clear description of the new procedural content. Focus on one specific point at a time, avoid combining multiple details.")
+    reasoning: str = Field(..., title="briefly explain why this specific content is in the video. Why is this included in the video?")
+    comparison: str = Field(..., title="if applicable, explain why this content is different from or not included in the other video.")
+    
+class InformationAlignmentSchema(SummarizedAlignmentSchema):
+    quotes: list[str] = Field(..., title="(must be nonempty) the list of relevant quotes from the current video.")
+    other_quotes: list[str] = Field(..., title="(if any) the list of relevant quotes from the previous video.")
+    # different_aspects: list[Literal["subgoal", "context", "outcome", "materials", "instructions", "rationale", "tips"]] = Field(..., title="a list of different aspects that the new content pertains to.")
+
+class AlignmentsSchema(BaseModel):
+    alignments: list[InformationAlignmentSchema] = Field(..., title="The comprehensive and exhaustive list of new content in the current video")
 
 ## V3
 class ClassifiedAlignmentSchema(InformationAlignmentSchema): 
-    classification: Literal["method", "context", "both", "other"] = Field(..., title="the classification of the new information in terms of its main concern: (1) method, (2) context/goal, (3) both, (4) other.")
+    classification: Literal["goal", "materials", "outcome", "instructions", "rationale", "tips", "other"] = Field(..., title="the classification of the new information in terms of its main subject: goal, materials, outcome, instructions, rationale, tips, or other.")
 
 class AlignmentsSchema2(BaseModel):
     supplementary_information: list[ClassifiedAlignmentSchema] = Field(..., title="The list of `new` contents in the video that can be considered `supplementary` to the previous video (i.e., does not contradict or replace any information in the previous video and adds or extends the information in the previous video).")
-    contradictory_information: list[ClassifiedAlignmentSchema] = Field(..., title="The list of `new` contents in the video that can be considered `contradictory` to the previous video (i.e., contradicts or replaces any information in the previous video, but presents a different context, approach, or motivation).")
+    contradictory_information: list[ClassifiedAlignmentSchema] = Field(..., title="The list of `new` contents in the video that can be considered `contradictory` to the previous video (i.e., contradicts or replaces any information in the previous video, but presents a different context or approach).")

@@ -81,7 +81,7 @@ def export(task_id, ds):
                 if video["video_id"] == item["video_id"]:
                     for subgoal in video["common_subgoals"]:
                         if subgoal["start"] <= seconds and subgoal["finish"] >= seconds:
-                            new_subgoal = subgoal["title"]
+                            new_subgoal = subgoal["original_title"]
                             break
                     if new_subgoal is None:
                         new_subgoal = META_TITLE
@@ -135,6 +135,7 @@ def export(task_id, ds):
             title = None
             description = None
             comparison = None
+            reasoning = None
             content_ids = []
             other_video_id = None
             other_content_ids = []
@@ -146,7 +147,9 @@ def export(task_id, ds):
                 description = item["notable_description"]
                 other_video_id = item["video_id"]
                 other_content_ids = item["notable_content_ids"]
-                comparison = paraphrase(item["alignment_comparison"], "previous", "current") ## previous -> current
+                comparison = item["alignment_comparison"] ## TODO: previous -> current
+                if "alignment_reasoning" in item:
+                    reasoning = item["alignment_reasoning"] ## TODO: previous -> current
             else:
                 content_ids = item["content_ids"]
                 title = item["alignment_title"]
@@ -154,6 +157,8 @@ def export(task_id, ds):
                 other_video_id = item["other_video_id"]
                 other_content_ids = item["other_content_ids"]
                 comparison = item["alignment_comparison"]
+                if "alignment_reasoning" in item:
+                    reasoning = item["alignment_reasoning"]
             
             tag = None
             if 'classification' in item and item['classification'] is not None and item['classification'] != "":
@@ -170,6 +175,7 @@ def export(task_id, ds):
                 "title": title,
                 "description": description,
                 "comparison": comparison,
+                "reasoning": reasoning,
                 "content_ids": content_ids,
                 "other_video_id": other_video_id,
                 "other_content_ids": other_content_ids,
@@ -408,8 +414,10 @@ class DynamicSummary:
         for alignment in alignments_set:
             alignment["alignment_title"] = alignment["title"]
             alignment["alignment_description"] = alignment["description"]
-            alignment["alignment_comparison"] = alignment["comparison_description"]
-            del alignment["comparison_description"]
+            alignment["alignment_reasoning"] = alignment["reasoning"]
+            alignment["alignment_comparison"] = alignment["comparison"]
+            del alignment["comparison"]
+            del alignment["reasoning"]
             del alignment["title"]
             del alignment["description"]
 
@@ -477,7 +485,7 @@ class DynamicSummary:
             for a in cluster:
                 text = (a[f"{prefix}_title"] + ": " + a[f"{prefix}_description"])
                 if prefix == "alignment":
-                    text += " " + a['alignment_comparison']
+                    text += " " + a['alignment_reasoning']
                 
                 contents.append({
                     "type": "text",
@@ -487,7 +495,8 @@ class DynamicSummary:
                 results.append({
                     "title": cluster[0][f"{prefix}_title"],
                     "description": cluster[0][f"{prefix}_description"],
-                    "comparison_description": cluster[0][f"{prefix}_comparison"],
+                    "reasoning": cluster[0][f"{prefix}_reasoning"],
+                    "comparison": cluster[0][f"{prefix}_comparison"],
                 })
             else:
                 results.append(summarization_f(contents, self.task))
@@ -772,10 +781,12 @@ class DynamicSummary:
                     for content_id in a["content_ids"]:
                         if notable_content_id is None or int(notable_content_id.split("-")[-1]) > int(content_id.split("-")[-1]):
                             notable_content_id = content_id
-                            subgoal_title = a["subgoal_title"]     
+                    subgoal_title = a["subgoal_title"]
+                    break
+                     
                 notables.append({
                     "alignments": alignments,
-                    "notable_content_ids": [notable_content_id],
+                    "notable_content_ids": [] if notable_content_id is None else[notable_content_id],
                     "notable_title": notable["title"],
                     "notable_description": notable["description"],
                     "video_id": video_id,
@@ -829,7 +840,7 @@ class DynamicSummary:
                 "id": notable_id,
                 "title": notable_title,
                 "description": notable_description,
-                "content_ids": notable_content_ids,
+                # "content_ids": notable_content_ids,
                 "subgoal_title": notable_subgoal_title,
             })
         
@@ -947,9 +958,9 @@ def setup_ds(task_id):
     
     ds.generate_alignments()
 
-    # ds.find_notables()
+    ds.find_notables()
 
-    # ds.generate_hooks()
+    ds.generate_hooks()
     
     # ds.classify_alignments()
 
@@ -982,6 +993,8 @@ def main():
                     continue
                 print("-", alignment['alignment_title'])
                 print("\t-", alignment['alignment_description'])
+                print("\t- class", alignment['classification'])
+                print("\t-", alignment['alignment_reasoning'])
                 print("\t-", alignment['alignment_comparison'])
                 print()
         print()

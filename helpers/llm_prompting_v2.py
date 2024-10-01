@@ -175,7 +175,7 @@ def get_subgoal_alignments_v2(contents1, contents2, subgoal, task):
             "role": "system",
             "content": [{
                 "type": "text",
-                "text": "You are a helpful assistant specializing in analyzing and comparing procedural content across different how-to videos about task `{task}`. Given the information from current and previous videos for the subgoal `{subgoal}`, analyze and compare the information from each video and provide a comprehensive list of new subgoal information presented in the current video. Make sure that each piece of `new` information is atomic, unique, and non-redundant.".format(task=task, subgoal=subgoal)
+                "text": "You are a helpful assistant specializing in analyzing and comparing procedural content across different how-to videos about task `{task}`. Given contents from the current and previous videos for the subgoal `{subgoal}`, analyze and compare the information from each video and provide a comprehensive list of new supplementary and contradictory subgoal contents presented in the current video. For each piece of content, focus on one specific point at a time, avoid combining multiple details.".format(task=task, subgoal=subgoal)
             }],
         },
         {
@@ -203,7 +203,7 @@ def get_meta_alignments_v2(contents1, contents2, task):
             "role": "system",
             "content": [{
                 "type": "text",
-                "text": "You are a helpful assistant specializing in analyzing and comparing procedural content across different how-to videos about task `{task}`. Given the information from current and previous videos, analyze and compare the information from each video and  and provide a comprehensive list of `new` information presented in the current video. Make sure that each piece of `new` information is atomic, unique, and non-redundant.".format(task=task)
+                "text": "You are a helpful assistant specializing in analyzing and comparing procedural content across different how-to videos about task `{task}`. Given contents from the current and previous videos, analyze and compare the information from each video and provide a comprehensive list of new supplementary and contradictory contents presented in the current video. For each piece of content, focus on one specific point at a time, avoid combining multiple details.".format(task=task)
             }],
         },
         {
@@ -231,7 +231,7 @@ def get_alignments_summary_v2(contents, task):
             "role": "system",
             "content": [{
                 "type": "text",
-                "text": "You are a helpful assistant specializing in analyzing and summarizing procedural contents of how-to videos for task `{task}`. You are given the descriptions of `notable procedural information` in the current video compared to various previous videos. Concisely summarize the `notable procedural information` and the comparisons.".format(task=task)
+                "text": "You are a helpful assistant specializing in analyzing and summarizing procedural contents of how-to videos for task `{task}`. You are given the descriptions of `notable procedural information` in the current video, their reasoning and comparison to several previous videos. Aggregate the information into a single description, reasoning, and comparison.".format(task=task)
             }],
         },
         {
