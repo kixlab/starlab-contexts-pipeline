@@ -8,14 +8,6 @@ from openai import OpenAI
 
 from uuid import uuid4
 
-def random_uid():
-    return str(uuid4())
-
-
-def encode_image(image_path):
-    with open(image_path, "rb") as image:
-        return base64.b64encode(image.read()).decode("utf-8")
-
 API_KEY = os.getenv('OPENAI_API_KEY')   
 print(API_KEY)
 client = OpenAI(
@@ -25,6 +17,14 @@ client = OpenAI(
 SEED = 13774
 TEMPERATURE = 0
 MODEL_NAME = 'gpt-4o-2024-08-06'
+
+
+def random_uid():
+    return str(uuid4())
+
+def encode_image(image_path):
+    with open(image_path, "rb") as image:
+        return base64.b64encode(image.read()).decode("utf-8")
 
 def transcribe_audio(audio_path, granularity=["segment"]):
     with open(audio_path, "rb") as audio:
@@ -102,6 +102,36 @@ def get_response_pydantic(messages, response_format):
 
     print("RESPONSE:", json.dumps(json_response, indent=2))
     return json_response
+
+def extend_contents(contents, include_images=False):
+    extended_contents = []
+    for content in contents:
+        extended_contents.append({
+            "type": "text",
+            "text": f"{content['text']}"
+        })
+        if include_images:
+            for frame_path in content["frame_paths"]:
+                frame_base64 = encode_image(frame_path)
+                extended_contents.append({
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{frame_base64}"}
+                })
+    return extended_contents
+
+def extend_subgoals(subgoals):
+    message = ""
+    for subgoal_idx, subgoal in enumerate(subgoals):
+        message += f"- **Subgoal {subgoal_idx + 1}**:\n"
+        for k, v in subgoal.items():
+            key = k.capitalize()
+            value = v if isinstance(v, str) else ", ".join(v)
+            message += f"\t- {key}: {value}\n"
+    return message
+
+
+
+### OTHER CONSTANTS & FUNCTIONS
 
 PATH = "static/results/"
 TASK_ID  = "carbonara-short"

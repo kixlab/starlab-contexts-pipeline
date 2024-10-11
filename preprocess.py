@@ -340,11 +340,11 @@ def setup_ds(task_id):
 
     ds.process_videos()
     
-    ds.generate_alignments()
+    # ds.generate_alignments()
 
-    ds.find_notables()
+    # ds.find_notables()
 
-    ds.generate_hooks()
+    # ds.generate_hooks()
     
     # ds.classify_alignments()
 
@@ -359,30 +359,30 @@ def main():
     if ds is None:
         return
     
-    other_video = '3AAdKl1UYZs'
-    current_video = 'D_2DBLAt57c'
+    # other_video = '3AAdKl1UYZs'
+    # current_video = 'D_2DBLAt57c'
 
-    ours_alignments = ds.alignment_sets['approach_1']
-    ours2_alignments = ds.alignment_sets['approach_2']
-    subgoal_alignments = ds.alignment_sets['baseline_1']
-    meta_alignments = ds.alignment_sets['baseline_2']
+    # ours_alignments = ds.alignment_sets['approach_1']
+    # ours2_alignments = ds.alignment_sets['approach_2']
+    # subgoal_alignments = ds.alignment_sets['baseline_1']
+    # meta_alignments = ds.alignment_sets['baseline_2']
 
-    for a_set in [ours_alignments, ours2_alignments, subgoal_alignments, meta_alignments]:
-        print("## APPROACH")
-        for a in a_set:
-            if a['video_id'] != current_video:
-                continue
-            alignments = a["alignments"]
-            for alignment in alignments:
-                if alignment['other_video_id'] != other_video:
-                    continue
-                print("-", alignment['alignment_title'])
-                print("\t-", alignment['alignment_description'])
-                print("\t- class", alignment['classification'])
-                print("\t-", alignment['alignment_reasoning'])
-                print("\t-", alignment['alignment_comparison'])
-                print()
-        print()
+    # for a_set in [ours_alignments, ours2_alignments, subgoal_alignments, meta_alignments]:
+    #     print("## APPROACH")
+    #     for a in a_set:
+    #         if a['video_id'] != current_video:
+    #             continue
+    #         alignments = a["alignments"]
+    #         for alignment in alignments:
+    #             if alignment['other_video_id'] != other_video:
+    #                 continue
+    #             print("-", alignment['alignment_title'])
+    #             print("\t-", alignment['alignment_description'])
+    #             print("\t- class", alignment['classification'])
+    #             print("\t-", alignment['alignment_reasoning'])
+    #             print("\t-", alignment['alignment_comparison'])
+    #             print()
+    #     print()
 
 if __name__ == "__main__":
     main()

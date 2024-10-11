@@ -1,9 +1,15 @@
+import json
+
 from helpers import META_TITLE, APPROACHES, BASELINES
 from helpers import random_uid
 
-from helpers.llm_prompting_v2 import define_common_subgoals_v2, align_common_subgoals_v2, get_meta_summary_v2, get_subgoal_summary_v2, generate_common_subgoals_v3, get_subgoal_alignments_v2, get_meta_alignments_v2, get_alignments_summary_v2, get_notable_v2, get_hook_v2
+from helpers.prompts_segmentation import define_common_subgoals_v2, align_common_subgoals_v2, generate_common_subgoals_v3
 
-from helpers.llm_prompting_v3 import get_subgoal_alignments_v3, get_meta_alignments_v3
+from helpers.prompts_summarization import get_meta_summary_v2, get_subgoal_summary_v2
+
+from helpers.prompts_comparison import get_subgoal_alignments_v3, get_meta_alignments_v3, get_subgoal_alignments_v2, get_meta_alignments_v2
+
+from helpers.prompts_organization import get_notable_v2, get_hook_v2, get_alignments_summary_v2
 
 from helpers.clip import clip_similar_per_text
 from helpers.sklearn import cluster_tagged_texts, cluster_texts
@@ -30,7 +36,19 @@ class VideoPool:
         return None
 
     def process_videos(self):
-        self.__process_videos_v2()
+        #self.__process_videos_v2()
+        self.__process_videos_v3()
+
+    def __process_videos_v3(self):
+        ### define subgoals
+        if len(self.subgoals) == 0:
+            common_subgoal_defs_per_video = {}
+            for video in self.videos:
+                if len(video.common_subgoals) > 0:
+                    continue
+                common_subgoal_defs_per_video[video.video_id] = define_common_subgoals_v3(video.get_all_contents(), self.task)
+
+            print(json.dumps(common_subgoal_defs_per_video, indent=2))
 
     def __process_videos_v2(self):
         if len(self.subgoals) == 0:
