@@ -178,6 +178,17 @@ VIDEO_SETS = {
     "unseen": "user have not seen",
 }
 
+APPROACHES = [
+    "approach_1",
+    "approach_2",
+]
+
+BASELINES = [
+    "baseline_1",
+    "baseline_2",
+]
+
+
 def str_to_float(str_time):
     return sum(x * float(t) for x, t in zip([3600, 60, 1], str_time.split(":")))
 
