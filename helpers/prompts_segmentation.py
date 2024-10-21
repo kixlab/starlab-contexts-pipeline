@@ -1,6 +1,7 @@
 from helpers import get_response_pydantic, extend_contents, extend_subgoals
+from helpers import encode_image, get_response_pydantic_with_message
 
-from pydantic_models.segmentation import TaskGraph, get_segmentation_schema
+from pydantic_models.segmentation import TaskGraph, get_segmentation_schema, ListSubgoalsSchema, SubgoalSchema, AllProceduralInformationSchema
 
 
 def define_common_subgoals_v2(contents, task):
@@ -84,3 +85,131 @@ def generate_common_subgoals_v3(contents, subgoals, task):
             "content_ids": [content["id"]]
         })
     return common_subgoals
+
+
+def define_common_subgoals_v4(contents, task):
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant specializing in analyzing tutorial video content. You are given a narration of a video for a task `{task}` and asked to specify a sequence of presented subgoals and their expected outcome. Ensure that subgoals encompass all procedural information presented in the video.".format(task=task)},
+        {
+            "role": "user",
+            "content": [{
+                "type": "text",
+                "text": f"Contents:\n"
+            }] + extend_contents(contents),
+        },
+    ]
+    
+    response = get_response_pydantic(messages, ListSubgoalsSchema)
+    subgoals = response["subgoals"]
+    return subgoals
+
+def summarize_common_subgoals_v4(subgoals, task):
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant specializing in analyzing tutorial content. You are given a set of similar subgoals in the task `{task}`. Summarize given subgoals into a single COMPREHENSIVE subgoal.".format(task=task)},
+        {
+            "role": "user",
+            "content": f"## Subgoals:\n{extend_subgoals(subgoals)}"
+        }
+    ]
+    
+    response = get_response_pydantic(messages, SubgoalSchema)
+    subgoal = response
+    return subgoal
+
+def extract_all_procedural_info_v5(contents, task, include_image=False):
+    # extract_all_procedural_info_v5_explicit(contents, task, include_image)
+    extract_all_procedural_info_v5_implicit(contents, task, include_image)
+
+def extract_all_procedural_info_v5_implicit(contents, task, include_image=False):
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant specializing in analyzing tutorial video content. You are given a narration of a video about the task `{task}` and asked to extract all the provided procedural information relevant to the task from each sentence.".format(task=task)},
+        {
+            "role": "user",
+            "content": [{
+                "type": "text",
+                "text": f"Contents:\n"
+            }] + extend_contents(contents, include_image),
+        },
+    ]
+
+    all_pieces = []
+
+    for content in contents:
+        cur_message = {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": f"Extract procedural information from the following contents:\n"
+                },
+                {
+                    "type": "text",
+                    "text": f"{content['text']}\n"
+                }
+            ]
+        }
+        if include_image:
+            for frame_path in content["frame_paths"]:
+                frame_base64 = encode_image(frame_path)
+                cur_message["content"].append({
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{frame_base64}"}
+                })
+        messages.append(cur_message)
+        response, message = get_response_pydantic_with_message(messages, AllProceduralInformationSchema)
+        all_pieces.append({
+            "id": content["id"],
+            "pieces": response["all"],
+        })
+        messages.append({
+            "role": "assistant",
+            "content": message
+        })
+    return all_pieces
+
+def extract_all_procedural_info_v5_explicit(contents, task, include_image=False):
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant specializing in analyzing tutorial video content. You are given a narration of a video about the task `{task}` and asked to extract all the provided procedural information relevant to the task from each sentence.".format(task=task)},
+        {
+            "role": "user",
+            "content": [{
+                "type": "text",
+                "text": f"Contents:\n"
+            }] + extend_contents(contents),
+        },
+    ]
+
+    all_pieces = []
+
+    for content in contents:
+        cur_message = {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": f"Extract procedural information from the following contents:\n"
+                },
+                {
+                    "type": "text",
+                    "text": f"{content['text']}\n"
+                }
+            ]
+        }
+        if include_image:
+            for frame_path in content["frame_paths"]:
+                frame_base64 = encode_image(frame_path)
+                cur_message["content"].append({
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{frame_base64}"}
+                })
+        messages.append(cur_message)
+        response, message = get_response_pydantic_with_message(messages, AllProceduralInformationSchema)
+        all_pieces.append({
+            "id": content["id"],
+            "pieces": response["all"],
+        })
+        messages.append({
+            "role": "assistant",
+            "content": message
+        })
+    return all_pieces

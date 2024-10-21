@@ -263,15 +263,21 @@ def export(task_id, ds):
 
     for approach in APPROACHES:
         if approach in ds.alignment_sets:
-            output["hooks"][approach] = (fix_hooks(ds.hooks[f"hooks_{approach}"], "hook") +
-            fix_hooks(ds.hooks[f"notables_{approach}"], "notable") +
-            fix_raw_alignments(ds.alignment_sets[approach]))
+            output["hooks"][approach] = []
+            if f"hooks_{approach}" in ds.hooks:
+                output["hooks"][approach] += fix_hooks(ds.hooks[f"hooks_{approach}"], "hook")
+            if f"notables_{approach}" in ds.hooks:
+                output["hooks"][approach] += fix_hooks(ds.hooks[f"notables_{approach}"], "notable")
+            output["hooks"][approach] += fix_raw_alignments(ds.alignment_sets[approach])
 
     for baseline in BASELINES:
         if baseline in ds.alignment_sets:
-            output["hooks"][baseline] = (fix_hooks(ds.hooks[f"hooks_{baseline}"], "hook") +
-            fix_hooks(ds.hooks[f"notables_{baseline}"], "notable") +
-            fix_raw_alignments(ds.alignment_sets[baseline]))
+            output["hooks"][baseline] = []
+            if f"hooks_{baseline}" in ds.hooks:
+                output["hooks"][baseline] += fix_hooks(ds.hooks[f"hooks_{baseline}"], "hook")
+            if f"notables_{baseline}" in ds.hooks:
+                output["hooks"][baseline] += fix_hooks(ds.hooks[f"notables_{baseline}"], "notable")
+            output["hooks"][baseline] += fix_raw_alignments(ds.alignment_sets[baseline])
 
     filename = f"{PATH}{task_id}/output.json"
     with open(filename, "w") as file:
@@ -340,7 +346,7 @@ def setup_ds(task_id):
 
     ds.process_videos()
     
-    # ds.generate_alignments()
+    ds.generate_alignments()
 
     # ds.find_notables()
 
@@ -359,30 +365,50 @@ def main():
     if ds is None:
         return
     
-    # other_video = '3AAdKl1UYZs'
-    # current_video = 'D_2DBLAt57c'
+    # for video in ds.videos:
+    #     contents = video.get_all_contents()
+    #     for content in contents:
+    #         content["involved"] = []
+    #     for aspect in video.meta_summary.keys():
+    #         if aspect.endswith("_content_ids"):
+    #             for content in contents:
+    #                 if (content["id"] in video.meta_summary[aspect]):
+    #                     content["involved"].append(aspect)
+        
+    #     print("####", video.video_id)
+    #     for content in contents:
+    #         print("-", content["text"])
+    #         print("\t-", content["involved"])
+    #         print()
+    #     print()
+
+    other_video = '3AAdKl1UYZs'
+    current_video = 'D_2DBLAt57c'
 
     # ours_alignments = ds.alignment_sets['approach_1']
     # ours2_alignments = ds.alignment_sets['approach_2']
     # subgoal_alignments = ds.alignment_sets['baseline_1']
-    # meta_alignments = ds.alignment_sets['baseline_2']
+    meta_alignments = ds.alignment_sets['baseline_2']
 
     # for a_set in [ours_alignments, ours2_alignments, subgoal_alignments, meta_alignments]:
-    #     print("## APPROACH")
-    #     for a in a_set:
-    #         if a['video_id'] != current_video:
-    #             continue
-    #         alignments = a["alignments"]
-    #         for alignment in alignments:
-    #             if alignment['other_video_id'] != other_video:
-    #                 continue
-    #             print("-", alignment['alignment_title'])
-    #             print("\t-", alignment['alignment_description'])
-    #             print("\t- class", alignment['classification'])
-    #             print("\t-", alignment['alignment_reasoning'])
-    #             print("\t-", alignment['alignment_comparison'])
-    #             print()
-    #     print()
+    for a_set in [meta_alignments]:
+        print("## APPROACH")
+        for a in a_set:
+            if a['video_id'] != current_video:
+                continue
+            print ("###", a['video_id'])
+            alignments = a["alignments"]
+            if len(alignments) == 0:
+                continue
+            print("###", alignments[0]['other_video_id'])
+            for alignment in alignments:
+                print("\t-", alignment['alignment_title'])
+                print("\t\t-", alignment['alignment_description'])
+                print("\t\t- class:", alignment['classification'])
+                print("\t\t-", alignment['alignment_reasoning'])
+                print("\t\t-", alignment['alignment_comparison'])
+                print()
+        print()
 
 if __name__ == "__main__":
     main()

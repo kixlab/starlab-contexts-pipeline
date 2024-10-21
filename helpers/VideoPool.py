@@ -5,14 +5,20 @@ from helpers import random_uid
 
 from helpers.prompts_segmentation import define_common_subgoals_v2, align_common_subgoals_v2, generate_common_subgoals_v3
 
+from helpers.prompts_segmentation import define_common_subgoals_v4, summarize_common_subgoals_v4
+
+from helpers.prompts_segmentation import extract_all_procedural_info_v5
+
 from helpers.prompts_summarization import get_meta_summary_v2, get_subgoal_summary_v2
 
-from helpers.prompts_comparison import get_subgoal_alignments_v3, get_meta_alignments_v3, get_subgoal_alignments_v2, get_meta_alignments_v2
+from helpers.prompts_summarization import get_problem_summary_v1, get_method_summary_v1
+
+from helpers.prompts_comparison import get_subgoal_alignments_v3, get_meta_alignments_v3, get_transcript_alignments_v3, get_subgoal_alignments_v2, get_meta_alignments_v2, get_meta_alignments_v4
 
 from helpers.prompts_organization import get_notable_v2, get_hook_v2, get_alignments_summary_v2
 
 from helpers.clip import clip_similar_per_text
-from helpers.sklearn import cluster_tagged_texts, cluster_texts
+from helpers.sklearn import cluster_tagged_texts, cluster_texts, extract_keysteps
 from helpers.bert import bert_embedding, find_most_similar
 
 class VideoPool:
@@ -36,19 +42,82 @@ class VideoPool:
         return None
 
     def process_videos(self):
-        #self.__process_videos_v2()
+        # self.__process_videos_v2()
         self.__process_videos_v3()
+        # self.__process_videos_v4()
+        # self.__process_videos_v5()
+    
+    def __process_videos_v5(self):
+        ### For each "sentence" extract pieces of procedural information (+/- screenshot) & classify into step-dependent/independent.;
+        if len(self.subgoals) == 0:
+            all_pieces_per_video = {}
+            for video in self.videos:
+                all_pieces = extract_all_procedural_info_v5(video.get_all_contents(), self.task)  
+                all_pieces_per_video[video.video_id] = all_pieces
+            print (json.dumps(all_pieces_per_video, indent=2))
+            
+                    
+
+    def __process_videos_v4(self):
+        ### Based on task subgoals clustering.
+        if len(self.subgoals) == 0:
+            sequences = []
+            for video in self.videos:
+                sequence = define_common_subgoals_v4(video.get_all_contents(), self.task)
+                sequences.append(sequence)
+            
+            sequences_text = []
+            for sequence in sequences:
+                sequence_text = []
+                for subgoal in sequence:
+                    sequence_text.append(subgoal["description"])
+                sequences_text.append(sequence_text)
+            label_sequences = extract_keysteps(sequences_text)
+
+            subgoals_per_label = {}
+            for seq_id, sequence in enumerate(sequences):
+                for subg_id, subgoal in enumerate(sequence):
+                    label = label_sequences[seq_id][subg_id]
+                    if label not in subgoals_per_label:
+                        subgoals_per_label[label] = []
+                    subgoals_per_label[label].append({
+                        **subgoal,
+                    })
+            
+            self.subgoals = []
+            for label, subgoals in subgoals_per_label.items():
+                if (len(subgoals) == 0):
+                    continue
+                if (len(subgoals) > 1):
+                    cur_subgoal = summarize_common_subgoals_v4(subgoals, self.task)
+                else:
+                    cur_subgoal = subgoals[0]
+                self.subgoals.append(cur_subgoal)
 
     def __process_videos_v3(self):
-        ### define subgoals
-        if len(self.subgoals) == 0:
-            common_subgoal_defs_per_video = {}
-            for video in self.videos:
-                if len(video.common_subgoals) > 0:
-                    continue
-                common_subgoal_defs_per_video[video.video_id] = define_common_subgoals_v3(video.get_all_contents(), self.task)
+        for video in self.videos:
+            if video.meta_summary is None:
+                all_contents = video.get_all_contents()
+                problem_summary = get_problem_summary_v1(all_contents, self.task)
+                method_summary = get_method_summary_v1(all_contents, self.task)
 
-            print(json.dumps(common_subgoal_defs_per_video, indent=2))
+                video.meta_summary = {
+                    "title": META_TITLE,
+                    **problem_summary,
+                    **method_summary,
+                }
+                video.meta_summary["frame_paths"] = clip_similar_per_text([video.meta_summary["outcome"]], video.meta_summary["frame_paths"])
+
+                extension = {}
+                ### turn _quotes into content ids
+                for key in video.meta_summary:
+                    if key.endswith("_quotes"):
+                        new_key = key.replace("_quotes", "_content_ids")
+                        extension[new_key] = video.quotes_to_content_ids(video.meta_summary[key])
+                video.meta_summary = {
+                    **video.meta_summary,
+                    **extension
+                }
 
     def __process_videos_v2(self):
         if len(self.subgoals) == 0:
@@ -289,7 +358,6 @@ class VideoPool:
     ### APPROACH 2
     def __generate_alignments_1(self):
         approach = APPROACHES[1]
-        ### TODO: experiment!!!
         if len(self.videos) < 2:
             return
         if len(self.subgoals) == 0:
@@ -362,10 +430,36 @@ class VideoPool:
                     "video_id": video1.video_id,
                 })
     
+    ### APPROACH PROBLEM/METHOD SPLIT
+    def __generate_alignments_2(self):
+        approach = APPROACHES[2]
+        if len(self.videos) < 2:
+            return
+        if approach in self.alignment_sets and len(self.alignment_sets[approach]) > 0:
+            return
+        
+        self.alignment_sets[approach] = []
+        for v1_idx, video1 in enumerate(self.videos):
+            for v2_idx, video2 in enumerate(self.videos):
+                if v1_idx == v2_idx:
+                    continue
+                ### between meta
+                contents1 = video1.get_meta_summary_contents(False)
+                contents2 = video2.get_meta_summary_contents(False)
+                meta_alignments = get_meta_alignments_v4(
+                    contents1, contents2, self.task
+                )
+                for alignment in meta_alignments:
+                    alignment["subgoal_title"] = META_TITLE
+
+                self.alignment_sets[approach].append({
+                    "alignments": self.__reformat_alignments(meta_alignments, video1, video2),
+                    "video_id": video1.video_id,
+                })
+
     ### APPROACH 3 (BASELINE 1)
     def __generate_alignments_baseline_1(self):
         approach = BASELINES[0]
-        ## TODO: UPDATE
         if len(self.videos) < 2:
             return
         if len(self.subgoals) == 0:
@@ -436,11 +530,8 @@ class VideoPool:
     
     ### APPROACH 4 (BASELINE 2)
     def __generate_alignments_baseline_2(self):
-        ## TODO: UPDATE
         approach = BASELINES[1]
         if len(self.videos) < 2:
-            return
-        if len(self.subgoals) == 0:
             return
         if approach in self.alignment_sets and len(self.alignment_sets[approach]) > 0:
             return
@@ -455,7 +546,7 @@ class VideoPool:
                 contents2 = video2.get_all_contents()
                 if len(contents1) == 0 or len(contents2) == 0:
                     continue
-                meta_alignments = get_meta_alignments_v3(
+                meta_alignments = get_transcript_alignments_v3(
                     contents1, contents2, self.task
                 )
                 for alignment in meta_alignments:
@@ -467,11 +558,10 @@ class VideoPool:
                 })
 
     def generate_alignments(self):
-        self.__generate_alignments_0()
-        self.__generate_alignments_1()
-        print("Baseline 1")
-        self.__generate_alignments_baseline_1()
-        print("Baseline 2")
+        # self.__generate_alignments_0()
+        # self.__generate_alignments_1()
+        # self.__generate_alignments_2()
+        # self.__generate_alignments_baseline_1()
         self.__generate_alignments_baseline_2()
 
     def __generate_notable(self, root_alignments):

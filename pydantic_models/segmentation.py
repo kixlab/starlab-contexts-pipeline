@@ -49,3 +49,23 @@ def get_segmentation_schema(titles: list[str]):
     )
 
     return SegmentationSchema
+
+class SubgoalSchema(BaseModel):
+    title: str = Field(..., title="A short title of the subgoal")
+    description: str = Field(..., title="The description of the subgoal.")
+    outcome: str = Field(..., title="The expected outcome of the subgoal")
+
+class ListSubgoalsSchema(BaseModel):
+    subgoals: list[SubgoalSchema] = Field(..., title="The list of subgoals with their descriptions and expected outcomes")
+
+class ProceduralInformationSchema(BaseModel):
+    information: str = Field(..., title="The piece of procedural information.")
+    type: Literal["goal", "materials", "outcome", "instructions", "rationale", "tips", "tools", "other"] = Field(..., title="The type of the procedural information")
+    reasoning: str = Field(..., title="The reasoning behind importance of the information.")
+    importance: Literal["essential", "optional", "irrelevant"] = Field(..., title="The importance of the information for completing the task")
+
+class AllProceduralInformationSchema(BaseModel):
+    all: list[ProceduralInformationSchema] = Field(..., title="The list of procedural information included in the provided contents. Empty list if no procedural information is present.")
+
+    
+    

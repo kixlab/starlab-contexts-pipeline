@@ -45,3 +45,24 @@ class SubgoalSummarySchema(BaseModel):
     rationale_quotes: list[str] = Field(..., title="A list of quotes from the video that describe the rationale.")
     tips: str = Field(..., title="Additional advice, warnings, or background information mentioned in the video that can help in achieving the subgoal more effectively. Leave blank if not mentioned in the video.")
     tips_quotes: list[str] = Field(..., title="A list of quotes from the video that describe the tips.")
+
+
+class ProblemSummarySchema(BaseModel):
+    goal: str = Field(..., title="The description of the specific objective to be achieved in the video.")
+    goal_quotes: list[str] = Field(..., title="A list of quotes from the video that refer to or describe the goal.")
+    
+    objects: str = Field(..., title="A list of all necessary objects, ingredients, and materials required to achieve the goal.")
+    objects_quotes: list[str] = Field(..., title="A list of quotes from the video that refer to or describe the objects.")
+    
+    outcome: str = Field(..., title="A detailed description of what is achieved or created upon completing the goal.")
+    outcome_quotes: list[str] = Field(..., title="A list of quotes from the video that describe the outcome.")
+    
+class MethodSummarySchema(BaseModel): 
+    instructions: str = Field(..., title="A step-by-step instructions mentioned in the video.")
+    instructions_quotes: list[str] = Field(..., title="A list of quotes from the video that describe the instructions.")
+    
+    rationale: str = Field(..., title="The reasons or explanations for the steps specified in the video.")
+    rationale_quotes: list[str] = Field(..., title="A list of quotes from the video that describe the rationale.")
+    
+    tips: str = Field(..., title="Additional advice, warnings, or background information mentioned in the video that can help in achieving the goal or following the instructions.")
+    tips_quotes: list[str] = Field(..., title="A list of quotes from the video that describe the tips.")

@@ -103,6 +103,26 @@ def get_response_pydantic(messages, response_format):
     print("RESPONSE:", json.dumps(json_response, indent=2))
     return json_response
 
+def get_response_pydantic_with_message(messages, response_format):
+    print("MESSAGES:", json.dumps(messages, indent=2))
+    completion = client.beta.chat.completions.parse(
+        model=MODEL_NAME,
+        messages=messages,
+        seed=SEED,
+        temperature=TEMPERATURE,
+        response_format=response_format,
+    )
+
+    response = completion.choices[0].message
+    if (response.refusal):
+        print("REFUSED: ", response.refusal)
+        return None, response.choices[0].message.content
+    
+    json_response = response.parsed.dict()
+
+    print("RESPONSE:", json.dumps(json_response, indent=2))
+    return json_response, completion.choices[0].message.content
+
 def extend_contents(contents, include_images=False):
     extended_contents = []
     for content in contents:
@@ -119,10 +139,13 @@ def extend_contents(contents, include_images=False):
                 })
     return extended_contents
 
-def extend_subgoals(subgoals):
+def extend_subgoals(subgoals, include_index=True):
     message = ""
     for subgoal_idx, subgoal in enumerate(subgoals):
-        message += f"- **Subgoal {subgoal_idx + 1}**:\n"
+        if include_index:
+            message += f"- **Subgoal {subgoal_idx + 1}**:\n"
+        else:
+            message += f"- **Subgoal**:\n"
         for k, v in subgoal.items():
             key = k.capitalize()
             value = v if isinstance(v, str) else ", ".join(v)
@@ -211,6 +234,7 @@ VIDEO_SETS = {
 APPROACHES = [
     "approach_1",
     "approach_2",
+    "approach_3",
 ]
 
 BASELINES = [

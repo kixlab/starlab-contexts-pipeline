@@ -80,7 +80,7 @@ class Video:
             frame_sec = round((subgoal["start"] + subgoal["finish"]) / 2)
             if frame_sec in self.frames:
                 subgoal["frame_paths"].append(self.frames[frame_sec]["path"])
-            subgoal["id"] = f"{self.video_id}-{index}",
+            subgoal["id"] = f"{self.video_id}-{index}"
     
     def get_common_subgoals(self, title):
         subgoals = []

@@ -208,3 +208,131 @@ def cluster_tagged_texts(texts, tags, tries=5):
     # print("S Scores: ", s_scores)
 
     return labels
+
+def extract_keysteps(step_sequences, min_clique_size=1):
+    """
+    Extract keysteps similar to https://aclanthology.org/2023.findings-acl.210.pdf
+    """
+    MAX_CLIQUE_THRESHOLD = 0.9
+
+    all_steps = []
+    for sequence in step_sequences:
+        all_steps.extend(sequence)
+    
+    all_steps = list(set(all_steps))
+    if len(all_steps) == 0:
+        return []
+    
+    print(all_steps)
+    
+    embeddings = bert_embedding(all_steps)
+
+    ## identify max_cliques
+    max_cliques = []
+    for i in range(len(all_steps)):
+        for j in range(i+1, len(all_steps)):
+            if np.dot(embeddings[i], embeddings[j]) > MAX_CLIQUE_THRESHOLD:
+                max_cliques.append((i, j))
+
+    ## identify keysteps (cluster of steps within a max_clique)
+    keysteps = []
+    visited = [False for _ in range(len(all_steps))]
+    for i, j in max_cliques:
+        if not visited[i]:
+            cluster = [i]
+            visited[i] = True
+            for k, l in max_cliques:
+                if k == i and not visited[l]:
+                    cluster.append(l)
+                    visited[l] = True
+            keysteps.append(cluster)
+    
+    ## filter out keysteps with less than min_clique_size
+    keysteps = [keystep for keystep in keysteps if len(keystep) >= min_clique_size]
+
+    ## calculate sequence_overlap for each keystep pair (i.e., the number of step_sequences that contain both keysteps)
+    sequence_overlap = np.zeros((len(keysteps), len(keysteps)))
+    for i in range(len(keysteps)):
+        for j in range(i+1, len(keysteps)):
+            cooccurence = 0
+            for sequence in step_sequences:
+                occur = False
+                for k in keysteps[i]:
+                    if all_steps[k] in sequence:
+                        for l in keysteps[j]:
+                            if all_steps[l] in sequence:
+                                occur = True
+                                break
+                    if occur:
+                        break
+                if occur:
+                    cooccurence += 1
+
+            sequence_overlap[i][j] = cooccurence
+    
+    ## merge keysteps with low sequence_overlap but high similarity
+
+    merged_keysteps = []
+    visited = [False for _ in range(len(keysteps))]
+    for i in range(len(keysteps)):
+        if visited[i]:
+            continue
+        max_similarity_with_different_keystep = 0
+        for j in range(0, len(keysteps)):
+            if i == j:
+                continue
+            if sequence_overlap[i][j] == 0:
+                continue
+            cur_max_similarity = 0
+            for k in keysteps[i]:
+                for l in keysteps[j]:
+                    cur_max_similarity = max(cur_max_similarity, np.dot(embeddings[k], embeddings[l]))
+            max_similarity_with_different_keystep = max(max_similarity_with_different_keystep, cur_max_similarity)
+
+
+        cluster = [i]
+        visited[i] = True
+        for j in range(i+1, len(keysteps)):
+            if visited[j]:
+                continue
+            ## merge if sequence_overlap is zero but similarity is relatively high
+            if sequence_overlap[i][j] > 0:
+                continue
+            cur_max_similarity = 0
+            for k in keysteps[i]:
+                for l in keysteps[j]:
+                    cur_max_similarity = max(cur_max_similarity, np.dot(embeddings[k], embeddings[l]))
+            if cur_max_similarity > max_similarity_with_different_keystep:
+                cluster.append(j)
+                visited[j] = True
+        new_keysteps = []
+        for idx in cluster:
+            new_keysteps.extend(keysteps[idx])
+        merged_keysteps.append(new_keysteps)
+    
+    ### print merged keysteps for each label
+    for i, keysteps in enumerate(merged_keysteps):
+        print("## Keystep ", i, ": ")
+        for k in keysteps:
+            print(f"- {all_steps[k]}")
+    
+    relabled_step_sequences = []
+    for sequence in step_sequences:
+        new_sequence = []
+        for step in sequence:
+            found = False
+            for i, keysteps in enumerate(merged_keysteps):
+                for k in keysteps:
+                    if step == all_steps[k]:
+                        new_sequence.append(i)
+                        found = True
+                        break
+                if found:
+                    break
+            if not found:
+                print("## Error: ", step)
+        relabled_step_sequences.append(new_sequence)
+    
+    return relabled_step_sequences
+
+

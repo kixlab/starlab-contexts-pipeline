@@ -60,3 +60,11 @@ class ClassifiedAlignmentSchema(InformationAlignmentSchema):
 class AlignmentsSchema2(BaseModel):
     supplementary_information: list[ClassifiedAlignmentSchema] = Field(..., title="The list of `new` contents in the video that can be considered `supplementary` to the previous video (i.e., does not contradict or replace any information in the previous video and adds or extends the information in the previous video).")
     contradictory_information: list[ClassifiedAlignmentSchema] = Field(..., title="The list of `new` contents in the video that can be considered `contradictory` to the previous video (i.e., contradicts or replaces any information in the previous video, but presents a different context or approach).")
+
+## V4
+class ClassifiedAlignmentSchema3(InformationAlignmentSchema): 
+    classification: Literal["goal", "objects", "outcome", "instructions", "rationale", "tips", "other"] = Field(..., title="the classification of the new information in terms of its main subject: goal, objects, outcome, instructions, rationale, tips, or other.")
+
+class AlignmentsSchema3(BaseModel):
+    supplementary_information: list[ClassifiedAlignmentSchema3] = Field(..., title="The list of `new` contents in the video that can be considered `supplementary` to the previous video (i.e., does not contradict or replace any information in the previous video and adds or extends the information in the previous video).")
+    contradictory_information: list[ClassifiedAlignmentSchema3] = Field(..., title="The list of `new` contents in the video that can be considered `contradictory` to the previous video (i.e., contradicts or replaces any information in the previous video, but presents a different context or approach).")
