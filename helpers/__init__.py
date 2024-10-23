@@ -123,12 +123,15 @@ def get_response_pydantic_with_message(messages, response_format):
     print("RESPONSE:", json.dumps(json_response, indent=2))
     return json_response, completion.choices[0].message.content
 
-def extend_contents(contents, include_images=False):
+def extend_contents(contents, include_images=False, include_ids=False):
     extended_contents = []
-    for content in contents:
+    for index, content in enumerate(contents):
+        text = content["text"]
+        if include_ids:
+            text = f"{index + 1}. {text}"
         extended_contents.append({
             "type": "text",
-            "text": f"{content['text']}"
+            "text": text,
         })
         if include_images:
             for frame_path in content["frame_paths"]:
