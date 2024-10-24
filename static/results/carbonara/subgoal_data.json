@@ -1,32 +1,18 @@
 [
   {
-    "subgoal": "Gather ingredients: bacon or guanciale/pancetta, cheese, eggs, pasta, black pepper, and optionally garlic.",
+    "subgoal": "Gather all ingredients: bacon or guanciale, cheese, eggs, pasta, black pepper, and optionally garlic.",
     "original_subgoals": [
       "Gather the ingredients: guanciale (or pancetta), pecorino romano cheese, free-range organic eggs, pasta, black pepper, and optionally garlic."
     ]
   },
   {
-    "subgoal": "Cut the meat (bacon or guanciale/pancetta) into small pieces or chunks.",
+    "subgoal": "Prepare the meat by chopping bacon or guanciale into small pieces and cook until crispy or golden, optionally with garlic or olive oil.",
     "original_subgoals": [
       "Cut guanciale (or pancetta) into chunks.",
-      "Remove the skin from the guanciale and cut it into half-centimeter chunks.",
-      "Place a cold pan on medium-high heat and add the guanciale to render the fat. Optionally, add a cracked garlic clove to the pan for flavor.",
-      "Once the guanciale is golden, remove the garlic from the pan and turn off the heat.",
-      "Cut about half a pound of thick-cut bacon into three-quarter inch slices.",
-      "Heat a pan over medium heat and add a tiny bit of olive oil.",
-      "Add the bacon to the pan and slowly render out the fat until the bacon is crispy.",
-      "Once the bacon is crispy, remove some for garnish and drain most of the fat, leaving about two tablespoons in the pan.",
-      "Chop bacon into small pieces.",
-      "Cook the bacon in a pan until crispy, then turn off the heat and let it cool slightly."
-    ]
-  },
-  {
-    "subgoal": "Cook the meat in a pan until crispy or golden, optionally with garlic or olive oil, and set aside.",
-    "original_subgoals": [
       "Heat olive oil in a pan and cook the guanciale until it releases fat.",
-      "Remove the skin from the guanciale and cut it into half-centimeter chunks.",
+      "Remove the skin from the guanciale and slice it into 1 cm thick pieces. Chop into 0.5 cm chunks.",
       "Place a cold pan on medium-high heat and add the guanciale to render the fat. Optionally, add a cracked garlic clove to the pan for flavor.",
-      "Once the guanciale is golden, remove the garlic from the pan and turn off the heat.",
+      "Once the guanciale is golden, remove the garlic from the pan.",
       "Cut about half a pound of thick-cut bacon into three-quarter inch slices.",
       "Heat a pan over medium heat and add a tiny bit of olive oil.",
       "Add the bacon to the pan and slowly render out the fat until the bacon is crispy.",
@@ -36,18 +22,18 @@
     ]
   },
   {
-    "subgoal": "Grate cheese and prepare the egg mixture by combining eggs, cheese, and black pepper.",
+    "subgoal": "Grate cheese and prepare the egg mixture by whisking eggs with cheese and black pepper.",
     "original_subgoals": [
       "In a bowl, beat two egg yolks (for two people) and add grated parmesan or pecorino cheese and abundant pepper.",
       "Crack black peppercorns using a pestle and mortar, then sieve to separate the hotter inner part of the peppercorns.",
-      "Crack eggs into a bowl and add about 20 grams of pecorino cheese. Whisk together.",
+      "Crack eggs into a bowl and add 20 grams of pecorino romano cheese. Whisk together.",
       "Grate three ounces each of Pecorino Romano and Parmigiano-Reggiano cheese.",
       "In a bowl, whisk together three whole eggs and two egg yolks.",
       "Whisk the grated cheese into the egg mixture.",
       "Add freshly ground black pepper to the egg and cheese mixture to taste.",
-      "Separate egg yolks from egg whites and place the yolks in a bowl.",
+      "Separate egg yolks from the whites and place the yolks in a bowl.",
       "Grate pecorino romano cheese and add it to the egg yolks.",
-      "Add freshly ground black pepper to the egg yolk and cheese mixture and mix well."
+      "Add black pepper to the egg yolk and cheese mixture and mix well."
     ]
   },
   {
@@ -63,29 +49,29 @@
     ]
   },
   {
-    "subgoal": "Combine cooked pasta with meat and egg mixture, stirring quickly to create a creamy sauce, adding reserved pasta water if needed.",
+    "subgoal": "Combine cooked pasta with the meat and egg mixture, stirring to create a creamy sauce, using reserved pasta water to adjust consistency if needed.",
     "original_subgoals": [
       "Once the pasta is cooked, drain it and add it to the pan with guanciale, allowing it to cool slightly.",
       "Mix the pasta with the egg mixture, ensuring the pasta is not too hot to avoid scrambling the eggs.",
       "Stir until the sauce is creamy and coats the pasta.",
-      "Drag the cooked pasta and some of its water into the pan with the guanciale. Use the water to stop frying and start emulsifying the sauce.",
-      "Add the egg and cheese mixture to the pan, tossing the pasta and adding more pasta water as needed to create a creamy sauce.",
+      "Turn off the heat under the pan with guanciale. Drag the cooked pasta and some of its water into the pan to stop frying and start emulsifying the sauce.",
+      "Add the egg and cheese mixture to the pan, tossing the pasta and adding more pasta water as needed to create a creamy sauce through emulsification.",
       "Turn off the heat under the bacon pan and add the cooked spaghetti to the pan.",
       "Add the egg and cheese mixture to the spaghetti, stirring gently to avoid scrambling the eggs.",
-      "If needed, add a little pasta water to loosen the sauce and achieve a creamy consistency.",
       "Add a small amount of reserved pasta water to the egg yolk and cheese mixture to help melt the cheese.",
       "Transfer the cooked spaghetti directly from the pot to the pan with bacon.",
-      "Mix the spaghetti with the bacon and then add the egg yolk mixture, stirring quickly to coat the pasta and create a creamy sauce.",
-      "If needed, add more reserved pasta water to achieve the desired sauce consistency."
+      "Mix the spaghetti with the bacon and then add the egg yolk mixture, stirring quickly to coat the pasta and create a creamy sauce."
     ]
   },
   {
     "subgoal": "Garnish with additional cheese and black pepper before serving.",
     "original_subgoals": [
       "Serve with additional grated parmesan or pecorino and a touch of pepper for decoration.",
-      "Finish with more cracked black pepper and a sprinkle of pecorino cheese before serving.",
+      "Finish the dish with more cracked black pepper and a sprinkle of pecorino romano cheese before serving.",
+      "If needed, add a little pasta water to loosen the sauce and achieve a creamy consistency.",
       "Plate the pasta and garnish with additional grated cheese and crispy bacon.",
-      "Finish with additional grated pecorino romano and black pepper before serving."
+      "If needed, add more reserved pasta water to achieve the desired sauce consistency.",
+      "Finish with additional black pepper and grated pecorino romano or parmesan cheese before serving."
     ]
   }
 ]

@@ -12,26 +12,31 @@ class Video:
     frames = {}
     ### {"start": 0, "finish": 0, "text": ""}
     subtitles = []
+    ### list of strings
+    steps = []
     ### {"start": 0, "finish": 0, "title": "", "text": ""}
-    custom_subgoals = []
+    sentences = []
     ### {"start": 0, "finish": 0, "title": "", "text": ""}
-    common_subgoals = []
+    subgoals = []
 
     meta_summary = None
     subgoal_summaries = []
 
-    custom_subgoals_embeddings = []
+    sentence_embeddings = []
 
 
     def __init__(self, video_link):
         self.video_link = video_link
         self.video_id = video_link.split("/")[-1]
         self.subtitles = []
+        self.steps = []
         self.frames = {}
-        self.custom_subgoals = []
-        self.common_subgoals = []
+        self.sentences = []
+        self.subgoals = []
         self.meta_summary = None
         self.subgoal_summaries = []
+        self.metadata = {}
+        self.sentence_embeddings = []
 
     def process(self):
         self.process_video()
@@ -59,32 +64,26 @@ class Video:
         self.subtitles = sorted(self.subtitles, key=lambda x: x["start"])
 
     def process_subtitles(self):
-        self.custom_subgoals = []
+        self.sentences = []
         for subtitle in self.subtitles:
-            # if len(self.custom_subgoals) > 0:
-            #     last_subgoal = self.custom_subgoals[-1]
-            #     if subtitle['finish'] - last_subgoal['start'] <= 10:
-            #         last_subgoal['finish'] = subtitle['finish']
-            #         last_subgoal['text'] += " " + subtitle['text']
-            #         continue
-            self.custom_subgoals.append({
+            self.sentences.append({
                 "start": subtitle["start"],
                 "finish": subtitle["finish"],
                 "text": subtitle["text"],
                 "frame_paths": [],
             })
         
-        self.custom_subgoals = sorted(self.custom_subgoals, key=lambda x: x["start"])
+        self.sentences = sorted(self.sentences, key=lambda x: x["start"])
 
-        for index, subgoal in enumerate(self.custom_subgoals):
-            frame_sec = round((subgoal["start"] + subgoal["finish"]) / 2)
+        for index, sentence in enumerate(self.sentences):
+            frame_sec = round((sentence["start"] + sentence["finish"]) / 2)
             if frame_sec in self.frames:
-                subgoal["frame_paths"].append(self.frames[frame_sec]["path"])
-            subgoal["id"] = f"{self.video_id}-{index}"
+                sentence["frame_paths"].append(self.frames[frame_sec]["path"])
+            sentence["id"] = f"{self.video_id}-{index}"
     
-    def get_common_subgoals(self, title):
+    def get_subgoals(self, title):
         subgoals = []
-        for subgoal in self.common_subgoals:
+        for subgoal in self.subgoals:
             if subgoal["title"] == title:
                 subgoals.append(subgoal)
         return subgoals
@@ -94,13 +93,13 @@ class Video:
     
     def get_all_contents(self):
         contents = []
-        for subgoal in self.custom_subgoals:
+        for sentence in self.sentences:
             contents.append({
-                "id": subgoal["id"],
-                "start": subgoal["start"],
-                "finish": subgoal["finish"],
-                "text": subgoal["text"],
-                "frame_paths": [path for path in subgoal["frame_paths"]],
+                "id": sentence["id"],
+                "start": sentence["start"],
+                "finish": sentence["finish"],
+                "text": sentence["text"],
+                "frame_paths": [path for path in sentence["frame_paths"]],
             })
         return contents
 
@@ -169,7 +168,7 @@ class Video:
 
     def get_subgoal_contents(self, title, as_parent=False) -> list:
         contents = []
-        subgoals = self.get_common_subgoals(title)
+        subgoals = self.get_subgoals(title)
         for subgoal in subgoals:
             text = ""
             if as_parent:
@@ -194,23 +193,23 @@ class Video:
         """
         if len(quotes) == 0:
             return []
-        if len(self.custom_subgoals_embeddings) == 0:
-            self.calculate_custom_subgoals_embeddings()
+        if len(self.sentence_embeddings) == 0:
+            self.calculate_sentence_embeddings()
         content_ids = []
         quotes_embeddings = bert_embedding(quotes)
 
-        indexes, scores = find_most_similar(self.custom_subgoals_embeddings, quotes_embeddings)
+        indexes, scores = find_most_similar(self.sentence_embeddings, quotes_embeddings)
         for idx in indexes:
-            content_ids.append(self.custom_subgoals[idx]["id"])
+            content_ids.append(self.sentences[idx]["id"])
 
         return content_ids
                         
-    def calculate_custom_subgoals_embeddings(self):
+    def calculate_sentence_embeddings(self):
         """
         Calculate the embeddings of the custom subgoals
         """
-        texts = [subgoal["text"] for subgoal in self.custom_subgoals]
-        self.custom_subgoals_embeddings = bert_embedding(texts)
+        texts = [sentence["text"] for sentence in self.sentences]
+        self.sentence_embeddings = bert_embedding(texts)
 
     def get_most_similar_content_ids(self, texts):
         """
@@ -218,15 +217,15 @@ class Video:
         """
         if len(texts) == 0:
             return []
-        if len(self.custom_subgoals_embeddings) == 0:
-            self.calculate_custom_subgoals_embeddings()
+        if len(self.sentence_embeddings) == 0:
+            self.calculate_sentence_embeddings()
         text_embeddings = bert_embedding(texts)
 
-        indexes, scores = find_most_similar(self.custom_subgoals_embeddings, text_embeddings)
+        indexes, scores = find_most_similar(self.sentence_embeddings, text_embeddings)
 
         content_ids = []
         for idx in indexes:
-            content_ids.append(self.custom_subgoals[idx]["id"])
+            content_ids.append(self.sentences[idx]["id"])
         return content_ids
 
     def to_dict(self, short_metadata=False, fixed_subgoals=False):
@@ -235,8 +234,9 @@ class Video:
             "video_link": self.video_link,
             "frames": self.frames,
             "subtitles": self.subtitles,
-            "custom_subgoals": self.custom_subgoals,
-            "common_subgoals": self.common_subgoals,
+            "sentences": self.sentences,
+            "steps": self.steps,
+            "subgoals": self.subgoals,
             "meta_summary": self.meta_summary,
             "subgoal_summaries": self.subgoal_summaries,
             "metadata": self.metadata
@@ -251,12 +251,12 @@ class Video:
             }
         
         if fixed_subgoals:
-            for index, subgoal in enumerate(result["common_subgoals"]):
+            for index, subgoal in enumerate(result["subgoals"]):
                 subgoal["original_title"] = subgoal["title"]
                 subgoal["title"] = subgoal["original_title"] + "-" + str(index)
             
             for index, subgoal_summary in enumerate(result["subgoal_summaries"]):
-                for subgoal in result["common_subgoals"]:
+                for subgoal in result["subgoals"]:
                     if subgoal_summary["title"] == subgoal["original_title"]:
                         subgoal_summary["original_title"] = subgoal["original_title"]
                         subgoal_summary["title"] = subgoal["title"]
@@ -264,7 +264,7 @@ class Video:
 
     def from_dict(self, 
         video_link=None, video_id=None, subtitles=None,
-        frames=None, custom_subgoals=None, common_subgoals=None,
+        frames=None, sentences=None, steps=None, subgoals=None,
         meta_summary=None, subgoal_summaries=None, metadata=None
     ):
         if video_link is not None:
@@ -275,10 +275,12 @@ class Video:
             self.subtitles = subtitles
         if frames is not None:
             self.frames = frames
-        if custom_subgoals is not None:
-            self.custom_subgoals = custom_subgoals
-        if common_subgoals is not None:
-            self.common_subgoals = common_subgoals
+        if sentences is not None:
+            self.sentences = sentences
+        if steps is not None:
+            self.steps = steps
+        if subgoals is not None:
+            self.subgoals = subgoals
         if meta_summary is not None:
             self.meta_summary = meta_summary
         if subgoal_summaries is not None:

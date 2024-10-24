@@ -10,7 +10,7 @@ from pydantic_models.comparison import AlignmentsSchema, AlignmentClassification
 from helpers import get_response_pydantic, get_response
 
 ### LEGACY PROMPT FOR CUSTOM SUBGOALS
-def generate_custom_subgoals_v1(subtitles):
+def generate_sentences_v1(subtitles):
     messages = [
         {"role": "system", "content": "You are a helpful assistant specializing in analyzing and defining comprehensive subgoals generalizable across different how-to videos about the same task."},
         {"role": "user", "content": "Summarizes the subtitles of a video into important steps in the procedural task (steps should be based on meaningful intermediate stages of the process). You must use the subtitles to generate the steps. Return a JSON list with the following structure: [{'start': float, 'finish': float, 'title': string, 'text': string}]"},
@@ -20,7 +20,7 @@ def generate_custom_subgoals_v1(subtitles):
 
 
 ### PROMPT FOR DEFINING SUBGOALS (one narration at a time)
-def define_common_subgoals_v1(videos):
+def define_subgoals_v1(videos):
     if (len(videos) == 0):
         return []
     
@@ -57,7 +57,7 @@ def define_common_subgoals_v1(videos):
     
     return subgoals
 ### only then segment the videos
-def generate_common_subgoals_v1(subtitles, subgoals):
+def generate_subgoals_v1(subtitles, subgoals):
     messages = [
         {"role": "system", "content": "You are a helpful assistant specializing in analyzing and segmenting content in how-to videos according to given subgoals."},
         {"role": "user", "content": "Given the subtitles of the how-to video and subgoals, segment the video according to subgoals. If some subtitles do not belong to any subgoal, define a custom subgoals & label them with `(custom)` tag. Make sure to preserve the order of the subtitles in the video."},
@@ -66,8 +66,8 @@ def generate_common_subgoals_v1(subtitles, subgoals):
     ]
 
     response = get_response_pydantic(messages, VideoSegmentation)
-    common_subgoals = response["segments"]
-    return common_subgoals
+    subgoals = response["segments"]
+    return subgoals
 
 def get_meta_alignments_v1(summary1, summary2):
     messages = [

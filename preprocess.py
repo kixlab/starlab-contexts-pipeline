@@ -61,7 +61,7 @@ def export(task_id, ds):
             new_subgoal = None
             for video in videos:
                 if video["video_id"] == item["video_id"]:
-                    for subgoal in video["common_subgoals"]:
+                    for subgoal in video["subgoals"]:
                         if subgoal["start"] <= seconds and subgoal["finish"] >= seconds:
                             new_subgoal = subgoal["original_title"]
                             break

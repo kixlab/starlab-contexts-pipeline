@@ -3,9 +3,9 @@ import json
 from helpers import META_TITLE, APPROACHES, BASELINES
 from helpers import random_uid
 
-from helpers.prompts_segmentation import define_common_subgoals_v2, align_common_subgoals_v2, generate_common_subgoals_v3
+from helpers.prompts_segmentation import define_subgoals_v2, align_subgoals_v2, generate_subgoals_v3
 
-from helpers.prompts_segmentation import define_common_subgoals_v4, summarize_common_subgoals_v4, align_common_subgoals_v4
+from helpers.prompts_segmentation import define_steps_v4, summarize_steps_v4, align_steps_v4, segment_video_v4
 
 from helpers.prompts_segmentation import extract_all_procedural_info_v5
 
@@ -57,15 +57,15 @@ class VideoPool:
             print (json.dumps(all_pieces_per_video, indent=2))
 
     def __process_videos_v4(self):
-        ### Based on task subgoals clustering.
-        if len(self.subgoals) == 0:
-            sequences = []
-            for video in self.videos:
-                sequence, segments = define_common_subgoals_v4(video.get_all_contents(), self.task)
-                sequences.append(sequence)
-                video.common_subgoals = []
+        ### Extract steps per video
+        for video in self.videos:
+            if len(video.steps) == 0:
+                video.steps = define_steps_v4(video.get_all_contents(), self.task)
+            ## initial subgoals
+            if len(video.subgoals) == 0:
+                segments = segment_video_v4(video.get_all_contents(), video.steps, self.task)
                 for index, subgoal in enumerate(segments):
-                    video.common_subgoals.append({
+                    video.subgoals.append({
                         "id": f"{video.video_id}-subgoal-{index}",
                         "title": subgoal["title"],
                         "start": subgoal["start"],
@@ -74,7 +74,13 @@ class VideoPool:
                         "frame_paths": subgoal["frame_paths"],
                         "content_ids": subgoal["content_ids"],
                     })
-            
+
+        ### Cluster steps ands define subgoals
+        if len(self.subgoals) == 0:
+            sequences = []
+            for video in self.videos:
+                sequences.append(video.steps)
+                
             ## ASSUMPTION: as we go over all videos, the subgoals will get calibrated
             self.subgoals = []
             for subgoal in sequences[0]:
@@ -87,7 +93,7 @@ class VideoPool:
                 for subgoal in self.subgoals:
                     old_sequence.append(subgoal["subgoal"])
                 
-                agg_sequence = align_common_subgoals_v4(old_sequence, new_sequence, self.task)
+                agg_sequence = align_steps_v4(old_sequence, new_sequence, self.task)
                 
                 new_subgoals = []
                 for new_subgoal in agg_sequence:
@@ -104,6 +110,8 @@ class VideoPool:
                         "original_subgoals": original_subgoals,
                     })
                 self.subgoals = new_subgoals
+                ### TODO: Summarize each subgoal
+        ### Segment each video based on the appropriate subgoals TODO
 
     def __process_videos_v3(self):
         for video in self.videos:
@@ -134,18 +142,18 @@ class VideoPool:
         if len(self.subgoals) == 0:
             common_subgoal_defs_per_video = {}
             for video in self.videos:
-                if len(video.common_subgoals) > 0:
+                if len(video.subgoals) > 0:
                     continue
-                common_subgoal_defs_per_video[video.video_id] = define_common_subgoals_v2(video.get_all_contents(), self.task)
+                common_subgoal_defs_per_video[video.video_id] = define_subgoals_v2(video.get_all_contents(), self.task)
 
-            self.subgoals = align_common_subgoals_v2(common_subgoal_defs_per_video, self.task)
+            self.subgoals = align_subgoals_v2(common_subgoal_defs_per_video, self.task)
 
         for video in self.videos:
-            if len(video.common_subgoals) == 0:
-                common_subgoals = generate_common_subgoals_v3(video.get_all_contents(), self.subgoals, self.task)
+            if len(video.subgoals) == 0:
+                subgoals = generate_subgoals_v3(video.get_all_contents(), self.subgoals, self.task)
                 ### `segmentation` has `text`, `quotes`, `explanation`
-                for index, subgoal in enumerate(common_subgoals):
-                    video.common_subgoals.append({
+                for index, subgoal in enumerate(subgoals):
+                    video.subgoals.append({
                         "id": f"{video.video_id}-subgoal-{index}",
                         "title": subgoal["title"],
                         "explanation": subgoal["explanation"],
@@ -166,10 +174,10 @@ class VideoPool:
                 last_subgoals = []
                 subgoal_idx = len(self.subgoals) - 1
                 while len(last_subgoals) == 0:
-                    last_subgoals = video.get_common_subgoals(self.subgoals[subgoal_idx]["title"])
+                    last_subgoals = video.get_subgoals(self.subgoals[subgoal_idx]["title"])
                     subgoal_idx -= 1
                 if len(last_subgoals) == 0:
-                    last_subgoals = video.common_subgoals
+                    last_subgoals = video.subgoals
                 # ASSUMPTION: The video has a single major outcome
                 video.meta_summary["frame_paths"] = clip_similar_per_text([video.meta_summary["outcome"]], last_subgoals[-1]["frame_paths"])
 
@@ -239,9 +247,9 @@ class VideoPool:
             if len(alignment["other_content_ids"]) == 0:
                 ## ASSUMPTION: probably need to show at the end of the subgoal
                 if subgoal_title == META_TITLE:
-                    alignment["other_content_ids"] = [video2.custom_subgoals[-1]["id"]]
+                    alignment["other_content_ids"] = [video2.sentences[-1]["id"]]
                     continue
-                subgoals = video2.get_common_subgoals(subgoal_title)
+                subgoals = video2.get_subgoals(subgoal_title)
                 for subgoal in reversed(subgoals):
                     if subgoal["title"] == subgoal_title and len(subgoal["content_ids"]) > 0:
                         alignment["other_content_ids"] = [subgoal["content_ids"][-1]]

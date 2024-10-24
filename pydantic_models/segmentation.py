@@ -79,8 +79,11 @@ class ListSubgoalsSchema(BaseModel):
     subgoals: list[SubgoalSchema] = Field(..., title="The list of subgoals with their descriptions")
     
 
-def get_segmentation_schema_v4(titles: list[str]):
-    TitleLiteral = Literal[tuple(titles)]
+def get_segmentation_schema_v4(titles):
+    if not titles:
+        TitleLiteral = str
+    else:
+        TitleLiteral = Literal[tuple(titles)]
     SegmentSchema = create_model(
         'SegmentSchema',
         step=(TitleLiteral, Field(..., title="The step that the segment belongs to")),

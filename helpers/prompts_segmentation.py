@@ -4,7 +4,7 @@ from helpers import encode_image, get_response_pydantic_with_message
 from pydantic_models.segmentation import TaskGraph, get_segmentation_schema, StepsSchema, AggStepsSchema, SubgoalSchema, AllProceduralInformationSchema, TranscriptAssignmentsSchema, get_segmentation_schema_v4
 
 
-def define_common_subgoals_v2(contents, task):
+def define_subgoals_v2(contents, task):
     messages = [
         {"role": "system", "content": "You are a helpful assistant specializing in analyzing and extracting subgoals for task `{task}`. You are given a transcript of a how-to video and asked to define a task graph that consists of subgoals of the demonstrated procedure and dependencies between the subgoals. Ensure that the subgoals are (1) based on meaningful intermediate stages of the procedure, (2) broad enough to encompass diverse ways to complete the task, and (3) specific enough to capture all critical procedural steps.".format(task=task)},
         {
@@ -20,18 +20,18 @@ def define_common_subgoals_v2(contents, task):
     subgoals = response["subgoals"]
     return subgoals
 
-def align_common_subgoals_v2(common_subgoals_per_video, task):
+def align_subgoals_v2(subgoals_per_video, task):
     messages = [
         {"role": "system", "content": "You are a helpful assistant specializing in analyzing and comparing procedural content across different how-to videos about task `{task}`. Given the task graphs (i.e., subgoals and dependencies between them) from multiple how-to videos about the same task, combine them into a single task graph. Where necessary, merge/split subgoals, and generate a unified, comprehensive set of subgoals that is applicable to all the videos. Ensure that the subgoals are based on meaningful intermediate stages of the procedure.".format(task=task)},
     ]
-    for video_idx, (_, common_subgoals) in enumerate(common_subgoals_per_video.items()):
-        messages.append({"role": "user", "content": f"## Video {video_idx + 1}:\n{extend_subgoals(common_subgoals)}"})
+    for video_idx, (_, subgoals) in enumerate(subgoals_per_video.items()):
+        messages.append({"role": "user", "content": f"## Video {video_idx + 1}:\n{extend_subgoals(subgoals)}"})
     
     response = get_response_pydantic(messages, TaskGraph)
     subgoals = response["subgoals"]
     return subgoals
 
-def generate_common_subgoals_v3(contents, subgoals, task):
+def generate_subgoals_v3(contents, subgoals, task):
     messages = [
         {"role": "system", "content": "You are a helpful assistant specializing in analyzing and segmenting how-to videos according to task graph for task `{task}`. Given the contents of the how-to video and subgoals, segment the video according to subgoals.".format(task=task)},
     ]
@@ -62,20 +62,20 @@ def generate_common_subgoals_v3(contents, subgoals, task):
                 content["title"] = segment["title"]
                 content["explanation"] = segment["explanation"]
 
-    common_subgoals = []
+    subgoals = []
     for content in contents:
         if "title" not in content:
             content["title"] = "Custom"
             content["explanation"] = "Custom subgoal"
-        if (len(common_subgoals) > 0):
-            if common_subgoals[-1]["title"] == content["title"] or content["title"] == "Custom":
-                common_subgoals[-1]["finish"] = content["finish"]
-                common_subgoals[-1]["text"] += " " + content["text"]
-                common_subgoals[-1]["frame_paths"] = common_subgoals[-1]["frame_paths"] + content["frame_paths"]
-                common_subgoals[-1]["content_ids"].append(content["id"])
+        if (len(subgoals) > 0):
+            if subgoals[-1]["title"] == content["title"] or content["title"] == "Custom":
+                subgoals[-1]["finish"] = content["finish"]
+                subgoals[-1]["text"] += " " + content["text"]
+                subgoals[-1]["frame_paths"] = subgoals[-1]["frame_paths"] + content["frame_paths"]
+                subgoals[-1]["content_ids"].append(content["id"])
                 continue
 
-        common_subgoals.append({
+        subgoals.append({
             "title": content["title"],
             "explanation": content["explanation"],
             "start": content["start"],
@@ -84,7 +84,7 @@ def generate_common_subgoals_v3(contents, subgoals, task):
             "frame_paths": content["frame_paths"],
             "content_ids": [content["id"]]
         })
-    return common_subgoals
+    return subgoals
 
 def assign_transcripts_v4(contents, subgoals, task):
     messages = [
@@ -112,7 +112,7 @@ def assign_transcripts_v4(contents, subgoals, task):
             "role": "user",
             "content": [{
                 "type": "text",
-                "text": f"Assign steps to the sentences between {i + 1} and {min(i + 20, len(contents))}:\n"
+                "text": f"Assign steps to the sentences between {i} and {min(i + 19, len(contents) - 1)}:\n"
             }]
         }
         response = get_response_pydantic(messages + [message], TranscriptAssignmentsSchema)
@@ -122,12 +122,12 @@ def assign_transcripts_v4(contents, subgoals, task):
     for index, content in enumerate(contents):
         assignment = None
         for a in total_assignments:
-            if a["index"] == index + 1:
+            if a["index"] == index:
                 assignment = a
                 break
 
         if assignment is None:
-            print("ERROR: Assignment not found for index", index + 1)
+            print("ERROR: Assignment not found for index", index)
             continue
         title = assignment["steps"]
         segments.append({
@@ -135,16 +135,23 @@ def assign_transcripts_v4(contents, subgoals, task):
             "finish": content["finish"],
             "title": title,
             "text": content["text"],
-            "frame_paths": content["frame_paths"],
+            "frame_paths": [*content["frame_paths"]],
             "content_ids": [content["id"]],
             "relevance": assignment["relevance"],
         })
 
     return segments
 
-def segment_video_v4(contents, subgoals, task):
+def segment_video_v4(contents, steps, task):
     messages = [
-        {"role": "system", "content": "You are a helpful assistant specializing in analyzing tutorial video content. Given a narration of a tutorial video for a task `{task}` and a set of steps, segment the video according to the provided steps. For each segment, specify start and end transcript indices. Map the segment to `None` if it does not map to any of the segments.".format(task=task)},
+        {"role": "system", "content": "You are a helpful assistant specializing in analyzing tutorial video content. Given a narration of a tutorial video for a task `{task}` and a set of steps, segment the entire video based on the steps. Start from the beginning of the video (i.e., 0-th sentence) and sequentially assign matching relevant step label to each subsequent segment of the narration. Make sure that the all the procedurally important parts of the narration are covered.".format(task=task)},
+        {
+            "role": "user",
+            "content": [{
+                "type": "text",
+                "text": f"## Steps:\n" + "\n".join(steps)
+            }]
+        },
         {
             "role": "user",
             "content": [{
@@ -154,62 +161,42 @@ def segment_video_v4(contents, subgoals, task):
         },
     ]
 
-    SegmentationSchema = get_segmentation_schema_v4(subgoals + ["None"])
+    SegmentationSchema = get_segmentation_schema_v4(None)
 
     response = get_response_pydantic(messages, SegmentationSchema)
 
-    def get_new_segment(start, finish):
-        if start > finish:
-            print("ERROR: Start index greater than finish index")
-            return None
-        new_segment = {
-            "start": 0,
-            "finish": 0,
-            "text": "",
-            "frame_paths": [],
-            "content_ids": [],
-        }
-        for i in range(start, finish + 1):
-            if i < 0 or i > len(contents)-1:
-                print("ERROR: Index out of bounds")
-                continue
-            content = contents[i]
-            if i == start:
-                new_segment["start"] = content["start"]
-            else:
-                new_segment["text"] += " "
-            if i == finish:
-                new_segment["finish"] = content["finish"]
-            new_segment["text"] += content["text"]
-            new_segment["frame_paths"] += content["frame_paths"]
-            new_segment["content_ids"].append(content["id"])
-        return new_segment
-
-    segments = []
-    last_index = -1
+    contents_coverage = [""] * len(contents)
     for segment in response["segments"]:
-        start = segment["start_index"] - 1
-        finish = segment["end_index"] - 1
-        if start < last_index:
-            print("ERROR: Overlapping segments")
-        if last_index < start - 1:
-            print("ERROR: Missing segment")
-            new_segment = get_new_segment(last_index + 1, start - 1)
-            if new_segment is not None:
-                segments.append({
-                    "title": "None",
-                    **new_segment,
-                })
-        new_segment = get_new_segment(start, finish)
-        if new_segment is not None:
+        start = segment["start_index"]
+        finish = segment["end_index"]
+        for i in range(start, finish):
+            if contents_coverage[i] != "":
+                print("Potential ERROR: Overlapping segments", contents_coverage[i], segment["step"])
+            contents_coverage[i] = segment["step"]
+    segments = []
+    for index, content in enumerate(contents):
+        cur_step = contents_coverage[index]
+        if len(segments) > 0 and cur_step == segments[-1]["title"]:
+            ### Extend the current segment
+            segments[-1]["finish"] = content["finish"]
+            segments[-1]["text"] += " " + content["text"]
+            segments[-1]["frame_paths"] = segments[-1]["frame_paths"] + [*content["frame_paths"]]
+            segments[-1]["content_ids"].append(content["id"])
+        else:
+            ### Start a new segment
+            if len(segments) > 0:
+                segments[-1]["finish"] = content["start"]
             segments.append({
-                "title": segment["step"],
-                **new_segment,
+                "start": content["start"],
+                "finish": content["finish"],
+                "title": cur_step,
+                "text": content["text"],
+                "frame_paths": [*content["frame_paths"]],
+                "content_ids": [content["id"]],
             })
-        last_index = finish
     return segments
 
-def define_common_subgoals_v4(contents, task):
+def define_steps_v4(contents, task):
     messages = [
         {"role": "system", "content": "You are a helpful assistant specializing in analyzing tutorial video content. Given a narration of a tutorial video for a task `{task}`, analyze it and generate a comprehensive list of steps presented in the video. Focus on the essence of the steps and avoid including unnecessary details. Ensure that the steps are clear, concise, and cover all the critical procedural information.".format(task=task)},
         {
@@ -222,13 +209,10 @@ def define_common_subgoals_v4(contents, task):
     ]
     
     response = get_response_pydantic(messages, StepsSchema)
-    subgoals = response["steps"]
-    
-    # segments = assign_transcripts_v4(contents, subgoals, task)
-    segments = segment_video_v4(contents, subgoals, task)
-    return subgoals, segments
+    steps = response["steps"]
+    return steps
 
-def align_common_subgoals_v4(sequence1, sequence2, task):
+def align_steps_v4(sequence1, sequence2, task):
     sequence1_str = "\n".join(sequence1)
     sequence2_str = "\n".join(sequence2)
     messages = [
@@ -241,9 +225,9 @@ def align_common_subgoals_v4(sequence1, sequence2, task):
     if len(response["assignments_1"]) != len(sequence1) or len(response["assignments_2"]) != len(sequence2):
         print("ERROR: Length of assignments_1 does not match the length of sequence1")
 
-    subgoals = []
+    steps = []
     for agg_step in response["agg_steps"]:
-        subgoals.append({
+        steps.append({
             "aggregated": agg_step,
             "original_list_1": [],
             "original_list_2": []
@@ -255,7 +239,7 @@ def align_common_subgoals_v4(sequence1, sequence2, task):
     ]:
         for a in response[assignments]:
             found = 0
-            for subgoal in subgoals:
+            for subgoal in steps:
                 if a["agg_step"] == subgoal["aggregated"]:
                     subgoal[original_list].append(a["original_step"])
                     found += 1
@@ -263,14 +247,14 @@ def align_common_subgoals_v4(sequence1, sequence2, task):
                 print("ERROR: Original step from sequence not found in agg_steps")
             if found > 1:
                 print("ERROR: Original step from sequence found in multiple agg_steps")
-    return subgoals
+    return steps
 
-def summarize_common_subgoals_v4(subgoals, task):
+def summarize_steps_v4(steps, task):
     messages = [
         {"role": "system", "content": "You are a helpful assistant specializing in analyzing tutorial content. You are given a set of steps in the task `{task}`. Extract the common goal each of the steps are accomplishing and provide a single COMPREHENSIVE subgoal.".format(task=task)},
         {
             "role": "user",
-            "content": "## Steps:\n" + "\n".join(subgoals)
+            "content": "## Steps:\n" + "\n".join(steps)
         }
     ]
     
