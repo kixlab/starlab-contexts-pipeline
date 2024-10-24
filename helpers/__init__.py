@@ -128,7 +128,7 @@ def extend_contents(contents, include_images=False, include_ids=False):
     for index, content in enumerate(contents):
         text = content["text"]
         if include_ids:
-            text = f"{index + 1}. {text}"
+            text = f"{index}. {text}"
         extended_contents.append({
             "type": "text",
             "text": text,
