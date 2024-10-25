@@ -238,6 +238,7 @@ APPROACHES = [
     "approach_1",
     "approach_2",
     "approach_3",
+    "approach_4",
 ]
 
 BASELINES = [
