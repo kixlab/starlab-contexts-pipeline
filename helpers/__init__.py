@@ -247,7 +247,7 @@ BASELINES = [
 ]
 
 SIMILARITY_THRESHOLD_NOTABLE = 0.8
-SIMILARITY_THRESHOLD_HOOK = 0.8
+SIMILARITY_THRESHOLD_HOOK = 0.6
 
 def str_to_float(str_time):
     return sum(x * float(t) for x, t in zip([3600, 60, 1], str_time.split(":")))
