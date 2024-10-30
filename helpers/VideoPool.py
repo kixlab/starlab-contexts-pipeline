@@ -191,6 +191,7 @@ class VideoPool:
             alignment["alignment_description"] = alignment["description"]
             alignment["alignment_reasoning"] = alignment["reasoning"]
             alignment["alignment_comparison"] = alignment["comparison"]
+            alignment["seconds"] = video1.get_alignment_seconds(alignment)
             del alignment["comparison"]
             del alignment["reasoning"]
             del alignment["title"]
@@ -209,7 +210,8 @@ class VideoPool:
         self.alignment_sets[approach] = []
         for v1_idx, video1 in enumerate(self.videos):
             for v2_idx, video2 in enumerate(self.videos):
-                if v1_idx > v2_idx:
+                # TODO: check one-by-one generation!
+                if v1_idx >= v2_idx:
                     continue
                 alignments_1 = []
                 alignments_2 = []
@@ -224,7 +226,6 @@ class VideoPool:
                     )
                     for alignment in [*subgoal_alignments_1, *subgoal_alignments_2]:
                         alignment["subgoal_title"] = subgoal_def["title"]
-                                            
                     alignments_1.extend(self.__reformat_alignments_v2(
                         subgoal_alignments_1, video1, video2
                     ))
@@ -417,6 +418,12 @@ class VideoPool:
                 importance += link["importance"]
             return importance / len(links)
         
+        def __calculate_notable_seconds(links):
+            seconds = 0
+            for link in links:
+                seconds = max(seconds, link["seconds"])
+            return seconds
+        
         def __get_notable_links_contents(links):
             contents = []
             for link in links:
@@ -458,6 +465,7 @@ class VideoPool:
                     "subgoal": alignment["subgoal_title"],
                     "relation": alignment["relation"],
                     "importance": alignment["importance"],
+                    "seconds": alignment["seconds"],
                 })
 
             ### cluster alignments per aspect
@@ -488,6 +496,32 @@ class VideoPool:
 
                 for notable in new_notables:
                     cur_links = [alignments[index] for index in notable["links"]]
+                    ### merge links with the same video_id
+                    cur_links_dict = {}
+                    for link in cur_links:
+                        key = link["other_video_id"] + "+" + link["relation"]
+                        if key not in cur_links_dict:
+                            cur_links_dict[key] = []
+                        cur_links_dict[key].append(link)
+                    merged_links = []
+                    for key, links in cur_links_dict.items():
+                        other_video_id = key.split('+')[0]
+                        relation = key.split('+')[1]
+                        new_link = __get_notable(links)
+                        merged_links.append({
+                            "id": links[0]["id"],
+                            "other_video_id": other_video_id,
+                            "title": new_link["title"],
+                            "description": new_link["description"],
+                            "reasoning": new_link["reasoning"],
+                            "comparison": new_link["comparison"],
+                            "aspect": aspect,
+                            "subgoal": subgoal,
+                            "relation": relation,
+                            "importance": __calculate_notable_importance(links),
+                            "seconds": __calculate_notable_seconds(links),
+                        })
+
                     notables.append({
                         "id": f"notable-{video_id}-{random_uid()}",
                         "video_id": video_id,
@@ -497,9 +531,11 @@ class VideoPool:
                         "comparison": notable["comparison"],
                         "subgoal": subgoal,
                         "aspect": aspect,
-                        "links": cur_links,
+                        "links": merged_links,
                         "importance": __calculate_notable_importance(cur_links),
                         "step_aspect_complexity": len(new_notables),
+                        "uniqueness": 0,
+                        "seconds": __calculate_notable_seconds(cur_links),
                     })
         
         ### sort links of notables by importance
@@ -547,6 +583,7 @@ class VideoPool:
                     "importance": notable["importance"],
                     "uniqueness": notable["uniqueness"],
                     "step_aspect_complexity": notable["step_aspect_complexity"],
+                    "other_seconds": notable["seconds"],
                 })
 
         def __calculate_hook_importance(links):
@@ -572,7 +609,7 @@ class VideoPool:
         def __link_to_text(link):
             return link["comparison"]
         
-        hooks = []
+        all_hooks = []
         for key, links in links_to.items():
             video_id = key.split("+")[0]
             subgoal = key.split("+")[1]
@@ -603,9 +640,32 @@ class VideoPool:
                     return summary
                 new_hooks = self.__cluster_v2(links, SIMILARITY_THRESHOLD_HOOK, __link_to_text, __get_hook)
 
+            # combine hooks with the same title
+            new_hooks_dict = {}
             for hook in new_hooks:
+                if hook["title"] not in new_hooks_dict:
+                    new_hooks_dict[hook["title"]] = []
+                new_hooks_dict[hook["title"]].append(hook)
+            
+            merged_hooks = []
+            for title, hooks_per_title in new_hooks_dict.items():
+                if len(hooks_per_title) == 1:
+                    merged_hooks.append(hooks_per_title[0])
+                else:
+                    descriptions = [hook["description"] for hook in hooks_per_title]
+                    comparisons = [hook["comparison"] for hook in hooks_per_title]
+                    cur_links = [index for hook in hooks_per_title for index in hook["links"]]
+                    cur_links = list(set(cur_links))
+                    merged_hooks.append({
+                        "title": title,
+                        "description": " ".join(descriptions),
+                        "comparison": " ".join(comparisons),
+                        "links": cur_links,
+                    })
+
+            for hook in merged_hooks:
                 cur_links = [links[index] for index in hook["links"]]
-                hooks.append({
+                all_hooks.append({
                     "id": f"hook-{video_id}-{random_uid()}",
                     "video_id": video_id,
                     "subgoal": subgoal,
@@ -619,9 +679,9 @@ class VideoPool:
                 })
         
         ### sort links of hook by importance
-        for hook in hooks:
+        for hook in all_hooks:
             hook["links"] = sorted(hook["links"], key=lambda x: x["importance"], reverse=True)
-        return hooks
+        return all_hooks
 
     def generate_hooks(self):
         for approach in APPROACHES:

@@ -1,3 +1,5 @@
+import numpy as np
+
 from helpers.video_scripts import process_video
 
 from helpers import str_to_float, segment_into_sentences
@@ -233,6 +235,46 @@ class Video:
             content_ids.append(self.sentences[idx]["id"])
 
         return content_ids
+    
+    def get_alignment_seconds(self, alignment):
+        """
+        Return the time in seconds of the best match of the alignment
+        Search only within the subgoal titles and return the finish time of the best match
+        """
+        if len(self.subgoals) == 0:
+            return 0
+
+        if len(self.sentence_embeddings) == 0:
+            self.calculate_sentence_embeddings()
+        query_embeddings = bert_embedding([alignment["alignment_description"]])
+        cur_subgoals = self.get_subgoals(alignment["subgoal_title"])
+
+        seconds = self.subgoals[-1]["finish"]
+        if len(cur_subgoals) == 0:
+            print("WARNING: no such subgoal:", alignment['subgoal_title'])
+            return seconds
+        
+        all_content_ids = []
+        for subgoal in cur_subgoals:
+            all_content_ids += subgoal["content_ids"]
+        seconds = cur_subgoals[-1]["start"]
+
+        cur_sentence_embeddings = []
+        cur_sentence_indexes = []
+        for index, sentence in enumerate(self.sentences):
+            if sentence["id"] in all_content_ids:
+                cur_sentence_embeddings.append(self.sentence_embeddings[index])
+                cur_sentence_indexes.append(index)
+        
+        cur_sentence_embeddings = np.array(cur_sentence_embeddings)
+        indexes, scores = find_most_similar(cur_sentence_embeddings, query_embeddings)
+        index = cur_sentence_indexes[indexes[0]]
+        score = scores[0]
+        if score < 0.8:
+            print(f"WARNING: Low alignment score {self.sentences[index]['id']}:", alignment["alignment_description"], self.sentences[index]["text"])
+        seconds = self.sentences[index]["start"]
+        return seconds
+
                         
     def calculate_sentence_embeddings(self):
         """
@@ -255,7 +297,7 @@ class Video:
 
         content_ids = []
         for idx in indexes:
-            content_ids.append(self.sentences[idx]["id"])
+                content_ids.append(self.sentences[idx]["id"])
         return content_ids
 
     def to_dict(self, short_metadata=False, fixed_subgoals=False):
