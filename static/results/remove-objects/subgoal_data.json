@@ -1,0 +1,151 @@
+[
+  {
+    "title": "Open Image",
+    "description": "Open the image in Photoshop to begin the editing process.",
+    "original_steps": [
+      "Open the image in Photoshop.",
+      "Open the image in Photoshop.",
+      "Open the image in Photoshop.",
+      "Open Photoshop and load the image you want to edit.",
+      "Open the image in Photoshop."
+    ]
+  },
+  {
+    "title": "Select Object",
+    "description": "Select the object to be removed using a selection tool.",
+    "original_steps": [
+      "Select the object you want to remove using the Quick Selection Tool or Lasso Tool.",
+      "Use the Pen tool (shortcut P) to create a precise selection around the object you want to remove.",
+      "Use the Polygonal Lasso Tool to make a selection around the object.",
+      "Select the Lasso Tool by pressing 'L' on your keyboard.",
+      "Use the Lasso Tool to draw a selection around the object you want to remove.",
+      "Select the object to remove using one of the selection tools: Quick Selection Tool, Lasso Tool, Polygonal Lasso Tool, Quick Mask Mode, or Pen Tool.",
+      "Select the Lasso tool by pressing 'L' on your keyboard or finding it in the toolbar.",
+      "Create a selection around the object you want to remove, leaving some space around it."
+    ]
+  },
+  {
+    "title": "Refine Selection",
+    "description": "Ensure the selection is precise and has some space around the object.",
+    "original_steps": [
+      "Save the path for future use by going to the Paths tab and renaming the work path.",
+      "Convert the path to a selection by holding Ctrl (or Command) and clicking on the path thumbnail.",
+      "Feather the selection by going to Select > Modify > Feather and applying a 1-2 pixel feather.",
+      "If needed, expand the selection by going to Select > Modify > Expand to ensure there's space around the object.",
+      "Set the feather to 10 pixels and ensure Anti-Aliased is checked in the Options bar."
+    ]
+  },
+  {
+    "title": "Duplicate Layer",
+    "description": "Duplicate the layer to keep a clean copy of the original image for nondestructive editing.",
+    "original_steps": [
+      "Duplicate the layer to keep a clean copy of the original image."
+    ]
+  },
+  {
+    "title": "Remove Object",
+    "description": "Use a removal method to eliminate the object from the image.",
+    "original_steps": [
+      "Use Content-Aware Fill to remove the selected object: - Press Shift + Delete (Shift + Backspace on Windows) to open the Fill dialog box. - Choose Content-Aware and click OK.",
+      "For moving objects, use the Content-Aware Move Tool: - Select the object with the Lasso Tool. - Drag the object to a new position and press Enter to apply.",
+      "Create a new layer and use the Clone Stamp tool to sample an area and paint over the object within the selection.",
+      "Go to Edit > Content-Aware Fill and apply the default settings.",
+      "Go to the 'Edit' menu and select 'Content-Aware Fill'.",
+      "Use Content-Aware Fill to remove the object: Press Ctrl + Backspace, set contents to Content-Aware Fill, and click OK.",
+      "Click on 'Generative Fill' in the Contextual taskbar and then click 'Generate' without adding a prompt."
+    ]
+  },
+  {
+    "title": "Adjust Removal",
+    "description": "Adjust settings or sampling areas in the removal tool workspace and check the preview.",
+    "original_steps": [
+      "If the result is not satisfactory, use the Content-Aware Fill workspace: - Go to Edit > Content-Aware Fill. - Use the masking tool to exclude unwanted areas from the sample. - Adjust the selection area using the Lasso Tool if needed. - Click OK to apply the changes and deselect with Ctrl + D.",
+      "Adjust Clone tool settings such as diameter, hardness, and healing as needed.",
+      "In the Content-Aware Fill workspace, you will see the selected area and a preview of the fill result.",
+      "On the left side, the green overlay shows the areas Photoshop will sample from to fill the selection.",
+      "Use the Eraser Tool to remove areas from the green overlay that you don't want Photoshop to sample from.",
+      "Ensure that only the areas you want to use for sampling are highlighted in green.",
+      "Check the preview on the right to see the result of the content-aware fill."
+    ]
+  },
+  {
+    "title": "Nondestructive Editing",
+    "description": "Create a new layer and enable 'Sample All Layers' for nondestructive editing.",
+    "original_steps": [
+      "For nondestructive editing, create a new layer and enable 'Sample All Layers' in the Remove Tool options."
+    ]
+  },
+  {
+    "title": "Touch Up",
+    "description": "Use additional tools to touch up and blend the area seamlessly.",
+    "original_steps": [
+      "Use the Clone Stamp Tool for fine-tuning: - Create a new layer and set the Clone Stamp Tool to 'Current and Below'. - Alt-click (Option-click on Mac) to sample an area and paint over artifacts.",
+      "For removing straight lines like power lines, use the Spot Healing Brush Tool: - Create a new layer and enable 'Sample All Layers'. - Click at the start of the line, hold Shift, and click at the end to remove it.",
+      "For removing braces or small details, use the Brush Tool: - Create a new layer and sample the color of the area to paint over. - Use a soft brush with low hardness and adjust opacity for blending. - Paint over the area, sampling colors as needed to blend smoothly.",
+      "Clone in small sections to maintain control and smoothness.",
+      "Use the Polygonal Lasso tool to select any remaining areas to fix.",
+      "Feather the selection and use the Clone Stamp tool to paint over these areas.",
+      "Select the Spot Healing Brush Tool from the toolbar.",
+      "Paint over the object you want to remove and observe the result.",
+      "To use the new Remove Tool, ensure you have the Photoshop Beta version installed from the Creative Cloud Beta Apps section.",
+      "Select the Remove Tool from the Healing group in the toolbar.",
+      "Paint over the object you want to remove and observe the result.",
+      "Use 'Remove After Each Stroke' for immediate fixes or leave it unchecked to apply changes after multiple strokes.",
+      "If needed, paint over any remaining artifacts to fix them.",
+      "Touch up the removal using the Clone Stamp Tool: Set flow to less than 5 and low opacity, hold Alt and click to set a reference point, and paint to blend the area seamlessly.",
+      "For smaller areas, use the Remove tool by creating a new layer and enabling 'Sample All Layers'.",
+      "Paint over the areas you want to remove with the Remove tool and press Enter to apply changes.",
+      "Use the Remove tool to touch up any remaining areas outside the selection."
+    ]
+  },
+  {
+    "title": "Protect Areas",
+    "description": "Use selections to protect certain parts of the image before using removal tools.",
+    "original_steps": [
+      "For complex areas, use selections to protect certain parts of the image before using the Remove Tool."
+    ]
+  },
+  {
+    "title": "Maintain Perspective",
+    "description": "Use perspective tools to maintain perspective while cloning.",
+    "original_steps": [
+      "Define the perspective by creating a new layer and going to Filter > Vanishing Point.",
+      "Use the Create Plane tool to mark the four corners of the area with perspective.",
+      "Use the Clone tool within the Vanishing Point dialog to clone areas while maintaining perspective."
+    ]
+  },
+  {
+    "title": "Review and Adjust",
+    "description": "Review the result and make final adjustments to ensure the image looks seamless.",
+    "original_steps": [
+      "Deselect the selection by pressing Ctrl (or Command) D.",
+      "Deselect the selection and review the image for any remaining defects.",
+      "If the result is unsatisfactory, save it as a snapshot in the History panel.",
+      "Deselect the selection using Ctrl or Command + D and save the result as a history state.",
+      "Compare results using the History panel to see the effectiveness of different tools.",
+      "Once satisfied with the result, choose to output the fill to a new layer.",
+      "Click 'OK' to apply the changes and remove the object from the image.",
+      "For complex backgrounds, manually adjust the Content-Aware Fill settings by going to Edit > Content-Aware Fill and selecting the data to use for filling.",
+      "Review the variations provided and select the one that looks best.",
+      "To fix any issues with the generative fill, use the Object Selection tool to select the area you want to restore.",
+      "With the selection active, mask out the problem areas on the generative fill layer using a brush with the foreground color set to black.",
+      "Invert the selection to mask out additional problem areas if needed.",
+      "For final adjustments, use the Lasso tool to create a smaller selection and apply Generative Fill again.",
+      "Review the final image to ensure all unwanted objects are removed and the image looks seamless."
+    ]
+  },
+  {
+    "title": "Repeat Process",
+    "description": "Repeat the process for any other objects you want to remove.",
+    "original_steps": [
+      "Repeat the process for any other large objects you want to remove."
+    ]
+  },
+  {
+    "title": "Save Work",
+    "description": "Save your work after completing the editing process.",
+    "original_steps": [
+      "Make final adjustments and save your work."
+    ]
+  }
+]

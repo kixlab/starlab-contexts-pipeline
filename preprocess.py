@@ -363,7 +363,7 @@ def setup_ds(task_id):
 
 def main():
 
-    task_id = list(TASK_DESCRIPTIONS.keys())[0]
+    task_id = list(TASK_DESCRIPTIONS.keys())[2]
     ds = setup_ds(task_id)
 
     if ds is None:
