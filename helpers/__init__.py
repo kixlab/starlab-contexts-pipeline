@@ -1,11 +1,8 @@
 import os
 import base64
-import random
 import json
 
-from PIL import Image
 from openai import OpenAI
-
 from uuid import uuid4
 
 API_KEY = os.getenv('OPENAI_API_KEY')   
@@ -142,112 +139,13 @@ def extend_contents(contents, include_images=False, include_ids=False):
                 })
     return extended_contents
 
-def extend_subgoals(subgoals, include_index=True):
-    message = ""
-    for subgoal_idx, subgoal in enumerate(subgoals):
-        if include_index:
-            message += f"- **Subgoal {subgoal_idx + 1}**:\n"
-        else:
-            message += f"- **Subgoal**:\n"
-        for k, v in subgoal.items():
-            key = k.capitalize()
-            value = v if isinstance(v, str) else ", ".join(v)
-            message += f"\t- {key}: {value}\n"
-    return message
-
-
-
-### OTHER CONSTANTS & FUNCTIONS
-
-PATH = "static/results/"
-TASK_ID  = "carbonara-short"
-META_TITLE = "$meta$"
-
-TASK_DESCRIPTIONS = {
-    "carbonara": "How to make Pasta Carbonara?",
-    "muffins": "How to bake a muffin?",
-    "remove-objects": "How to remove objects from an image in PhotoShop?",
-    "binary-search": "How to implement binary search?",
-    #"origami-rose": "How to make an origami rose?",
-    #"11967": "How to make a paper airplane?",
-}
-
-LIBRARY = {
-    "carbonara": [
-        "https://www.youtube.com/watch?v=75p4UHRIMcU",
-        "https://www.youtube.com/watch?v=dzyXBU3dIys",
-        "https://www.youtube.com/watch?v=D_2DBLAt57c",
-        "https://www.youtube.com/watch?v=3AAdKl1UYZs",
-        #"https://www.youtube.com/watch?v=qoHnwOHLiMk",
-        #"https://www.youtube.com/watch?v=NqFi90p38N8",
-    ],
-    "muffins": [
-        "https://www.youtube.com/shorts/B-XGIGS4Ipw", # short
-        "https://www.youtube.com/shorts/fWp5z_YM07Q", # short
-        "https://www.youtube.com/watch?v=aEFvNsBDCWs", # has verbal
-        "https://www.youtube.com/watch?v=gN-orgrgvU8", # has verbal
-        "https://www.youtube.com/watch?v=cZ2KJPGVwNU", # has verbal
-    ],
-    "remove-objects": [
-        "https://www.youtube.com/watch?v=cTM853qX7cM",
-        "https://www.youtube.com/watch?v=WmDG0xp2liA",
-        "https://www.youtube.com/watch?v=GC6jRpkwZo0",
-        "https://www.youtube.com/watch?v=dSrhB4e5DW0",
-        "https://www.youtube.com/watch?v=hshPCtAwSuo",
-        "https://www.youtube.com/watch?v=KJWlgG68pUw",
-    ],
-    "binary-search": [
-        "https://www.youtube.com/watch?v=tgVSkMA8joQ",
-        "https://www.youtube.com/watch?v=P3YID7liBug",
-        "https://www.youtube.com/watch?v=xrMppTpoqdw",
-        "https://www.youtube.com/watch?v=Uuyv88Tn9iU",
-        "https://www.youtube.com/watch?v=dq9fDmT_CZU",
-        "https://www.youtube.com/watch?v=DE-ye0t0oxE",
-    ],
-    "origami-rose": [
-    ],
-    "11967": [
-        "https://www.youtube.com/watch?v=yJQShkjNn08",
-        "https://www.youtube.com/watch?v=yweUoYP1v_o",
-        "https://www.youtube.com/watch?v=Ehntsffsx08",
-        "https://www.youtube.com/watch?v=tdk9_Xs_CC0",
-        "https://www.youtube.com/watch?v=dkhy4vn9HcY",
-        "https://www.youtube.com/watch?v=QECo58lV-bE",
-        "https://www.youtube.com/watch?v=SMh2sjuEwxM",
-        "https://www.youtube.com/watch?v=DaEzhwLFPi8",
-        "https://www.youtube.com/watch?v=J_5scvrv0LU",
-        "https://www.youtube.com/watch?v=umbBEHlpTfo",
-        "https://www.youtube.com/watch?v=pq_INi_4IBI",
-        "https://www.youtube.com/watch?v=pYOQutHfCDo",
-    ],
-}
-
-ALIGNMENT_DEFINITIONS = {
-    "`Additional Information`": "what is new",
-    "`Alternative Method`": "how is the method different",
-    "`Alternative Setting`": "how is the setting different",
-    "`Alternative Example`": "how are both method and setting different",
-}
-
-VIDEO_SETS = {
-    "seen": "previously seen",
-    "unseen": "user have not seen",
-}
-
 APPROACHES = [
     "approach_1",
-    "approach_2",
-    "approach_3",
-    "approach_4",
 ]
 
 BASELINES = [
     "baseline_1",
-    "baseline_2",
 ]
-
-SIMILARITY_THRESHOLD_NOTABLE = 0.7
-SIMILARITY_THRESHOLD_HOOK = 0.7
 
 def str_to_float(str_time):
     return sum(x * float(t) for x, t in zip([3600, 60, 1], str_time.split(":")))
@@ -257,16 +155,6 @@ def float_to_str(float_time):
 
 import pysbd
 
-def add_punctuations(text):
-    return get_response([
-        {"role": "system", "content": "You are a helpful assistant specializing in adding punctuations to how-to video transcriptions. Please add punctuations to the following text. Return a JSON object with the key 'punctuated_text' and the value as the punctuated text."},
-        {"role": "user", "content": text},
-    ], "json_object")
-
 def segment_into_sentences(text):
-    ### do gpt-4 call to get punctuations
     seg = pysbd.Segmenter(language="en", clean=False)
     return seg.segment(text)
-
-def paraphrase(text, former_word, new_word):
-    text = text.replace(former_word, new_word)
