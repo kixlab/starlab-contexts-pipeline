@@ -6,7 +6,6 @@ from openai import OpenAI
 from uuid import uuid4
 
 API_KEY = os.getenv('OPENAI_API_KEY')   
-print(API_KEY)
 client = OpenAI(
     api_key=API_KEY,
 )
