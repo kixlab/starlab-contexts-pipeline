@@ -1,0 +1,50 @@
+{
+    "test": {
+        "title": "How to make Pasta Carbonara?",
+        "videos": [
+            "https://www.youtube.com/watch?v=75p4UHRIMcU",
+            "https://www.youtube.com/watch?v=dzyXBU3dIys"
+        ]
+    },
+    "carbonara": {
+        "title": "How to make Pasta Carbonara?",
+        "videos": [
+            "https://www.youtube.com/watch?v=75p4UHRIMcU",
+            "https://www.youtube.com/watch?v=dzyXBU3dIys",
+            "https://www.youtube.com/watch?v=D_2DBLAt57c",
+            "https://www.youtube.com/watch?v=3AAdKl1UYZs"
+        ]
+    },
+    "remove-objects": {
+        "title": "How to remove objects from an image in PhotoShop?",
+        "videos": [
+            "https://www.youtube.com/watch?v=cTM853qX7cM",
+            "https://www.youtube.com/watch?v=WmDG0xp2liA",
+            "https://www.youtube.com/watch?v=GC6jRpkwZo0",
+            "https://www.youtube.com/watch?v=dSrhB4e5DW0",
+            "https://www.youtube.com/watch?v=hshPCtAwSuo",
+            "https://www.youtube.com/watch?v=KJWlgG68pUw"
+        ]
+    },
+    "binary-search": {
+        "title": "How to implement binary search?",
+        "videos": [
+            "https://www.youtube.com/watch?v=tgVSkMA8joQ",
+            "https://www.youtube.com/watch?v=P3YID7liBug",
+            "https://www.youtube.com/watch?v=xrMppTpoqdw",
+            "https://www.youtube.com/watch?v=Uuyv88Tn9iU",
+            "https://www.youtube.com/watch?v=dq9fDmT_CZU",
+            "https://www.youtube.com/watch?v=DE-ye0t0oxE"
+        ]
+    },
+    "muffins": {
+        "title": "How to bake muffins?",
+        "videos": [
+            "https://www.youtube.com/shorts/B-XGIGS4Ipw",
+            "https://www.youtube.com/shorts/fWp5z_YM07Q",
+            "https://www.youtube.com/watch?v=aEFvNsBDCWs",
+            "https://www.youtube.com/watch?v=gN-orgrgvU8",
+            "https://www.youtube.com/watch?v=cZ2KJPGVwNU"
+        ]
+    }
+}

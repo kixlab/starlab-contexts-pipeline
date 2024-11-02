@@ -1,0 +1,222 @@
+{
+  "approach_1": [
+    {
+      "alignments": [
+        {
+          "aspect": "instructions",
+          "relation": "alternative",
+          "importance": 4,
+          "subgoal_title": "Prepare Ingredients",
+          "other_video_id": "dzyXBU3dIys",
+          "id": "link-75p4UHRIMcU-e50ee4f6-8433-4ebf-aefc-d159f95e6c6b",
+          "alignment_title": "Egg Yolk Separation",
+          "alignment_description": "Separate egg yolks from egg whites and place the yolks in a bowl.",
+          "alignment_reasoning": "Egg yolks are used to create a creamy sauce for carbonara.",
+          "alignment_comparison": "This video focuses on using only egg yolks, while the other video uses whole eggs and additional yolks.",
+          "seconds": 45.7550643525459
+        },
+        {
+          "aspect": "materials",
+          "relation": "alternative",
+          "importance": 3,
+          "subgoal_title": "Prepare Ingredients",
+          "other_video_id": "dzyXBU3dIys",
+          "id": "link-75p4UHRIMcU-fc9ffef3-1c42-44b6-9ac0-905ec7f08fd6",
+          "alignment_title": "Pecorino Romano Only",
+          "alignment_description": "Use only Pecorino Romano cheese for the sauce.",
+          "alignment_reasoning": "Pecorino Romano is a traditional cheese used in carbonara for its distinct flavor.",
+          "alignment_comparison": "The other video uses a combination of Pecorino Romano and Parmigiano Reggiano.",
+          "seconds": 62.10140102226404
+        },
+        {
+          "aspect": "tips",
+          "relation": "additional",
+          "importance": 2,
+          "subgoal_title": "Prepare Ingredients",
+          "other_video_id": "dzyXBU3dIys",
+          "id": "link-75p4UHRIMcU-b4d6700f-7cc9-4bfd-bc62-a7bf0cfdfeaf",
+          "alignment_title": "Cheese Grating Tip",
+          "alignment_description": "Use a drill with a screw to make grating cheese easier.",
+          "alignment_reasoning": "This tip is provided to make the grating process faster and more efficient.",
+          "alignment_comparison": "This unique tip is not mentioned in the other video.",
+          "seconds": 73.26259485208774
+        },
+        {
+          "aspect": "instructions",
+          "relation": "additional",
+          "importance": 3,
+          "subgoal_title": "Cook Bacon",
+          "other_video_id": "dzyXBU3dIys",
+          "id": "link-75p4UHRIMcU-b36f17b9-8cc4-4feb-81c7-599c99727a84",
+          "alignment_title": "Cooling Bacon",
+          "alignment_description": "Let the bacon cool slightly after cooking.",
+          "alignment_reasoning": "Cooling the bacon slightly prevents overcooking the egg-based sauce when it is added later.",
+          "alignment_comparison": "This step is not mentioned, focusing instead on draining fat and setting aside bacon for garnish.",
+          "seconds": 159.82104545608254
+        },
+        {
+          "aspect": "materials",
+          "relation": "alternative",
+          "importance": 2,
+          "subgoal_title": "Cook Bacon",
+          "other_video_id": "dzyXBU3dIys",
+          "id": "link-75p4UHRIMcU-3b7254b3-1d03-4ff2-92bf-70705695f7dc",
+          "alignment_title": "No Olive Oil",
+          "alignment_description": "Does not use olive oil when cooking bacon.",
+          "alignment_reasoning": "Relies on the bacon's own fat for cooking.",
+          "alignment_comparison": "Olive oil is used to start the cooking process.",
+          "seconds": 159.82104545608254
+        }
+      ],
+      "video_id": "75p4UHRIMcU"
+    },
+    {
+      "alignments": [
+        {
+          "aspect": "instructions",
+          "relation": "additional",
+          "importance": 4,
+          "subgoal_title": "Prepare Ingredients",
+          "other_video_id": "75p4UHRIMcU",
+          "id": "link-dzyXBU3dIys-03648b20-9d57-4488-91f8-9927a7f34d69",
+          "alignment_title": "Bacon Preparation",
+          "alignment_description": "Cut about half a pound of thick-cut bacon into three-quarter inch pieces.",
+          "alignment_reasoning": "Bacon is used to add flavor and texture to the carbonara.",
+          "alignment_comparison": "The first video does not mention bacon preparation.",
+          "seconds": 33.41632714563487
+        },
+        {
+          "aspect": "instructions",
+          "relation": "alternative",
+          "importance": 4,
+          "subgoal_title": "Prepare Ingredients",
+          "other_video_id": "75p4UHRIMcU",
+          "id": "link-dzyXBU3dIys-3f586fb9-0bf5-4ff3-8f10-e0129c2cf9d6",
+          "alignment_title": "Use of Whole Eggs",
+          "alignment_description": "Whisk together three whole eggs and two egg yolks for the sauce.",
+          "alignment_reasoning": "Using whole eggs along with yolks provides a different texture and richness to the sauce.",
+          "alignment_comparison": "This video uses whole eggs, while the other focuses only on yolks.",
+          "seconds": 153.89304905941611
+        },
+        {
+          "aspect": "materials",
+          "relation": "alternative",
+          "importance": 3,
+          "subgoal_title": "Prepare Ingredients",
+          "other_video_id": "75p4UHRIMcU",
+          "id": "link-dzyXBU3dIys-2e3711f4-0c99-46f7-9798-4f2abbe00efe",
+          "alignment_title": "Combination of Cheeses",
+          "alignment_description": "Grate three ounces each of Pecorino Romano and Parmigiano Reggiano cheese.",
+          "alignment_reasoning": "Combining two types of cheese adds complexity to the flavor of the sauce.",
+          "alignment_comparison": "The first video uses only Pecorino Romano cheese.",
+          "seconds": 122.84900302886963
+        },
+        {
+          "aspect": "tools",
+          "relation": "additional",
+          "importance": 2,
+          "subgoal_title": "Prepare Ingredients",
+          "other_video_id": "75p4UHRIMcU",
+          "id": "link-dzyXBU3dIys-300bd2b3-3796-4283-ab8d-3c2a3fd91cbf",
+          "alignment_title": "Cheese Grating Tool",
+          "alignment_description": "Use a fine setting on a cheese grater for the cheese.",
+          "alignment_reasoning": "A fine grater ensures the cheese is evenly grated for a smooth sauce.",
+          "alignment_comparison": "The first video does not specify the grating setting.",
+          "seconds": 110.13344721433495
+        },
+        {
+          "aspect": "materials",
+          "relation": "additional",
+          "importance": 2,
+          "subgoal_title": "Cook Bacon",
+          "other_video_id": "75p4UHRIMcU",
+          "id": "link-dzyXBU3dIys-be30cbc8-7d9c-4d45-a069-b750b2b1a971",
+          "alignment_title": "Use Olive Oil",
+          "alignment_description": "Add a tiny bit of olive oil to the pan before cooking bacon.",
+          "alignment_reasoning": "Helps to start the cooking process and prevent sticking.",
+          "alignment_comparison": "Olive oil is not used, relying on bacon's own fat.",
+          "seconds": 50.777601165771486
+        },
+        {
+          "aspect": "instructions",
+          "relation": "additional",
+          "importance": 3,
+          "subgoal_title": "Cook Bacon",
+          "other_video_id": "75p4UHRIMcU",
+          "id": "link-dzyXBU3dIys-9084d04c-1925-4cfe-a5b7-c372b274ea06",
+          "alignment_title": "Drain Bacon Fat",
+          "alignment_description": "Drain most of the bacon fat, leaving about two tablespoons in the pan.",
+          "alignment_reasoning": "Prevents the dish from being too greasy and prepares the pan for the next steps.",
+          "alignment_comparison": "Draining fat is not mentioned, focusing on cooling the bacon instead.",
+          "seconds": 194.6031721811446
+        },
+        {
+          "aspect": "instructions",
+          "relation": "additional",
+          "importance": 2,
+          "subgoal_title": "Cook Bacon",
+          "other_video_id": "75p4UHRIMcU",
+          "id": "link-dzyXBU3dIys-914400b6-ab06-4a86-9cd5-1efb7a82ff94",
+          "alignment_title": "Garnish with Bacon",
+          "alignment_description": "Remove some bacon pieces for garnish after cooking.",
+          "alignment_reasoning": "Adds texture and visual appeal to the final dish.",
+          "alignment_comparison": "Garnishing with bacon is not mentioned.",
+          "seconds": 60.76724531519132
+        },
+        {
+          "aspect": "tools",
+          "relation": "additional",
+          "importance": 2,
+          "subgoal_title": "Cook Bacon",
+          "other_video_id": "75p4UHRIMcU",
+          "id": "link-dzyXBU3dIys-ecc5c1ad-71b3-4bef-8386-73419d4ca468",
+          "alignment_title": "Use Paper Towel",
+          "alignment_description": "Use a paper towel to drain the bacon pieces for garnish.",
+          "alignment_reasoning": "Helps to remove excess grease from the bacon pieces used for garnish.",
+          "alignment_comparison": "Draining bacon with a paper towel is not mentioned.",
+          "seconds": 50.777601165771486
+        },
+        {
+          "aspect": "instructions",
+          "relation": "additional",
+          "importance": 4,
+          "subgoal_title": "$meta$",
+          "other_video_id": "75p4UHRIMcU",
+          "id": "link-dzyXBU3dIys-5ddb38e3-a9d4-44cd-be0f-2fddcc9aaa4d",
+          "alignment_title": "Use Pasta Water",
+          "alignment_description": "Add reserved pasta water to achieve a creamy consistency.",
+          "alignment_reasoning": "Pasta water contains starch that helps bind the sauce, making it creamy without adding cream.",
+          "alignment_comparison": "This step is not mentioned, suggesting a different method to achieve creaminess.",
+          "seconds": 495.20001220703125
+        },
+        {
+          "aspect": "explanation",
+          "relation": "additional",
+          "importance": 3,
+          "subgoal_title": "$meta$",
+          "other_video_id": "75p4UHRIMcU",
+          "id": "link-dzyXBU3dIys-8d7ec8ba-511d-4256-ae0e-39740938b538",
+          "alignment_title": "Creamy Consistency Explanation",
+          "alignment_description": "Adding pasta water helps to loosen the sauce and establish a creamy texture without using cream.",
+          "alignment_reasoning": "Explains the role of pasta water in achieving the desired sauce texture.",
+          "alignment_comparison": "Provides a specific explanation for using pasta water, which is not covered.",
+          "seconds": 495.20001220703125
+        },
+        {
+          "aspect": "tips",
+          "relation": "additional",
+          "importance": 2,
+          "subgoal_title": "$meta$",
+          "other_video_id": "75p4UHRIMcU",
+          "id": "link-dzyXBU3dIys-8671b0aa-632b-4282-aead-d89efa955678",
+          "alignment_title": "Thick Sauce Tip",
+          "alignment_description": "If the sauce looks too thick, adding pasta water can help loosen it up.",
+          "alignment_reasoning": "Offers a practical tip to adjust the sauce consistency.",
+          "alignment_comparison": "This tip is not provided, indicating a different approach to sauce consistency.",
+          "seconds": 495.20001220703125
+        }
+      ],
+      "video_id": "dzyXBU3dIys"
+    }
+  ]
+}

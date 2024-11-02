@@ -207,14 +207,8 @@ def process_video(video_link):
     audio_path = os.path.join(DATABASE, f'{video_title}.mp3')
 
     metadata = download_video(video_link)
-    
-    # video_title = metadata.get('id')
-    # print(f"'{video_title}'")
-
-    # video_library[video_title] = metadata
 
     video_frame_paths = extract_frames(video_path)
-    #subtitles = extract_transcript(subtitles_path, audio_path)
 
     subtitles_openai = extract_transcript_from_audio_openai(audio_path)
 
