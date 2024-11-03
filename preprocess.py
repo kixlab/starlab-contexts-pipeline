@@ -144,11 +144,11 @@ def process_task(task_id):
 
     ds.process_videos()
     
-    # ds.generate_alignments()
+    ds.generate_alignments()
 
-    # ds.find_notables()
+    ds.find_notables()
 
-    # ds.generate_hooks()
+    ds.generate_hooks()
     return ds
 
 def parse_args(args):
@@ -164,6 +164,15 @@ def main(args=["-t", "carbonara"]):
     task_id = parsed_args.task_id
     ds = process_task(task_id)
     export(task_id, ds)
+
+    if ds is None:
+        return
+    
+    ## carbonara:
+    ## remove-obj: 
+    cur_video_id = ""
+    other_video_id = ""
+
 
 if __name__ == "__main__":
     main()
