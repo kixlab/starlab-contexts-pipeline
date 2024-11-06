@@ -151,7 +151,7 @@ def process_task(task_id):
 
     ds.find_notables()
 
-    # ds.generate_hooks()
+    ds.generate_hooks()
     return ds
 
 def parse_args(args):
