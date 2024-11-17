@@ -1,139 +1,103 @@
 [
   {
-    "subgoal_id": "subgoal-b3833730-a1f5-4aaf-bb79-608f30977e18",
-    "title": "Introduction",
-    "description": "Introduce the concept of traditional Pasta Carbonara and clarify common misconceptions about its ingredients.",
+    "subgoal_id": "segment-36cede33-0896-4d80-a804-1ff110d88f5b",
+    "title": "Preparation",
+    "description": "Collect all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Gather tools like a pot, pan, whisk, and grater. Ensure everything is within reach before starting.",
     "original_subgoals": [
       {
-        "id": "segment-d66ff552-f91d-4553-8008-7f5685858e36",
-        "title": "Introduction",
-        "description": "Introduce the concept of traditional Pasta Carbonara and clarify common misconceptions about its ingredients."
-      }
-    ]
-  },
-  {
-    "subgoal_id": "subgoal-7c27d3cf-9370-477c-a6e8-da01dd1859f9",
-    "title": "Prepare Meat",
-    "description": "Discuss the choice of meat for the dish, such as guanciale, bacon, or pancetta, and demonstrate how to prepare and cook it for incorporation into the pasta.",
-    "original_subgoals": [
-      {
-        "id": "segment-617bb929-6424-46a2-9ad6-f7e408c31a51",
-        "title": "Prepare Meat",
-        "description": "Discuss the choice of meat for the dish, such as guanciale, bacon, or pancetta, and demonstrate how to prepare it for cooking."
+        "id": "segment-36cede33-0896-4d80-a804-1ff110d88f5b",
+        "title": "Preparation",
+        "description": "Collect all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Gather tools like a pot, pan, whisk, and grater. Ensure everything is within reach before starting."
       },
       {
-        "id": "segment-489f531e-c4ba-45e3-8326-52e45eef09a4",
-        "title": "Render Bacon",
-        "description": "Demonstrate how to render the bacon, including managing the heat and fat, and preparing it for incorporation into the pasta."
+        "id": "segment-19df136e-9166-4a6b-9dc1-1370978b6466",
+        "title": "Preparation",
+        "description": "Collect all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Gather tools like a pot, pan, whisk, and grater. Ensure everything is within reach before starting."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "segment-6539d75c-0bfa-42aa-a243-0a0fff6502f2",
+    "title": "Cooking Meat",
+    "description": "In a pan, cook pancetta or bacon over medium heat until crispy. Remove from heat and set aside, leaving the rendered fat in the pan.",
+    "original_subgoals": [
+      {
+        "id": "segment-6539d75c-0bfa-42aa-a243-0a0fff6502f2",
+        "title": "Cooking Meat",
+        "description": "In a pan, cook pancetta or bacon over medium heat until crispy. Remove from heat and set aside, leaving the rendered fat in the pan."
       },
       {
-        "id": "segment-a4039315-04f0-4c3c-9629-482e4aa95e2b",
-        "title": "Prepare Bacon",
-        "description": "Chop and cook bacon as a substitute for guanciale, which is traditionally used in carbonara."
+        "id": "segment-438cd12d-618b-42fc-94a1-a5e7173a88f8",
+        "title": "Cooking Meat",
+        "description": "In a pan, cook pancetta or bacon over medium heat until crispy. Remove from heat and set aside, leaving the rendered fat in the pan."
       }
     ]
   },
   {
-    "subgoal_id": "subgoal-af240a6d-c93f-4b65-beec-47d0c1b70e4e",
-    "title": "Prepare Pasta Water",
-    "description": "Explain how to properly season the pasta water, considering the saltiness of other ingredients in the dish.",
+    "subgoal_id": "segment-decfd565-07fe-4d3a-ab08-7d1a88cca27d",
+    "title": "Cooking Pasta",
+    "description": "Boil water in a pot and add a pinch of salt. Cook the pasta according to package instructions until al dente. Reserve some pasta water before draining.",
     "original_subgoals": [
       {
-        "id": "segment-308c1eaf-c75c-49fc-bb13-011691f28d43",
-        "title": "Prepare Pasta Water",
-        "description": "Explain how to properly season the pasta water, considering the saltiness of other ingredients in the dish."
-      }
-    ]
-  },
-  {
-    "subgoal_id": "subgoal-8997002f-f51d-4fd9-89cc-448f877fb5ae",
-    "title": "Prepare Cheese",
-    "description": "Introduce the types of cheese used in Carbonara, such as Pecorino Romano and Parmigiano Reggiano, and demonstrate how to grate them.",
-    "original_subgoals": [
-      {
-        "id": "segment-ff5b24f3-1488-4ceb-a659-a0185994abdf",
-        "title": "Prepare Cheese",
-        "description": "Introduce the types of cheese used in Carbonara, such as Pecorino Romano and Parmigiano Reggiano, and demonstrate how to grate them."
-      }
-    ]
-  },
-  {
-    "subgoal_id": "subgoal-a335b7ea-cd4b-4f5f-90d3-9b3bc3acaa5c",
-    "title": "Prepare Egg Mixture",
-    "description": "Explain the composition of the egg mixture, including the use of whole eggs and yolks, and how to combine it with the grated cheese and seasonings to create the sauce base.",
-    "original_subgoals": [
-      {
-        "id": "segment-a571d163-fe4d-4f18-aa61-0b148fcb6406",
-        "title": "Prepare Egg Mixture",
-        "description": "Explain the composition of the egg mixture, including the use of whole eggs and yolks, and how to combine it with the cheese and seasonings."
+        "id": "segment-decfd565-07fe-4d3a-ab08-7d1a88cca27d",
+        "title": "Cooking Pasta",
+        "description": "Boil water in a pot and add a pinch of salt. Cook the pasta according to package instructions until al dente. Reserve some pasta water before draining."
       },
       {
-        "id": "segment-6c6f233b-ad00-4f2e-84a1-8dadfce82fdf",
-        "title": "Prepare Egg Mixture",
-        "description": "Separate egg yolks and mix with grated cheese to create the sauce base."
+        "id": "segment-cb9f8c65-6345-411e-b74d-c2d31159645a",
+        "title": "Cooking Pasta",
+        "description": "Boil water in a pot and add a pinch of salt. Cook the pasta according to package instructions until al dente. Reserve some pasta water before draining."
       }
     ]
   },
   {
-    "subgoal_id": "subgoal-99bc9c06-cac7-460e-a48c-9118b127c3a7",
-    "title": "Cook Pasta",
-    "description": "Provide instructions on cooking the pasta, such as spaghetti, to the right texture (al dente) and preparing it for mixing with the sauce.",
+    "subgoal_id": "segment-84cebdd9-fc11-4132-b7bf-d3772af05ba3",
+    "title": "Making Sauce",
+    "description": "In a bowl, whisk together eggs and grated cheese until smooth. Season with black pepper. This mixture will form the sauce for the pasta.",
     "original_subgoals": [
       {
-        "id": "segment-18680984-ba85-40ac-9689-a9faf91fbbba",
-        "title": "Cook Pasta",
-        "description": "Provide instructions on cooking the pasta to the right texture and preparing it for mixing with the sauce."
+        "id": "segment-84cebdd9-fc11-4132-b7bf-d3772af05ba3",
+        "title": "Making Sauce",
+        "description": "In a bowl, whisk together eggs and grated cheese until smooth. Season with black pepper. This mixture will form the sauce for the pasta."
       },
       {
-        "id": "segment-8a7bdaf3-ac43-432d-9381-d5154a1d4d0c",
-        "title": "Cook Spaghetti",
-        "description": "Boil spaghetti in salted water until al dente, ensuring it doesn't stick together."
+        "id": "segment-3c9395a1-f461-4303-ab09-f84374f5f3e7",
+        "title": "Making Sauce",
+        "description": "In a bowl, whisk together eggs and grated cheese until smooth. Season with black pepper. This mixture will form the sauce for the pasta."
       }
     ]
   },
   {
-    "subgoal_id": "subgoal-42c1b7fb-3b9e-4cc9-a4dc-6aaebfe5cfb6",
-    "title": "Combine Ingredients",
-    "description": "Show how to combine the cooked pasta with the egg and cheese mixture and the cooked meat, ensuring the eggs do not scramble, and achieve a creamy consistency by adding pasta water as needed.",
+    "subgoal_id": "segment-cf2a0f25-b6a3-4773-8f6b-57a8aedceecc",
+    "title": "Combining Ingredients",
+    "description": "Add the cooked pasta to the pan with the rendered fat. Remove from heat and quickly mix in the egg and cheese mixture, stirring constantly to create a creamy sauce. Add reserved pasta water if needed to adjust consistency.",
     "original_subgoals": [
       {
-        "id": "segment-3524bbe8-830d-40b6-80e7-6177f6b776c2",
-        "title": "Combine Ingredients",
-        "description": "Show how to combine the cooked pasta with the egg and cheese mixture, ensuring the eggs do not scramble, and achieve a creamy consistency."
+        "id": "segment-cf2a0f25-b6a3-4773-8f6b-57a8aedceecc",
+        "title": "Combining Ingredients",
+        "description": "Add the cooked pasta to the pan with the rendered fat. Remove from heat and quickly mix in the egg and cheese mixture, stirring constantly to create a creamy sauce. Add reserved pasta water if needed to adjust consistency."
       },
       {
-        "id": "segment-cbbb7486-026e-4643-9dda-97e7af2d74ad",
-        "title": "Combine Ingredients",
-        "description": "Mix cooked spaghetti with bacon and egg mixture, adding pasta water to achieve a creamy consistency."
+        "id": "segment-f38d6d77-a500-4586-9764-f100614f049a",
+        "title": "Combining Ingredients",
+        "description": "Add the cooked pasta to the pan with the rendered fat. Remove from heat and quickly mix in the egg and cheese mixture, stirring constantly to create a creamy sauce. Add reserved pasta water if needed to adjust consistency."
       }
     ]
   },
   {
-    "subgoal_id": "subgoal-bc0d9a46-a4c9-47eb-9672-4c0812bda5a3",
-    "title": "Finish and Serve",
-    "description": "Demonstrate how to plate the finished Pasta Carbonara, including adding garnishes like extra cheese and crispy bacon, and finish with additional cheese and pepper before serving.",
+    "subgoal_id": "segment-91bf3c05-0e0c-47da-8296-19dc7150df87",
+    "title": "Finishing Touches",
+    "description": "Season with additional black pepper and sprinkle more cheese on top if desired. Serve immediately for best taste and texture.",
     "original_subgoals": [
       {
-        "id": "segment-11f42a44-775d-40b8-a053-279d55484a6c",
-        "title": "Plate and Serve",
-        "description": "Demonstrate how to plate the finished Pasta Carbonara, including adding garnishes like extra cheese and crispy bacon."
+        "id": "segment-91bf3c05-0e0c-47da-8296-19dc7150df87",
+        "title": "Finishing Touches",
+        "description": "Season with additional black pepper and sprinkle more cheese on top if desired. Serve immediately for best taste and texture."
       },
       {
-        "id": "segment-c62620f9-289a-4f14-ac2b-15b00b1f9c87",
-        "title": "Finish and Serve",
-        "description": "Finish the dish with additional cheese and pepper, and serve the pasta."
-      }
-    ]
-  },
-  {
-    "subgoal_id": "subgoal-5743702f-68ab-4db1-9f55-fcdee758f0ce",
-    "title": "Conclusion",
-    "description": "Conclude the tutorial with a tasting and final thoughts on the dish.",
-    "original_subgoals": [
-      {
-        "id": "segment-f0b40cbd-d782-4aac-b455-390794e7131d",
-        "title": "Conclusion",
-        "description": "Conclude the tutorial with a tasting and final thoughts on the dish."
+        "id": "segment-fa9beb1f-dc8d-435c-958d-1f7c37317b4f",
+        "title": "Finishing Touches",
+        "description": "Season with additional black pepper and sprinkle more cheese on top if desired. Serve immediately for best taste and texture."
       }
     ]
   }

@@ -1,0 +1,121 @@
+[
+  {
+    "subgoal_id": "segment-6c267329-0b5c-4ed6-b722-efe96bb5506f",
+    "title": "Preparation",
+    "description": "Collect all the ingredients needed for Pasta Carbonara, such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Ensure you have the necessary tools like a pot for boiling pasta, a pan for cooking pancetta, a bowl for mixing, and utensils for stirring and serving. Additionally, chop the bacon or pancetta into small pieces for cooking.",
+    "original_subgoals": [
+      {
+        "id": "segment-6c267329-0b5c-4ed6-b722-efe96bb5506f",
+        "title": "Preparation",
+        "description": "Collect all the ingredients needed for Pasta Carbonara, such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Ensure you have the necessary tools like a pot for boiling pasta, a pan for cooking pancetta, a bowl for mixing, and utensils for stirring and serving. Additionally, chop the bacon or pancetta into small pieces for cooking."
+      },
+      {
+        "id": "segment-ec61613e-266b-49f6-9da6-7eab9b94f335",
+        "title": "Preparation",
+        "description": "Collect all the ingredients needed for Pasta Carbonara, such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Ensure you have the necessary tools like a pot for boiling pasta, a pan for cooking pancetta, a bowl for mixing, and utensils for stirring and serving. Additionally, chop the bacon or pancetta into small pieces for cooking."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "segment-25408976-e177-4592-a244-692f02f63ba7",
+    "title": "Cook Pancetta",
+    "description": "In a pan, cook the pancetta or bacon over medium heat until it becomes crispy. Remove from heat and set aside, leaving the rendered fat in the pan for added flavor. Allow the pan to cool slightly before adding other ingredients to prevent overcooking the sauce.",
+    "original_subgoals": [
+      {
+        "id": "segment-25408976-e177-4592-a244-692f02f63ba7",
+        "title": "Cook Pancetta",
+        "description": "In a pan, cook the pancetta or bacon over medium heat until it becomes crispy. Remove from heat and set aside, leaving the rendered fat in the pan for added flavor. Allow the pan to cool slightly before adding other ingredients to prevent overcooking the sauce."
+      },
+      {
+        "id": "segment-94e34f76-3fbb-4206-b62b-8d79bb9e6be3",
+        "title": "Cook Pancetta",
+        "description": "In a pan, cook the pancetta or bacon over medium heat until it becomes crispy. Remove from heat and set aside, leaving the rendered fat in the pan for added flavor. Allow the pan to cool slightly before adding other ingredients to prevent overcooking the sauce."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "segment-fadaecaa-ccaa-4fb7-8339-14382e73df1a",
+    "title": "Cook Pasta",
+    "description": "Boil water in a pot and add a pinch of salt. Once boiling, add the pasta and cook until it reaches the desired texture, typically al dente. Stir occasionally to prevent sticking. Drain the pasta, reserving some of the pasta water for later use.",
+    "original_subgoals": [
+      {
+        "id": "segment-fadaecaa-ccaa-4fb7-8339-14382e73df1a",
+        "title": "Cook Pasta",
+        "description": "Boil water in a pot and add a pinch of salt. Once boiling, add the pasta and cook until it reaches the desired texture, typically al dente. Stir occasionally to prevent sticking. Drain the pasta, reserving some of the pasta water for later use."
+      },
+      {
+        "id": "segment-60286f75-fcd1-4ed8-9380-6f7e213b3f97",
+        "title": "Cook Pasta",
+        "description": "Boil water in a pot and add a pinch of salt. Once boiling, add the pasta and cook until it reaches the desired texture, typically al dente. Stir occasionally to prevent sticking. Drain the pasta, reserving some of the pasta water for later use."
+      },
+      {
+        "id": "segment-780939bb-7fc7-409c-b9c8-5ff7c6dddfc2",
+        "title": "Cook Pasta",
+        "description": "Boil water in a pot and add a pinch of salt. Once boiling, add the pasta and cook until it reaches the desired texture, typically al dente. Stir occasionally to prevent sticking. Drain the pasta, reserving some of the pasta water for later use."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "segment-76ae408f-c965-4922-82cb-6f899486922f",
+    "title": "Prepare Sauce",
+    "description": "In a bowl, whisk together eggs and grated cheese until smooth. Season with black pepper. This mixture will form the creamy sauce when combined with the hot pasta. Grate the cheese finely to ensure it melts smoothly into the sauce.",
+    "original_subgoals": [
+      {
+        "id": "segment-76ae408f-c965-4922-82cb-6f899486922f",
+        "title": "Prepare Sauce",
+        "description": "In a bowl, whisk together eggs and grated cheese until smooth. Season with black pepper. This mixture will form the creamy sauce when combined with the hot pasta. Grate the cheese finely to ensure it melts smoothly into the sauce."
+      },
+      {
+        "id": "segment-9d34143a-4849-4695-8149-1f7a4444a61e",
+        "title": "Prepare Sauce",
+        "description": "In a bowl, whisk together eggs and grated cheese until smooth. Season with black pepper. This mixture will form the creamy sauce when combined with the hot pasta. Grate the cheese finely to ensure it melts smoothly into the sauce."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "segment-77c907ad-21da-4cc7-8d81-893d7c53fe8d",
+    "title": "Temper Egg Mixture",
+    "description": "Add a small amount of boiling pasta water to the egg and cheese mixture while whisking to temper the eggs. This helps to equalize the temperature and prevent scrambling when combined with the hot pasta.",
+    "original_subgoals": [
+      {
+        "id": "segment-77c907ad-21da-4cc7-8d81-893d7c53fe8d",
+        "title": "Temper Egg Mixture",
+        "description": "Add a small amount of boiling pasta water to the egg and cheese mixture while whisking to temper the eggs. This helps to equalize the temperature and prevent scrambling when combined with the hot pasta."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "segment-9f169fa1-ecf9-48ec-a12b-6f458b92794f",
+    "title": "Combine Ingredients",
+    "description": "Return the cooked pasta to the pan with the pancetta. Remove from heat and quickly mix in the egg and cheese mixture, stirring vigorously to create a creamy sauce. Add reserved pasta water as needed to achieve the desired consistency. Ensure the sauce coats the pasta evenly without scrambling the eggs.",
+    "original_subgoals": [
+      {
+        "id": "segment-9f169fa1-ecf9-48ec-a12b-6f458b92794f",
+        "title": "Combine Ingredients",
+        "description": "Return the cooked pasta to the pan with the pancetta. Remove from heat and quickly mix in the egg and cheese mixture, stirring vigorously to create a creamy sauce. Add reserved pasta water as needed to achieve the desired consistency. Ensure the sauce coats the pasta evenly without scrambling the eggs."
+      },
+      {
+        "id": "segment-40bfcd43-6129-4ef5-a55e-374407a6e1eb",
+        "title": "Combine Ingredients",
+        "description": "Return the cooked pasta to the pan with the pancetta. Remove from heat and quickly mix in the egg and cheese mixture, stirring vigorously to create a creamy sauce. Add reserved pasta water as needed to achieve the desired consistency. Ensure the sauce coats the pasta evenly without scrambling the eggs."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "segment-5805b576-bc5c-4126-bcbf-38a40a37b618",
+    "title": "Finish Dish",
+    "description": "Season the pasta with additional black pepper and cheese to taste. Serve immediately, ensuring the dish is hot and the sauce is creamy. Optionally, garnish with extra cheese or herbs for presentation.",
+    "original_subgoals": [
+      {
+        "id": "segment-5805b576-bc5c-4126-bcbf-38a40a37b618",
+        "title": "Finish Dish",
+        "description": "Season the pasta with additional black pepper and cheese to taste. Serve immediately, ensuring the dish is hot and the sauce is creamy. Optionally, garnish with extra cheese or herbs for presentation."
+      },
+      {
+        "id": "segment-e6d7eab0-b399-40a1-8f9c-eb59ca4c863a",
+        "title": "Finish Dish",
+        "description": "Season the pasta with additional black pepper and cheese to taste. Serve immediately, ensuring the dish is hot and the sauce is creamy. Optionally, garnish with extra cheese or herbs for presentation."
+      }
+    ]
+  }
+]

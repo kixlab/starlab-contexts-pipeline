@@ -1,54 +1,88 @@
-[youtube] Extracting URL: https://www.youtube.com/watch?v=75p4UHRIMcU
-[youtube] 75p4UHRIMcU: Downloading webpage
-[youtube] 75p4UHRIMcU: Downloading ios player API JSON
-[youtube] 75p4UHRIMcU: Downloading mweb player API JSON
-[youtube] 75p4UHRIMcU: Downloading m3u8 information
-[info] 75p4UHRIMcU: Downloading subtitles: en
-[youtube] Extracting URL: https://www.youtube.com/watch?v=dzyXBU3dIys
-Video '75p4UHRIMcU' already exists in the directory.
-Frames for video 'static/database/75p4UHRIMcU.mp4' already exist.
-[youtube] dzyXBU3dIys: Downloading webpage
-[youtube] dzyXBU3dIys: Downloading ios player API JSON
-[youtube] dzyXBU3dIys: Downloading mweb player API JSON
-[youtube] dzyXBU3dIys: Downloading m3u8 information
-[info] dzyXBU3dIys: Downloading subtitles: en
-[youtube] Extracting URL: https://www.youtube.com/watch?v=D_2DBLAt57c
-Video 'dzyXBU3dIys' already exists in the directory.
-Frames for video 'static/database/dzyXBU3dIys.mp4' already exist.
-[youtube] D_2DBLAt57c: Downloading webpage
-[youtube] D_2DBLAt57c: Downloading ios player API JSON
-[youtube] D_2DBLAt57c: Downloading mweb player API JSON
-[youtube] D_2DBLAt57c: Downloading m3u8 information
-[info] D_2DBLAt57c: Downloading subtitles: en
-[youtube] Extracting URL: https://www.youtube.com/watch?v=3AAdKl1UYZs
-Video 'D_2DBLAt57c' already exists in the directory.
-Frames for video 'static/database/D_2DBLAt57c.mp4' already exist.
-[youtube] 3AAdKl1UYZs: Downloading webpage
-[youtube] 3AAdKl1UYZs: Downloading ios player API JSON
-[youtube] 3AAdKl1UYZs: Downloading mweb player API JSON
-[youtube] 3AAdKl1UYZs: Downloading m3u8 information
-[info] 3AAdKl1UYZs: Downloading subtitles: en
-[youtube] Extracting URL: https://www.youtube.com/watch?v=NqFi90p38N8
-Video '3AAdKl1UYZs' already exists in the directory.
-Frames for video 'static/database/3AAdKl1UYZs.mp4' already exist.
-[youtube] NqFi90p38N8: Downloading webpage
-[youtube] NqFi90p38N8: Downloading ios player API JSON
-[youtube] NqFi90p38N8: Downloading mweb player API JSON
-[youtube] NqFi90p38N8: Downloading m3u8 information
-[info] NqFi90p38N8: Downloading subtitles: en
-Video 'NqFi90p38N8' already exists in the directory.
-Frames for video 'static/database/NqFi90p38N8.mp4' already exist.
 MESSAGES: [
   {
     "role": "system",
-    "content": "You are a helpful assistant specializing in analyzing tutorials. Based on the narration of a tutorial video for the task `How to make Pasta Carbonara?`:\n(1) extract a sequence of `subgoals` performed to complete the task;\n(2) segment the video according to these `subgoals`;\n`Subgoals` are high-level objectives in the procedural task that are generalized and do not depend on variations in materials, tools, methods, or expected outcomes. Do not include non-procedural segments such as `Introduction` or `Conclusion`."
+    "content": "\nYou specialize in creating novice-friendly tutorials for procedural tasks.\n\nDefine a set of `subgoals` that can guide novices through the task `How to make Pasta Carbonara?`. Ensure each `subgoal` meets the following requirements:\n    a) Goal-Oriented: Represents an overarching objective or subtask that structures the process into meaningful phases.\n    b) Procedural: Describes a procedural objective that is essential for progressing in the task.\n    c) Generalizable: Accommodates variations in materials, tools, methods, and outcomes.\n\nOutput the `subgoals` for the task `How to make Pasta Carbonara?`.\n"
+  }
+]
+RESPONSE: {
+  "explanation": "The subgoals are designed to break down the process of making Pasta Carbonara into manageable, logical steps that guide a novice through the entire cooking process. Each subgoal focuses on a specific aspect of the task, ensuring that the learner can understand and execute each part effectively, regardless of the specific ingredients or tools they have available.",
+  "subgoals": [
+    {
+      "explanation": "Gathering all necessary ingredients and tools ensures that the cooking process is smooth and uninterrupted.",
+      "title": "Preparation",
+      "description": "Identify and gather all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Ensure you have the required tools like a pot, pan, whisk, and grater. This step involves checking quantities and preparing the workspace for cooking."
+    },
+    {
+      "explanation": "Cooking the pasta correctly is crucial as it forms the base of the dish.",
+      "title": "Cook Pasta",
+      "description": "Boil water in a pot and cook the pasta according to package instructions until al dente. This step includes salting the water, timing the cooking process, and reserving some pasta water for later use."
+    },
+    {
+      "explanation": "Preparing the sauce mixture is essential for achieving the creamy texture of Carbonara.",
+      "title": "Mix Sauce",
+      "description": "In a bowl, whisk together eggs and grated cheese to create a smooth mixture. This step involves choosing the type of cheese (e.g., Parmesan or Pecorino) and ensuring the mixture is well combined."
+    },
+    {
+      "explanation": "Cooking the pancetta or bacon adds flavor and texture to the dish.",
+      "title": "Cook Meat",
+      "description": "In a pan, cook pancetta or bacon until crispy. This step includes choosing the type of meat, cutting it into appropriate sizes, and cooking it to the desired crispness."
+    },
+    {
+      "explanation": "Combining all elements ensures the flavors meld together properly.",
+      "title": "Combine Ingredients",
+      "description": "Drain the pasta and add it to the pan with the cooked meat. Remove from heat and quickly mix in the egg and cheese mixture, stirring to create a creamy sauce. This step involves using reserved pasta water to adjust the sauce consistency and ensuring the eggs do not scramble."
+    },
+    {
+      "explanation": "Final touches enhance the flavor and presentation of the dish.",
+      "title": "Finish Dish",
+      "description": "Season with black pepper and additional cheese if desired. This step includes tasting for seasoning, adjusting flavors, and serving the dish in an appealing manner."
+    }
+  ]
+}
+MESSAGES: [
+  {
+    "role": "system",
+    "content": "\nYou specialize in analyzing tutorials for procedural tasks.\n\nGiven a narration of a tutorial video and a set of `subgoals` for the task `How to make Pasta Carbonara?`, segment the narration based on the given `subgoals`.\n\nStep 1: Analyze the narration and identify meaningful segments. There are 3 types of segments:\n    a) A segment that directly or roughly corresponds to one of the provided `subgoals`.\n    b) A segment that contains procedural information, but does not correspond to any of the provided `subgoals`.\n    c) A segment that does not contain procedural information. Usually, at the beginning or end of the video.\n\nStep 2-a: If a segment is of type (a), assign the corresponding `subgoal` to it and, if necessary, update the description of the `subgoal` so that it also covers the content of the segment.\nStep 2-b: If a segment is of type (b), define a new `subgoal` that follows these requirements:\n    a) Goal-Oriented: Represents an overarching objective or subtask that structures the process into meaningful phases.\n    b) Procedural: Describes a procedural objective that is essential for progressing in the task.\n    c) Generalizable: Accommodates variations in materials, tools, methods, and outcomes.\nStep 2-c: If a segment is of type (c), ignore it.\n\nOutput the segmented narration based on the `subgoals`.\n"
   },
   {
     "role": "user",
     "content": [
       {
         "type": "text",
-        "text": "## Contents:\n"
+        "text": "## Subgoals:\n"
+      },
+      {
+        "type": "text",
+        "text": "Title: Preparation\nDescription: Identify and gather all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Ensure you have the required tools like a pot, pan, whisk, and grater. This step involves checking quantities and preparing the workspace for cooking."
+      },
+      {
+        "type": "text",
+        "text": "Title: Cook Pasta\nDescription: Boil water in a pot and cook the pasta according to package instructions until al dente. This step includes salting the water, timing the cooking process, and reserving some pasta water for later use."
+      },
+      {
+        "type": "text",
+        "text": "Title: Mix Sauce\nDescription: In a bowl, whisk together eggs and grated cheese to create a smooth mixture. This step involves choosing the type of cheese (e.g., Parmesan or Pecorino) and ensuring the mixture is well combined."
+      },
+      {
+        "type": "text",
+        "text": "Title: Cook Meat\nDescription: In a pan, cook pancetta or bacon until crispy. This step includes choosing the type of meat, cutting it into appropriate sizes, and cooking it to the desired crispness."
+      },
+      {
+        "type": "text",
+        "text": "Title: Combine Ingredients\nDescription: Drain the pasta and add it to the pan with the cooked meat. Remove from heat and quickly mix in the egg and cheese mixture, stirring to create a creamy sauce. This step involves using reserved pasta water to adjust the sauce consistency and ensuring the eggs do not scramble."
+      },
+      {
+        "type": "text",
+        "text": "Title: Finish Dish\nDescription: Season with black pepper and additional cheese if desired. This step includes tasting for seasoning, adjusting flavors, and serving the dish in an appealing manner."
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
       },
       {
         "type": "text",
@@ -318,53 +352,48 @@ MESSAGES: [
   }
 ]
 RESPONSE: {
+  "explanation": "The narration contains a mix of procedural information and humorous commentary. The procedural segments are identified and matched with the provided subgoals, while some segments require new subgoals due to their unique procedural content.",
   "segments": [
     {
-      "title": "Prepare bacon",
-      "description": "Chop the bacon into small pieces to prepare it for cooking.",
+      "explanation": "This segment involves chopping bacon, which aligns with the subgoal of preparing ingredients, even though the narration humorously notes the use of bacon instead of guanciale.",
+      "title": "Preparation",
+      "description": "Identify and gather all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Ensure you have the required tools like a pot, pan, whisk, and grater. This step involves checking quantities and preparing the workspace for cooking, including chopping ingredients as needed.",
       "start_index": 4,
-      "end_index": 4
+      "end_index": 5
     },
     {
-      "title": "Separate egg yolks",
-      "description": "Separate the egg yolks from the whites to use in the sauce.",
-      "start_index": 11,
-      "end_index": 14
+      "explanation": "This segment involves grating cheese and preparing the egg mixture, which aligns with the subgoal of mixing the sauce.",
+      "title": "Mix Sauce",
+      "description": "In a bowl, whisk together eggs and grated cheese to create a smooth mixture. This step involves choosing the type of cheese (e.g., Parmesan or Pecorino), grating it, and ensuring the mixture is well combined with the addition of black pepper.",
+      "start_index": 29,
+      "end_index": 30
     },
     {
-      "title": "Grate cheese",
-      "description": "Grate the cheese to prepare it for mixing with the egg yolks.",
-      "start_index": 17,
-      "end_index": 29
-    },
-    {
-      "title": "Cook spaghetti",
-      "description": "Boil the spaghetti in salted water until it is cooked al dente.",
-      "start_index": 41,
-      "end_index": 43
-    },
-    {
-      "title": "Cook bacon",
-      "description": "Cook the chopped bacon until it is crispy, then turn off the heat and let it cool slightly.",
+      "explanation": "This segment involves cooking the bacon, which aligns with the subgoal of cooking meat.",
+      "title": "Cook Meat",
+      "description": "In a pan, cook pancetta or bacon until crispy. This step includes choosing the type of meat, cutting it into appropriate sizes, and cooking it to the desired crispness. Allow the meat to cool slightly before combining with other ingredients.",
       "start_index": 44,
       "end_index": 45
     },
     {
-      "title": "Mix sauce ingredients",
-      "description": "Combine the grated cheese, egg yolks, and some pasta water to create the sauce.",
-      "start_index": 46,
-      "end_index": 46
+      "explanation": "This segment involves boiling water, salting it, and cooking the pasta, which aligns with the subgoal of cooking pasta.",
+      "title": "Cook Pasta",
+      "description": "Boil water in a pot and cook the pasta according to package instructions until al dente. This step includes salting the water, timing the cooking process, and reserving some pasta water for later use. Stir the pasta initially to prevent sticking.",
+      "start_index": 41,
+      "end_index": 43
     },
     {
-      "title": "Combine pasta and sauce",
-      "description": "Mix the cooked spaghetti with the bacon and sauce, adding pasta water as needed to achieve a creamy consistency.",
+      "explanation": "This segment involves combining the cooked pasta with the bacon and sauce, which aligns with the subgoal of combining ingredients.",
+      "title": "Combine Ingredients",
+      "description": "Drain the pasta and add it to the pan with the cooked meat. Remove from heat and quickly mix in the egg and cheese mixture, stirring to create a creamy sauce. This step involves using reserved pasta water to adjust the sauce consistency and ensuring the eggs do not scramble.",
       "start_index": 47,
-      "end_index": 50
+      "end_index": 49
     },
     {
-      "title": "Finish dish",
-      "description": "Add final touches such as additional cheese and pepper before serving.",
-      "start_index": 51,
+      "explanation": "This segment involves finishing the dish with seasoning and additional cheese, which aligns with the subgoal of finishing the dish.",
+      "title": "Finish Dish",
+      "description": "Season with black pepper and additional cheese if desired. This step includes tasting for seasoning, adjusting flavors, and serving the dish in an appealing manner.",
+      "start_index": 52,
       "end_index": 52
     }
   ]
@@ -372,14 +401,47 @@ RESPONSE: {
 MESSAGES: [
   {
     "role": "system",
-    "content": "You are a helpful assistant specializing in analyzing tutorials. Based on the narration of a tutorial video for the task `How to make Pasta Carbonara?`:\n(1) extract a sequence of `subgoals` performed to complete the task;\n(2) segment the video according to these `subgoals`;\n`Subgoals` are high-level objectives in the procedural task that are generalized and do not depend on variations in materials, tools, methods, or expected outcomes. Do not include non-procedural segments such as `Introduction` or `Conclusion`."
+    "content": "\nYou specialize in analyzing tutorials for procedural tasks.\n\nGiven a narration of a tutorial video and a set of `subgoals` for the task `How to make Pasta Carbonara?`, segment the narration based on the given `subgoals`.\n\nStep 1: Analyze the narration and identify meaningful segments. There are 3 types of segments:\n    a) A segment that directly or roughly corresponds to one of the provided `subgoals`.\n    b) A segment that contains procedural information, but does not correspond to any of the provided `subgoals`.\n    c) A segment that does not contain procedural information. Usually, at the beginning or end of the video.\n\nStep 2-a: If a segment is of type (a), assign the corresponding `subgoal` to it and, if necessary, update the description of the `subgoal` so that it also covers the content of the segment.\nStep 2-b: If a segment is of type (b), define a new `subgoal` that follows these requirements:\n    a) Goal-Oriented: Represents an overarching objective or subtask that structures the process into meaningful phases.\n    b) Procedural: Describes a procedural objective that is essential for progressing in the task.\n    c) Generalizable: Accommodates variations in materials, tools, methods, and outcomes.\nStep 2-c: If a segment is of type (c), ignore it.\n\nOutput the segmented narration based on the `subgoals`.\n"
   },
   {
     "role": "user",
     "content": [
       {
         "type": "text",
-        "text": "## Contents:\n"
+        "text": "## Subgoals:\n"
+      },
+      {
+        "type": "text",
+        "text": "Title: Preparation\nDescription: Identify and gather all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Ensure you have the required tools like a pot, pan, whisk, and grater. This step involves checking quantities and preparing the workspace for cooking, including chopping ingredients as needed."
+      },
+      {
+        "type": "text",
+        "text": "Title: Cook Pasta\nDescription: Boil water in a pot and cook the pasta according to package instructions until al dente. This step includes salting the water, timing the cooking process, and reserving some pasta water for later use. Stir the pasta initially to prevent sticking."
+      },
+      {
+        "type": "text",
+        "text": "Title: Mix Sauce\nDescription: In a bowl, whisk together eggs and grated cheese to create a smooth mixture. This step involves choosing the type of cheese (e.g., Parmesan or Pecorino), grating it, and ensuring the mixture is well combined with the addition of black pepper."
+      },
+      {
+        "type": "text",
+        "text": "Title: Cook Meat\nDescription: In a pan, cook pancetta or bacon until crispy. This step includes choosing the type of meat, cutting it into appropriate sizes, and cooking it to the desired crispness. Allow the meat to cool slightly before combining with other ingredients."
+      },
+      {
+        "type": "text",
+        "text": "Title: Combine Ingredients\nDescription: Drain the pasta and add it to the pan with the cooked meat. Remove from heat and quickly mix in the egg and cheese mixture, stirring to create a creamy sauce. This step involves using reserved pasta water to adjust the sauce consistency and ensuring the eggs do not scramble."
+      },
+      {
+        "type": "text",
+        "text": "Title: Finish Dish\nDescription: Season with black pepper and additional cheese if desired. This step includes tasting for seasoning, adjusting flavors, and serving the dish in an appealing manner."
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
       },
       {
         "type": "text",
@@ -913,53 +975,62 @@ MESSAGES: [
   }
 ]
 RESPONSE: {
+  "explanation": "The narration was segmented based on the provided subgoals, with additional subgoals created for segments that contained procedural information not covered by the existing subgoals. Segments that did not contain procedural information were ignored.",
   "segments": [
     {
-      "title": "Prepare Bacon",
-      "description": "Slice the bacon into thick pieces and cook it in a pan over medium heat to render out the fat and make it crispy.",
-      "start_index": 8,
+      "explanation": "This segment corresponds to the preparation of the meat, which is part of the 'Preparation' subgoal.",
+      "title": "Preparation",
+      "description": "Identify and gather all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Ensure you have the required tools like a pot, pan, whisk, and grater. This step involves checking quantities and preparing the workspace for cooking, including chopping ingredients as needed. This includes preparing the meat by slicing it appropriately.",
+      "start_index": 4,
+      "end_index": 9
+    },
+    {
+      "explanation": "This segment corresponds to the cooking of the meat, which is covered by the 'Cook Meat' subgoal.",
+      "title": "Cook Meat",
+      "description": "In a pan, cook pancetta or bacon until crispy. This step includes choosing the type of meat, cutting it into appropriate sizes, and cooking it to the desired crispness. Allow the meat to cool slightly before combining with other ingredients. This includes rendering the fat and setting aside some bacon for garnish.",
+      "start_index": 10,
       "end_index": 14
     },
     {
-      "title": "Prepare Pasta Water",
-      "description": "Bring a pot of water to a boil and season it with salt, adjusting the amount based on the saltiness of other ingredients.",
+      "explanation": "This segment corresponds to the preparation of the pasta water, which is part of the 'Cook Pasta' subgoal.",
+      "title": "Cook Pasta",
+      "description": "Boil water in a pot and cook the pasta according to package instructions until al dente. This step includes salting the water, timing the cooking process, and reserving some pasta water for later use. Stir the pasta initially to prevent sticking. This includes adjusting the salt in the water based on the saltiness of other ingredients.",
       "start_index": 15,
       "end_index": 16
     },
     {
-      "title": "Grate Cheese",
-      "description": "Grate Pecorino Romano and Parmigiano Reggiano cheeses finely, using a cheese grater or box grater.",
+      "explanation": "This segment corresponds to the preparation of the cheese, which is part of the 'Preparation' subgoal.",
+      "title": "Preparation",
+      "description": "Identify and gather all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Ensure you have the required tools like a pot, pan, whisk, and grater. This step involves checking quantities and preparing the workspace for cooking, including chopping ingredients as needed. This includes choosing and grating the cheese.",
       "start_index": 17,
-      "end_index": 22
+      "end_index": 24
     },
     {
-      "title": "Prepare Egg Mixture",
-      "description": "Mix whole eggs and egg yolks, whisk them together, and incorporate the grated cheese to form a smooth mixture.",
+      "explanation": "This segment corresponds to the preparation of the eggs and mixing them with cheese, which is covered by the 'Mix Sauce' subgoal.",
+      "title": "Mix Sauce",
+      "description": "In a bowl, whisk together eggs and grated cheese to create a smooth mixture. This step involves choosing the type of cheese (e.g., Parmesan or Pecorino), grating it, and ensuring the mixture is well combined with the addition of black pepper. This includes deciding on the ratio of whole eggs to yolks and whisking in black pepper.",
       "start_index": 25,
       "end_index": 40
     },
     {
-      "title": "Render Bacon Fat",
-      "description": "Continue cooking the bacon until the fat is rendered and the bacon is crispy, then drain excess fat, leaving a small amount in the pan.",
-      "start_index": 41,
-      "end_index": 59
+      "explanation": "This segment corresponds to the cooking of the pasta, which is covered by the 'Cook Pasta' subgoal.",
+      "title": "Cook Pasta",
+      "description": "Boil water in a pot and cook the pasta according to package instructions until al dente. This step includes salting the water, timing the cooking process, and reserving some pasta water for later use. Stir the pasta initially to prevent sticking. This includes cooking the pasta to al dente and reserving pasta water for sauce consistency.",
+      "start_index": 48,
+      "end_index": 76
     },
     {
-      "title": "Cook Spaghetti",
-      "description": "Cook the spaghetti in boiling water until slightly al dente, then transfer it to the pan with bacon fat.",
-      "start_index": 76,
-      "end_index": 84
-    },
-    {
+      "explanation": "This segment corresponds to the combination of ingredients, which is covered by the 'Combine Ingredients' subgoal.",
       "title": "Combine Ingredients",
-      "description": "Mix the cooked spaghetti with the egg and cheese mixture in the pan, ensuring the eggs cook gently to form a creamy sauce without scrambling.",
-      "start_index": 86,
+      "description": "Drain the pasta and add it to the pan with the cooked meat. Remove from heat and quickly mix in the egg and cheese mixture, stirring to create a creamy sauce. This step involves using reserved pasta water to adjust the sauce consistency and ensuring the eggs do not scramble. This includes the technique of using pasta water to control sauce thickness.",
+      "start_index": 77,
       "end_index": 104
     },
     {
-      "title": "Plate and Garnish",
-      "description": "Plate the pasta, garnish with additional cheese and crispy bacon, and serve.",
-      "start_index": 107,
+      "explanation": "This segment corresponds to the finishing touches on the dish, which is covered by the 'Finish Dish' subgoal.",
+      "title": "Finish Dish",
+      "description": "Season with black pepper and additional cheese if desired. This step includes tasting for seasoning, adjusting flavors, and serving the dish in an appealing manner. This includes adding garnishes like crispy bacon and additional cheese.",
+      "start_index": 105,
       "end_index": 114
     }
   ]
@@ -967,14 +1038,47 @@ RESPONSE: {
 MESSAGES: [
   {
     "role": "system",
-    "content": "You are a helpful assistant specializing in analyzing tutorials. Based on the narration of a tutorial video for the task `How to make Pasta Carbonara?`:\n(1) extract a sequence of `subgoals` performed to complete the task;\n(2) segment the video according to these `subgoals`;\n`Subgoals` are high-level objectives in the procedural task that are generalized and do not depend on variations in materials, tools, methods, or expected outcomes. Do not include non-procedural segments such as `Introduction` or `Conclusion`."
+    "content": "\nYou specialize in analyzing tutorials for procedural tasks.\n\nGiven a narration of a tutorial video and a set of `subgoals` for the task `How to make Pasta Carbonara?`, segment the narration based on the given `subgoals`.\n\nStep 1: Analyze the narration and identify meaningful segments. There are 3 types of segments:\n    a) A segment that directly or roughly corresponds to one of the provided `subgoals`.\n    b) A segment that contains procedural information, but does not correspond to any of the provided `subgoals`.\n    c) A segment that does not contain procedural information. Usually, at the beginning or end of the video.\n\nStep 2-a: If a segment is of type (a), assign the corresponding `subgoal` to it and, if necessary, update the description of the `subgoal` so that it also covers the content of the segment.\nStep 2-b: If a segment is of type (b), define a new `subgoal` that follows these requirements:\n    a) Goal-Oriented: Represents an overarching objective or subtask that structures the process into meaningful phases.\n    b) Procedural: Describes a procedural objective that is essential for progressing in the task.\n    c) Generalizable: Accommodates variations in materials, tools, methods, and outcomes.\nStep 2-c: If a segment is of type (c), ignore it.\n\nOutput the segmented narration based on the `subgoals`.\n"
   },
   {
     "role": "user",
     "content": [
       {
         "type": "text",
-        "text": "## Contents:\n"
+        "text": "## Subgoals:\n"
+      },
+      {
+        "type": "text",
+        "text": "Title: Preparation\nDescription: Identify and gather all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Ensure you have the required tools like a pot, pan, whisk, and grater. This step involves checking quantities and preparing the workspace for cooking, including chopping ingredients as needed. This includes choosing and grating the cheese."
+      },
+      {
+        "type": "text",
+        "text": "Title: Cook Pasta\nDescription: Boil water in a pot and cook the pasta according to package instructions until al dente. This step includes salting the water, timing the cooking process, and reserving some pasta water for later use. Stir the pasta initially to prevent sticking. This includes cooking the pasta to al dente and reserving pasta water for sauce consistency."
+      },
+      {
+        "type": "text",
+        "text": "Title: Mix Sauce\nDescription: In a bowl, whisk together eggs and grated cheese to create a smooth mixture. This step involves choosing the type of cheese (e.g., Parmesan or Pecorino), grating it, and ensuring the mixture is well combined with the addition of black pepper. This includes deciding on the ratio of whole eggs to yolks and whisking in black pepper."
+      },
+      {
+        "type": "text",
+        "text": "Title: Cook Meat\nDescription: In a pan, cook pancetta or bacon until crispy. This step includes choosing the type of meat, cutting it into appropriate sizes, and cooking it to the desired crispness. Allow the meat to cool slightly before combining with other ingredients. This includes rendering the fat and setting aside some bacon for garnish."
+      },
+      {
+        "type": "text",
+        "text": "Title: Combine Ingredients\nDescription: Drain the pasta and add it to the pan with the cooked meat. Remove from heat and quickly mix in the egg and cheese mixture, stirring to create a creamy sauce. This step involves using reserved pasta water to adjust the sauce consistency and ensuring the eggs do not scramble. This includes the technique of using pasta water to control sauce thickness."
+      },
+      {
+        "type": "text",
+        "text": "Title: Finish Dish\nDescription: Season with black pepper and additional cheese if desired. This step includes tasting for seasoning, adjusting flavors, and serving the dish in an appealing manner. This includes adding garnishes like crispy bacon and additional cheese."
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
       },
       {
         "type": "text",
@@ -1296,52 +1400,47 @@ MESSAGES: [
   }
 ]
 RESPONSE: {
+  "explanation": "The narration was segmented based on the provided subgoals and additional procedural information that was not covered by the existing subgoals. Segments were identified by looking for transitions in the task, such as moving from preparation to cooking, or from cooking to combining ingredients. Each segment was then matched to the most appropriate subgoal or a new subgoal was created if necessary.",
   "segments": [
     {
-      "title": "Prepare Ingredients",
-      "description": "Gather and prepare all necessary ingredients for making pasta carbonara, including guanciale, pecorino romano, eggs, pasta, black pepper, and optional garlic.",
-      "start_index": 7,
+      "explanation": "This segment introduces the ingredients and tools needed for the recipe, aligning with the 'Preparation' subgoal.",
+      "title": "Preparation",
+      "description": "Identify and gather all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Ensure you have the required tools like a pot, pan, whisk, and grater. This step involves checking quantities and preparing the workspace for cooking, including chopping ingredients as needed. This includes choosing and grating the cheese.",
+      "start_index": 2,
       "end_index": 20
     },
     {
+      "explanation": "This segment describes the process of cooking the pasta, which matches the 'Cook Pasta' subgoal.",
       "title": "Cook Pasta",
-      "description": "Cook the pasta in boiling water with a small amount of salt until it is al dente.",
+      "description": "Boil water in a pot and cook the pasta according to package instructions until al dente. This step includes salting the water, timing the cooking process, and reserving some pasta water for later use. Stir the pasta initially to prevent sticking. This includes cooking the pasta to al dente and reserving pasta water for sauce consistency.",
       "start_index": 21,
       "end_index": 25
     },
     {
-      "title": "Prepare Guanciale",
-      "description": "Remove the skin from the guanciale, slice it, and chop it into chunks. Begin cooking it in a cold pan to render the fat.",
+      "explanation": "This segment covers the preparation and cooking of the meat, which aligns with the 'Cook Meat' subgoal.",
+      "title": "Cook Meat",
+      "description": "In a pan, cook pancetta or bacon until crispy. This step includes choosing the type of meat, cutting it into appropriate sizes, and cooking it to the desired crispness. Allow the meat to cool slightly before combining with other ingredients. This includes rendering the fat and setting aside some bacon for garnish.",
       "start_index": 26,
-      "end_index": 32
+      "end_index": 44
     },
     {
-      "title": "Add Garlic and Pepper",
-      "description": "Add cracked garlic and freshly cracked black pepper to the pan with the guanciale to infuse flavors.",
-      "start_index": 33,
-      "end_index": 43
-    },
-    {
-      "title": "Prepare Egg Mixture",
-      "description": "Crack eggs into a bowl and mix with pecorino cheese to create the egg mixture for the carbonara sauce.",
-      "start_index": 44,
+      "explanation": "This segment involves preparing the sauce by whisking eggs and cheese, aligning with the 'Mix Sauce' subgoal.",
+      "title": "Mix Sauce",
+      "description": "In a bowl, whisk together eggs and grated cheese to create a smooth mixture. This step involves choosing the type of cheese (e.g., Parmesan or Pecorino), grating it, and ensuring the mixture is well combined with the addition of black pepper. This includes deciding on the ratio of whole eggs to yolks and whisking in black pepper.",
+      "start_index": 45,
       "end_index": 49
     },
     {
-      "title": "Combine Pasta and Guanciale",
-      "description": "Add the cooked pasta and some pasta water to the pan with the guanciale, turning off the heat to stop frying and start emulsifying the sauce.",
+      "explanation": "This segment describes the process of combining the cooked pasta with the meat and sauce, which matches the 'Combine Ingredients' subgoal.",
+      "title": "Combine Ingredients",
+      "description": "Drain the pasta and add it to the pan with the cooked meat. Remove from heat and quickly mix in the egg and cheese mixture, stirring to create a creamy sauce. This step involves using reserved pasta water to adjust the sauce consistency and ensuring the eggs do not scramble. This includes the technique of using pasta water to control sauce thickness.",
       "start_index": 50,
-      "end_index": 58
-    },
-    {
-      "title": "Add Egg Mixture",
-      "description": "Add the egg and cheese mixture to the pasta and guanciale, tossing to create a creamy sauce through emulsification.",
-      "start_index": 59,
       "end_index": 65
     },
     {
-      "title": "Finish and Serve",
-      "description": "Finish the dish with additional black pepper and pecorino cheese, and serve immediately.",
+      "explanation": "This segment involves finishing the dish with seasoning and presentation, aligning with the 'Finish Dish' subgoal.",
+      "title": "Finish Dish",
+      "description": "Season with black pepper and additional cheese if desired. This step includes tasting for seasoning, adjusting flavors, and serving the dish in an appealing manner. This includes adding garnishes like crispy bacon and additional cheese.",
       "start_index": 66,
       "end_index": 78
     }
@@ -1350,14 +1449,47 @@ RESPONSE: {
 MESSAGES: [
   {
     "role": "system",
-    "content": "You are a helpful assistant specializing in analyzing tutorials. Based on the narration of a tutorial video for the task `How to make Pasta Carbonara?`:\n(1) extract a sequence of `subgoals` performed to complete the task;\n(2) segment the video according to these `subgoals`;\n`Subgoals` are high-level objectives in the procedural task that are generalized and do not depend on variations in materials, tools, methods, or expected outcomes. Do not include non-procedural segments such as `Introduction` or `Conclusion`."
+    "content": "\nYou specialize in analyzing tutorials for procedural tasks.\n\nGiven a narration of a tutorial video and a set of `subgoals` for the task `How to make Pasta Carbonara?`, segment the narration based on the given `subgoals`.\n\nStep 1: Analyze the narration and identify meaningful segments. There are 3 types of segments:\n    a) A segment that directly or roughly corresponds to one of the provided `subgoals`.\n    b) A segment that contains procedural information, but does not correspond to any of the provided `subgoals`.\n    c) A segment that does not contain procedural information. Usually, at the beginning or end of the video.\n\nStep 2-a: If a segment is of type (a), assign the corresponding `subgoal` to it and, if necessary, update the description of the `subgoal` so that it also covers the content of the segment.\nStep 2-b: If a segment is of type (b), define a new `subgoal` that follows these requirements:\n    a) Goal-Oriented: Represents an overarching objective or subtask that structures the process into meaningful phases.\n    b) Procedural: Describes a procedural objective that is essential for progressing in the task.\n    c) Generalizable: Accommodates variations in materials, tools, methods, and outcomes.\nStep 2-c: If a segment is of type (c), ignore it.\n\nOutput the segmented narration based on the `subgoals`.\n"
   },
   {
     "role": "user",
     "content": [
       {
         "type": "text",
-        "text": "## Contents:\n"
+        "text": "## Subgoals:\n"
+      },
+      {
+        "type": "text",
+        "text": "Title: Preparation\nDescription: Identify and gather all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Ensure you have the required tools like a pot, pan, whisk, and grater. This step involves checking quantities and preparing the workspace for cooking, including chopping ingredients as needed. This includes choosing and grating the cheese."
+      },
+      {
+        "type": "text",
+        "text": "Title: Cook Pasta\nDescription: Boil water in a pot and cook the pasta according to package instructions until al dente. This step includes salting the water, timing the cooking process, and reserving some pasta water for later use. Stir the pasta initially to prevent sticking. This includes cooking the pasta to al dente and reserving pasta water for sauce consistency."
+      },
+      {
+        "type": "text",
+        "text": "Title: Mix Sauce\nDescription: In a bowl, whisk together eggs and grated cheese to create a smooth mixture. This step involves choosing the type of cheese (e.g., Parmesan or Pecorino), grating it, and ensuring the mixture is well combined with the addition of black pepper. This includes deciding on the ratio of whole eggs to yolks and whisking in black pepper."
+      },
+      {
+        "type": "text",
+        "text": "Title: Cook Meat\nDescription: In a pan, cook pancetta or bacon until crispy. This step includes choosing the type of meat, cutting it into appropriate sizes, and cooking it to the desired crispness. Allow the meat to cool slightly before combining with other ingredients. This includes rendering the fat and setting aside some bacon for garnish."
+      },
+      {
+        "type": "text",
+        "text": "Title: Combine Ingredients\nDescription: Drain the pasta and add it to the pan with the cooked meat. Remove from heat and quickly mix in the egg and cheese mixture, stirring to create a creamy sauce. This step involves using reserved pasta water to adjust the sauce consistency and ensuring the eggs do not scramble. This includes the technique of using pasta water to control sauce thickness."
+      },
+      {
+        "type": "text",
+        "text": "Title: Finish Dish\nDescription: Season with black pepper and additional cheese if desired. This step includes tasting for seasoning, adjusting flavors, and serving the dish in an appealing manner. This includes adding garnishes like crispy bacon and additional cheese."
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
       },
       {
         "type": "text",
@@ -1647,41 +1779,41 @@ MESSAGES: [
   }
 ]
 RESPONSE: {
+  "explanation": "The narration is segmented based on the provided subgoals, with additional subgoals created for segments that contain procedural information not covered by the existing subgoals. Segments that do not contain procedural information are ignored.",
   "segments": [
     {
-      "title": "Boil pasta",
-      "description": "Boil water, add salt, and cook pasta until done.",
+      "explanation": "This segment corresponds to the subgoal of cooking pasta, as it involves boiling water, adding salt, and cooking the pasta.",
+      "title": "Cook Pasta",
+      "description": "Boil water in a pot and cook the pasta according to package instructions until al dente. This step includes salting the water, timing the cooking process, and reserving some pasta water for later use. Stir the pasta initially to prevent sticking. This includes cooking the pasta to al dente and reserving pasta water for sauce consistency.",
       "start_index": 4,
       "end_index": 10
     },
     {
-      "title": "Prepare guanciale",
-      "description": "Cut guanciale or pancetta into chunks for the sauce.",
+      "explanation": "This segment involves preparing the meat, which corresponds to the subgoal of cooking meat.",
+      "title": "Cook Meat",
+      "description": "In a pan, cook pancetta or bacon until crispy. This step includes choosing the type of meat, cutting it into appropriate sizes, and cooking it to the desired crispness. Allow the meat to cool slightly before combining with other ingredients. This includes rendering the fat and setting aside some bacon for garnish.",
       "start_index": 11,
-      "end_index": 20
+      "end_index": 18
     },
     {
-      "title": "Cook guanciale",
-      "description": "Cook guanciale in olive oil to start the sauce.",
+      "explanation": "This segment involves starting the sauce by cooking the meat and preparing the egg and cheese mixture, which corresponds to the subgoal of mixing the sauce.",
+      "title": "Mix Sauce",
+      "description": "In a bowl, whisk together eggs and grated cheese to create a smooth mixture. This step involves choosing the type of cheese (e.g., Parmesan or Pecorino), grating it, and ensuring the mixture is well combined with the addition of black pepper. This includes deciding on the ratio of whole eggs to yolks and whisking in black pepper.",
       "start_index": 21,
-      "end_index": 24
-    },
-    {
-      "title": "Prepare egg mixture",
-      "description": "Beat eggs with parmesan, pecorino, and pepper for the sauce.",
-      "start_index": 25,
       "end_index": 38
     },
     {
-      "title": "Combine pasta and sauce",
-      "description": "Mix cooked pasta with guanciale and egg mixture to form the sauce.",
-      "start_index": 39,
+      "explanation": "This segment involves combining the cooked pasta with the meat and sauce, which corresponds to the subgoal of combining ingredients.",
+      "title": "Combine Ingredients",
+      "description": "Drain the pasta and add it to the pan with the cooked meat. Remove from heat and quickly mix in the egg and cheese mixture, stirring to create a creamy sauce. This step involves using reserved pasta water to adjust the sauce consistency and ensuring the eggs do not scramble. This includes the technique of using pasta water to control sauce thickness.",
+      "start_index": 50,
       "end_index": 57
     },
     {
-      "title": "Add final touches",
-      "description": "Add parmesan or pecorino and pepper to finish the dish.",
-      "start_index": 58,
+      "explanation": "This segment involves finishing the dish with additional cheese and pepper, which corresponds to the subgoal of finishing the dish.",
+      "title": "Finish Dish",
+      "description": "Season with black pepper and additional cheese if desired. This step includes tasting for seasoning, adjusting flavors, and serving the dish in an appealing manner. This includes adding garnishes like crispy bacon and additional cheese.",
+      "start_index": 60,
       "end_index": 66
     }
   ]
@@ -1689,14 +1821,47 @@ RESPONSE: {
 MESSAGES: [
   {
     "role": "system",
-    "content": "You are a helpful assistant specializing in analyzing tutorials. Based on the narration of a tutorial video for the task `How to make Pasta Carbonara?`:\n(1) extract a sequence of `subgoals` performed to complete the task;\n(2) segment the video according to these `subgoals`;\n`Subgoals` are high-level objectives in the procedural task that are generalized and do not depend on variations in materials, tools, methods, or expected outcomes. Do not include non-procedural segments such as `Introduction` or `Conclusion`."
+    "content": "\nYou specialize in analyzing tutorials for procedural tasks.\n\nGiven a narration of a tutorial video and a set of `subgoals` for the task `How to make Pasta Carbonara?`, segment the narration based on the given `subgoals`.\n\nStep 1: Analyze the narration and identify meaningful segments. There are 3 types of segments:\n    a) A segment that directly or roughly corresponds to one of the provided `subgoals`.\n    b) A segment that contains procedural information, but does not correspond to any of the provided `subgoals`.\n    c) A segment that does not contain procedural information. Usually, at the beginning or end of the video.\n\nStep 2-a: If a segment is of type (a), assign the corresponding `subgoal` to it and, if necessary, update the description of the `subgoal` so that it also covers the content of the segment.\nStep 2-b: If a segment is of type (b), define a new `subgoal` that follows these requirements:\n    a) Goal-Oriented: Represents an overarching objective or subtask that structures the process into meaningful phases.\n    b) Procedural: Describes a procedural objective that is essential for progressing in the task.\n    c) Generalizable: Accommodates variations in materials, tools, methods, and outcomes.\nStep 2-c: If a segment is of type (c), ignore it.\n\nOutput the segmented narration based on the `subgoals`.\n"
   },
   {
     "role": "user",
     "content": [
       {
         "type": "text",
-        "text": "## Contents:\n"
+        "text": "## Subgoals:\n"
+      },
+      {
+        "type": "text",
+        "text": "Title: Preparation\nDescription: Identify and gather all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Ensure you have the required tools like a pot, pan, whisk, and grater. This step involves checking quantities and preparing the workspace for cooking, including chopping ingredients as needed. This includes choosing and grating the cheese."
+      },
+      {
+        "type": "text",
+        "text": "Title: Cook Pasta\nDescription: Boil water in a pot and cook the pasta according to package instructions until al dente. This step includes salting the water, timing the cooking process, and reserving some pasta water for later use. Stir the pasta initially to prevent sticking. This includes cooking the pasta to al dente and reserving pasta water for sauce consistency."
+      },
+      {
+        "type": "text",
+        "text": "Title: Mix Sauce\nDescription: In a bowl, whisk together eggs and grated cheese to create a smooth mixture. This step involves choosing the type of cheese (e.g., Parmesan or Pecorino), grating it, and ensuring the mixture is well combined with the addition of black pepper. This includes deciding on the ratio of whole eggs to yolks and whisking in black pepper."
+      },
+      {
+        "type": "text",
+        "text": "Title: Cook Meat\nDescription: In a pan, cook pancetta or bacon until crispy. This step includes choosing the type of meat, cutting it into appropriate sizes, and cooking it to the desired crispness. Allow the meat to cool slightly before combining with other ingredients. This includes rendering the fat and setting aside some bacon for garnish."
+      },
+      {
+        "type": "text",
+        "text": "Title: Combine Ingredients\nDescription: Drain the pasta and add it to the pan with the cooked meat. Remove from heat and quickly mix in the egg and cheese mixture, stirring to create a creamy sauce. This step involves using reserved pasta water to adjust the sauce consistency and ensuring the eggs do not scramble. This includes the technique of using pasta water to control sauce thickness."
+      },
+      {
+        "type": "text",
+        "text": "Title: Finish Dish\nDescription: Season with black pepper and additional cheese if desired. This step includes tasting for seasoning, adjusting flavors, and serving the dish in an appealing manner. This includes adding garnishes like crispy bacon and additional cheese."
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
       },
       {
         "type": "text",
@@ -2470,655 +2635,56 @@ MESSAGES: [
   }
 ]
 RESPONSE: {
+  "explanation": "The narration is segmented based on the provided subgoals and additional procedural information that is essential for making Pasta Carbonara. Each segment is assigned to a subgoal or a new subgoal is created if the segment contains procedural information not covered by the existing subgoals.",
   "segments": [
     {
-      "title": "Toast Peppercorns",
-      "description": "Toast black peppercorns in a pan over medium-low heat until fragrant, ensuring they are moved around for even toasting.",
+      "explanation": "This segment involves toasting and grinding black peppercorns, which is a preparatory step not covered by the existing subgoals.",
+      "title": "Prepare Pepper",
+      "description": "Toast black peppercorns over medium-low heat until fragrant, then grind them to a coarse texture. This step enhances the flavor of the pepper used in the dish.",
       "start_index": 5,
       "end_index": 15
     },
     {
-      "title": "Prepare Ingredients",
-      "description": "Gather all necessary ingredients within arm's reach to ensure a smooth cooking process without delays.",
+      "explanation": "This segment corresponds to the 'Preparation' subgoal, as it involves gathering ingredients and preparing them, such as grating cheese and preparing eggs.",
+      "title": "Preparation",
+      "description": "Identify and gather all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Ensure you have the required tools like a pot, pan, whisk, and grater. This step involves checking quantities and preparing the workspace for cooking, including chopping ingredients as needed. This includes choosing and grating the cheese and preparing eggs to room temperature.",
       "start_index": 16,
-      "end_index": 19
+      "end_index": 55
     },
     {
-      "title": "Crush Peppercorns",
-      "description": "Crush the toasted peppercorns using a pan or grinder to achieve a coarse texture.",
-      "start_index": 20,
-      "end_index": 31
-    },
-    {
-      "title": "Grate Cheese",
-      "description": "Grate Parmesan and Pecorino cheeses finely using a microplane for a smooth sauce texture.",
-      "start_index": 32,
-      "end_index": 47
-    },
-    {
-      "title": "Prepare Eggs",
-      "description": "Bring eggs to room temperature and separate yolks from whites to prepare for mixing with cheese.",
-      "start_index": 48,
-      "end_index": 58
-    },
-    {
-      "title": "Mix Eggs and Cheese",
-      "description": "Combine grated cheese with eggs to form a smooth, creamy mixture, adding some crushed peppercorns for flavor.",
-      "start_index": 59,
+      "explanation": "This segment corresponds to the 'Mix Sauce' subgoal, as it involves mixing eggs and cheese to create the sauce.",
+      "title": "Mix Sauce",
+      "description": "In a bowl, whisk together eggs and grated cheese to create a smooth mixture. This step involves choosing the type of cheese (e.g., Parmesan or Pecorino), grating it, and ensuring the mixture is well combined with the addition of black pepper. This includes deciding on the ratio of whole eggs to yolks and whisking in black pepper.",
+      "start_index": 56,
       "end_index": 75
     },
     {
-      "title": "Prepare Guanciale",
-      "description": "Cut guanciale into large chunks or matchsticks, ready for cooking.",
+      "explanation": "This segment corresponds to the 'Cook Meat' subgoal, as it involves preparing and cooking guanciale, which is a type of meat used in carbonara.",
+      "title": "Cook Meat",
+      "description": "In a pan, cook pancetta or bacon until crispy. This step includes choosing the type of meat, cutting it into appropriate sizes, and cooking it to the desired crispness. Allow the meat to cool slightly before combining with other ingredients. This includes rendering the fat and setting aside some bacon for garnish.",
       "start_index": 76,
       "end_index": 98
     },
     {
+      "explanation": "This segment corresponds to the 'Cook Pasta' subgoal, as it involves boiling water, cooking pasta, and preparing it for mixing with other ingredients.",
       "title": "Cook Pasta",
-      "description": "Boil pasta in salted water until al dente, stirring occasionally to prevent sticking.",
+      "description": "Boil water in a pot and cook the pasta according to package instructions until al dente. This step includes salting the water, timing the cooking process, and reserving some pasta water for later use. Stir the pasta initially to prevent sticking. This includes cooking the pasta to al dente and reserving pasta water for sauce consistency.",
       "start_index": 99,
-      "end_index": 136
+      "end_index": 141
     },
     {
-      "title": "Cook Guanciale",
-      "description": "Cook guanciale in a pan with a little olive oil until light golden brown, ensuring it retains some chewiness.",
-      "start_index": 137,
-      "end_index": 140
-    },
-    {
-      "title": "Mix Pasta and Sauce",
-      "description": "Combine cooked pasta with egg and cheese mixture, guanciale, and its fat, mixing thoroughly to emulsify the sauce.",
-      "start_index": 141,
-      "end_index": 171
-    },
-    {
-      "title": "Serve Carbonara",
-      "description": "Plate the carbonara, adding extra guanciale, pepper, and cheese on top before serving hot.",
-      "start_index": 172,
-      "end_index": 178
-    }
-  ]
-}
-MESSAGES: [
-  {
-    "role": "system",
-    "content": "You are a helpful assistant specializing in analyzing procedural content across different how-to videos about task `How to make Pasta Carbonara?`. Given a set of subgoals collected from different tutorial videos about the task, (1) identify subgoals that have the same high-level purpose or objective, (2) merge each set of similar subgoals. Make sure that merged subgoals have consistent level of complexity and detail, and their descriptions capture all information variations in different tutorials. Ensure that all the original subgoals are captured in the final set of merged subgoals."
-  },
-  {
-    "role": "user",
-    "content": [
-      {
-        "type": "text",
-        "text": "## Subgoals:\n"
-      },
-      {
-        "type": "text",
-        "text": "0. Prepare Bacon: Slice the bacon into thick pieces and cook it in a pan over medium heat to render out the fat and make it crispy."
-      },
-      {
-        "type": "text",
-        "text": "1. Prepare Pasta Water: Bring a pot of water to a boil and season it with salt, adjusting the amount based on the saltiness of other ingredients."
-      },
-      {
-        "type": "text",
-        "text": "2. Grate Cheese: Grate Pecorino Romano and Parmigiano Reggiano cheeses finely, using a cheese grater or box grater."
-      },
-      {
-        "type": "text",
-        "text": "3. Prepare Egg Mixture: Mix whole eggs and egg yolks, whisk them together, and incorporate the grated cheese to form a smooth mixture."
-      },
-      {
-        "type": "text",
-        "text": "4. Render Bacon Fat: Continue cooking the bacon until the fat is rendered and the bacon is crispy, then drain excess fat, leaving a small amount in the pan."
-      },
-      {
-        "type": "text",
-        "text": "5. Cook Spaghetti: Cook the spaghetti in boiling water until slightly al dente, then transfer it to the pan with bacon fat."
-      },
-      {
-        "type": "text",
-        "text": "6. Combine Ingredients: Mix the cooked spaghetti with the egg and cheese mixture in the pan, ensuring the eggs cook gently to form a creamy sauce without scrambling."
-      },
-      {
-        "type": "text",
-        "text": "7. Plate and Garnish: Plate the pasta, garnish with additional cheese and crispy bacon, and serve."
-      },
-      {
-        "type": "text",
-        "text": "8. Prepare bacon: Chop the bacon into small pieces to prepare it for cooking."
-      },
-      {
-        "type": "text",
-        "text": "9. Separate egg yolks: Separate the egg yolks from the whites to use in the sauce."
-      },
-      {
-        "type": "text",
-        "text": "10. Grate cheese: Grate the cheese to prepare it for mixing with the egg yolks."
-      },
-      {
-        "type": "text",
-        "text": "11. Cook spaghetti: Boil the spaghetti in salted water until it is cooked al dente."
-      },
-      {
-        "type": "text",
-        "text": "12. Cook bacon: Cook the chopped bacon until it is crispy, then turn off the heat and let it cool slightly."
-      },
-      {
-        "type": "text",
-        "text": "13. Mix sauce ingredients: Combine the grated cheese, egg yolks, and some pasta water to create the sauce."
-      },
-      {
-        "type": "text",
-        "text": "14. Combine pasta and sauce: Mix the cooked spaghetti with the bacon and sauce, adding pasta water as needed to achieve a creamy consistency."
-      },
-      {
-        "type": "text",
-        "text": "15. Finish dish: Add final touches such as additional cheese and pepper before serving."
-      }
-    ]
-  }
-]
-RESPONSE: {
-  "subgoals": [
-    {
-      "title": "Prepare Bacon",
-      "description": "Slice or chop the bacon into pieces and cook it in a pan over medium heat until the fat is rendered and the bacon is crispy. Drain excess fat, leaving a small amount in the pan.",
-      "original_subgoal_ids": [
-        0,
-        4,
-        8,
-        12
-      ]
-    },
-    {
-      "title": "Prepare Pasta Water",
-      "description": "Bring a pot of water to a boil and season it with salt, adjusting the amount based on the saltiness of other ingredients.",
-      "original_subgoal_ids": [
-        1
-      ]
-    },
-    {
-      "title": "Grate Cheese",
-      "description": "Grate Pecorino Romano and Parmigiano Reggiano cheeses finely, using a cheese grater or box grater, to prepare for mixing with the egg yolks.",
-      "original_subgoal_ids": [
-        2,
-        10
-      ]
-    },
-    {
-      "title": "Prepare Egg Mixture",
-      "description": "Separate the egg yolks from the whites. Mix whole eggs and egg yolks, whisk them together, and incorporate the grated cheese to form a smooth mixture. Optionally, add some pasta water to create the sauce.",
-      "original_subgoal_ids": [
-        3,
-        9,
-        13
-      ]
-    },
-    {
-      "title": "Cook Spaghetti",
-      "description": "Cook the spaghetti in boiling salted water until it is slightly al dente.",
-      "original_subgoal_ids": [
-        5,
-        11
-      ]
-    },
-    {
+      "explanation": "This segment corresponds to the 'Combine Ingredients' subgoal, as it involves mixing the cooked pasta with the sauce and meat to create the final dish.",
       "title": "Combine Ingredients",
-      "description": "Mix the cooked spaghetti with the egg and cheese mixture in the pan with bacon, ensuring the eggs cook gently to form a creamy sauce without scrambling. Add pasta water as needed to achieve a creamy consistency.",
-      "original_subgoal_ids": [
-        6,
-        14
-      ]
+      "description": "Drain the pasta and add it to the pan with the cooked meat. Remove from heat and quickly mix in the egg and cheese mixture, stirring to create a creamy sauce. This step involves using reserved pasta water to adjust the sauce consistency and ensuring the eggs do not scramble. This includes the technique of using pasta water to control sauce thickness.",
+      "start_index": 142,
+      "end_index": 173
     },
     {
-      "title": "Plate and Garnish",
-      "description": "Plate the pasta, garnish with additional cheese, crispy bacon, and pepper, and serve.",
-      "original_subgoal_ids": [
-        7,
-        15
-      ]
-    }
-  ]
-}
-MESSAGES: [
-  {
-    "role": "system",
-    "content": "You are a helpful assistant specializing in analyzing procedural content across different how-to videos about task `How to make Pasta Carbonara?`. Given a set of subgoals collected from different tutorial videos about the task, (1) identify subgoals that have the same high-level purpose or objective, (2) merge each set of similar subgoals. Make sure that merged subgoals have consistent level of complexity and detail, and their descriptions capture all information variations in different tutorials. Ensure that all the original subgoals are captured in the final set of merged subgoals."
-  },
-  {
-    "role": "user",
-    "content": [
-      {
-        "type": "text",
-        "text": "## Subgoals:\n"
-      },
-      {
-        "type": "text",
-        "text": "0. Prepare Ingredients: Gather and prepare all necessary ingredients for making pasta carbonara, including guanciale, pecorino romano, eggs, pasta, black pepper, and optional garlic."
-      },
-      {
-        "type": "text",
-        "text": "1. Cook Pasta: Cook the pasta in boiling water with a small amount of salt until it is al dente."
-      },
-      {
-        "type": "text",
-        "text": "2. Prepare Guanciale: Remove the skin from the guanciale, slice it, and chop it into chunks. Begin cooking it in a cold pan to render the fat."
-      },
-      {
-        "type": "text",
-        "text": "3. Add Garlic and Pepper: Add cracked garlic and freshly cracked black pepper to the pan with the guanciale to infuse flavors."
-      },
-      {
-        "type": "text",
-        "text": "4. Prepare Egg Mixture: Crack eggs into a bowl and mix with pecorino cheese to create the egg mixture for the carbonara sauce."
-      },
-      {
-        "type": "text",
-        "text": "5. Combine Pasta and Guanciale: Add the cooked pasta and some pasta water to the pan with the guanciale, turning off the heat to stop frying and start emulsifying the sauce."
-      },
-      {
-        "type": "text",
-        "text": "6. Add Egg Mixture: Add the egg and cheese mixture to the pasta and guanciale, tossing to create a creamy sauce through emulsification."
-      },
-      {
-        "type": "text",
-        "text": "7. Finish and Serve: Finish the dish with additional black pepper and pecorino cheese, and serve immediately."
-      },
-      {
-        "type": "text",
-        "text": "8. Prepare Bacon: Slice or chop the bacon into pieces and cook it in a pan over medium heat until the fat is rendered and the bacon is crispy. Drain excess fat, leaving a small amount in the pan."
-      },
-      {
-        "type": "text",
-        "text": "9. Prepare Pasta Water: Bring a pot of water to a boil and season it with salt, adjusting the amount based on the saltiness of other ingredients."
-      },
-      {
-        "type": "text",
-        "text": "10. Grate Cheese: Grate Pecorino Romano and Parmigiano Reggiano cheeses finely, using a cheese grater or box grater, to prepare for mixing with the egg yolks."
-      },
-      {
-        "type": "text",
-        "text": "11. Prepare Egg Mixture: Separate the egg yolks from the whites. Mix whole eggs and egg yolks, whisk them together, and incorporate the grated cheese to form a smooth mixture. Optionally, add some pasta water to create the sauce."
-      },
-      {
-        "type": "text",
-        "text": "12. Cook Spaghetti: Cook the spaghetti in boiling salted water until it is slightly al dente."
-      },
-      {
-        "type": "text",
-        "text": "13. Combine Ingredients: Mix the cooked spaghetti with the egg and cheese mixture in the pan with bacon, ensuring the eggs cook gently to form a creamy sauce without scrambling. Add pasta water as needed to achieve a creamy consistency."
-      },
-      {
-        "type": "text",
-        "text": "14. Plate and Garnish: Plate the pasta, garnish with additional cheese, crispy bacon, and pepper, and serve."
-      }
-    ]
-  }
-]
-RESPONSE: {
-  "subgoals": [
-    {
-      "title": "Prepare Ingredients",
-      "description": "Gather and prepare all necessary ingredients for making pasta carbonara, including guanciale or bacon, pecorino romano, eggs, pasta, black pepper, and optional garlic. Grate the cheeses finely using a cheese grater or box grater.",
-      "original_subgoal_ids": [
-        0,
-        10
-      ]
-    },
-    {
-      "title": "Cook Pasta",
-      "description": "Bring a pot of water to a boil, season it with salt, and cook the pasta or spaghetti until it is al dente. Adjust the amount of salt based on the saltiness of other ingredients.",
-      "original_subgoal_ids": [
-        1,
-        9,
-        12
-      ]
-    },
-    {
-      "title": "Prepare Meat",
-      "description": "For guanciale: Remove the skin, slice, and chop it into chunks. Cook it in a cold pan to render the fat. For bacon: Slice or chop it into pieces and cook in a pan over medium heat until crispy, draining excess fat but leaving a small amount in the pan.",
-      "original_subgoal_ids": [
-        2,
-        8
-      ]
-    },
-    {
-      "title": "Add Flavorings",
-      "description": "Add cracked garlic and freshly cracked black pepper to the pan with the guanciale or bacon to infuse flavors.",
-      "original_subgoal_ids": [
-        3
-      ]
-    },
-    {
-      "title": "Prepare Egg Mixture",
-      "description": "Crack eggs into a bowl and mix with pecorino cheese to create the egg mixture for the carbonara sauce. Optionally, separate the egg yolks from the whites and mix whole eggs and egg yolks, whisking them together with the grated cheese to form a smooth mixture. Optionally, add some pasta water to create the sauce.",
-      "original_subgoal_ids": [
-        4,
-        11
-      ]
-    },
-    {
-      "title": "Combine Pasta and Meat",
-      "description": "Add the cooked pasta and some pasta water to the pan with the guanciale or bacon, turning off the heat to stop frying and start emulsifying the sauce.",
-      "original_subgoal_ids": [
-        5
-      ]
-    },
-    {
-      "title": "Add Egg Mixture",
-      "description": "Add the egg and cheese mixture to the pasta and guanciale or bacon, tossing to create a creamy sauce through emulsification. Ensure the eggs cook gently to form a creamy sauce without scrambling. Add pasta water as needed to achieve a creamy consistency.",
-      "original_subgoal_ids": [
-        6,
-        13
-      ]
-    },
-    {
-      "title": "Finish and Serve",
-      "description": "Finish the dish with additional black pepper and pecorino cheese. Plate the pasta, garnish with additional cheese, crispy bacon or guanciale, and pepper, and serve immediately.",
-      "original_subgoal_ids": [
-        7,
-        14
-      ]
-    }
-  ]
-}
-MESSAGES: [
-  {
-    "role": "system",
-    "content": "You are a helpful assistant specializing in analyzing procedural content across different how-to videos about task `How to make Pasta Carbonara?`. Given a set of subgoals collected from different tutorial videos about the task, (1) identify subgoals that have the same high-level purpose or objective, (2) merge each set of similar subgoals. Make sure that merged subgoals have consistent level of complexity and detail, and their descriptions capture all information variations in different tutorials. Ensure that all the original subgoals are captured in the final set of merged subgoals."
-  },
-  {
-    "role": "user",
-    "content": [
-      {
-        "type": "text",
-        "text": "## Subgoals:\n"
-      },
-      {
-        "type": "text",
-        "text": "0. Boil pasta: Boil water, add salt, and cook pasta until done."
-      },
-      {
-        "type": "text",
-        "text": "1. Prepare guanciale: Cut guanciale or pancetta into chunks for the sauce."
-      },
-      {
-        "type": "text",
-        "text": "2. Cook guanciale: Cook guanciale in olive oil to start the sauce."
-      },
-      {
-        "type": "text",
-        "text": "3. Prepare egg mixture: Beat eggs with parmesan, pecorino, and pepper for the sauce."
-      },
-      {
-        "type": "text",
-        "text": "4. Combine pasta and sauce: Mix cooked pasta with guanciale and egg mixture to form the sauce."
-      },
-      {
-        "type": "text",
-        "text": "5. Add final touches: Add parmesan or pecorino and pepper to finish the dish."
-      },
-      {
-        "type": "text",
-        "text": "6. Prepare Ingredients: Gather and prepare all necessary ingredients for making pasta carbonara, including guanciale or bacon, pecorino romano, eggs, pasta, black pepper, and optional garlic. Grate the cheeses finely using a cheese grater or box grater."
-      },
-      {
-        "type": "text",
-        "text": "7. Cook Pasta: Bring a pot of water to a boil, season it with salt, and cook the pasta or spaghetti until it is al dente. Adjust the amount of salt based on the saltiness of other ingredients."
-      },
-      {
-        "type": "text",
-        "text": "8. Prepare Meat: For guanciale: Remove the skin, slice, and chop it into chunks. Cook it in a cold pan to render the fat. For bacon: Slice or chop it into pieces and cook in a pan over medium heat until crispy, draining excess fat but leaving a small amount in the pan."
-      },
-      {
-        "type": "text",
-        "text": "9. Add Flavorings: Add cracked garlic and freshly cracked black pepper to the pan with the guanciale or bacon to infuse flavors."
-      },
-      {
-        "type": "text",
-        "text": "10. Prepare Egg Mixture: Crack eggs into a bowl and mix with pecorino cheese to create the egg mixture for the carbonara sauce. Optionally, separate the egg yolks from the whites and mix whole eggs and egg yolks, whisking them together with the grated cheese to form a smooth mixture. Optionally, add some pasta water to create the sauce."
-      },
-      {
-        "type": "text",
-        "text": "11. Combine Pasta and Meat: Add the cooked pasta and some pasta water to the pan with the guanciale or bacon, turning off the heat to stop frying and start emulsifying the sauce."
-      },
-      {
-        "type": "text",
-        "text": "12. Add Egg Mixture: Add the egg and cheese mixture to the pasta and guanciale or bacon, tossing to create a creamy sauce through emulsification. Ensure the eggs cook gently to form a creamy sauce without scrambling. Add pasta water as needed to achieve a creamy consistency."
-      },
-      {
-        "type": "text",
-        "text": "13. Finish and Serve: Finish the dish with additional black pepper and pecorino cheese. Plate the pasta, garnish with additional cheese, crispy bacon or guanciale, and pepper, and serve immediately."
-      }
-    ]
-  }
-]
-RESPONSE: {
-  "subgoals": [
-    {
-      "title": "Prepare Ingredients",
-      "description": "Gather and prepare all necessary ingredients for making pasta carbonara, including guanciale or bacon, pecorino romano, eggs, pasta, black pepper, and optional garlic. Grate the cheeses finely using a cheese grater or box grater.",
-      "original_subgoal_ids": [
-        6
-      ]
-    },
-    {
-      "title": "Boil Pasta",
-      "description": "Bring a pot of water to a boil, season it with salt, and cook the pasta or spaghetti until it is al dente. Adjust the amount of salt based on the saltiness of other ingredients.",
-      "original_subgoal_ids": [
-        0,
-        7
-      ]
-    },
-    {
-      "title": "Prepare Meat",
-      "description": "For guanciale: Remove the skin, slice, and chop it into chunks. Cook it in a cold pan to render the fat. For bacon: Slice or chop it into pieces and cook in a pan over medium heat until crispy, draining excess fat but leaving a small amount in the pan. Optionally, add cracked garlic and freshly cracked black pepper to the pan with the guanciale or bacon to infuse flavors.",
-      "original_subgoal_ids": [
-        1,
-        2,
-        8,
-        9
-      ]
-    },
-    {
-      "title": "Prepare Egg Mixture",
-      "description": "Crack eggs into a bowl and mix with pecorino cheese to create the egg mixture for the carbonara sauce. Optionally, separate the egg yolks from the whites and mix whole eggs and egg yolks, whisking them together with the grated cheese to form a smooth mixture. Optionally, add some pasta water to create the sauce.",
-      "original_subgoal_ids": [
-        3,
-        10
-      ]
-    },
-    {
-      "title": "Combine Pasta and Meat",
-      "description": "Add the cooked pasta and some pasta water to the pan with the guanciale or bacon, turning off the heat to stop frying and start emulsifying the sauce.",
-      "original_subgoal_ids": [
-        4,
-        11
-      ]
-    },
-    {
-      "title": "Add Egg Mixture",
-      "description": "Add the egg and cheese mixture to the pasta and guanciale or bacon, tossing to create a creamy sauce through emulsification. Ensure the eggs cook gently to form a creamy sauce without scrambling. Add pasta water as needed to achieve a creamy consistency.",
-      "original_subgoal_ids": [
-        12
-      ]
-    },
-    {
-      "title": "Finish and Serve",
-      "description": "Finish the dish with additional black pepper and pecorino cheese. Plate the pasta, garnish with additional cheese, crispy bacon or guanciale, and pepper, and serve immediately.",
-      "original_subgoal_ids": [
-        5,
-        13
-      ]
-    }
-  ]
-}
-MESSAGES: [
-  {
-    "role": "system",
-    "content": "You are a helpful assistant specializing in analyzing procedural content across different how-to videos about task `How to make Pasta Carbonara?`. Given a set of subgoals collected from different tutorial videos about the task, (1) identify subgoals that have the same high-level purpose or objective, (2) merge each set of similar subgoals. Make sure that merged subgoals have consistent level of complexity and detail, and their descriptions capture all information variations in different tutorials. Ensure that all the original subgoals are captured in the final set of merged subgoals."
-  },
-  {
-    "role": "user",
-    "content": [
-      {
-        "type": "text",
-        "text": "## Subgoals:\n"
-      },
-      {
-        "type": "text",
-        "text": "0. Toast Peppercorns: Toast black peppercorns in a pan over medium-low heat until fragrant, ensuring they are moved around for even toasting."
-      },
-      {
-        "type": "text",
-        "text": "1. Prepare Ingredients: Gather all necessary ingredients within arm's reach to ensure a smooth cooking process without delays."
-      },
-      {
-        "type": "text",
-        "text": "2. Crush Peppercorns: Crush the toasted peppercorns using a pan or grinder to achieve a coarse texture."
-      },
-      {
-        "type": "text",
-        "text": "3. Grate Cheese: Grate Parmesan and Pecorino cheeses finely using a microplane for a smooth sauce texture."
-      },
-      {
-        "type": "text",
-        "text": "4. Prepare Eggs: Bring eggs to room temperature and separate yolks from whites to prepare for mixing with cheese."
-      },
-      {
-        "type": "text",
-        "text": "5. Mix Eggs and Cheese: Combine grated cheese with eggs to form a smooth, creamy mixture, adding some crushed peppercorns for flavor."
-      },
-      {
-        "type": "text",
-        "text": "6. Prepare Guanciale: Cut guanciale into large chunks or matchsticks, ready for cooking."
-      },
-      {
-        "type": "text",
-        "text": "7. Cook Pasta: Boil pasta in salted water until al dente, stirring occasionally to prevent sticking."
-      },
-      {
-        "type": "text",
-        "text": "8. Cook Guanciale: Cook guanciale in a pan with a little olive oil until light golden brown, ensuring it retains some chewiness."
-      },
-      {
-        "type": "text",
-        "text": "9. Mix Pasta and Sauce: Combine cooked pasta with egg and cheese mixture, guanciale, and its fat, mixing thoroughly to emulsify the sauce."
-      },
-      {
-        "type": "text",
-        "text": "10. Serve Carbonara: Plate the carbonara, adding extra guanciale, pepper, and cheese on top before serving hot."
-      },
-      {
-        "type": "text",
-        "text": "11. Prepare Ingredients: Gather and prepare all necessary ingredients for making pasta carbonara, including guanciale or bacon, pecorino romano, eggs, pasta, black pepper, and optional garlic. Grate the cheeses finely using a cheese grater or box grater."
-      },
-      {
-        "type": "text",
-        "text": "12. Boil Pasta: Bring a pot of water to a boil, season it with salt, and cook the pasta or spaghetti until it is al dente. Adjust the amount of salt based on the saltiness of other ingredients."
-      },
-      {
-        "type": "text",
-        "text": "13. Prepare Meat: For guanciale: Remove the skin, slice, and chop it into chunks. Cook it in a cold pan to render the fat. For bacon: Slice or chop it into pieces and cook in a pan over medium heat until crispy, draining excess fat but leaving a small amount in the pan. Optionally, add cracked garlic and freshly cracked black pepper to the pan with the guanciale or bacon to infuse flavors."
-      },
-      {
-        "type": "text",
-        "text": "14. Prepare Egg Mixture: Crack eggs into a bowl and mix with pecorino cheese to create the egg mixture for the carbonara sauce. Optionally, separate the egg yolks from the whites and mix whole eggs and egg yolks, whisking them together with the grated cheese to form a smooth mixture. Optionally, add some pasta water to create the sauce."
-      },
-      {
-        "type": "text",
-        "text": "15. Combine Pasta and Meat: Add the cooked pasta and some pasta water to the pan with the guanciale or bacon, turning off the heat to stop frying and start emulsifying the sauce."
-      },
-      {
-        "type": "text",
-        "text": "16. Add Egg Mixture: Add the egg and cheese mixture to the pasta and guanciale or bacon, tossing to create a creamy sauce through emulsification. Ensure the eggs cook gently to form a creamy sauce without scrambling. Add pasta water as needed to achieve a creamy consistency."
-      },
-      {
-        "type": "text",
-        "text": "17. Finish and Serve: Finish the dish with additional black pepper and pecorino cheese. Plate the pasta, garnish with additional cheese, crispy bacon or guanciale, and pepper, and serve immediately."
-      }
-    ]
-  }
-]
-RESPONSE: {
-  "subgoals": [
-    {
-      "title": "Toast Peppercorns",
-      "description": "Toast black peppercorns in a pan over medium-low heat until fragrant, ensuring they are moved around for even toasting.",
-      "original_subgoal_ids": [
-        0
-      ]
-    },
-    {
-      "title": "Prepare Ingredients",
-      "description": "Gather and prepare all necessary ingredients for making pasta carbonara, including guanciale or bacon, pecorino romano, eggs, pasta, black pepper, and optional garlic. Grate the cheeses finely using a cheese grater or box grater. Bring eggs to room temperature and separate yolks from whites to prepare for mixing with cheese.",
-      "original_subgoal_ids": [
-        1,
-        3,
-        4,
-        11
-      ]
-    },
-    {
-      "title": "Crush Peppercorns",
-      "description": "Crush the toasted peppercorns using a pan or grinder to achieve a coarse texture.",
-      "original_subgoal_ids": [
-        2
-      ]
-    },
-    {
-      "title": "Prepare Egg Mixture",
-      "description": "Crack eggs into a bowl and mix with pecorino cheese to create the egg mixture for the carbonara sauce. Optionally, separate the egg yolks from the whites and mix whole eggs and egg yolks, whisking them together with the grated cheese to form a smooth mixture. Optionally, add some pasta water to create the sauce. Add some crushed peppercorns for flavor.",
-      "original_subgoal_ids": [
-        5,
-        14
-      ]
-    },
-    {
-      "title": "Prepare Guanciale",
-      "description": "Cut guanciale into large chunks or matchsticks, ready for cooking. For guanciale: Remove the skin, slice, and chop it into chunks. Cook it in a cold pan to render the fat. For bacon: Slice or chop it into pieces and cook in a pan over medium heat until crispy, draining excess fat but leaving a small amount in the pan. Optionally, add cracked garlic and freshly cracked black pepper to the pan with the guanciale or bacon to infuse flavors.",
-      "original_subgoal_ids": [
-        6,
-        13
-      ]
-    },
-    {
-      "title": "Cook Pasta",
-      "description": "Boil pasta in salted water until al dente, stirring occasionally to prevent sticking. Adjust the amount of salt based on the saltiness of other ingredients.",
-      "original_subgoal_ids": [
-        7,
-        12
-      ]
-    },
-    {
-      "title": "Cook Guanciale",
-      "description": "Cook guanciale in a pan with a little olive oil until light golden brown, ensuring it retains some chewiness.",
-      "original_subgoal_ids": [
-        8
-      ]
-    },
-    {
-      "title": "Combine Pasta and Meat",
-      "description": "Add the cooked pasta and some pasta water to the pan with the guanciale or bacon, turning off the heat to stop frying and start emulsifying the sauce.",
-      "original_subgoal_ids": [
-        15
-      ]
-    },
-    {
-      "title": "Mix Pasta and Sauce",
-      "description": "Combine cooked pasta with egg and cheese mixture, guanciale, and its fat, mixing thoroughly to emulsify the sauce. Add the egg and cheese mixture to the pasta and guanciale or bacon, tossing to create a creamy sauce through emulsification. Ensure the eggs cook gently to form a creamy sauce without scrambling. Add pasta water as needed to achieve a creamy consistency.",
-      "original_subgoal_ids": [
-        9,
-        16
-      ]
-    },
-    {
-      "title": "Serve Carbonara",
-      "description": "Plate the carbonara, adding extra guanciale, pepper, and cheese on top before serving hot. Finish the dish with additional black pepper and pecorino cheese. Plate the pasta, garnish with additional cheese, crispy bacon or guanciale, and pepper, and serve immediately.",
-      "original_subgoal_ids": [
-        10,
-        17
-      ]
+      "explanation": "This segment corresponds to the 'Finish Dish' subgoal, as it involves final seasoning and presentation of the dish.",
+      "title": "Finish Dish",
+      "description": "Season with black pepper and additional cheese if desired. This step includes tasting for seasoning, adjusting flavors, and serving the dish in an appealing manner. This includes adding garnishes like crispy bacon and additional cheese.",
+      "start_index": 174,
+      "end_index": 178
     }
   ]
 }

@@ -162,7 +162,7 @@ def parse_args(args):
     parser.add_argument("-t", "--task", dest="task_id", help="Task ID")
     return parser.parse_args(args)
 
-def main(args=["-t", "carbonara"]):
+def main(args):
     parsed_args = parse_args(args)
     task_id = parsed_args.task_id
     ds = process_task(task_id)
@@ -173,4 +173,5 @@ def main(args=["-t", "carbonara"]):
 
 
 if __name__ == "__main__":
-    main()
+    args = sys.argv[1:]
+    main(args)

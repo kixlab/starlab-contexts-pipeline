@@ -233,14 +233,68 @@ def extract_subgoals_v4(steps, task):
 
 
 ## V5
-def extract_subgoal_segments_v5(contents, task):
+
+SYSTEM_PROMPT_DEFINE_INITIAL_SUBGOALS_V5 = """
+You specialize in creating novice-friendly tutorials for procedural tasks.
+
+Define a set of `subgoals` that can guide novices through the task `{task}`. Ensure each `subgoal` meets the following requirements:
+    a) Goal-Oriented: Represents an overarching objective or subtask that structures the process into meaningful phases.
+    b) Procedural: Describes a procedural objective that is essential for progressing in the task.
+    c) Generalizable: Accommodates variations in materials, tools, methods, and outcomes.
+
+Output the `subgoals` for the task `{task}`.
+"""
+
+def define_initial_subgoals_v5(task):
     messages = [
-        {"role": "system", "content": "You are a helpful assistant specializing in analyzing tutorials. Based on the narration of a tutorial video for the task `{task}`:\n(1) extract a sequence of `subgoals` performed to complete the task;\n(2) segment the video according to these `subgoals`;\n`Subgoals` are high-level objectives in the procedural task that are generalized and do not depend on variations in materials, tools, methods, or expected outcomes. Do not include non-procedural segments such as `Introduction` or `Conclusion`.".format(task=task)},
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT_DEFINE_INITIAL_SUBGOALS_V5.format(task=task),
+        },
+    ]
+    
+    response = get_response_pydantic(messages, SubgoalsSchema)
+    subgoals = response["subgoals"]
+    return subgoals
+
+SYSTEM_PROMPT_EXTRACT_SUBGOAL_SEGMENTS_V5 = """
+You specialize in analyzing tutorials for procedural tasks.
+
+Given a narration of a tutorial video and a set of `subgoals` for the task `{task}`, segment the narration based on the given `subgoals`.
+
+Step 1: Analyze the narration and identify meaningful segments. There are 3 types of segments:
+    a) A segment that directly or roughly corresponds to one of the provided `subgoals`.
+    b) A segment that contains procedural information, but does not correspond to any of the provided `subgoals`.
+    c) A segment that does not contain procedural information. Usually, at the beginning or end of the video.
+
+Step 2-a: If a segment is of type (a), assign the corresponding `subgoal` to it and, if necessary, update the description of the `subgoal` so that it also covers the content of the segment.
+Step 2-b: If a segment is of type (b), define a new `subgoal` that follows these requirements:
+    a) Goal-Oriented: Represents an overarching objective or subtask that structures the process into meaningful phases.
+    b) Procedural: Describes a procedural objective that is essential for progressing in the task.
+    c) Generalizable: Accommodates variations in materials, tools, methods, and outcomes.
+Step 2-c: If a segment is of type (c), ignore it.
+
+Output the segmented narration based on the `subgoals`.
+"""
+
+
+def extract_subgoal_segments_v5(contents, subgoals, task):
+    messages = [
+        {   "role": "system",
+            "content": SYSTEM_PROMPT_EXTRACT_SUBGOAL_SEGMENTS_V5.format(task=task),
+        },
         {
             "role": "user",
             "content": [{
                 "type": "text",
-                "text": f"## Contents:\n"
+                "text": f"## Subgoals:\n"
+            }] + extend_contents(subgoals, include_ids=False),
+        },
+        {
+            "role": "user",
+            "content": [{
+                "type": "text",
+                "text": f"## Narration:\n"
             }] + extend_contents(contents, include_ids=True),
         },
     ]
@@ -315,9 +369,30 @@ def aggregate_subgoals_v5(subgoals, task):
     response = get_response_pydantic(messages, SubgoalSchema)
     return response
 
+
+SYSTEM_PROMPT_AGGREGATE_SUBGOAL_SET_V5 = """
+You specialize in analyzing tutorials for procedural tasks.
+
+Given `subgoals` extracted from different tutorials for the task `{task}`, generate a single comprehensive set of `parent subgoals` that generalize all the given subgoals. Follow these steps:
+
+Step 1: Analyze and group the given `subgoals` based on similar objectives or their relevance to the same overarching subtask.
+    - Each group must represent a distinct, meaningful objective or subtask within the task.
+    - Each subgoal should belong to only one group.
+    - Create a new group if a subgoal does not align with existing groups.
+
+Step 2: Synthesize a single `parent subgoal` for each group to represent the shared objective or subtask of its subgoals.
+    - Ensure the parent subgoal is concise, goal-oriented, and abstract, avoiding specific tools, materials, methods, or outcomes.
+    - Incorporate the descriptions of all subgoals in the group while maintaining generalizability to variations across tutorials.
+    - Ensure the parent subgoals are distinct and non-overlapping to structure the task into a comprehensive set of phases.
+
+Output the final set of `parent subgoals` with their corresponding grouped subgoals."
+"""
+
 def aggregate_subgoal_set_v5(contents, task):
     messages = [
-        {"role": "system", "content": "You are a helpful assistant specializing in analyzing procedural content across different how-to videos about task `{task}`. Given a set of subgoals collected from different tutorial videos about the task, (1) identify subgoals that have the same high-level purpose or objective, (2) merge each set of similar subgoals. Make sure that merged subgoals have consistent level of complexity and detail, and their descriptions capture all information variations in different tutorials. Ensure that all the original subgoals are captured in the final set of merged subgoals.".format(task=task)},
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT_AGGREGATE_SUBGOAL_SET_V5.format(task=task)},
         {
             "role": "user",
             "content": [{
@@ -326,6 +401,8 @@ def aggregate_subgoal_set_v5(contents, task):
             }] + extend_contents(contents, include_ids=True),
         },
     ]
+
+    print(AggregatedSubgoalsSchema.model_json_schema())
 
     response = get_response_pydantic(messages, AggregatedSubgoalsSchema)
 

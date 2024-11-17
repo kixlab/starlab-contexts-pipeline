@@ -34,7 +34,7 @@ def get_subgoal_summary_v4(contents, subgoal, task):
     messages = [
         {
             "role": "system",
-            "content": "You are a helpful assistant specializing in analyzing tutorial video content. Given a narration of a tutorial video for the task `{task}`, identify and extract all procedural information for stage `{subgoal}`.".format(task=task, subgoal=subgoal)
+            "content": "You are a helpful assistant specializing in analyzing tutorial video content. Given a narration of a tutorial video for the task `{task}`, identify and extract all procedural information for subgoal `{subgoal}`.".format(task=task, subgoal=subgoal)
         },
         {
             "role": "user",

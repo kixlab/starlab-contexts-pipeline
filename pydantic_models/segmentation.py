@@ -67,8 +67,9 @@ def get_segmentation_schema_v4(titles):
 ## V5
 
 class SubgoalSchema(BaseModel):
-    title: str = Field(..., title="A 1 to 3 words title of the subgoal")
-    description: str = Field(..., title="A subgoal description that specifies the procedural information it should contain in potentially different tutorial videos about the similar task.")
+    explanation: str = Field(..., title="The explanation or reasoning behind the subgoal")
+    title: str = Field(..., title="A 1 to 3 words title of the subgoal, which is high-level and as abstracted as possible, avoiding specific tools, materials/ingredients, methods, or outcomes.")
+    description: str = Field(..., title="A subgoal description/definition that specifies the `procedural information` it should cover, potentially in different tutorial videos, in terms of the steps, materials, tools, outcomes, and other relevant information.")
 
 class SubgoalSegmentSchema(SubgoalSchema):
     start_index: int = Field(..., title="The start index of the subgoal segment in the transcript")
@@ -78,10 +79,13 @@ class AggregatedSubgoalSchema(SubgoalSchema):
     original_subgoal_ids: list[int] = Field(..., title="The list of ids of original subgoals that are mapped to the aggregated subgoal.")
 
 class SubgoalsSchema(BaseModel):
+    explanation: str = Field(..., title="The explanation or reasoning behind the subgoals")
     subgoals: list[SubgoalSchema] = Field(..., title="The list of subgoals to achieve the task.")
 
 class SubgoalSegmentationSchema(BaseModel):
+    explanation: str = Field(..., title="the explanation or reasoning behind the subgoal segmentation")
     segments: list[SubgoalSegmentSchema] = Field(..., title="The comprehensive list of subgoal-based segments in the video.")
 
 class AggregatedSubgoalsSchema(BaseModel):
+    explanation: str = Field(..., title="The explanation or reasoning behind the aggregated subgoals")
     subgoals: list[AggregatedSubgoalSchema] = Field(..., title="The list of aggregated subgoals with their original subgoals.")

@@ -1,0 +1,277 @@
+[
+  {
+    "subgoal_id": "subgoal-111981a3-419a-4f6d-b10a-2ca017581b12",
+    "title": "Toast Peppercorns",
+    "description": "Toast black peppercorns in a pan over medium-low heat until fragrant, ensuring they are moved around for even toasting.",
+    "original_subgoals": [
+      {
+        "id": "segment-2a1b0a16-4f3f-4ebe-b4e8-ad8a56f7ffa5",
+        "title": "Toast Peppercorns",
+        "description": "Toast black peppercorns in a pan over medium-low heat until fragrant, ensuring they are moved around for even toasting."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "subgoal-3ec93f33-e3d6-4070-86b1-393ed1ceeacf",
+    "title": "Prepare Ingredients",
+    "description": "Gather and prepare all necessary ingredients for making pasta carbonara, including guanciale or bacon, pecorino romano, eggs, pasta, black pepper, and optional garlic. Grate the cheeses finely using a cheese grater or box grater. Bring eggs to room temperature and separate yolks from whites to prepare for mixing with cheese.",
+    "original_subgoals": [
+      {
+        "id": "segment-5f00e91f-04d0-40d2-90d0-25d91b965555",
+        "title": "Prepare Ingredients",
+        "description": "Gather all necessary ingredients within arm's reach to ensure a smooth cooking process without delays."
+      },
+      {
+        "id": "segment-190099eb-3745-4aa7-a8d9-7fc6e46d6bf4",
+        "title": "Grate Cheese",
+        "description": "Grate Parmesan and Pecorino cheeses finely using a microplane for a smooth sauce texture."
+      },
+      {
+        "id": "segment-e7fe0837-916d-4879-8fab-f9a22719409d",
+        "title": "Prepare Eggs",
+        "description": "Bring eggs to room temperature and separate yolks from whites to prepare for mixing with cheese."
+      },
+      {
+        "id": "segment-eb888e66-ab6a-47fd-a88a-dc290645f7e4",
+        "title": "Prepare Ingredients",
+        "description": "Gather and prepare all necessary ingredients for making pasta carbonara, including guanciale, pecorino romano, eggs, pasta, black pepper, and optional garlic."
+      },
+      {
+        "id": "segment-0ad6f9a1-e099-44fa-832b-da566b564185",
+        "title": "Grate Cheese",
+        "description": "Grate Pecorino Romano and Parmigiano Reggiano cheeses finely, using a cheese grater or box grater."
+      },
+      {
+        "id": "segment-8f84cda1-b4b7-4c90-b158-74e3f40b882c",
+        "title": "Grate cheese",
+        "description": "Grate the cheese to prepare it for mixing with the egg yolks."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "subgoal-0025040b-d3ea-409e-9d6a-f81386ed0fa2",
+    "title": "Crush Peppercorns",
+    "description": "Crush the toasted peppercorns using a pan or grinder to achieve a coarse texture.",
+    "original_subgoals": [
+      {
+        "id": "segment-6e1f51e9-b2a8-4168-8b71-b79820197290",
+        "title": "Crush Peppercorns",
+        "description": "Crush the toasted peppercorns using a pan or grinder to achieve a coarse texture."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "subgoal-0774f2d1-cb02-4c4c-9fc7-c32680e4fcbe",
+    "title": "Prepare Egg Mixture",
+    "description": "Crack eggs into a bowl and mix with pecorino cheese to create the egg mixture for the carbonara sauce. Optionally, separate the egg yolks from the whites and mix whole eggs and egg yolks, whisking them together with the grated cheese to form a smooth mixture. Optionally, add some pasta water to create the sauce. Add some crushed peppercorns for flavor.",
+    "original_subgoals": [
+      {
+        "id": "segment-5a055a73-4818-4577-8894-227186e76c04",
+        "title": "Mix Eggs and Cheese",
+        "description": "Combine grated cheese with eggs to form a smooth, creamy mixture, adding some crushed peppercorns for flavor."
+      },
+      {
+        "id": "segment-214b5aac-8595-4c9f-92b9-2451a035b747",
+        "title": "Prepare egg mixture",
+        "description": "Beat eggs with parmesan, pecorino, and pepper for the sauce."
+      },
+      {
+        "id": "segment-fd445e02-893f-481e-bc40-9dc8acdf9122",
+        "title": "Prepare Egg Mixture",
+        "description": "Crack eggs into a bowl and mix with pecorino cheese to create the egg mixture for the carbonara sauce."
+      },
+      {
+        "id": "segment-a681e409-1d48-4489-bc72-302b63df1833",
+        "title": "Prepare Egg Mixture",
+        "description": "Mix whole eggs and egg yolks, whisk them together, and incorporate the grated cheese to form a smooth mixture."
+      },
+      {
+        "id": "segment-733de53c-c585-4671-a784-c342e4933ea6",
+        "title": "Separate egg yolks",
+        "description": "Separate the egg yolks from the whites to use in the sauce."
+      },
+      {
+        "id": "segment-e74a8d57-9afb-443f-8f3a-66eaa0d09f73",
+        "title": "Mix sauce ingredients",
+        "description": "Combine the grated cheese, egg yolks, and some pasta water to create the sauce."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "subgoal-c5d423c3-0fea-4e5c-b8d6-fbc26e0dc78c",
+    "title": "Prepare Guanciale",
+    "description": "Cut guanciale into large chunks or matchsticks, ready for cooking. For guanciale: Remove the skin, slice, and chop it into chunks. Cook it in a cold pan to render the fat. For bacon: Slice or chop it into pieces and cook in a pan over medium heat until crispy, draining excess fat but leaving a small amount in the pan. Optionally, add cracked garlic and freshly cracked black pepper to the pan with the guanciale or bacon to infuse flavors.",
+    "original_subgoals": [
+      {
+        "id": "segment-0a54ea1d-ff23-4815-b207-d8e8179dffb0",
+        "title": "Prepare Guanciale",
+        "description": "Cut guanciale into large chunks or matchsticks, ready for cooking."
+      },
+      {
+        "id": "segment-1111645a-2f66-411e-b69b-03474e8e9f1f",
+        "title": "Prepare guanciale",
+        "description": "Cut guanciale or pancetta into chunks for the sauce."
+      },
+      {
+        "id": "segment-1f25935e-732a-4c43-b05f-c5126e622d9f",
+        "title": "Cook guanciale",
+        "description": "Cook guanciale in olive oil to start the sauce."
+      },
+      {
+        "id": "segment-6961cd95-fc49-48c0-b704-72dbb2d5c4a8",
+        "title": "Prepare Guanciale",
+        "description": "Remove the skin from the guanciale, slice it, and chop it into chunks. Begin cooking it in a cold pan to render the fat."
+      },
+      {
+        "id": "segment-502097ec-bc49-4a4d-8ade-ee5fb5ef1a4d",
+        "title": "Prepare Bacon",
+        "description": "Slice the bacon into thick pieces and cook it in a pan over medium heat to render out the fat and make it crispy."
+      },
+      {
+        "id": "segment-aa7968e8-9900-4395-8882-000c194379d3",
+        "title": "Render Bacon Fat",
+        "description": "Continue cooking the bacon until the fat is rendered and the bacon is crispy, then drain excess fat, leaving a small amount in the pan."
+      },
+      {
+        "id": "segment-54700317-3cc8-49de-944e-2c94eee8c0e0",
+        "title": "Prepare bacon",
+        "description": "Chop the bacon into small pieces to prepare it for cooking."
+      },
+      {
+        "id": "segment-cf7a588e-0893-4082-962b-092248ba8607",
+        "title": "Cook bacon",
+        "description": "Cook the chopped bacon until it is crispy, then turn off the heat and let it cool slightly."
+      },
+      {
+        "id": "segment-9cd1dde2-9e8f-4a62-9669-a18f70c71359",
+        "title": "Add Garlic and Pepper",
+        "description": "Add cracked garlic and freshly cracked black pepper to the pan with the guanciale to infuse flavors."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "subgoal-2e6eb4c0-33f7-4e91-a168-9b8e3d8c2ffe",
+    "title": "Cook Pasta",
+    "description": "Boil pasta in salted water until al dente, stirring occasionally to prevent sticking. Adjust the amount of salt based on the saltiness of other ingredients.",
+    "original_subgoals": [
+      {
+        "id": "segment-2f937e39-6a29-4f3c-9211-2f6930a75ea7",
+        "title": "Cook Pasta",
+        "description": "Boil pasta in salted water until al dente, stirring occasionally to prevent sticking."
+      },
+      {
+        "id": "segment-1b88a273-ac24-4e1b-b79b-b21afb98cd16",
+        "title": "Boil pasta",
+        "description": "Boil water, add salt, and cook pasta until done."
+      },
+      {
+        "id": "segment-f32f9fe5-69db-4ba8-ac54-c84a3d2b00da",
+        "title": "Cook Pasta",
+        "description": "Cook the pasta in boiling water with a small amount of salt until it is al dente."
+      },
+      {
+        "id": "segment-2917a2ed-5da7-42c2-ba70-3dbb6ea640ca",
+        "title": "Prepare Pasta Water",
+        "description": "Bring a pot of water to a boil and season it with salt, adjusting the amount based on the saltiness of other ingredients."
+      },
+      {
+        "id": "segment-dff4e007-90b8-446c-82b7-f981685a303c",
+        "title": "Cook Spaghetti",
+        "description": "Cook the spaghetti in boiling water until slightly al dente, then transfer it to the pan with bacon fat."
+      },
+      {
+        "id": "segment-0ed38bcb-15c9-43ff-bc3c-f9d4a84b3570",
+        "title": "Cook spaghetti",
+        "description": "Boil the spaghetti in salted water until it is cooked al dente."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "subgoal-c78a20b9-b238-4db0-9fc8-41e2743f3a0c",
+    "title": "Cook Guanciale",
+    "description": "Cook guanciale in a pan with a little olive oil until light golden brown, ensuring it retains some chewiness.",
+    "original_subgoals": [
+      {
+        "id": "segment-b7c6fefc-5e5c-4632-9612-9b8460d0d86e",
+        "title": "Cook Guanciale",
+        "description": "Cook guanciale in a pan with a little olive oil until light golden brown, ensuring it retains some chewiness."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "subgoal-64ab6f78-d1fc-4ae0-a6df-2440d11861d1",
+    "title": "Combine Pasta and Meat",
+    "description": "Add the cooked pasta and some pasta water to the pan with the guanciale or bacon, turning off the heat to stop frying and start emulsifying the sauce.",
+    "original_subgoals": [
+      {
+        "id": "segment-d16ab9fd-f4bb-47b4-9987-b9b71b2169ee",
+        "title": "Combine pasta and sauce",
+        "description": "Mix cooked pasta with guanciale and egg mixture to form the sauce."
+      },
+      {
+        "id": "segment-a9ca0b3a-ea3d-4a09-bd88-72f13cd3d7b6",
+        "title": "Combine Pasta and Guanciale",
+        "description": "Add the cooked pasta and some pasta water to the pan with the guanciale, turning off the heat to stop frying and start emulsifying the sauce."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "subgoal-fc05a8af-c4a9-4bac-b3b8-3d7376bfc5f9",
+    "title": "Mix Pasta and Sauce",
+    "description": "Combine cooked pasta with egg and cheese mixture, guanciale, and its fat, mixing thoroughly to emulsify the sauce. Add the egg and cheese mixture to the pasta and guanciale or bacon, tossing to create a creamy sauce through emulsification. Ensure the eggs cook gently to form a creamy sauce without scrambling. Add pasta water as needed to achieve a creamy consistency.",
+    "original_subgoals": [
+      {
+        "id": "segment-3f89d5c1-6511-4918-8830-00692f496775",
+        "title": "Mix Pasta and Sauce",
+        "description": "Combine cooked pasta with egg and cheese mixture, guanciale, and its fat, mixing thoroughly to emulsify the sauce."
+      },
+      {
+        "id": "segment-8ca255b4-919c-4d3e-a118-ad544e264403",
+        "title": "Add Egg Mixture",
+        "description": "Add the egg and cheese mixture to the pasta and guanciale, tossing to create a creamy sauce through emulsification."
+      },
+      {
+        "id": "segment-d017f2e4-f5d6-4c65-b884-32e83c9b04dc",
+        "title": "Combine Ingredients",
+        "description": "Mix the cooked spaghetti with the egg and cheese mixture in the pan, ensuring the eggs cook gently to form a creamy sauce without scrambling."
+      },
+      {
+        "id": "segment-ca61d28d-a32c-4eca-a8b2-79d04cf0ed3b",
+        "title": "Combine pasta and sauce",
+        "description": "Mix the cooked spaghetti with the bacon and sauce, adding pasta water as needed to achieve a creamy consistency."
+      }
+    ]
+  },
+  {
+    "subgoal_id": "subgoal-7bf976aa-cf61-4e5b-a2bb-dbc05665f753",
+    "title": "Serve Carbonara",
+    "description": "Plate the carbonara, adding extra guanciale, pepper, and cheese on top before serving hot. Finish the dish with additional black pepper and pecorino cheese. Plate the pasta, garnish with additional cheese, crispy bacon or guanciale, and pepper, and serve immediately.",
+    "original_subgoals": [
+      {
+        "id": "segment-185972b7-75dd-43f5-aa51-e9e14cd1530e",
+        "title": "Serve Carbonara",
+        "description": "Plate the carbonara, adding extra guanciale, pepper, and cheese on top before serving hot."
+      },
+      {
+        "id": "segment-4f36cc6e-c7d4-48bf-a355-55e5c713c847",
+        "title": "Add final touches",
+        "description": "Add parmesan or pecorino and pepper to finish the dish."
+      },
+      {
+        "id": "segment-cf073e8a-b7ca-4a68-85a3-92cb1971d21d",
+        "title": "Finish and Serve",
+        "description": "Finish the dish with additional black pepper and pecorino cheese, and serve immediately."
+      },
+      {
+        "id": "segment-0d53b52f-7ee5-4921-b5a8-3a00fb1c6c72",
+        "title": "Plate and Garnish",
+        "description": "Plate the pasta, garnish with additional cheese and crispy bacon, and serve."
+      },
+      {
+        "id": "segment-16487801-80f3-4740-b0a8-69b0a39458be",
+        "title": "Finish dish",
+        "description": "Add final touches such as additional cheese and pepper before serving."
+      }
+    ]
+  }
+]
