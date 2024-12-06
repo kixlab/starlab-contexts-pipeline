@@ -6,6 +6,8 @@ from pydantic_models.segmentation import StepsSchema, AggStepsSchema, Transcript
 
 from pydantic_models.segmentation import SubgoalSegmentationSchema, SubgoalSchema, AggregatedSubgoalsSchema, SubgoalsSchema
 
+from pydantic_models.segmentation import SubgoalDescriptionsSchema
+
 def assign_transcripts_v4(contents, subgoals, task):
     messages = [
         {"role": "system", "content": "You are a helpful assistant specializing in analyzing tutorial video content. Given a narration of a tutorial video for the task `{task}` and a set of steps, analyze each sentence and find the steps it is talking about. You can specify multiple steps per sentence or leave it empty if it does not belong to any of the steps. Additionally, specify relevance of the sentence to the task at hand.".format(task=task)},
@@ -327,7 +329,7 @@ Define a set of `subgoals` that can guide novices through the task `{task}`. Ens
     b) Procedural: Describes a procedural objective that is essential for progressing in the task.
     c) Generalizable: Accommodates variations in materials, tools, methods, and outcomes.
 
-Output the `subgoals` for the task `{task}`.
+For each subgoal, provide a comprehensive list of descriptions of the expected outcomes of the subgoal.
 """
 
 def define_initial_subgoals_v5(task):
@@ -345,17 +347,14 @@ def define_initial_subgoals_v5(task):
 SYSTEM_PROMPT_EXTRACT_SUBGOAL_SEGMENTS_V5 = """
 You specialize in analyzing tutorials for procedural tasks.
 
-Given a sequence of steps performed in a tutorial and a set of `subgoals` for the task `{task}`, segment the steps based on the given `subgoals`.
+Given a narration of the tutorial and a set of `subgoals` for the task `{task}`, extract the descriptions of the subgoals from the narration. For each subgoal, identify all the relevant segments in the narration, and analyze the contents to extract the description of the subgoal following the template:
+`Apply [Method] using [Materials] [Tools] to achieve [Outcomes] to achieve [Subgoal]`
 
-Step 1: Analyze the steps and identify meaningful segments.
-
-Step 2: Assign each segment to one of the provided `subgoals`. If necessary, update the description of the `subgoal` so that it captures the essence of the segment as well (e.g., the intial definition of the `subgoal` and the objective of the current segment).
-
-Output the segmented narration based on the `subgoals`.
+Ensure that descriptions are comprehensive, extracting the right method and all materials, tools, outcomes for each subgoal.
 """
 
 
-def extract_subgoal_segments_v5(steps, subgoals, task):
+def extract_subgoal_segments_v5(contents, subgoals, task):
     messages = [
         {   "role": "system",
             "content": SYSTEM_PROMPT_EXTRACT_SUBGOAL_SEGMENTS_V5.format(task=task),
@@ -371,47 +370,49 @@ def extract_subgoal_segments_v5(steps, subgoals, task):
             "role": "user",
             "content": [{
                 "type": "text",
-                "text": f"## Steps:\n"
-            }] + extend_contents(steps, include_ids=True),
+                "text": f"## Narration:\n"
+            }] + extend_contents(contents, include_ids=True),
         },
     ]
 
-    response = get_response_pydantic(messages, SubgoalSegmentationSchema)
+    response = get_response_pydantic(messages, SubgoalDescriptionsSchema)
+    subgoals = response["subgoals"]
+    return subgoals
 
-    steps_coverage = [""] * len(steps)
-    response["segments"] = sorted(response["segments"], key=lambda x: x["start_index"])
+    # contents_coverage = [""] * len(contents)
+    # response["segments"] = sorted(response["segments"], key=lambda x: x["start_index"])
 
-    mapping = {
-        "": "",
-    }
+    # mapping = {
+    #     "": "",
+    # }
 
-    for segment in response["segments"]:
-        start = segment["start_index"]
-        finish = segment["end_index"] + 1
-        mapping[segment["title"]] = segment["description"]
-        for i in range(start, finish):
-            if steps_coverage[i] != "":
-                prev_title = steps_coverage[i]                
-                print("Potential ERROR: Overlapping segments", prev_title, segment["title"])
-            steps_coverage[i] = segment["title"]
-    segments = []
-    for index, step in enumerate(steps):
-        title = steps_coverage[index]
-        if len(segments) > 0 and segments[-1]["title"] == title:
-            ### Extend the current segment
-            segments[-1]["finish_index"] = index + 1
-            segments[-1]["text"] += "\n" + step["text"]
-            segments[-1]["frame_paths"] += [*step["frame_paths"]]
-        else:
-            segments.append({
-                "start_index": index,
-                "finish_index": index + 1,
-                "title": title,
-                "description": mapping[title],
-                "text": step["text"],
-                "frame_paths": [*step["frame_paths"]],
-            })
-    return segments
+    # for segment in response["segments"]:
+    #     start = segment["start_index"]
+    #     finish = segment["end_index"] + 1
+    #     mapping[segment["title"]] = segment["description"]
+    #     for i in range(start, finish):
+    #         if contents_coverage[i] != "":
+    #             prev_title = contents_coverage[i]                
+    #             print("Potential ERROR: Overlapping segments", prev_title, segment["title"])
+    #         contents_coverage[i] = segment["title"]
+    # segments = []
+    # for index, step in enumerate(steps):
+    #     title = contents_coverage[index]
+    #     if len(segments) > 0 and segments[-1]["title"] == title:
+    #         ### Extend the current segment
+    #         segments[-1]["finish_index"] = index + 1
+    #         segments[-1]["text"] += "\n" + step["text"]
+    #         segments[-1]["frame_paths"] += [*step["frame_paths"]]
+    #     else:
+    #         segments.append({
+    #             "start_index": index,
+    #             "finish_index": index + 1,
+    #             "title": title,
+    #             "description": mapping[title],
+    #             "text": step["text"],
+    #             "frame_paths": [*step["frame_paths"]],
+    #         })
+    # return segments
 
 
 def aggregate_subgoals_v5(subgoals, task):

@@ -97,7 +97,8 @@ def get_segmentation_schema_v4(titles):
 class SubgoalSchema(BaseModel):
     explanation: str = Field(..., title="The explanation or reasoning behind the subgoal")
     title: str = Field(..., title="A 1 to 3 words title of the subgoal, which is high-level and as abstracted as possible, avoiding specific tools, materials/ingredients, methods, or outcomes.")
-    description: str = Field(..., title="A subgoal description/definition that specifies the `procedural information` it should cover, potentially in different tutorial videos, in terms of the steps, materials, tools, outcomes, and other relevant information.")
+    # description: str = Field(..., title="A subgoal description/definition that specifies the `procedural information` it should cover, potentially in different tutorial videos, in terms of the steps, materials, tools, outcomes, and other relevant information.")
+    expected_outcome_description: list[str] = Field(..., title="The list of expected outcomes that the subgoal should cover.")
 
 class SubgoalSegmentSchema(SubgoalSchema):
     start_index: int = Field(..., title="The start index of the subgoal segment in the transcript")
@@ -106,9 +107,21 @@ class SubgoalSegmentSchema(SubgoalSchema):
 class AggregatedSubgoalSchema(SubgoalSchema):
     original_subgoal_ids: list[int] = Field(..., title="The list of ids of original subgoals that are mapped to the aggregated subgoal.")
 
+class SubgoalDescriptionSchema(SubgoalSchema):
+    description: str = Field(..., title="A subgoal description following the template: `Apply [Method] using [Materials] [Tools] to achieve [Outcomes] to achieve [Subgoal]`")
+    method: str = Field(..., title="The method or technique that is used to achieve the subgoal. Must be 1 to 3 words.")
+    materials: list[str] = Field(..., title="The list of materials or ingredients that are used to achieve the subgoal.")
+    tools: list[str] = Field(..., title="The list of tools or instruments that are used to achieve the subgoal.")
+    outcomes: list[str] = Field(..., title="The list of outcomes that are produced by achieving the subgoal.")
+
 class SubgoalsSchema(BaseModel):
     explanation: str = Field(..., title="The explanation or reasoning behind the subgoals")
     subgoals: list[SubgoalSchema] = Field(..., title="The list of subgoals to achieve the task.")
+
+class SubgoalDescriptionsSchema(BaseModel):
+    explanation: str = Field(..., title="The explanation or reasoning behind the subgoal descriptions")
+    subgoals: list[SubgoalDescriptionSchema] = Field(..., title="The list of subgoal descriptions to achieve the task.")
+
 
 class SubgoalSegmentationSchema(BaseModel):
     explanation: str = Field(..., title="the explanation or reasoning behind the subgoal segmentation")
