@@ -1,103 +1,181 @@
 [
   {
-    "subgoal_id": "segment-36cede33-0896-4d80-a804-1ff110d88f5b",
+    "explanation": "Gathering all necessary ingredients and tools ensures that the cooking process is smooth and uninterrupted.",
     "title": "Preparation",
-    "description": "Collect all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Gather tools like a pot, pan, whisk, and grater. Ensure everything is within reach before starting.",
+    "expected_outcome_description": [
+      "All ingredients are measured and ready to use.",
+      "Cooking tools and utensils are assembled and accessible.",
+      "The workspace is organized and clean."
+    ],
+    "subgoal_id": "subgoal-ef0f07d3-2d41-4ec2-9fb5-3b6b2bbb57d3",
     "original_subgoals": [
       {
-        "id": "segment-36cede33-0896-4d80-a804-1ff110d88f5b",
+        "id": "segment-75p4UHRIMcU-26fdec6f-eec2-41af-af91-af1c16b314ff",
         "title": "Preparation",
-        "description": "Collect all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Gather tools like a pot, pan, whisk, and grater. Ensure everything is within reach before starting."
+        "expected_outcome_description": [
+          "All ingredients are measured and ready to use.",
+          "Cooking tools and utensils are assembled and accessible.",
+          "The workspace is organized and clean."
+        ]
       },
       {
-        "id": "segment-19df136e-9166-4a6b-9dc1-1370978b6466",
+        "id": "segment-dzyXBU3dIys-7d684378-ecf1-4e1d-b132-7308aaf8428a",
         "title": "Preparation",
-        "description": "Collect all necessary ingredients such as pasta, eggs, cheese, pancetta or bacon, and black pepper. Gather tools like a pot, pan, whisk, and grater. Ensure everything is within reach before starting."
+        "expected_outcome_description": [
+          "All ingredients are measured and ready to use.",
+          "Cooking tools and utensils are assembled and accessible.",
+          "The workspace is organized and clean."
+        ]
       }
     ]
   },
   {
-    "subgoal_id": "segment-6539d75c-0bfa-42aa-a243-0a0fff6502f2",
-    "title": "Cooking Meat",
-    "description": "In a pan, cook pancetta or bacon over medium heat until crispy. Remove from heat and set aside, leaving the rendered fat in the pan.",
+    "explanation": "Cooking the pasta to the right texture is crucial for the overall dish quality.",
+    "title": "Cook Pasta",
+    "expected_outcome_description": [
+      "Pasta is cooked to al dente texture.",
+      "Pasta is drained and set aside, with some pasta water reserved.",
+      "Pasta is not overcooked or mushy."
+    ],
+    "subgoal_id": "subgoal-1691604a-86fb-47f6-9409-ddfd1b680274",
     "original_subgoals": [
       {
-        "id": "segment-6539d75c-0bfa-42aa-a243-0a0fff6502f2",
-        "title": "Cooking Meat",
-        "description": "In a pan, cook pancetta or bacon over medium heat until crispy. Remove from heat and set aside, leaving the rendered fat in the pan."
+        "id": "segment-75p4UHRIMcU-31847d82-bb14-4a5a-bb14-53c31315668d",
+        "title": "Cook Pasta",
+        "expected_outcome_description": [
+          "Pasta is cooked to al dente texture.",
+          "Pasta is drained and set aside, with some pasta water reserved.",
+          "Pasta is not overcooked or mushy."
+        ]
       },
       {
-        "id": "segment-438cd12d-618b-42fc-94a1-a5e7173a88f8",
-        "title": "Cooking Meat",
-        "description": "In a pan, cook pancetta or bacon over medium heat until crispy. Remove from heat and set aside, leaving the rendered fat in the pan."
+        "id": "segment-dzyXBU3dIys-32ebc8a3-1c68-44f1-a361-821c025f14c5",
+        "title": "Cook Pasta",
+        "expected_outcome_description": [
+          "Pasta is cooked to al dente texture.",
+          "Pasta is drained and set aside, with some pasta water reserved.",
+          "Pasta is not overcooked or mushy."
+        ]
       }
     ]
   },
   {
-    "subgoal_id": "segment-decfd565-07fe-4d3a-ab08-7d1a88cca27d",
-    "title": "Cooking Pasta",
-    "description": "Boil water in a pot and add a pinch of salt. Cook the pasta according to package instructions until al dente. Reserve some pasta water before draining.",
+    "explanation": "Cooking the pancetta or bacon adds flavor and texture to the dish.",
+    "title": "Cook Meat",
+    "expected_outcome_description": [
+      "Pancetta or bacon is crispy and golden brown.",
+      "Excess fat is rendered and can be used for flavoring.",
+      "Meat is not burnt or undercooked."
+    ],
+    "subgoal_id": "subgoal-ecd6ea0f-8eae-4f98-acde-0933600defc8",
     "original_subgoals": [
       {
-        "id": "segment-decfd565-07fe-4d3a-ab08-7d1a88cca27d",
-        "title": "Cooking Pasta",
-        "description": "Boil water in a pot and add a pinch of salt. Cook the pasta according to package instructions until al dente. Reserve some pasta water before draining."
+        "id": "segment-75p4UHRIMcU-14b83222-ad55-4667-8fe3-33477929d639",
+        "title": "Cook Meat",
+        "expected_outcome_description": [
+          "Pancetta or bacon is crispy and golden brown.",
+          "Excess fat is rendered and can be used for flavoring.",
+          "Meat is not burnt or undercooked."
+        ]
       },
       {
-        "id": "segment-cb9f8c65-6345-411e-b74d-c2d31159645a",
-        "title": "Cooking Pasta",
-        "description": "Boil water in a pot and add a pinch of salt. Cook the pasta according to package instructions until al dente. Reserve some pasta water before draining."
+        "id": "segment-dzyXBU3dIys-a8581bac-2acf-4455-af85-e19fb14c6f52",
+        "title": "Cook Meat",
+        "expected_outcome_description": [
+          "Pancetta or bacon is crispy and golden brown.",
+          "Excess fat is rendered and can be used for flavoring.",
+          "Meat is not burnt or undercooked."
+        ]
       }
     ]
   },
   {
-    "subgoal_id": "segment-84cebdd9-fc11-4132-b7bf-d3772af05ba3",
-    "title": "Making Sauce",
-    "description": "In a bowl, whisk together eggs and grated cheese until smooth. Season with black pepper. This mixture will form the sauce for the pasta.",
+    "explanation": "Creating a creamy sauce without cream is a key characteristic of Carbonara.",
+    "title": "Make Sauce",
+    "expected_outcome_description": [
+      "Eggs and cheese are combined into a smooth mixture.",
+      "The sauce is creamy and coats the pasta evenly.",
+      "The sauce is not scrambled or lumpy."
+    ],
+    "subgoal_id": "subgoal-93a2b267-a721-4ec5-89c8-d9a6c479ac8d",
     "original_subgoals": [
       {
-        "id": "segment-84cebdd9-fc11-4132-b7bf-d3772af05ba3",
-        "title": "Making Sauce",
-        "description": "In a bowl, whisk together eggs and grated cheese until smooth. Season with black pepper. This mixture will form the sauce for the pasta."
+        "id": "segment-75p4UHRIMcU-e5ecc595-d1fb-4df7-afea-f60f58391949",
+        "title": "Make Sauce",
+        "expected_outcome_description": [
+          "Eggs and cheese are combined into a smooth mixture.",
+          "The sauce is creamy and coats the pasta evenly.",
+          "The sauce is not scrambled or lumpy."
+        ]
       },
       {
-        "id": "segment-3c9395a1-f461-4303-ab09-f84374f5f3e7",
-        "title": "Making Sauce",
-        "description": "In a bowl, whisk together eggs and grated cheese until smooth. Season with black pepper. This mixture will form the sauce for the pasta."
+        "id": "segment-dzyXBU3dIys-16343e50-3f6a-4fea-9d1c-e44c02e488b8",
+        "title": "Make Sauce",
+        "expected_outcome_description": [
+          "Eggs and cheese are combined into a smooth mixture.",
+          "The sauce is creamy and coats the pasta evenly.",
+          "The sauce is not scrambled or lumpy."
+        ]
       }
     ]
   },
   {
-    "subgoal_id": "segment-cf2a0f25-b6a3-4773-8f6b-57a8aedceecc",
-    "title": "Combining Ingredients",
-    "description": "Add the cooked pasta to the pan with the rendered fat. Remove from heat and quickly mix in the egg and cheese mixture, stirring constantly to create a creamy sauce. Add reserved pasta water if needed to adjust consistency.",
+    "explanation": "Combining all elements ensures the flavors meld together for a cohesive dish.",
+    "title": "Combine Ingredients",
+    "expected_outcome_description": [
+      "Pasta is evenly coated with the sauce.",
+      "Meat is distributed throughout the pasta.",
+      "The dish is seasoned to taste with salt and pepper."
+    ],
+    "subgoal_id": "subgoal-cc3f5628-3167-4d7c-a159-b5f6d4dd318b",
     "original_subgoals": [
       {
-        "id": "segment-cf2a0f25-b6a3-4773-8f6b-57a8aedceecc",
-        "title": "Combining Ingredients",
-        "description": "Add the cooked pasta to the pan with the rendered fat. Remove from heat and quickly mix in the egg and cheese mixture, stirring constantly to create a creamy sauce. Add reserved pasta water if needed to adjust consistency."
+        "id": "segment-75p4UHRIMcU-5d26b058-6d54-475b-835b-be6e43ac1fa9",
+        "title": "Combine Ingredients",
+        "expected_outcome_description": [
+          "Pasta is evenly coated with the sauce.",
+          "Meat is distributed throughout the pasta.",
+          "The dish is seasoned to taste with salt and pepper."
+        ]
       },
       {
-        "id": "segment-f38d6d77-a500-4586-9764-f100614f049a",
-        "title": "Combining Ingredients",
-        "description": "Add the cooked pasta to the pan with the rendered fat. Remove from heat and quickly mix in the egg and cheese mixture, stirring constantly to create a creamy sauce. Add reserved pasta water if needed to adjust consistency."
+        "id": "segment-dzyXBU3dIys-f5965d99-0117-4b3d-8c72-3e04ce3d59fc",
+        "title": "Combine Ingredients",
+        "expected_outcome_description": [
+          "Pasta is evenly coated with the sauce.",
+          "Meat is distributed throughout the pasta.",
+          "The dish is seasoned to taste with salt and pepper."
+        ]
       }
     ]
   },
   {
-    "subgoal_id": "segment-91bf3c05-0e0c-47da-8296-19dc7150df87",
-    "title": "Finishing Touches",
-    "description": "Season with additional black pepper and sprinkle more cheese on top if desired. Serve immediately for best taste and texture.",
+    "explanation": "Finishing touches enhance the presentation and flavor of the dish.",
+    "title": "Garnish and Serve",
+    "expected_outcome_description": [
+      "Dish is garnished with additional cheese and pepper.",
+      "Pasta is served hot and fresh.",
+      "The presentation is appealing and appetizing."
+    ],
+    "subgoal_id": "subgoal-79883370-2ac8-4384-853f-2d342c28c60e",
     "original_subgoals": [
       {
-        "id": "segment-91bf3c05-0e0c-47da-8296-19dc7150df87",
-        "title": "Finishing Touches",
-        "description": "Season with additional black pepper and sprinkle more cheese on top if desired. Serve immediately for best taste and texture."
+        "id": "segment-75p4UHRIMcU-a8aec59b-6707-4404-95ab-57b626cdece4",
+        "title": "Garnish and Serve",
+        "expected_outcome_description": [
+          "Dish is garnished with additional cheese and pepper.",
+          "Pasta is served hot and fresh.",
+          "The presentation is appealing and appetizing."
+        ]
       },
       {
-        "id": "segment-fa9beb1f-dc8d-435c-958d-1f7c37317b4f",
-        "title": "Finishing Touches",
-        "description": "Season with additional black pepper and sprinkle more cheese on top if desired. Serve immediately for best taste and texture."
+        "id": "segment-dzyXBU3dIys-4403e3a6-58a6-4459-b137-fd10e0ecdf8d",
+        "title": "Garnish and Serve",
+        "expected_outcome_description": [
+          "Dish is garnished with additional cheese and pepper.",
+          "Pasta is served hot and fresh.",
+          "The presentation is appealing and appetizing."
+        ]
       }
     ]
   }

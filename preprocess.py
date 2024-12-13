@@ -11,11 +11,9 @@ from src import PATH
 from src.Video import Video
 from src.VideoPool import VideoPool
 
-def save_data(task_id, ds):
-    videos = ds.videos
-    subgoals = ds.subgoals
-    alignment_sets = ds.alignment_sets
-    hooks = ds.hooks
+def save_data(task_id, pool):
+    videos = pool.videos
+    taxonomies = pool.taxonomies
 
     ### save all the video objects
     save_dict = []
@@ -29,49 +27,21 @@ def save_data(task_id, ds):
     with open(f"{PATH}{task_id}/video_data.json", "w") as file:
         json.dump(save_dict, file, indent=2)
 
-    ### save all the subgoal objects
-    with open(f"{PATH}{task_id}/subgoal_data.json", "w") as file:
-        json.dump(subgoals, file, indent=2)
-
-    ### save all the information alignments
-    with open(f"{PATH}{task_id}/alignment_sets.json", "w") as file:
-        json.dump(alignment_sets, file, indent=2)
-
-    ### save all the hooks
-    with open(f"{PATH}{task_id}/hooks.json", "w") as file:
-        json.dump(hooks, file, indent=2)
+    ### save the taxonomies
+    with open(f"{PATH}{task_id}/taxonomies.json", "w") as file:
+        json.dump(taxonomies, file, indent=2)
 
 
-def export(task_id, ds):    
-    save_data(task_id, ds)
+def export(task_id, pool):    
+    save_data(task_id, pool)
 
-    videos = [video.to_dict(short_metadata=True, fixed_subgoals=True) for video in ds.videos]
+    videos = [video.to_dict(short_metadata=True, fixed_subgoals=True) for video in pool.videos]
 
     output = {
-        "task": ds.task,
+        "task": pool.task,
         "videos": videos,
-        "subgoal_definitions": ds.subgoals,
-        "hooks": {},
-        "comparisons": {},
+        "taxonomies": pool.taxonomies,
     }
-
-    for approach in APPROACHES:
-        if approach in ds.alignment_sets:
-            output["comparisons"][approach] = ds.alignment_sets[approach]
-            output["hooks"][approach] = []
-            if f"hooks_{approach}" in ds.hooks:
-                output["hooks"][approach] += ds.hooks[f"hooks_{approach}"]
-            if f"notables_{approach}" in ds.hooks:
-                output["hooks"][approach] += ds.hooks[f"notables_{approach}"]
-
-    for baseline in BASELINES:
-        if baseline in ds.alignment_sets:
-            output["comparisons"][baseline] = ds.alignment_sets[baseline]
-            output["hooks"][baseline] = []
-            if f"hooks_{baseline}" in ds.hooks:
-                output["hooks"][baseline] += ds.hooks[f"hooks_{baseline}"]
-            if f"notables_{baseline}" in ds.hooks:
-                output["hooks"][baseline] += ds.hooks[f"notables_{baseline}"]
 
     filename = f"{PATH}{task_id}/output.json"
     with open(filename, "w") as file:
@@ -107,9 +77,7 @@ def process_task(task_id):
     videos = []
     subgoals = []
     video_data_path = f"{PATH}{task_id}/video_data.json"
-    subgoal_data_path = f"{PATH}{task_id}/subgoal_data.json"
-    alignment_sets = f"{PATH}{task_id}/alignment_sets.json"
-    hooks_path = f"{PATH}{task_id}/hooks.json"
+    taxonomies_path = f"{PATH}{task_id}/taxonomies.json"
 
     if os.path.exists(video_data_path):
         with open(video_data_path, "r") as file:
@@ -123,36 +91,17 @@ def process_task(task_id):
                 videos.append(video)
     if len(videos) == 0 or len(videos[0].subtitles) == 0:
         videos = pre_process_videos(video_pool)
-
-    if os.path.exists(subgoal_data_path):
-        with open(subgoal_data_path, "r") as file:
-            subgoals = json.load(file)
-        ds = VideoPool(task_desc, videos, subgoals)
-    else:
-        ds = VideoPool(task_desc, videos)
-
-    if os.path.exists(alignment_sets):
-        with open(alignment_sets, "r") as file:
-            alignment_sets = json.load(file)
-            ds.alignment_sets = alignment_sets
-    else:
-        ds.alignment_sets = {}
-
-    if os.path.exists(hooks_path):
-        with open(hooks_path, "r") as file:
-            hooks = json.load(file)
-            ds.hooks = hooks
-    else:
-        ds.hooks = {}
-
-    ds.process_videos()
     
-    # ds.generate_alignments()
+    if os.path.exists(taxonomies_path):
+        with open(taxonomies_path, "r") as file:
+            taxonomies = json.load(file)
+        pool = VideoPool(task_desc, videos, taxonomies)
+    else:
+        pool = VideoPool(task_desc, videos)
 
-    # ds.find_notables()
-
-    # ds.generate_hooks()
-    return ds
+    pool.process_videos()
+    
+    return pool
 
 def parse_args(args):
     """
@@ -165,10 +114,10 @@ def parse_args(args):
 def main(args):
     parsed_args = parse_args(args)
     task_id = parsed_args.task_id
-    ds = process_task(task_id)
-    export(task_id, ds)
+    pool = process_task(task_id)
+    export(task_id, pool)
 
-    if ds is None:
+    if pool is None:
         return
 
 
