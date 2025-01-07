@@ -1,0 +1,1687 @@
+{
+  "input_5": [
+    {
+      "title": "Half pound of crispy, thick-cut bacon, chopped and cooked, with some reserved for garnish."
+    },
+    {
+      "title": "Egg Yolks and Whole Eggs"
+    },
+    {
+      "title": "Pecorino Romano Cheese (Grated)"
+    },
+    {
+      "title": "Freshly Ground Black Pepper"
+    },
+    {
+      "title": "Cooked Spaghetti"
+    },
+    {
+      "title": "Kosher Salt"
+    },
+    {
+      "description": "Water",
+      "title": "Water",
+      "step_index": 5
+    },
+    {
+      "title": "Egg and Cheese Mixture with Optional Pasta Water"
+    },
+    {
+      "title": "Pasta Water (Boiling and Reserved)"
+    },
+    {
+      "title": "Pasta Carbonara with Creamy Sauce"
+    },
+    {
+      "title": "Grated Pecorino or Parmesan Cheese with Grater"
+    },
+    {
+      "description": "Olive oil",
+      "title": "Olive oil",
+      "step_index": 0
+    },
+    {
+      "title": "Pan and Pot"
+    },
+    {
+      "description": "Four quarts of water",
+      "title": "Four quarts of water",
+      "step_index": 1
+    },
+    {
+      "title": "Parmigiano Reggiano cheese, grated"
+    },
+    {
+      "description": "Whisk",
+      "title": "Whisk",
+      "step_index": 3
+    },
+    {
+      "description": "Paper towel",
+      "title": "Paper towel",
+      "step_index": 5
+    },
+    {
+      "description": "Boiling salted water",
+      "title": "Boiling salted water",
+      "step_index": 6
+    },
+    {
+      "description": "Tongs",
+      "title": "Tongs",
+      "step_index": 6
+    }
+  ],
+  "step_5": [
+    {
+      "detailed_description": "Use a sharp knife to cut the pancetta or guanciale into small, even cubes or strips. Alternatively, you can use a grater or food processor to shred the cheese, such as Parmesan or Pecorino, into fine pieces. Ensure the pieces are uniform for even cooking and distribution in the dish.",
+      "title": "Prepare Ingredients by Cutting or Shredding"
+    },
+    {
+      "detailed_description": "Begin by separating the egg yolks from the whites, ensuring you have only the yolks for the sauce. In a bowl, whisk together the egg yolks with grated Parmesan cheese until smooth. In a separate pan, cook diced pancetta or guanciale until crispy, then remove from heat. Boil pasta until al dente, reserving some pasta water. Combine the cooked pasta with the pancetta, then gradually mix in the egg and cheese mixture, adding reserved pasta water as needed to create a creamy sauce. Serve the pasta on a plate, garnishing with additional Parmesan and freshly ground black pepper.",
+      "title": "Prepare and Combine Ingredients for Carbonara Sauce"
+    },
+    {
+      "index": 2,
+      "description": "Grate [item] using a [tool].",
+      "title": "Grate pecorino romano",
+      "detailed_description": "Grate pecorino romano cheese using a grater. This cheese will be mixed with the egg yolks to form part of the sauce."
+    },
+    {
+      "detailed_description": "In a large mixing bowl, thoroughly combine eggs and grated Parmesan cheese until the mixture is smooth and well blended. Meanwhile, fill a large pot with water and place it on the stove to heat until it reaches a rolling boil. Gradually temper the egg and cheese mixture by slowly adding a small amount of hot pasta water to prevent the eggs from scrambling. In a separate pan, cook diced pancetta or bacon until crispy, then drain the excess fat. Once the pasta is cooked al dente, transfer it to the pan with the pancetta, and then mix in the tempered egg and cheese mixture, stirring quickly to create a creamy sauce.",
+      "title": "Prepare Sauce and Cook Pancetta"
+    },
+    {
+      "detailed_description": "Boil a pot of salted water and cook the pasta until it is al dente. Meanwhile, in a separate pan, heat diced pancetta or guanciale over medium heat until the fat is rendered and the meat becomes crispy.",
+      "title": "Cook Pasta and Render Pancetta"
+    }
+  ],
+  "output_5": [
+    {
+      "description": "Grated pecorino romano",
+      "title": "Grated pecorino romano",
+      "step_index": 2
+    },
+    {
+      "description": "Egg yolks",
+      "title": "Egg yolks",
+      "step_index": 1
+    },
+    {
+      "title": "Crispy Bacon Preparation for Pasta Carbonara"
+    },
+    {
+      "title": "Egg and Cheese Mixture for Pasta Carbonara"
+    },
+    {
+      "title": "Reserved Pasta Water for Carbonara"
+    },
+    {
+      "title": "Pasta Carbonara with Spaghetti and Bacon Mixture"
+    },
+    {
+      "title": "Creamy Pasta Carbonara with Crispy Bacon"
+    },
+    {
+      "description": "Grated cheese mixture",
+      "title": "Grated cheese mixture",
+      "step_index": 2
+    },
+    {
+      "description": "Boiling salted water",
+      "title": "Boiling salted water",
+      "step_index": 1
+    },
+    {
+      "description": "Additional grated Parmigiano Reggiano",
+      "title": "Additional grated Parmigiano Reggiano",
+      "step_index": 2
+    }
+  ],
+  "input_7": [
+    {
+      "title": "Bacon in various forms (chopped, cooked, crispy)"
+    },
+    {
+      "description": "Eggs",
+      "title": "Eggs",
+      "step_index": 1
+    },
+    {
+      "title": "Pecorino Romano cheese, grated"
+    },
+    {
+      "title": "Two egg yolks"
+    },
+    {
+      "title": "Pepper"
+    },
+    {
+      "title": "Spaghetti or Cooked Spaghetti"
+    },
+    {
+      "description": "Salt",
+      "title": "Salt",
+      "step_index": 5
+    },
+    {
+      "description": "Water",
+      "title": "Water",
+      "step_index": 5
+    },
+    {
+      "title": "Egg and Cheese Mixture with Optional Pasta Water"
+    },
+    {
+      "title": "Reserved Pasta Water"
+    },
+    {
+      "description": "Spaghetti and bacon mixture",
+      "title": "Spaghetti and bacon mixture",
+      "step_index": 8
+    },
+    {
+      "description": "Pasta with sauce",
+      "title": "Pasta with sauce",
+      "step_index": 9
+    },
+    {
+      "title": "Grated Pecorino or Parmesan Cheese"
+    },
+    {
+      "description": "Half pound of thick-cut bacon",
+      "title": "Half pound of thick-cut bacon",
+      "step_index": 0
+    },
+    {
+      "description": "Olive oil",
+      "title": "Olive oil",
+      "step_index": 0
+    },
+    {
+      "description": "Pan",
+      "title": "Pan",
+      "step_index": 0
+    },
+    {
+      "description": "Four quarts of water",
+      "title": "Four quarts of water",
+      "step_index": 1
+    },
+    {
+      "description": "Kosher salt",
+      "title": "Kosher salt",
+      "step_index": 1
+    },
+    {
+      "description": "Pot",
+      "title": "Pot",
+      "step_index": 1
+    },
+    {
+      "title": "Parmigiano Reggiano cheese, grated"
+    },
+    {
+      "description": "Cheese grater or box grater",
+      "title": "Cheese grater or box grater",
+      "step_index": 2
+    },
+    {
+      "description": "Three whole eggs",
+      "title": "Three whole eggs",
+      "step_index": 3
+    },
+    {
+      "description": "Freshly ground black pepper",
+      "title": "Freshly ground black pepper",
+      "step_index": 3
+    },
+    {
+      "description": "Whisk",
+      "title": "Whisk",
+      "step_index": 3
+    },
+    {
+      "description": "Boiling pasta water",
+      "title": "Boiling pasta water",
+      "step_index": 4
+    },
+    {
+      "description": "Paper towel",
+      "title": "Paper towel",
+      "step_index": 5
+    },
+    {
+      "description": "Boiling salted water",
+      "title": "Boiling salted water",
+      "step_index": 6
+    },
+    {
+      "description": "Tongs",
+      "title": "Tongs",
+      "step_index": 6
+    },
+    {
+      "description": "Creamy carbonara pasta",
+      "title": "Creamy carbonara pasta",
+      "step_index": 8
+    }
+  ],
+  "step_7": [
+    {
+      "detailed_description": "Use a sharp knife to cut the pancetta or bacon into small, bite-sized pieces. Alternatively, you can use a grater or food processor to shred the cheese, such as Parmesan or Pecorino, into fine pieces. Ensure the pieces are uniform for even cooking and distribution in the dish.",
+      "title": "Prepare Ingredients by Cutting or Shredding"
+    },
+    {
+      "detailed_description": "Begin by separating the egg yolks from the whites, ensuring you have only the yolks for the sauce. In a bowl, whisk together the egg yolks with grated Parmesan cheese until smooth. In a separate pan, cook pancetta or bacon until crispy, then set aside. Boil pasta until al dente, reserving some pasta water. Combine the cooked pasta with the egg and cheese mixture, adding reserved pasta water as needed to create a creamy sauce. Mix in the crispy pancetta or bacon. Serve the pasta carbonara on a plate, garnished with additional Parmesan and freshly ground black pepper.",
+      "title": "Prepare and Combine Ingredients for Pasta Carbonara"
+    },
+    {
+      "index": 2,
+      "description": "Grate [item] using a [tool].",
+      "title": "Grate pecorino romano",
+      "detailed_description": "Grate pecorino romano cheese using a grater. This cheese will be mixed with the egg yolks to form part of the sauce."
+    },
+    {
+      "detailed_description": "In a mixing bowl, combine the specified ingredients, ensuring they are thoroughly mixed until a uniform consistency is achieved. This step is crucial for integrating flavors and ensuring even distribution of all components.",
+      "title": "Mix Ingredients Thoroughly"
+    },
+    {
+      "detailed_description": "Place a pan on the stove over medium heat. Add diced pancetta or guanciale to the pan and cook until the fat is rendered and the meat becomes crispy. Stir occasionally to ensure even cooking and prevent burning.",
+      "title": "Cook Pancetta or Guanciale"
+    },
+    {
+      "index": 5,
+      "description": "Boil [item] in a pot of [item] until [item] is [item].",
+      "title": "Cook spaghetti",
+      "detailed_description": "Boil water in a pot, add salt, and cook the spaghetti until al dente. Stir occasionally to prevent sticking."
+    },
+    {
+      "detailed_description": "Fill a large pot with water and place it on the stove to heat until it reaches a rolling boil. Gradually combine the hot pasta water with the egg mixture to temper the eggs and prevent them from scrambling. Prepare the pasta by cooking it in the boiling water until al dente, then move it to a mixing bowl.",
+      "title": "Boil Water and Cook Pasta"
+    },
+    {
+      "index": 5,
+      "description": "Cook [item] until crispy, then remove excess [item] by draining.",
+      "title": "Prepare bacon for garnish and drain fat",
+      "detailed_description": "Once the bacon is crispy, remove some pieces for garnish and drain them on a paper towel. Turn off the heat and drain most of the bacon fat, leaving about two tablespoons in the pan."
+    },
+    {
+      "index": 8,
+      "description": "Arrange [item] on a [item] and add [item] for decoration.",
+      "title": "Plate and garnish pasta",
+      "detailed_description": "Plate the pasta and top it with additional grated Parmigiano Reggiano and the reserved crispy bacon pieces for garnish. Serve immediately."
+    }
+  ],
+  "output_7": [
+    {
+      "description": "Grated pecorino romano",
+      "title": "Grated pecorino romano",
+      "step_index": 2
+    },
+    {
+      "description": "Egg yolks",
+      "title": "Egg yolks",
+      "step_index": 1
+    },
+    {
+      "title": "Preparing Bacon for Pasta Carbonara"
+    },
+    {
+      "title": "Egg and Cheese Mixture for Pasta Carbonara"
+    },
+    {
+      "title": "Reserved Pasta Water"
+    },
+    {
+      "title": "Cooked Spaghetti with Carbonara Sauce"
+    },
+    {
+      "description": "Spaghetti and bacon mixture",
+      "title": "Spaghetti and bacon mixture",
+      "step_index": 7
+    },
+    {
+      "description": "Pasta dish resembling carbonara but not authentic",
+      "title": "Pasta dish resembling carbonara but not authentic",
+      "step_index": 9
+    },
+    {
+      "description": "Grated cheese mixture",
+      "title": "Grated cheese mixture",
+      "step_index": 2
+    },
+    {
+      "description": "Boiling pasta water",
+      "title": "Boiling pasta water",
+      "step_index": 1
+    },
+    {
+      "description": "Boiling salted water",
+      "title": "Boiling salted water",
+      "step_index": 1
+    },
+    {
+      "title": "Creamy Pasta Carbonara with Crispy Bacon Garnish"
+    },
+    {
+      "description": "Additional grated Parmigiano Reggiano",
+      "title": "Additional grated Parmigiano Reggiano",
+      "step_index": 2
+    }
+  ],
+  "input_9": [
+    {
+      "description": "Bacon",
+      "title": "Bacon",
+      "step_index": 0
+    },
+    {
+      "description": "Eggs",
+      "title": "Eggs",
+      "step_index": 1
+    },
+    {
+      "title": "Pecorino Romano cheese"
+    },
+    {
+      "description": "Grated pecorino romano",
+      "title": "Grated pecorino romano",
+      "step_index": 3
+    },
+    {
+      "description": "Egg yolks",
+      "title": "Egg yolks",
+      "step_index": 3
+    },
+    {
+      "description": "Pepper",
+      "title": "Pepper",
+      "step_index": 3
+    },
+    {
+      "description": "Chopped bacon",
+      "title": "Chopped bacon",
+      "step_index": 4
+    },
+    {
+      "title": "Spaghetti"
+    },
+    {
+      "description": "Salt",
+      "title": "Salt",
+      "step_index": 5
+    },
+    {
+      "description": "Water",
+      "title": "Water",
+      "step_index": 5
+    },
+    {
+      "description": "Cheese and egg yolk mixture",
+      "title": "Cheese and egg yolk mixture",
+      "step_index": 6
+    },
+    {
+      "description": "Pasta water",
+      "title": "Pasta water",
+      "step_index": 6
+    },
+    {
+      "title": "Cooked spaghetti"
+    },
+    {
+      "description": "Cooked bacon",
+      "title": "Cooked bacon",
+      "step_index": 7
+    },
+    {
+      "description": "Spaghetti and bacon mixture",
+      "title": "Spaghetti and bacon mixture",
+      "step_index": 8
+    },
+    {
+      "description": "Cheese and egg yolk mixture with pasta water",
+      "title": "Cheese and egg yolk mixture with pasta water",
+      "step_index": 8
+    },
+    {
+      "description": "Pasta with sauce",
+      "title": "Pasta with sauce",
+      "step_index": 9
+    },
+    {
+      "description": "Additional pepper",
+      "title": "Additional pepper",
+      "step_index": 9
+    },
+    {
+      "description": "Grated pecorino or parmesan cheese",
+      "title": "Grated pecorino or parmesan cheese",
+      "step_index": 9
+    },
+    {
+      "description": "Half pound of thick-cut bacon",
+      "title": "Half pound of thick-cut bacon",
+      "step_index": 0
+    },
+    {
+      "description": "Olive oil",
+      "title": "Olive oil",
+      "step_index": 0
+    },
+    {
+      "description": "Pan",
+      "title": "Pan",
+      "step_index": 0
+    },
+    {
+      "description": "Four quarts of water",
+      "title": "Four quarts of water",
+      "step_index": 1
+    },
+    {
+      "description": "Kosher salt",
+      "title": "Kosher salt",
+      "step_index": 1
+    },
+    {
+      "description": "Pot",
+      "title": "Pot",
+      "step_index": 1
+    },
+    {
+      "description": "Parmigiano Reggiano cheese",
+      "title": "Parmigiano Reggiano cheese",
+      "step_index": 2
+    },
+    {
+      "description": "Cheese grater or box grater",
+      "title": "Cheese grater or box grater",
+      "step_index": 2
+    },
+    {
+      "description": "Three whole eggs",
+      "title": "Three whole eggs",
+      "step_index": 3
+    },
+    {
+      "description": "Two egg yolks",
+      "title": "Two egg yolks",
+      "step_index": 3
+    },
+    {
+      "description": "Grated cheese mixture",
+      "title": "Grated cheese mixture",
+      "step_index": 3
+    },
+    {
+      "description": "Freshly ground black pepper",
+      "title": "Freshly ground black pepper",
+      "step_index": 3
+    },
+    {
+      "description": "Whisk",
+      "title": "Whisk",
+      "step_index": 3
+    },
+    {
+      "description": "Boiling pasta water",
+      "title": "Boiling pasta water",
+      "step_index": 4
+    },
+    {
+      "title": "Egg and Cheese Mixture"
+    },
+    {
+      "description": "Crispy bacon",
+      "title": "Crispy bacon",
+      "step_index": 5
+    },
+    {
+      "description": "Paper towel",
+      "title": "Paper towel",
+      "step_index": 5
+    },
+    {
+      "description": "Boiling salted water",
+      "title": "Boiling salted water",
+      "step_index": 6
+    },
+    {
+      "description": "Tongs",
+      "title": "Tongs",
+      "step_index": 6
+    },
+    {
+      "description": "Reserved pasta water",
+      "title": "Reserved pasta water",
+      "step_index": 7
+    },
+    {
+      "description": "Creamy carbonara pasta",
+      "title": "Creamy carbonara pasta",
+      "step_index": 8
+    },
+    {
+      "description": "Additional grated Parmigiano Reggiano",
+      "title": "Additional grated Parmigiano Reggiano",
+      "step_index": 8
+    },
+    {
+      "description": "Reserved crispy bacon",
+      "title": "Reserved crispy bacon",
+      "step_index": 8
+    }
+  ],
+  "step_9": [
+    {
+      "index": 0,
+      "description": "Cut [item] into smaller pieces.",
+      "title": "Chop bacon",
+      "detailed_description": "Chop up some bacon into small pieces. This step is crucial as it replaces the traditional guanciale used in authentic carbonara recipes."
+    },
+    {
+      "index": 1,
+      "description": "Carefully divide the [item] to isolate the [item] from the [item].",
+      "title": "Separate egg yolks",
+      "detailed_description": "Separate the egg yolks from the egg whites using the thumb trick or by moving the yolk back and forth between shell halves. The yolks will be used later in the sauce."
+    },
+    {
+      "index": 2,
+      "description": "Grate [item] using a [tool].",
+      "title": "Grate pecorino romano",
+      "detailed_description": "Grate pecorino romano cheese using a grater. This cheese will be mixed with the egg yolks to form part of the sauce."
+    },
+    {
+      "detailed_description": "In a mixing bowl, combine the specified ingredients, ensuring they are thoroughly mixed until a uniform consistency is achieved. Use a spoon or whisk to blend the items together, making sure there are no lumps or unmixed portions.",
+      "title": "Mix Ingredients Thoroughly"
+    },
+    {
+      "index": 4,
+      "description": "Heat [item] in a [item] until [item] is [item].",
+      "title": "Cook bacon",
+      "detailed_description": "Cook the bacon in a pan until crispy. Turn off the heat and let it cool slightly to avoid overcooking the sauce later."
+    },
+    {
+      "index": 5,
+      "description": "Boil [item] in a pot of [item] until [item] is [item].",
+      "title": "Cook spaghetti",
+      "detailed_description": "Boil water in a pot, add salt, and cook the spaghetti until al dente. Stir occasionally to prevent sticking."
+    },
+    {
+      "detailed_description": "In a large mixing bowl, combine the cooked pasta with the beaten eggs and grated Parmesan cheese. Ensure the pasta is hot so that the eggs cook slightly and form a creamy sauce. Stir quickly to coat the pasta evenly with the mixture, adding a bit of reserved pasta water if needed to achieve the desired consistency.",
+      "title": "Mix Pasta with Eggs and Cheese"
+    },
+    {
+      "detailed_description": "In a mixing bowl, combine the eggs with grated Parmesan cheese. Whisk them together until you achieve a smooth, creamy consistency. This mixture will form the base of the carbonara sauce, providing richness and flavor to the pasta.",
+      "title": "Prepare the Egg and Cheese Mixture"
+    },
+    {
+      "index": 9,
+      "description": "Present the [item] on a [item].",
+      "title": "Serve the pasta",
+      "detailed_description": "Serve the pasta with additional pepper and grated pecorino or parmesan cheese on top for extra flavor."
+    },
+    {
+      "index": 0,
+      "description": "Heat [item] in a [item] over medium heat until [item] is released and [item] becomes [item].",
+      "title": "Render bacon fat and crisp bacon",
+      "detailed_description": "Slice about a half pound of thick-cut bacon into pieces approximately three-quarters of an inch thick. Heat a pan over medium heat, add a tiny bit of olive oil, and then add the bacon pieces to the pan. Slowly render out the fat from the bacon until it becomes crispy. Some of the bacon will be used in the pasta, and some will be reserved for garnish."
+    },
+    {
+      "index": 1,
+      "description": "Fill a [item] with [item] and place it on [item] to heat until it reaches [item].",
+      "title": "Prepare pasta water",
+      "detailed_description": "Bring about four quarts of water to a boil in a pot. Add about a tablespoon of kosher salt to the water to season it. This step is crucial for cooking the pasta later."
+    },
+    {
+      "index": 2,
+      "description": "Use a tool to shred [item] into smaller pieces.",
+      "title": "Grate cheeses",
+      "detailed_description": "Grate about three ounces each of Pecorino Romano and Parmigiano Reggiano cheese using a cheese grater or the fine setting on a box grater. Mix the grated cheeses together."
+    },
+    {
+      "index": 4,
+      "description": "Gradually combine the [item] with the [item] to adjust the temperature.",
+      "title": "Temper egg mixture with pasta water",
+      "detailed_description": "Add a quarter cup of boiling pasta water to the egg and cheese mixture while whisking quickly. This step helps to equalize the temperature and loosen the mixture, making it easier to coat the pasta later."
+    },
+    {
+      "index": 5,
+      "description": "Cook [item] until crispy, then remove excess [item] by draining.",
+      "title": "Prepare bacon for garnish and drain fat",
+      "detailed_description": "Once the bacon is crispy, remove some pieces for garnish and drain them on a paper towel. Turn off the heat and drain most of the bacon fat, leaving about two tablespoons in the pan."
+    },
+    {
+      "index": 6,
+      "description": "Prepare [item] by heating it until ready, then move it to a [item].",
+      "title": "Cook spaghetti and transfer to pan",
+      "detailed_description": "Add spaghetti to the boiling salted water and cook for about 10 minutes until slightly al dente. Use tongs to transfer the cooked spaghetti directly into the pan with the reserved bacon fat."
+    },
+    {
+      "index": 8,
+      "description": "Arrange [item] on a [item] and add [item] for decoration.",
+      "title": "Plate and garnish pasta",
+      "detailed_description": "Plate the pasta and top it with additional grated Parmigiano Reggiano and the reserved crispy bacon pieces for garnish. Serve immediately."
+    }
+  ],
+  "output_9": [
+    {
+      "description": "Grated pecorino romano",
+      "title": "Grated pecorino romano",
+      "step_index": 2
+    },
+    {
+      "description": "Egg yolks",
+      "title": "Egg yolks",
+      "step_index": 1
+    },
+    {
+      "description": "Chopped bacon",
+      "title": "Chopped bacon",
+      "step_index": 0
+    },
+    {
+      "description": "Cheese and egg yolk mixture",
+      "title": "Cheese and egg yolk mixture",
+      "step_index": 3
+    },
+    {
+      "description": "Pasta water",
+      "title": "Pasta water",
+      "step_index": 5
+    },
+    {
+      "title": "Cooked Spaghetti"
+    },
+    {
+      "description": "Cooked bacon",
+      "title": "Cooked bacon",
+      "step_index": 4
+    },
+    {
+      "description": "Spaghetti and bacon mixture",
+      "title": "Spaghetti and bacon mixture",
+      "step_index": 7
+    },
+    {
+      "description": "Cheese and egg yolk mixture with pasta water",
+      "title": "Cheese and egg yolk mixture with pasta water",
+      "step_index": 6
+    },
+    {
+      "description": "Pasta with sauce",
+      "title": "Pasta with sauce",
+      "step_index": 8
+    },
+    {
+      "description": "Pasta dish resembling carbonara but not authentic",
+      "title": "Pasta dish resembling carbonara but not authentic",
+      "step_index": 9
+    },
+    {
+      "description": "Grated cheese mixture",
+      "title": "Grated cheese mixture",
+      "step_index": 2
+    },
+    {
+      "description": "Boiling pasta water",
+      "title": "Boiling pasta water",
+      "step_index": 1
+    },
+    {
+      "title": "Egg and Cheese Mixture for Pasta Carbonara"
+    },
+    {
+      "description": "Crispy bacon",
+      "title": "Crispy bacon",
+      "step_index": 0
+    },
+    {
+      "description": "Boiling salted water",
+      "title": "Boiling salted water",
+      "step_index": 1
+    },
+    {
+      "description": "Reserved pasta water",
+      "title": "Reserved pasta water",
+      "step_index": 1
+    },
+    {
+      "description": "Creamy carbonara pasta",
+      "title": "Creamy carbonara pasta",
+      "step_index": 7
+    },
+    {
+      "description": "Additional grated Parmigiano Reggiano",
+      "title": "Additional grated Parmigiano Reggiano",
+      "step_index": 2
+    },
+    {
+      "description": "Reserved crispy bacon",
+      "title": "Reserved crispy bacon",
+      "step_index": 5
+    },
+    {
+      "description": "Creamy Pasta Carbonara with crispy bacon garnish",
+      "title": "Creamy Pasta Carbonara with crispy bacon garnish",
+      "step_index": 8
+    }
+  ],
+  "input_6": [
+    {
+      "title": "Half pound of thick-cut bacon, chopped and cooked until crispy, with some reserved for garnish."
+    },
+    {
+      "title": "Three whole eggs"
+    },
+    {
+      "title": "Pecorino Romano or Parmesan Cheese"
+    },
+    {
+      "title": "Egg Yolks for Sauce"
+    },
+    {
+      "title": "Freshly Ground Black Pepper"
+    },
+    {
+      "description": "Egg yolk and pecorino mixture",
+      "title": "Egg yolk and pecorino mixture",
+      "step_index": 3
+    },
+    {
+      "description": "Water",
+      "title": "Water",
+      "step_index": 4
+    },
+    {
+      "title": "Kosher salt (one tablespoon)"
+    },
+    {
+      "title": "Cooked Spaghetti with Bacon and Sauce"
+    },
+    {
+      "title": "Reserved Pasta Water (Optional)"
+    },
+    {
+      "title": "Egg and Cheese Mixture"
+    },
+    {
+      "description": "Olive oil",
+      "title": "Olive oil",
+      "step_index": 0
+    },
+    {
+      "description": "Pan",
+      "title": "Pan",
+      "step_index": 0
+    },
+    {
+      "description": "Water (four quarts)",
+      "title": "Water (four quarts)",
+      "step_index": 1
+    },
+    {
+      "description": "Pot",
+      "title": "Pot",
+      "step_index": 1
+    },
+    {
+      "title": "Parmigiano Reggiano cheese (3 oz) and extra for garnish"
+    },
+    {
+      "description": "Cheese grater or box grater",
+      "title": "Cheese grater or box grater",
+      "step_index": 2
+    },
+    {
+      "description": "Grated cheese mixture",
+      "title": "Grated cheese mixture",
+      "step_index": 3
+    },
+    {
+      "title": "Whisk"
+    },
+    {
+      "description": "Boiling pasta water (quarter cup)",
+      "title": "Boiling pasta water (quarter cup)",
+      "step_index": 4
+    },
+    {
+      "description": "Boiling salted water",
+      "title": "Boiling salted water",
+      "step_index": 5
+    },
+    {
+      "description": "Tongs",
+      "title": "Tongs",
+      "step_index": 5
+    },
+    {
+      "description": "Pan with rendered bacon fat",
+      "title": "Pan with rendered bacon fat",
+      "step_index": 5
+    },
+    {
+      "description": "Creamy carbonara pasta",
+      "title": "Creamy carbonara pasta",
+      "step_index": 7
+    }
+  ],
+  "step_6": [
+    {
+      "index": 0,
+      "description": "Cut the item into smaller pieces.",
+      "title": "Chop bacon",
+      "detailed_description": "Chop up some bacon into small pieces. This step is crucial as it replaces the traditional guanciale used in authentic carbonara recipes."
+    },
+    {
+      "index": 1,
+      "description": "Divide the yolks from the whites.",
+      "title": "Separate egg yolks",
+      "detailed_description": "Separate the egg yolks from the egg whites using the thumb trick or back and forth method. The yolks will be used in the sauce."
+    },
+    {
+      "index": 2,
+      "description": "Combine grated cheese with egg yolks.",
+      "title": "Grate pecorino romano into egg yolks",
+      "detailed_description": "Grate pecorino romano cheese into the egg yolks. Use a hand grater or a drill with a screw to make the process easier. Mix until it resembles Cadbury cream egg filling."
+    },
+    {
+      "detailed_description": "After cooking the pasta, reserve some of the pasta water. In a large bowl, combine the cooked pasta with the egg and cheese mixture. Gradually add the reserved pasta water to the mixture while stirring continuously. This helps to create a creamy sauce. Season the mixture with salt and pepper to taste, ensuring the flavors are well balanced.",
+      "title": "Combine and Season Pasta with Sauce"
+    },
+    {
+      "detailed_description": "Boil the pasta in a pot of salted water until it reaches al dente texture, then drain it. In a separate pan, cook the meat, such as pancetta or bacon, until crispy. Once both the pasta and meat are ready, combine them in a large bowl or pan. Ensure the pasta is well-coated with the rendered fat from the meat for added flavor.",
+      "title": "Cook and Combine Pasta with Meat"
+    },
+    {
+      "index": 5,
+      "description": "Heat a pan and fry the strips until crispy.",
+      "title": "Cook bacon",
+      "detailed_description": "Cook the chopped bacon in a pan until crispy. Turn off the heat and let it cool slightly to avoid overcooking the sauce later."
+    },
+    {
+      "index": 9,
+      "description": "Add seasoning and garnish to complete the preparation.",
+      "title": "Finish with pepper and cheese",
+      "detailed_description": "Finish the dish by adding more pepper and grated pecorino or parmesan cheese on top before serving."
+    },
+    {
+      "index": 0,
+      "description": "Cook until the desired texture is achieved.",
+      "title": "Render bacon until crispy",
+      "detailed_description": "Slice about a half pound of thick-cut bacon into pieces approximately three-quarters of an inch thick. Heat a pan over medium heat, add a tiny bit of olive oil, and then add the bacon pieces to the pan. Slowly render out the fat from the bacon until it becomes crispy. Some of the bacon will be used in the pasta, and some will be reserved for garnish."
+    },
+    {
+      "index": 1,
+      "description": "Get water ready for cooking.",
+      "title": "Prepare pasta water",
+      "detailed_description": "Bring about four quarts of water to a boil in a pot. Add about a tablespoon of kosher salt to the water to season it. The water will be used to cook the spaghetti later."
+    },
+    {
+      "index": 2,
+      "description": "Shred and combine ingredients.",
+      "title": "Grate and mix cheeses",
+      "detailed_description": "Grate three ounces each of Pecorino Romano and Parmigiano Reggiano cheese using a cheese grater or the fine setting on a box grater. Mix the grated cheeses together."
+    },
+    {
+      "index": 4,
+      "description": "Gradually mix hot liquid into the egg mixture to gently raise its temperature.",
+      "title": "Temper egg mixture with pasta water",
+      "detailed_description": "Add a little boiling pasta water (about a quarter cup) to the egg and cheese mixture to equalize the temperature and loosen the mixture. Whisk quickly to combine."
+    },
+    {
+      "index": 6,
+      "description": "Prepare a smooth and rich sauce.",
+      "title": "Create creamy carbonara sauce",
+      "detailed_description": "Add the tempered egg and cheese mixture to the hot spaghetti in the pan. Stir gently to coat the spaghetti without scrambling the eggs. The heat from the pasta will cook the eggs, creating a creamy sauce. If needed, add a little reserved pasta water to adjust the sauce consistency."
+    },
+    {
+      "index": 7,
+      "description": "Arrange the dish and add decorative elements.",
+      "title": "Plate and garnish the carbonara",
+      "detailed_description": "Plate the spaghetti carbonara, topping it with additional grated Parmigiano Reggiano and the reserved crispy bacon pieces for garnish."
+    }
+  ],
+  "output_6": [
+    {
+      "title": "Egg Yolk and Cheese Mixture for Pasta Carbonara"
+    },
+    {
+      "title": "Preparing Bacon for Pasta Carbonara"
+    },
+    {
+      "title": "Reserved Pasta Water (Optional)"
+    },
+    {
+      "title": "Egg and Cheese Mixture for Pasta Carbonara"
+    },
+    {
+      "title": "Spaghetti Carbonara with Creamy Sauce"
+    },
+    {
+      "title": "Spaghetti Carbonara with Creamy Sauce and Crispy Bacon"
+    },
+    {
+      "title": "Creamy Carbonara Pasta"
+    },
+    {
+      "description": "Grated cheese mixture",
+      "title": "Grated cheese mixture",
+      "step_index": 2
+    },
+    {
+      "description": "Boiling pasta water (quarter cup)",
+      "title": "Boiling pasta water (quarter cup)",
+      "step_index": 1
+    },
+    {
+      "description": "Boiling salted water",
+      "title": "Boiling salted water",
+      "step_index": 1
+    },
+    {
+      "description": "Pan with rendered bacon fat",
+      "title": "Pan with rendered bacon fat",
+      "step_index": 0
+    },
+    {
+      "description": "Additional grated Parmigiano Reggiano",
+      "title": "Additional grated Parmigiano Reggiano",
+      "step_index": 2
+    }
+  ],
+  "input_75": [
+    {
+      "title": "Bacon (chopped or cooked)"
+    },
+    {
+      "description": "Eggs",
+      "title": "Eggs",
+      "step_index": 1
+    },
+    {
+      "title": "Pecorino Romano cheese (3 ounces)"
+    },
+    {
+      "title": "Egg yolks (two)"
+    },
+    {
+      "title": "Pepper"
+    },
+    {
+      "description": "Egg yolk and pecorino mixture",
+      "title": "Egg yolk and pecorino mixture",
+      "step_index": 3
+    },
+    {
+      "description": "Water",
+      "title": "Water",
+      "step_index": 4
+    },
+    {
+      "description": "Salt",
+      "title": "Salt",
+      "step_index": 4
+    },
+    {
+      "title": "Spaghetti"
+    },
+    {
+      "title": "Reserved Pasta Water (Optional)"
+    },
+    {
+      "title": "Egg and Cheese Mixture"
+    },
+    {
+      "description": "Egg yolk and cheese sauce",
+      "title": "Egg yolk and cheese sauce",
+      "step_index": 8
+    },
+    {
+      "title": "Spaghetti and Bacon Mixture"
+    },
+    {
+      "description": "Pecorino or parmesan cheese",
+      "title": "Pecorino or parmesan cheese",
+      "step_index": 9
+    },
+    {
+      "description": "Thick-cut bacon (half pound)",
+      "title": "Thick-cut bacon (half pound)",
+      "step_index": 0
+    },
+    {
+      "description": "Olive oil",
+      "title": "Olive oil",
+      "step_index": 0
+    },
+    {
+      "description": "Pan",
+      "title": "Pan",
+      "step_index": 0
+    },
+    {
+      "description": "Water (four quarts)",
+      "title": "Water (four quarts)",
+      "step_index": 1
+    },
+    {
+      "description": "Kosher salt (one tablespoon)",
+      "title": "Kosher salt (one tablespoon)",
+      "step_index": 1
+    },
+    {
+      "description": "Pot",
+      "title": "Pot",
+      "step_index": 1
+    },
+    {
+      "description": "Parmigiano Reggiano cheese (three ounces)",
+      "title": "Parmigiano Reggiano cheese (three ounces)",
+      "step_index": 2
+    },
+    {
+      "description": "Cheese grater or box grater",
+      "title": "Cheese grater or box grater",
+      "step_index": 2
+    },
+    {
+      "description": "Whole eggs (three)",
+      "title": "Whole eggs (three)",
+      "step_index": 3
+    },
+    {
+      "description": "Grated cheese mixture",
+      "title": "Grated cheese mixture",
+      "step_index": 3
+    },
+    {
+      "description": "Fresh ground black pepper",
+      "title": "Fresh ground black pepper",
+      "step_index": 3
+    },
+    {
+      "title": "Whisk"
+    },
+    {
+      "description": "Boiling pasta water (quarter cup)",
+      "title": "Boiling pasta water (quarter cup)",
+      "step_index": 4
+    },
+    {
+      "description": "Boiling salted water",
+      "title": "Boiling salted water",
+      "step_index": 5
+    },
+    {
+      "description": "Tongs",
+      "title": "Tongs",
+      "step_index": 5
+    },
+    {
+      "description": "Pan with rendered bacon fat",
+      "title": "Pan with rendered bacon fat",
+      "step_index": 5
+    },
+    {
+      "description": "Creamy carbonara pasta",
+      "title": "Creamy carbonara pasta",
+      "step_index": 7
+    },
+    {
+      "description": "Additional grated Parmigiano Reggiano",
+      "title": "Additional grated Parmigiano Reggiano",
+      "step_index": 7
+    },
+    {
+      "description": "Reserved crispy bacon",
+      "title": "Reserved crispy bacon",
+      "step_index": 7
+    }
+  ],
+  "step_75": [
+    {
+      "index": 0,
+      "description": "Cut the item into smaller pieces.",
+      "title": "Chop bacon",
+      "detailed_description": "Chop up some bacon into small pieces. This step is crucial as it replaces the traditional guanciale used in authentic carbonara recipes."
+    },
+    {
+      "index": 1,
+      "description": "Divide the yolks from the whites.",
+      "title": "Separate egg yolks",
+      "detailed_description": "Separate the egg yolks from the egg whites using the thumb trick or back and forth method. The yolks will be used in the sauce."
+    },
+    {
+      "index": 2,
+      "description": "Combine grated cheese with egg yolks.",
+      "title": "Grate pecorino romano into egg yolks",
+      "detailed_description": "Grate pecorino romano cheese into the egg yolks. Use a hand grater or a drill with a screw to make the process easier. Mix until it resembles Cadbury cream egg filling."
+    },
+    {
+      "detailed_description": "After cooking the pasta, reserve some of the pasta water. In a large bowl, combine the cooked pasta with the egg and cheese mixture. Gradually add the reserved pasta water to the mixture while stirring continuously. This helps to create a creamy sauce. Season the mixture with salt and pepper to taste, ensuring the flavors are well balanced.",
+      "title": "Combine Pasta with Sauce Ingredients and Season"
+    },
+    {
+      "index": 4,
+      "description": "Prepare pasta by boiling it in water until it reaches the desired texture.",
+      "title": "Cook spaghetti",
+      "detailed_description": "Boil water in a pot and add salt. Cook 156 pieces of spaghetti in the boiling water, stirring initially to prevent sticking."
+    },
+    {
+      "index": 5,
+      "description": "Heat a pan and fry the strips until crispy.",
+      "title": "Cook bacon",
+      "detailed_description": "Cook the chopped bacon in a pan until crispy. Turn off the heat and let it cool slightly to avoid overcooking the sauce later."
+    },
+    {
+      "detailed_description": "After cooking the pasta according to package instructions until al dente, drain it and set aside. In a separate pan, cook the meat (such as pancetta or bacon) until crispy. Once the meat is cooked, combine it with the pasta in a large mixing bowl. Prepare the carbonara sauce by whisking together eggs, grated Parmesan cheese, and a pinch of black pepper. Pour the sauce over the hot pasta and meat, stirring quickly to ensure the eggs do not scramble but instead create a creamy coating over the pasta. Serve immediately, garnished with additional Parmesan and black pepper if desired.",
+      "title": "Combine Pasta, Meat, and Sauce"
+    },
+    {
+      "index": 9,
+      "description": "Add seasoning and garnish to complete the preparation.",
+      "title": "Finish with pepper and cheese",
+      "detailed_description": "Finish the dish by adding more pepper and grated pecorino or parmesan cheese on top before serving."
+    },
+    {
+      "index": 0,
+      "description": "Cook until the desired texture is achieved.",
+      "title": "Render bacon until crispy",
+      "detailed_description": "Slice about a half pound of thick-cut bacon into pieces approximately three-quarters of an inch thick. Heat a pan over medium heat, add a tiny bit of olive oil, and then add the bacon pieces to the pan. Slowly render out the fat from the bacon until it becomes crispy. Some of the bacon will be used in the pasta, and some will be reserved for garnish."
+    },
+    {
+      "index": 1,
+      "description": "Get water ready for cooking.",
+      "title": "Prepare pasta water",
+      "detailed_description": "Bring about four quarts of water to a boil in a pot. Add about a tablespoon of kosher salt to the water to season it. The water will be used to cook the spaghetti later."
+    },
+    {
+      "index": 2,
+      "description": "Shred and combine ingredients.",
+      "title": "Grate and mix cheeses",
+      "detailed_description": "Grate three ounces each of Pecorino Romano and Parmigiano Reggiano cheese using a cheese grater or the fine setting on a box grater. Mix the grated cheeses together."
+    },
+    {
+      "index": 4,
+      "description": "Gradually mix hot liquid into the egg mixture to gently raise its temperature.",
+      "title": "Temper egg mixture with pasta water",
+      "detailed_description": "Add a little boiling pasta water (about a quarter cup) to the egg and cheese mixture to equalize the temperature and loosen the mixture. Whisk quickly to combine."
+    },
+    {
+      "index": 6,
+      "description": "Prepare a smooth and rich sauce.",
+      "title": "Create creamy carbonara sauce",
+      "detailed_description": "Add the tempered egg and cheese mixture to the hot spaghetti in the pan. Stir gently to coat the spaghetti without scrambling the eggs. The heat from the pasta will cook the eggs, creating a creamy sauce. If needed, add a little reserved pasta water to adjust the sauce consistency."
+    },
+    {
+      "index": 7,
+      "description": "Arrange the dish and add decorative elements.",
+      "title": "Plate and garnish the carbonara",
+      "detailed_description": "Plate the spaghetti carbonara, topping it with additional grated Parmigiano Reggiano and the reserved crispy bacon pieces for garnish."
+    }
+  ],
+  "output_75": [
+    {
+      "description": "Egg yolks",
+      "title": "Egg yolks",
+      "step_index": 1
+    },
+    {
+      "description": "Egg yolk and pecorino mixture",
+      "title": "Egg yolk and pecorino mixture",
+      "step_index": 2
+    },
+    {
+      "title": "Cooked and Chopped Bacon for Pasta Carbonara"
+    },
+    {
+      "title": "Reserved Pasta Water (Optional)"
+    },
+    {
+      "title": "Egg and Cheese Mixture for Carbonara"
+    },
+    {
+      "title": "Spaghetti Carbonara with Creamy Sauce"
+    },
+    {
+      "description": "Egg yolk and cheese sauce",
+      "title": "Egg yolk and cheese sauce",
+      "step_index": 6
+    },
+    {
+      "title": "Spaghetti Carbonara with Bacon"
+    },
+    {
+      "title": "Creamy Carbonara Pasta"
+    },
+    {
+      "description": "Grated cheese mixture",
+      "title": "Grated cheese mixture",
+      "step_index": 2
+    },
+    {
+      "description": "Boiling pasta water (quarter cup)",
+      "title": "Boiling pasta water (quarter cup)",
+      "step_index": 1
+    },
+    {
+      "description": "Boiling salted water",
+      "title": "Boiling salted water",
+      "step_index": 1
+    },
+    {
+      "description": "Pan with rendered bacon fat",
+      "title": "Pan with rendered bacon fat",
+      "step_index": 0
+    },
+    {
+      "description": "Additional grated Parmigiano Reggiano",
+      "title": "Additional grated Parmigiano Reggiano",
+      "step_index": 2
+    },
+    {
+      "description": "Reserved crispy bacon",
+      "title": "Reserved crispy bacon",
+      "step_index": 0
+    },
+    {
+      "description": "Spaghetti Carbonara with creamy sauce and crispy bacon garnish",
+      "title": "Spaghetti Carbonara with creamy sauce and crispy bacon garnish",
+      "step_index": 7
+    }
+  ],
+  "input_85": [
+    {
+      "title": "Cooked Bacon"
+    },
+    {
+      "description": "Eggs",
+      "title": "Eggs",
+      "step_index": 1
+    },
+    {
+      "title": "Pecorino Romano cheese (3 ounces)"
+    },
+    {
+      "title": "Egg yolks (two)"
+    },
+    {
+      "title": "Pepper"
+    },
+    {
+      "description": "Egg yolk and pecorino mixture",
+      "title": "Egg yolk and pecorino mixture",
+      "step_index": 3
+    },
+    {
+      "description": "Water",
+      "title": "Water",
+      "step_index": 4
+    },
+    {
+      "description": "Salt",
+      "title": "Salt",
+      "step_index": 4
+    },
+    {
+      "title": "Spaghetti"
+    },
+    {
+      "description": "Chopped bacon",
+      "title": "Chopped bacon",
+      "step_index": 5
+    },
+    {
+      "description": "Pasta water",
+      "title": "Pasta water",
+      "step_index": 6
+    },
+    {
+      "title": "Egg yolk and cheese mixture"
+    },
+    {
+      "description": "Egg yolk and cheese sauce",
+      "title": "Egg yolk and cheese sauce",
+      "step_index": 8
+    },
+    {
+      "description": "Spaghetti and bacon mixture",
+      "title": "Spaghetti and bacon mixture",
+      "step_index": 8
+    },
+    {
+      "description": "Pecorino or parmesan cheese",
+      "title": "Pecorino or parmesan cheese",
+      "step_index": 9
+    },
+    {
+      "description": "Spaghetti with sauce",
+      "title": "Spaghetti with sauce",
+      "step_index": 9
+    },
+    {
+      "description": "Thick-cut bacon (half pound)",
+      "title": "Thick-cut bacon (half pound)",
+      "step_index": 0
+    },
+    {
+      "description": "Olive oil",
+      "title": "Olive oil",
+      "step_index": 0
+    },
+    {
+      "description": "Pan",
+      "title": "Pan",
+      "step_index": 0
+    },
+    {
+      "description": "Water (four quarts)",
+      "title": "Water (four quarts)",
+      "step_index": 1
+    },
+    {
+      "description": "Kosher salt (one tablespoon)",
+      "title": "Kosher salt (one tablespoon)",
+      "step_index": 1
+    },
+    {
+      "description": "Pot",
+      "title": "Pot",
+      "step_index": 1
+    },
+    {
+      "description": "Parmigiano Reggiano cheese (three ounces)",
+      "title": "Parmigiano Reggiano cheese (three ounces)",
+      "step_index": 2
+    },
+    {
+      "description": "Cheese grater or box grater",
+      "title": "Cheese grater or box grater",
+      "step_index": 2
+    },
+    {
+      "description": "Whole eggs (three)",
+      "title": "Whole eggs (three)",
+      "step_index": 3
+    },
+    {
+      "description": "Grated cheese mixture",
+      "title": "Grated cheese mixture",
+      "step_index": 3
+    },
+    {
+      "description": "Fresh ground black pepper",
+      "title": "Fresh ground black pepper",
+      "step_index": 3
+    },
+    {
+      "title": "Whisk"
+    },
+    {
+      "description": "Boiling pasta water (quarter cup)",
+      "title": "Boiling pasta water (quarter cup)",
+      "step_index": 4
+    },
+    {
+      "description": "Boiling salted water",
+      "title": "Boiling salted water",
+      "step_index": 5
+    },
+    {
+      "description": "Tongs",
+      "title": "Tongs",
+      "step_index": 5
+    },
+    {
+      "description": "Pan with rendered bacon fat",
+      "title": "Pan with rendered bacon fat",
+      "step_index": 5
+    },
+    {
+      "description": "Tempered egg and cheese mixture",
+      "title": "Tempered egg and cheese mixture",
+      "step_index": 6
+    },
+    {
+      "description": "Hot spaghetti with bacon",
+      "title": "Hot spaghetti with bacon",
+      "step_index": 6
+    },
+    {
+      "description": "Reserved pasta water (optional)",
+      "title": "Reserved pasta water (optional)",
+      "step_index": 6
+    },
+    {
+      "description": "Creamy carbonara pasta",
+      "title": "Creamy carbonara pasta",
+      "step_index": 7
+    },
+    {
+      "description": "Additional grated Parmigiano Reggiano",
+      "title": "Additional grated Parmigiano Reggiano",
+      "step_index": 7
+    },
+    {
+      "description": "Reserved crispy bacon",
+      "title": "Reserved crispy bacon",
+      "step_index": 7
+    }
+  ],
+  "step_85": [
+    {
+      "index": 0,
+      "description": "Cut the item into smaller pieces.",
+      "title": "Chop bacon",
+      "detailed_description": "Chop up some bacon into small pieces. This step is crucial as it replaces the traditional guanciale used in authentic carbonara recipes."
+    },
+    {
+      "index": 1,
+      "description": "Divide the yolks from the whites.",
+      "title": "Separate egg yolks",
+      "detailed_description": "Separate the egg yolks from the egg whites using the thumb trick or back and forth method. The yolks will be used in the sauce."
+    },
+    {
+      "index": 2,
+      "description": "Combine grated cheese with egg yolks.",
+      "title": "Grate pecorino romano into egg yolks",
+      "detailed_description": "Grate pecorino romano cheese into the egg yolks. Use a hand grater or a drill with a screw to make the process easier. Mix until it resembles Cadbury cream egg filling."
+    },
+    {
+      "index": 3,
+      "description": "Incorporate seasoning into the mixture.",
+      "title": "Add pepper to egg yolk mixture",
+      "detailed_description": "Add pepper to the egg yolk and cheese mixture to taste. This adds flavor to the sauce."
+    },
+    {
+      "index": 4,
+      "description": "Prepare pasta by boiling it in water until it reaches the desired texture.",
+      "title": "Cook spaghetti",
+      "detailed_description": "Boil water in a pot and add salt. Cook 156 pieces of spaghetti in the boiling water, stirring initially to prevent sticking."
+    },
+    {
+      "index": 5,
+      "description": "Heat a pan and fry the strips until crispy.",
+      "title": "Cook bacon",
+      "detailed_description": "Cook the chopped bacon in a pan until crispy. Turn off the heat and let it cool slightly to avoid overcooking the sauce later."
+    },
+    {
+      "index": 6,
+      "description": "Incorporate cooking liquid into the mixture.",
+      "title": "Add pasta water to sauce",
+      "detailed_description": "Add a bit of pasta water to the egg yolk and cheese mixture to help melt the cheese and create a creamy sauce."
+    },
+    {
+      "detailed_description": "After cooking the pasta according to package instructions until al dente, drain it and set aside. In a separate pan, cook the meat, such as pancetta or bacon, until crispy. Once both the pasta and meat are ready, combine them in a large bowl or the pan used for cooking the meat. Ensure the pasta is well-coated with the rendered fat from the meat for added flavor.",
+      "title": "Combine Cooked Pasta with Crispy Meat"
+    },
+    {
+      "index": 8,
+      "description": "Combine the sauce with the pasta and meat.",
+      "title": "Add sauce to spaghetti and bacon",
+      "detailed_description": "Pour the sauce over the spaghetti and bacon in the pan. Stir to coat the spaghetti, allowing the heat to cook the egg slightly and thicken the sauce. Add more pasta water if needed to achieve a creamy consistency."
+    },
+    {
+      "index": 9,
+      "description": "Add seasoning and garnish to complete the preparation.",
+      "title": "Finish with pepper and cheese",
+      "detailed_description": "Finish the dish by adding more pepper and grated pecorino or parmesan cheese on top before serving."
+    },
+    {
+      "index": 0,
+      "description": "Cook until the desired texture is achieved.",
+      "title": "Render bacon until crispy",
+      "detailed_description": "Slice about a half pound of thick-cut bacon into pieces approximately three-quarters of an inch thick. Heat a pan over medium heat, add a tiny bit of olive oil, and then add the bacon pieces to the pan. Slowly render out the fat from the bacon until it becomes crispy. Some of the bacon will be used in the pasta, and some will be reserved for garnish."
+    },
+    {
+      "index": 1,
+      "description": "Get water ready for cooking.",
+      "title": "Prepare pasta water",
+      "detailed_description": "Bring about four quarts of water to a boil in a pot. Add about a tablespoon of kosher salt to the water to season it. The water will be used to cook the spaghetti later."
+    },
+    {
+      "index": 2,
+      "description": "Shred and combine ingredients.",
+      "title": "Grate and mix cheeses",
+      "detailed_description": "Grate three ounces each of Pecorino Romano and Parmigiano Reggiano cheese using a cheese grater or the fine setting on a box grater. Mix the grated cheeses together."
+    },
+    {
+      "index": 3,
+      "description": "Combine the ingredients to form a mixture.",
+      "title": "Prepare egg and cheese mixture",
+      "detailed_description": "In a bowl, combine three whole eggs and two egg yolks. Whisk them together. Gradually whisk in the grated cheese mixture until well combined. Add fresh ground black pepper to taste and whisk it into the mixture."
+    },
+    {
+      "index": 4,
+      "description": "Gradually mix hot liquid into the egg mixture to gently raise its temperature.",
+      "title": "Temper egg mixture with pasta water",
+      "detailed_description": "Add a little boiling pasta water (about a quarter cup) to the egg and cheese mixture to equalize the temperature and loosen the mixture. Whisk quickly to combine."
+    },
+    {
+      "index": 6,
+      "description": "Prepare a smooth and rich sauce.",
+      "title": "Create creamy carbonara sauce",
+      "detailed_description": "Add the tempered egg and cheese mixture to the hot spaghetti in the pan. Stir gently to coat the spaghetti without scrambling the eggs. The heat from the pasta will cook the eggs, creating a creamy sauce. If needed, add a little reserved pasta water to adjust the sauce consistency."
+    },
+    {
+      "index": 7,
+      "description": "Arrange the dish and add decorative elements.",
+      "title": "Plate and garnish the carbonara",
+      "detailed_description": "Plate the spaghetti carbonara, topping it with additional grated Parmigiano Reggiano and the reserved crispy bacon pieces for garnish."
+    }
+  ],
+  "output_85": [
+    {
+      "description": "Egg yolks",
+      "title": "Egg yolks",
+      "step_index": 1
+    },
+    {
+      "description": "Egg yolk and pecorino mixture",
+      "title": "Egg yolk and pecorino mixture",
+      "step_index": 2
+    },
+    {
+      "description": "Chopped bacon",
+      "title": "Chopped bacon",
+      "step_index": 0
+    },
+    {
+      "description": "Pasta water",
+      "title": "Pasta water",
+      "step_index": 4
+    },
+    {
+      "title": "Egg Yolk and Cheese Mixture for Pasta Carbonara"
+    },
+    {
+      "description": "Cooked spaghetti",
+      "title": "Cooked spaghetti",
+      "step_index": 4
+    },
+    {
+      "description": "Cooked bacon",
+      "title": "Cooked bacon",
+      "step_index": 5
+    },
+    {
+      "description": "Egg yolk and cheese sauce",
+      "title": "Egg yolk and cheese sauce",
+      "step_index": 6
+    },
+    {
+      "description": "Spaghetti and bacon mixture",
+      "title": "Spaghetti and bacon mixture",
+      "step_index": 7
+    },
+    {
+      "description": "Spaghetti with sauce",
+      "title": "Spaghetti with sauce",
+      "step_index": 8
+    },
+    {
+      "description": "Not Carbonara Pasta Dish",
+      "title": "Not Carbonara Pasta Dish",
+      "step_index": 9
+    },
+    {
+      "description": "Grated cheese mixture",
+      "title": "Grated cheese mixture",
+      "step_index": 2
+    },
+    {
+      "description": "Boiling pasta water (quarter cup)",
+      "title": "Boiling pasta water (quarter cup)",
+      "step_index": 1
+    },
+    {
+      "description": "Boiling salted water",
+      "title": "Boiling salted water",
+      "step_index": 1
+    },
+    {
+      "description": "Pan with rendered bacon fat",
+      "title": "Pan with rendered bacon fat",
+      "step_index": 0
+    },
+    {
+      "description": "Tempered egg and cheese mixture",
+      "title": "Tempered egg and cheese mixture",
+      "step_index": 4
+    },
+    {
+      "description": "Hot spaghetti with bacon",
+      "title": "Hot spaghetti with bacon",
+      "step_index": 5
+    },
+    {
+      "description": "Reserved pasta water (optional)",
+      "title": "Reserved pasta water (optional)",
+      "step_index": 1
+    },
+    {
+      "description": "Creamy carbonara pasta",
+      "title": "Creamy carbonara pasta",
+      "step_index": 6
+    },
+    {
+      "description": "Additional grated Parmigiano Reggiano",
+      "title": "Additional grated Parmigiano Reggiano",
+      "step_index": 2
+    },
+    {
+      "description": "Reserved crispy bacon",
+      "title": "Reserved crispy bacon",
+      "step_index": 0
+    },
+    {
+      "description": "Spaghetti Carbonara with creamy sauce and crispy bacon garnish",
+      "title": "Spaghetti Carbonara with creamy sauce and crispy bacon garnish",
+      "step_index": 7
+    }
+  ]
+}

@@ -12,7 +12,8 @@ client = OpenAI(
 
 SEED = 13774
 TEMPERATURE = 0
-MODEL_NAME = 'gpt-4o-2024-08-06'
+# MODEL_NAME = 'gpt-4o-2024-08-06'
+MODEL_NAME = 'gpt-4o-mini-2024-07-18'
 
 
 def random_uid():

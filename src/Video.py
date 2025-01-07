@@ -97,12 +97,17 @@ class Video:
     def get_all_contents(self):
         contents = []
         for sentence in self.sentences:
+            frame_paths = []
+            # frame_paths = [path for path in sentence["frame_paths"]]
+            mid = len(sentence["frame_paths"]) // 2
+            if mid < len(sentence["frame_paths"]):
+                frame_paths = [sentence["frame_paths"][mid]]
             contents.append({
                 "id": sentence["id"],
                 "start": sentence["start"],
                 "finish": sentence["finish"],
                 "text": sentence["text"],
-                "frame_paths": [path for path in sentence["frame_paths"]],
+                "frame_paths": frame_paths,
             })
         return contents
 

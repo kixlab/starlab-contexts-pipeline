@@ -1,0 +1,998 @@
+MESSAGES: [
+  {
+    "role": "system",
+    "content": "\nExtract instructions from tutorial video subtitles for the task: How to make Pasta Carbonara?.\nThe extracted instructions should adhere to the following requirements:\n1. Focus on a single action at a time.\n2. Useful for completing the task.\n3. Clear and concise.\n4. Self-sufficient and do not refer to earlier or later instructions.\n5. Free of any ambiguous terms or phrases.\n6. Written in the imperative mood.\n"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
+      },
+      {
+        "type": "text",
+        "text": "0. Fai schifo cucinare, ja totalmente schifo!"
+      },
+      {
+        "type": "text",
+        "text": "1. Today we're not making spaghetti carbonara."
+      },
+      {
+        "type": "text",
+        "text": "2. Some might say it looks like carbonara, and tastes like carbonara, and has the mouthfeel of carbonara, the substances which make up carbonara, and even the personality of carbonara."
+      },
+      {
+        "type": "text",
+        "text": "3. But this is not carbonara."
+      },
+      {
+        "type": "text",
+        "text": "4. The first thing we're gonna do is chop up some bacon."
+      },
+      {
+        "type": "text",
+        "text": "5. That's how you know this isn't carbonara, because if you were making carbonara, you'd be using guanciale."
+      },
+      {
+        "type": "text",
+        "text": "6. You see, bacon comes from a pig, whereas guanciale comes from a completely different animal, known as an Italian hog."
+      },
+      {
+        "type": "text",
+        "text": "7. Oh my god, it looks like a jumping Italian horse!"
+      },
+      {
+        "type": "text",
+        "text": "8. You wouldn't make a hamburger with tiger meat, would you?"
+      },
+      {
+        "type": "text",
+        "text": "9. I really hope not."
+      },
+      {
+        "type": "text",
+        "text": "10. Tigers are expensive."
+      },
+      {
+        "type": "text",
+        "text": "11. Carbonara is typically made with egg yolks, which is irrelevant, since that's not what we're making."
+      },
+      {
+        "type": "text",
+        "text": "12. Don't accidentally use egg yolkles, because banjo music really ruins this dish."
+      },
+      {
+        "type": "text",
+        "text": "13. We'll just do the classic hold the yolk with your thumb trick."
+      },
+      {
+        "type": "text",
+        "text": "14. You can also do the back and forth, and whoops, maybe no forth."
+      },
+      {
+        "type": "text",
+        "text": "15. Then make the traditional Italian egg white on toast as an appetizer."
+      },
+      {
+        "type": "text",
+        "text": "16. Mmm."
+      },
+      {
+        "type": "text",
+        "text": "17. This is pecorino romano, which you would use if you're making carbonara, which we are not."
+      },
+      {
+        "type": "text",
+        "text": "18. It gets its name because the Romans who made it had huge pecs."
+      },
+      {
+        "type": "text",
+        "text": "19. So did the goats."
+      },
+      {
+        "type": "text",
+        "text": "20. They worked out together."
+      },
+      {
+        "type": "text",
+        "text": "21. If you want to shred your pecorino more easily, you can take a drill, put in a nice big fat screw, then you just... okay."
+      },
+      {
+        "type": "text",
+        "text": "22. So, whoop."
+      },
+      {
+        "type": "text",
+        "text": "23. All right."
+      },
+      {
+        "type": "text",
+        "text": "24. If I just maybe... okay, let's try."
+      },
+      {
+        "type": "text",
+        "text": "25. Nope."
+      },
+      {
+        "type": "text",
+        "text": "26. Hmm."
+      },
+      {
+        "type": "text",
+        "text": "27. See, in my mind when I thought of this, none of the physics of how objects work would be an issue."
+      },
+      {
+        "type": "text",
+        "text": "28. If you're Italian, you don't need to innovate in this department, because you simply harness the power of your hand gesture muscles, which makes this a breeze."
+      },
+      {
+        "type": "text",
+        "text": "29. So grate that into the egg yolk and wang jangle until you've got Cadbury cream egg filling."
+      },
+      {
+        "type": "text",
+        "text": "30. Then we'll add some pepper pepper pepper, and we're good to go."
+      },
+      {
+        "type": "text",
+        "text": "31. And by go, I mean stay, because we're not done yet."
+      },
+      {
+        "type": "text",
+        "text": "32. The original carbonara was made with handcrafted artisan spaghetti from the Veneto region."
+      },
+      {
+        "type": "text",
+        "text": "33. Each spaghetti craftsperson had their signature style."
+      },
+      {
+        "type": "text",
+        "text": "34. Sadly, these days you can only find straight parallel line spaghetti."
+      },
+      {
+        "type": "text",
+        "text": "35. And you know, it just really angers me that the craft has been left to die like nobody cares."
+      },
+      {
+        "type": "text",
+        "text": "36. Now, let's just fix that."
+      },
+      {
+        "type": "text",
+        "text": "37. Breaking spaghetti in half is a crime in Italy and can land you in prison for up to nine months."
+      },
+      {
+        "type": "text",
+        "text": "38. It sounds like an overreaction at first, but the crack sends a shock wave through the noodle, rendering it completely inedible."
+      },
+      {
+        "type": "text",
+        "text": "39. I mean, look, here's uncracked spaghetti and cracked spaghetti."
+      },
+      {
+        "type": "text",
+        "text": "40. If I didn't tell you that was spaghetti, you wouldn't have even recognized it."
+      },
+      {
+        "type": "text",
+        "text": "41. Now we'll salt this angry water, then throw in 156 pieces of spaghetti."
+      },
+      {
+        "type": "text",
+        "text": "42. Keep wang jangling that for the first bit to keep the spag from getting clingy."
+      },
+      {
+        "type": "text",
+        "text": "43. By the way, spaghetti gets its name because you put it in the spa to cook it."
+      },
+      {
+        "type": "text",
+        "text": "44. Now our bacon is cooked."
+      },
+      {
+        "type": "text",
+        "text": "45. We're turning the burner off, waiting for this to cool, at least until there's no sizzle left, and a bit longer so we don't overcook the eggbased sauce."
+      },
+      {
+        "type": "text",
+        "text": "46. Now I'm gonna put in a bit of pasta water into our sauce ingredients to get that cheeseahead start on the melting."
+      },
+      {
+        "type": "text",
+        "text": "47. Noodles go straight from the water into the bacon pan for a wang jangulation."
+      },
+      {
+        "type": "text",
+        "text": "48. Since noodles are made of wheat, this is essentially a bacon sandwich, but if you do strain the spaghetti, make sure to set aside some pasta water, and if you get the kind of spaghetti with dehydrated meatballs, just pull those out and set them aside."
+      },
+      {
+        "type": "text",
+        "text": "49. Then the sauce can go in, and the egg will cook just enough from the noodle heat, although you can put your pan on low to thicken it as well, because here comes more pasta water, making this nice and creamy."
+      },
+      {
+        "type": "text",
+        "text": "50. The reason we add pasta water is so that if you get thirsty while you eat it, you don't have to stop and have a drink."
+      },
+      {
+        "type": "text",
+        "text": "51. Here I'm trying to do that fancy twist thing, but it's not the right tool, and I don't know what I'm doing."
+      },
+      {
+        "type": "text",
+        "text": "52. We'll finish with some pepper pepper pepper, and some more pecorino or parmesan, and here we don't have carbonara."
+      },
+      {
+        "type": "text",
+        "text": "53. If you want to really see not carbonara, here's an earlier attempt where I used whole egg, too much heat, and for some reason this came out way worse than my first attempt with whole egg, which came out great."
+      },
+      {
+        "type": "text",
+        "text": "54. So are the whims of the food gods."
+      },
+      {
+        "type": "text",
+        "text": "55. If this was carbonara, you'd have to be careful, because the carbonistic properties are so fragile, that if you put in a single pea, it would no longer be carbonara."
+      },
+      {
+        "type": "text",
+        "text": "56. It's a mysterious chemical reaction that only Italian scientists understand."
+      },
+      {
+        "type": "text",
+        "text": "57. I'm craving carbonara, but I don't have guanciale."
+      },
+      {
+        "type": "text",
+        "text": "58. Should I really even bother?"
+      },
+      {
+        "type": "text",
+        "text": "59. Oh no, will they judge my carbonara?"
+      },
+      {
+        "type": "text",
+        "text": "60. Because I want some cream upon it."
+      },
+      {
+        "type": "text",
+        "text": "61. Should I eat it in the closet?"
+      },
+      {
+        "type": "text",
+        "text": "62. Oh no, what have I done?"
+      },
+      {
+        "type": "text",
+        "text": "63. I've added peas to a dish that is otherwise vegetablefree."
+      },
+      {
+        "type": "text",
+        "text": "64. They say it's no game."
+      },
+      {
+        "type": "text",
+        "text": "65. Hang my head as I eat this not carbonara in shame."
+      }
+    ]
+  }
+]
+RESPONSE: {
+  "instructions": [
+    {
+      "instruction": "Chop up some bacon.",
+      "expected_outcome": "Bacon is prepared for cooking.",
+      "start": 4,
+      "end": 4
+    },
+    {
+      "instruction": "Grate pecorino romano cheese into a bowl.",
+      "expected_outcome": "Pecorino romano cheese is ready for mixing with the egg yolk.",
+      "start": 29,
+      "end": 29
+    },
+    {
+      "instruction": "Add pepper to the grated cheese.",
+      "expected_outcome": "Pepper is mixed with the cheese for flavor.",
+      "start": 30,
+      "end": 30
+    },
+    {
+      "instruction": "Salt the boiling water.",
+      "expected_outcome": "Water is seasoned for cooking spaghetti.",
+      "start": 41,
+      "end": 41
+    },
+    {
+      "instruction": "Add spaghetti to the salted water.",
+      "expected_outcome": "Spaghetti begins cooking in the boiling water.",
+      "start": 41,
+      "end": 41
+    },
+    {
+      "instruction": "Cook the bacon until crispy.",
+      "expected_outcome": "Bacon is cooked and ready to be added to the dish.",
+      "start": 44,
+      "end": 44
+    },
+    {
+      "instruction": "Turn off the burner and let the bacon cool.",
+      "expected_outcome": "Bacon cools down to prevent overcooking the egg-based sauce.",
+      "start": 45,
+      "end": 45
+    },
+    {
+      "instruction": "Add a bit of pasta water to the sauce ingredients.",
+      "expected_outcome": "Pasta water is incorporated to help melt the cheese.",
+      "start": 46,
+      "end": 46
+    },
+    {
+      "instruction": "Transfer noodles directly from the water into the bacon pan.",
+      "expected_outcome": "Noodles are combined with the bacon for flavor.",
+      "start": 47,
+      "end": 47
+    },
+    {
+      "instruction": "Add the sauce to the noodles in the pan.",
+      "expected_outcome": "Sauce is mixed with the noodles and bacon.",
+      "start": 49,
+      "end": 49
+    },
+    {
+      "instruction": "Finish with more pepper and pecorino or parmesan cheese.",
+      "expected_outcome": "Dish is seasoned and garnished before serving.",
+      "start": 52,
+      "end": 52
+    }
+  ]
+}
+MESSAGES: [
+  {
+    "role": "system",
+    "content": "\nExtract instructions from tutorial video subtitles for the task: How to make Pasta Carbonara?.\nThe extracted instructions should adhere to the following requirements:\n1. Focus on a single action at a time.\n2. Useful for completing the task.\n3. Clear and concise.\n4. Self-sufficient and do not refer to earlier or later instructions.\n5. Free of any ambiguous terms or phrases.\n6. Written in the imperative mood.\n"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
+      },
+      {
+        "type": "text",
+        "text": "0. You need to understand, carbonara does not need cream, or peas, or ham, or whatever else people are putting in it."
+      },
+      {
+        "type": "text",
+        "text": "1. It's so simple!"
+      },
+      {
+        "type": "text",
+        "text": "2. Today, hang out for a second, and you're gonna learn how to do it right."
+      },
+      {
+        "type": "text",
+        "text": "3. Let's not waste any time, now let's go!"
+      },
+      {
+        "type": "text",
+        "text": "4. Traditionally, you're gonna see spaghetti carbonara made with guanciale, which is the jowl, meaning the cheek of a pig that's been cured."
+      },
+      {
+        "type": "text",
+        "text": "5. So for this video, of course, I could have ordered guanciale, but I know most of my audience is American, so I want the most people possible to actually make this, so we're gonna use bacon."
+      },
+      {
+        "type": "text",
+        "text": "6. And thick cut bacon would be best."
+      },
+      {
+        "type": "text",
+        "text": "7. You could also use pancetta."
+      },
+      {
+        "type": "text",
+        "text": "8. So I'll take about a half pound of bacon, and we're gonna slice this just pretty thick, this way."
+      },
+      {
+        "type": "text",
+        "text": "9. That's about three quarters of an inch."
+      },
+      {
+        "type": "text",
+        "text": "10. Turn this pan on to medium heat."
+      },
+      {
+        "type": "text",
+        "text": "11. I'm doing a tiny bit of olive oil, I don't think it's traditional, but when I'm cooking Italian food, it just feels right."
+      },
+      {
+        "type": "text",
+        "text": "12. Then go ahead and break your bacon into that pan."
+      },
+      {
+        "type": "text",
+        "text": "13. And what we're gonna do here is slowly render out the fat from this bacon, get it nice and crispy."
+      },
+      {
+        "type": "text",
+        "text": "14. We'll use most of it in the pasta, and then we'll actually use some for garnish, because who doesn't like crispy bacon on top?"
+      },
+      {
+        "type": "text",
+        "text": "15. Now, bacon is rendering, pasta water is coming up to a boil, and we're gonna season our pasta water just a little bit, about a tablespoon of salt, kosher salt, into about four quarts of water."
+      },
+      {
+        "type": "text",
+        "text": "16. Usually, I'm gonna put more salt, but because there's so many salty elements in carbonara, I wanna put less salt in the pasta water."
+      },
+      {
+        "type": "text",
+        "text": "17. So first is very important, we need to talk about the cheese."
+      },
+      {
+        "type": "text",
+        "text": "18. Here we have Pecorino Romano, it's a sheep's milk cheese, this one is aged."
+      },
+      {
+        "type": "text",
+        "text": "19. I think this is what is traditionally used when you're making spaghetti carbonara, but as always, if you watch this channel, you know I love ParmigianoReggiano."
+      },
+      {
+        "type": "text",
+        "text": "20. That's not to be confused with Parmesan, make sure it says ParmigianoReggiano, and it's from Italy, and you'll know you have the good stuff."
+      },
+      {
+        "type": "text",
+        "text": "21. So what I'm gonna do is a mixture of both these cheeses, and you want them to be pretty fine, so I'm gonna be using this cheese grater, and if you don't have one of those, just use this setting on a box grater, and just get to shredding."
+      },
+      {
+        "type": "text",
+        "text": "22. I'm gonna do about three ounces of each of these cheeses, so half and half, but as always, with my videos, the full recipe is gonna be down in the description."
+      },
+      {
+        "type": "text",
+        "text": "23. Underneath this video, you just gotta click that little arrow, and it'll open up."
+      },
+      {
+        "type": "text",
+        "text": "24. So here's all our beautiful cheese."
+      },
+      {
+        "type": "text",
+        "text": "25. Okay, now time for the eggs."
+      },
+      {
+        "type": "text",
+        "text": "26. A lot of recipes call for all whole, all yolks."
+      },
+      {
+        "type": "text",
+        "text": "27. I like to do a mixture of both."
+      },
+      {
+        "type": "text",
+        "text": "28. So I'm doing three whole eggs, as well as two egg yolks."
+      },
+      {
+        "type": "text",
+        "text": "29. The way I see it, carbonara is already so rich, it doesn't need all egg yolks."
+      },
+      {
+        "type": "text",
+        "text": "30. Go ahead and whisk that all up, and then we'll start whisking our cheese into our egg mixture."
+      },
+      {
+        "type": "text",
+        "text": "31. And you'll see all that, and it looked like so much cheese, right?"
+      },
+      {
+        "type": "text",
+        "text": "32. But as this breaks down, it won't look like that anymore."
+      },
+      {
+        "type": "text",
+        "text": "33. Add that all in."
+      },
+      {
+        "type": "text",
+        "text": "34. And so now we have a consistency like this."
+      },
+      {
+        "type": "text",
+        "text": "35. Now, this is a very important time for our good friend, Sergeant Gilbert."
+      },
+      {
+        "type": "text",
+        "text": "36. I'm gonna put quite a bit of Gilbert's insides into this egg mixture."
+      },
+      {
+        "type": "text",
+        "text": "37. If you didn't know already, Gilbert is just fresh ground black pepper."
+      },
+      {
+        "type": "text",
+        "text": "38. He's a sentient being, a pepper grinder, who became selfaware in 2020."
+      },
+      {
+        "type": "text",
+        "text": "39. You know, and this is preference."
+      },
+      {
+        "type": "text",
+        "text": "40. Put as much pepper or as little pepper as you like, and whisk it in."
+      },
+      {
+        "type": "text",
+        "text": "41. As you can see, there's a lot of fat coming out of this bacon."
+      },
+      {
+        "type": "text",
+        "text": "42. Just want to turn this occasionally."
+      },
+      {
+        "type": "text",
+        "text": "43. And we are going to be using some, but not all of this fat in the actual spaghetti carbonara."
+      },
+      {
+        "type": "text",
+        "text": "44. Another thing you can do is just take a little bit of that boiling water and add it to the eggs."
+      },
+      {
+        "type": "text",
+        "text": "45. Quickly whisk that in."
+      },
+      {
+        "type": "text",
+        "text": "46. We're kind of equalizing the temperatures here and loosening up this egg mixture a little bit, and it's going to make the whole pasta come together a lot easier in the end."
+      },
+      {
+        "type": "text",
+        "text": "47. I put just about a quarter cup in here."
+      },
+      {
+        "type": "text",
+        "text": "48. Our bacon is almost rendered, so now we'll drop our spaghetti."
+      },
+      {
+        "type": "text",
+        "text": "49. We'll try to do that twisty thing."
+      },
+      {
+        "type": "text",
+        "text": "50. Kind of worked."
+      },
+      {
+        "type": "text",
+        "text": "51. Just get a little bit of water up on it."
+      },
+      {
+        "type": "text",
+        "text": "52. Let that roll."
+      },
+      {
+        "type": "text",
+        "text": "53. Check it on the bacon."
+      },
+      {
+        "type": "text",
+        "text": "54. I turned the heat down in the end."
+      },
+      {
+        "type": "text",
+        "text": "55. Be careful not to overcook this."
+      },
+      {
+        "type": "text",
+        "text": "56. Looks pretty much perfect."
+      },
+      {
+        "type": "text",
+        "text": "57. First, I'm going to take some out for garnish."
+      },
+      {
+        "type": "text",
+        "text": "58. Drain it on a paper towel."
+      },
+      {
+        "type": "text",
+        "text": "59. Now I'm turning off the heat of this pan, and I'm going to drain off most of the fat, all except for about two tablespoons or so."
+      },
+      {
+        "type": "text",
+        "text": "60. And then just set that back over there."
+      },
+      {
+        "type": "text",
+        "text": "61. Remember, now, heat is off."
+      },
+      {
+        "type": "text",
+        "text": "62. This is so important."
+      },
+      {
+        "type": "text",
+        "text": "63. Okay, and of course, we're going to put some olive oil in this pasta."
+      },
+      {
+        "type": "text",
+        "text": "64. No, we're not going to do that."
+      },
+      {
+        "type": "text",
+        "text": "65. Why do people do that?"
+      },
+      {
+        "type": "text",
+        "text": "66. It's a myth."
+      },
+      {
+        "type": "text",
+        "text": "67. It's a myth."
+      },
+      {
+        "type": "text",
+        "text": "68. Just like MSG is going to give you cancer or whatever."
+      },
+      {
+        "type": "text",
+        "text": "69. It's just not true, and it serves no purpose."
+      },
+      {
+        "type": "text",
+        "text": "70. So don't do it."
+      },
+      {
+        "type": "text",
+        "text": "71. Don't do it, okay?"
+      },
+      {
+        "type": "text",
+        "text": "72. Another thing I want to share with you, there are tons of expensive pasta brands out in the world, but honestly, like, I like these cheap Italian brands, like this one, Giacchecco."
+      },
+      {
+        "type": "text",
+        "text": "73. I don't know how to say it, but like, I don't know why."
+      },
+      {
+        "type": "text",
+        "text": "74. I just prefer the cheap one."
+      },
+      {
+        "type": "text",
+        "text": "75. So if anyone's wondering, this is what I use."
+      },
+      {
+        "type": "text",
+        "text": "76. So we'll cook this spaghetti about 10 minutes in this pot, just slightly al dente, and then we'll finish it over in this baking pan."
+      },
+      {
+        "type": "text",
+        "text": "77. Remember, still no heat on this pan."
+      },
+      {
+        "type": "text",
+        "text": "78. I'm going to explain all this soon, but you want to leave this water in this pot."
+      },
+      {
+        "type": "text",
+        "text": "79. This will make sense in a minute."
+      },
+      {
+        "type": "text",
+        "text": "80. So here we go."
+      },
+      {
+        "type": "text",
+        "text": "81. It's been 10 minutes."
+      },
+      {
+        "type": "text",
+        "text": "82. We're just going to use our tongs here."
+      },
+      {
+        "type": "text",
+        "text": "83. Drop that in there."
+      },
+      {
+        "type": "text",
+        "text": "84. Trust me, this spaghetti is generating a ridiculous amount of heat."
+      },
+      {
+        "type": "text",
+        "text": "85. Turn that pasta water down to a simmer."
+      },
+      {
+        "type": "text",
+        "text": "86. Once you have all the pasta out, now we're going to add in that beautiful egg and cheese mixture."
+      },
+      {
+        "type": "text",
+        "text": "87. The whole trick here, and what you really need to keep in mind is that we do not want to scramble these eggs."
+      },
+      {
+        "type": "text",
+        "text": "88. The eggs are going to cook from the heat of this pasta and very gently and beautifully in a velvety, fluffy, creamy way, coat it all up, right?"
+      },
+      {
+        "type": "text",
+        "text": "89. And don't worry, you're not eating raw eggs."
+      },
+      {
+        "type": "text",
+        "text": "90. And gentle with the pasta."
+      },
+      {
+        "type": "text",
+        "text": "91. You don't want to break it."
+      },
+      {
+        "type": "text",
+        "text": "92. Oh, man."
+      },
+      {
+        "type": "text",
+        "text": "93. And the pasta water, the bacon fat, the cheese and egg mixture is now emulsifying all over this pasta."
+      },
+      {
+        "type": "text",
+        "text": "94. You see how creamy this is?"
+      },
+      {
+        "type": "text",
+        "text": "95. I'm also using these La Crusade pans, which I'll link in the description, and they hold a lot of heat."
+      },
+      {
+        "type": "text",
+        "text": "96. So I don't think I even need to do my plan, but I can show you why I left that pasta water on."
+      },
+      {
+        "type": "text",
+        "text": "97. Because if it doesn't thicken up like you like, literally what you can do is set that pan back on top of that pasta water and like a double boil or bainmarie, it will keep cooking the egg mixture."
+      },
+      {
+        "type": "text",
+        "text": "98. But I don't think I even really need to do this."
+      },
+      {
+        "type": "text",
+        "text": "99. But that's a good option, especially if you're using a pan that's not as thick as this."
+      },
+      {
+        "type": "text",
+        "text": "100. Oh, my God."
+      },
+      {
+        "type": "text",
+        "text": "101. Looks so good."
+      },
+      {
+        "type": "text",
+        "text": "102. And if it looks too thick to you, also what you can do is just add a little bit of that pasta water."
+      },
+      {
+        "type": "text",
+        "text": "103. That's going to loosen it up."
+      },
+      {
+        "type": "text",
+        "text": "104. And help establish that creamy sauce that has no cream."
+      },
+      {
+        "type": "text",
+        "text": "105. Done."
+      },
+      {
+        "type": "text",
+        "text": "106. No scramble, nothing."
+      },
+      {
+        "type": "text",
+        "text": "107. Go ahead and plate this up."
+      },
+      {
+        "type": "text",
+        "text": "108. Just get it off the tongs like so."
+      },
+      {
+        "type": "text",
+        "text": "109. Oh, man."
+      },
+      {
+        "type": "text",
+        "text": "110. Now to finish a little more pan migliano reggiano."
+      },
+      {
+        "type": "text",
+        "text": "111. All over, nothing wrong with that."
+      },
+      {
+        "type": "text",
+        "text": "112. And of course, some of your crispy bacon."
+      },
+      {
+        "type": "text",
+        "text": "113. Just for an added crunch."
+      },
+      {
+        "type": "text",
+        "text": "114. That is a bonus no one is going to complain about."
+      },
+      {
+        "type": "text",
+        "text": "115. Trust me. I mean, how bad do you want to tuck into this treat?"
+      },
+      {
+        "type": "text",
+        "text": "116. Allow me to try it."
+      },
+      {
+        "type": "text",
+        "text": "117. Oh, allow me to try it for you."
+      },
+      {
+        "type": "text",
+        "text": "118. Here we go."
+      },
+      {
+        "type": "text",
+        "text": "119. A little bacon."
+      },
+      {
+        "type": "text",
+        "text": "120. Oh, gosh."
+      },
+      {
+        "type": "text",
+        "text": "121. I see a lot of people who leave my YouTube videos right now."
+      },
+      {
+        "type": "text",
+        "text": "122. It's such a big mistake."
+      },
+      {
+        "type": "text",
+        "text": "123. They obviously don't know about the fridge."
+      },
+      {
+        "type": "text",
+        "text": "124. Oh, God, that's good."
+      },
+      {
+        "type": "text",
+        "text": "125. You've got to make this."
+      },
+      {
+        "type": "text",
+        "text": "126. Here's my rolling pin."
+      },
+      {
+        "type": "text",
+        "text": "127. I just feel like this is what an Italian grandmother would do."
+      },
+      {
+        "type": "text",
+        "text": "128. Whew."
+      },
+      {
+        "type": "text",
+        "text": "129. What?"
+      },
+      {
+        "type": "text",
+        "text": "130. Well, I hope that helped."
+      },
+      {
+        "type": "text",
+        "text": "131. Until next time, my friends, you know I love you when I'm out."
+      }
+    ]
+  }
+]
+RESPONSE: {
+  "instructions": [
+    {
+      "instruction": "Slice half a pound of thick cut bacon into three quarters of an inch pieces.",
+      "expected_outcome": "Bacon is prepared for cooking.",
+      "start": 8,
+      "end": 9
+    },
+    {
+      "instruction": "Turn the pan on to medium heat.",
+      "expected_outcome": "Pan is heated to the correct temperature for cooking bacon.",
+      "start": 10,
+      "end": 10
+    },
+    {
+      "instruction": "Add a tiny bit of olive oil to the pan.",
+      "expected_outcome": "Oil is added to the pan to help cook the bacon.",
+      "start": 11,
+      "end": 11
+    },
+    {
+      "instruction": "Break the bacon into the pan.",
+      "expected_outcome": "Bacon is in the pan and ready to be cooked.",
+      "start": 12,
+      "end": 12
+    },
+    {
+      "instruction": "Render the fat from the bacon until it is nice and crispy.",
+      "expected_outcome": "Bacon is cooked and crispy, with fat rendered out.",
+      "start": 13,
+      "end": 13
+    },
+    {
+      "instruction": "Season the pasta water with about a tablespoon of kosher salt in four quarts of water.",
+      "expected_outcome": "Pasta water is seasoned and ready for cooking spaghetti.",
+      "start": 15,
+      "end": 15
+    },
+    {
+      "instruction": "Grate about three ounces each of Pecorino Romano and Parmigiano Reggiano cheese until fine.",
+      "expected_outcome": "Cheese is grated and ready to be mixed with the egg mixture.",
+      "start": 21,
+      "end": 21
+    },
+    {
+      "instruction": "Whisk together three whole eggs and two egg yolks in a bowl.",
+      "expected_outcome": "Egg mixture is prepared for the carbonara sauce.",
+      "start": 28,
+      "end": 28
+    },
+    {
+      "instruction": "Add the grated cheese to the egg mixture and whisk until combined.",
+      "expected_outcome": "Cheese is incorporated into the egg mixture.",
+      "start": 30,
+      "end": 30
+    },
+    {
+      "instruction": "Add fresh ground black pepper to the egg and cheese mixture and whisk it in.",
+      "expected_outcome": "Pepper is mixed into the egg and cheese mixture for flavor.",
+      "start": 36,
+      "end": 40
+    },
+    {
+      "instruction": "Drain the bacon on a paper towel for garnish.",
+      "expected_outcome": "Crispy bacon is ready for garnish.",
+      "start": 58,
+      "end": 58
+    },
+    {
+      "instruction": "Drain off most of the bacon fat, leaving about two tablespoons in the pan.",
+      "expected_outcome": "Pan retains some bacon fat for flavor in the sauce.",
+      "start": 59,
+      "end": 59
+    },
+    {
+      "instruction": "Cook spaghetti in boiling water for about 10 minutes until slightly al dente.",
+      "expected_outcome": "Spaghetti is cooked and ready to be combined with the sauce.",
+      "start": 76,
+      "end": 76
+    },
+    {
+      "instruction": "Use tongs to transfer the cooked spaghetti into the pan with the bacon fat.",
+      "expected_outcome": "Spaghetti is added to the pan for mixing with the sauce.",
+      "start": 82,
+      "end": 83
+    },
+    {
+      "instruction": "Add the egg and cheese mixture to the spaghetti and mix gently.",
+      "expected_outcome": "Egg and cheese mixture coats the spaghetti without scrambling the eggs.",
+      "start": 86,
+      "end": 88
+    },
+    {
+      "instruction": "If the sauce is too thick, add a little bit of reserved pasta water to loosen it up.",
+      "expected_outcome": "Sauce reaches a creamy consistency without scrambling the eggs.",
+      "start": 102,
+      "end": 103
+    },
+    {
+      "instruction": "Plate the pasta and top with additional grated Parmigiano Reggiano and crispy bacon.",
+      "expected_outcome": "Pasta carbonara is served with garnishes for added flavor and texture.",
+      "start": 107,
+      "end": 114
+    }
+  ]
+}

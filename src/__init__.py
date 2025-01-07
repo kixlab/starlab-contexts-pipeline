@@ -5,3 +5,5 @@ SIMILARITY_THRESHOLD_HOOK = 0.75
 
 PATH = "static/results/"
 META_TITLE = "$meta$"
+
+ELEMENTS = ["input", "step", "output"]

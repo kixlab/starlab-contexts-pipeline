@@ -1,0 +1,3665 @@
+MESSAGES: [
+  {
+    "role": "system",
+    "content": "\nExtract instructions from tutorial video subtitles for the task: How to remove objects from an image in PhotoShop?.\nThe extracted instructions should adhere to the following requirements:\n1. Focus on a single action at a time.\n2. Useful for completing the task.\n3. Clear and concise.\n4. Self-sufficient and do not refer to earlier or later instructions.\n5. Free of any ambiguous terms or phrases.\n6. Written in the imperative mood.\n"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
+      },
+      {
+        "type": "text",
+        "text": "0. Hey friends, welcome to Photoshop Icebreakers."
+      },
+      {
+        "type": "text",
+        "text": "1. I'm Brendan Williams and in this lesson you're going to learn how to use generative fill to flawlessly remove people or other distractions from your photos with ease."
+      },
+      {
+        "type": "text",
+        "text": "2. In this image here, let's say that we have submitted this photo to a client."
+      },
+      {
+        "type": "text",
+        "text": "3. They love the image but they want it to be focused on the middle subject."
+      },
+      {
+        "type": "text",
+        "text": "4. Unfortunately, we did not capture a photo with a similar composition that only had the middle subject in the frame."
+      },
+      {
+        "type": "text",
+        "text": "5. So we need to figure out a way to remove the outer two subjects from the photo to make this image perfect for our client."
+      },
+      {
+        "type": "text",
+        "text": "6. Luckily, that's super easy to do using generative fill."
+      },
+      {
+        "type": "text",
+        "text": "7. To begin, we need to select the lasso tool to define the area that we want generative fill to do its work."
+      },
+      {
+        "type": "text",
+        "text": "8. To access the lasso tool, we'll press L on our keyboard or you can find it up here in the toolbar."
+      },
+      {
+        "type": "text",
+        "text": "9. While the lasso tool is selected, we'll go to the options bar and set the feather to around 10 pixels so that generative fill will have a nice soft transition around the areas that we define for our object removal adjustment."
+      },
+      {
+        "type": "text",
+        "text": "10. We'll then make sure that antialias is enabled and I'll begin by first selecting this subject on the right."
+      },
+      {
+        "type": "text",
+        "text": "11. Clicking just outside of the edge of my subject, I'm going to click and drag around this subject with plenty of room to spare so that generative fill has the easiest time to replace this selected area."
+      },
+      {
+        "type": "text",
+        "text": "12. Letting go, this will create an active selection and now to remove our subject using generative fill, we can just go to the contextual taskbar and click on generative fill."
+      },
+      {
+        "type": "text",
+        "text": "13. We'll leave the prompt option empty and then we'll click on generate."
+      },
+      {
+        "type": "text",
+        "text": "14. Photoshop will now look for things just outside of our selection as inspiration to fill the contents of our selection with and therefore remove our subject."
+      },
+      {
+        "type": "text",
+        "text": "15. It will also create a brand new generative fill layer which is where our adjustment is taking place and within the properties panel we have three different variations that we can choose from to find an option that works best for this photo."
+      },
+      {
+        "type": "text",
+        "text": "16. If you aren't happy with any three of the variations that you have been given, you can regenerate three new variations within the properties panel simply by clicking on generate."
+      },
+      {
+        "type": "text",
+        "text": "17. This will regenerate three new variations based on the original lasso selection that we created."
+      },
+      {
+        "type": "text",
+        "text": "18. After it has finished loading, you'll see that we now have three new variations that we can click between to find something that works better in this image."
+      },
+      {
+        "type": "text",
+        "text": "19. I'll choose this variation for this example."
+      },
+      {
+        "type": "text",
+        "text": "20. If we zoom into the photo, you might notice that there are some weird things happening such as this hovering light up in the background."
+      },
+      {
+        "type": "text",
+        "text": "21. However, these are things that we can easily touch up using the remove tool as we'll discuss later in this lesson."
+      },
+      {
+        "type": "text",
+        "text": "22. For now, we're going to go ahead and remove the next subject from our photo using the same methods as before."
+      },
+      {
+        "type": "text",
+        "text": "23. Before we do that though, it's a good idea to rename your layers so that everything is clear as you work through your project."
+      },
+      {
+        "type": "text",
+        "text": "24. I'll rename this layer to right subject removal."
+      },
+      {
+        "type": "text",
+        "text": "25. Now before we create our second selection around the next subject, I'll click on my image layer in the layers panel."
+      },
+      {
+        "type": "text",
+        "text": "26. Once again with the lasso tool selected and the same settings as before, I'll click and drag around the outer edge of the subject with plenty of room to spare once again so that generative fill can do a nice job at filling in the selection area."
+      },
+      {
+        "type": "text",
+        "text": "27. With our selection active, we'll go down to the contextual task bar and click on generative fill."
+      },
+      {
+        "type": "text",
+        "text": "28. Once again, leave that prompt empty and we'll click on generate."
+      },
+      {
+        "type": "text",
+        "text": "29. This will create a brand new generative fill layer and once again within the properties panel, we have three variations that we can click between to find something that works best in our photo."
+      },
+      {
+        "type": "text",
+        "text": "30. Just like before, if you're not happy with any three of the variations, you can click on generate to regenerate three new options that better fit your particular image."
+      },
+      {
+        "type": "text",
+        "text": "31. Once that is finished loading, you'll have three new variations once again and we can click between them to find one that works best in our photo."
+      },
+      {
+        "type": "text",
+        "text": "32. Now once again, just like before, I'll rename this layer to stay organized, this time to left subject removal."
+      },
+      {
+        "type": "text",
+        "text": "33. Now that the majority of our work is complete, the final thing left to do is identify any weird areas that need further touchups in the object removal adjustment."
+      },
+      {
+        "type": "text",
+        "text": "34. In this particular example, we can see there are some weird patterns going on within the foreground bricks as well as there's a hovering light in the background that we need to remove."
+      },
+      {
+        "type": "text",
+        "text": "35. To remove these foreground bricks, I'll click on my topmost layer and once again with the lasso tool selected, same settings as before, I'll click and drag to select around the area that I want to refine using generative fill."
+      },
+      {
+        "type": "text",
+        "text": "36. While my selection is active, I'll click on generative fill inside of the contextual taskbar and generate once again just like before."
+      },
+      {
+        "type": "text",
+        "text": "37. This will create a third generative fill layer above our previous two adjustments and we have three variations that we can choose from to replace that brick within the foreground."
+      },
+      {
+        "type": "text",
+        "text": "38. I'm much happier with this third variation and turning that on and off."
+      },
+      {
+        "type": "text",
+        "text": "39. You can see how much better that looks already."
+      },
+      {
+        "type": "text",
+        "text": "40. Now we just need to go and deal with this final area in the back and for smaller areas like this, we can use the remove tool."
+      },
+      {
+        "type": "text",
+        "text": "41. To do this nondestructively, we'll click on our topmost layer in the layers panel, then go and create a new layer."
+      },
+      {
+        "type": "text",
+        "text": "42. I'll rename this layer to remove tool."
+      },
+      {
+        "type": "text",
+        "text": "43. With our remove tool layer highlighted, we'll select our remove tool by pressing J on our keyboard or you can find it nested within the healing brushes or the patch tool."
+      },
+      {
+        "type": "text",
+        "text": "44. You'll find the remove tool right here."
+      },
+      {
+        "type": "text",
+        "text": "45. Up in the options bar, we'll make sure that sample all layers is enabled as well as remove after each brush stroke."
+      },
+      {
+        "type": "text",
+        "text": "46. Now we can scale down the brush using the bracket keys and just paint around the object that we want to remove."
+      },
+      {
+        "type": "text",
+        "text": "47. Photoshop will automatically remove that for us and that adjustment will apply on that remove tool layer."
+      },
+      {
+        "type": "text",
+        "text": "48. We can repeat this process around any other areas of the photo that we are not happy with that we want to touch up."
+      },
+      {
+        "type": "text",
+        "text": "49. In this case, I'm happy with the final result so we're ready to look at the before and after."
+      },
+      {
+        "type": "text",
+        "text": "50. Looking at our before and now our after, you can see how much work has been done with relative ease using a generative fill and the remove tool to further refine our adjustments."
+      },
+      {
+        "type": "text",
+        "text": "51. This technique is one of the most efficient ways to remove distractions from your photos, especially when they take up large areas of your frame as they did in this example here."
+      },
+      {
+        "type": "text",
+        "text": "52. Thank you so much for joining me here for this Photoshop Icebreakers tutorial and if you learned something today, make sure to let us know by hitting the like button below."
+      },
+      {
+        "type": "text",
+        "text": "53. And while you're there, make sure to subscribe for more Photoshop tutorials."
+      }
+    ]
+  }
+]
+RESPONSE: {
+  "instructions": [
+    {
+      "instruction": "Select the lasso tool by pressing L on your keyboard or by finding it in the toolbar.",
+      "start": 8,
+      "end": 8
+    },
+    {
+      "instruction": "Set the feather to around 10 pixels in the options bar.",
+      "start": 9,
+      "end": 9
+    },
+    {
+      "instruction": "Ensure that antialias is enabled in the options bar.",
+      "start": 10,
+      "end": 10
+    },
+    {
+      "instruction": "Click and drag around the subject you want to remove, leaving plenty of room to spare.",
+      "start": 11,
+      "end": 11
+    },
+    {
+      "instruction": "Go to the contextual taskbar and click on generative fill.",
+      "start": 12,
+      "end": 12
+    },
+    {
+      "instruction": "Leave the prompt option empty and click on generate.",
+      "start": 13,
+      "end": 13
+    },
+    {
+      "instruction": "Choose one of the three variations provided in the properties panel.",
+      "start": 15,
+      "end": 15
+    },
+    {
+      "instruction": "If unsatisfied with the variations, click on generate to create three new options.",
+      "start": 16,
+      "end": 16
+    },
+    {
+      "instruction": "Rename the layer to keep your project organized.",
+      "start": 24,
+      "end": 24
+    },
+    {
+      "instruction": "Click on your image layer in the layers panel before making the next selection.",
+      "start": 25,
+      "end": 25
+    },
+    {
+      "instruction": "With the lasso tool selected, click and drag around the next subject with plenty of room to spare.",
+      "start": 26,
+      "end": 26
+    },
+    {
+      "instruction": "Click on generative fill in the contextual taskbar with the selection active.",
+      "start": 27,
+      "end": 27
+    },
+    {
+      "instruction": "Leave the prompt empty and click on generate again.",
+      "start": 28,
+      "end": 28
+    },
+    {
+      "instruction": "Rename this layer to stay organized.",
+      "start": 32,
+      "end": 32
+    },
+    {
+      "instruction": "Select the area that needs refinement using the lasso tool.",
+      "start": 35,
+      "end": 35
+    },
+    {
+      "instruction": "Click on generative fill in the contextual taskbar and click generate.",
+      "start": 36,
+      "end": 36
+    },
+    {
+      "instruction": "Choose one of the three variations for the foreground adjustment.",
+      "start": 37,
+      "end": 37
+    },
+    {
+      "instruction": "Create a new layer for the remove tool.",
+      "start": 41,
+      "end": 41
+    },
+    {
+      "instruction": "Rename the new layer to remove tool.",
+      "start": 42,
+      "end": 42
+    },
+    {
+      "instruction": "Select the remove tool by pressing J on your keyboard or finding it in the healing brushes or patch tool.",
+      "start": 43,
+      "end": 43
+    },
+    {
+      "instruction": "Ensure that sample all layers and remove after each brush stroke are enabled in the options bar.",
+      "start": 45,
+      "end": 45
+    },
+    {
+      "instruction": "Scale down the brush using the bracket keys and paint around the object you want to remove.",
+      "start": 46,
+      "end": 46
+    },
+    {
+      "instruction": "Repeat the process around any other areas you want to touch up.",
+      "start": 48,
+      "end": 48
+    }
+  ]
+}
+MESSAGES: [
+  {
+    "role": "system",
+    "content": "\nExtract instructions from tutorial video subtitles for the task: How to remove objects from an image in PhotoShop?.\nThe extracted instructions should adhere to the following requirements:\n1. Focus on a single action at a time.\n2. Useful for completing the task.\n3. Clear and concise.\n4. Self-sufficient and do not refer to earlier or later instructions.\n5. Free of any ambiguous terms or phrases.\n6. Written in the imperative mood.\n"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
+      },
+      {
+        "type": "text",
+        "text": "0. Hi there, this is Sajeem from Sajeem Questions."
+      },
+      {
+        "type": "text",
+        "text": "1. Today I'm going to share with you how to remove people from photo."
+      },
+      {
+        "type": "text",
+        "text": "2. This is most important and essential tutorial."
+      },
+      {
+        "type": "text",
+        "text": "3. So without any further ado, let's get started."
+      },
+      {
+        "type": "text",
+        "text": "4. So stay with me until full tutorial how to remove people or remove anything from photo."
+      },
+      {
+        "type": "text",
+        "text": "5. So without any further ado, let's get started."
+      },
+      {
+        "type": "text",
+        "text": "6. At first, open your photoshop software, then go to file menu and click on the open to open your image."
+      },
+      {
+        "type": "text",
+        "text": "7. Okay, from this photo, I want to remove this people."
+      },
+      {
+        "type": "text",
+        "text": "8. So I want to remove this person from photo."
+      },
+      {
+        "type": "text",
+        "text": "9. It's need to select, at first, I need to select this person."
+      },
+      {
+        "type": "text",
+        "text": "10. You can select by laser tool or pen tool."
+      },
+      {
+        "type": "text",
+        "text": "11. I want to select by pen tool."
+      },
+      {
+        "type": "text",
+        "text": "12. Just select the person area."
+      },
+      {
+        "type": "text",
+        "text": "13. Okay."
+      },
+      {
+        "type": "text",
+        "text": "14. Now mouse right click and click on the make selection and click on the OK."
+      },
+      {
+        "type": "text",
+        "text": "15. And now this is the most important part."
+      },
+      {
+        "type": "text",
+        "text": "16. Go to edit menu and click on the fill or content our fill."
+      },
+      {
+        "type": "text",
+        "text": "17. I'm selecting content our fill."
+      },
+      {
+        "type": "text",
+        "text": "18. My Photoshop version is Photoshop CC 2021."
+      },
+      {
+        "type": "text",
+        "text": "19. You can use this, this option or you can use this fill, this option."
+      },
+      {
+        "type": "text",
+        "text": "20. I'm selecting content our fill and it's not perfect to remove."
+      },
+      {
+        "type": "text",
+        "text": "21. Here is not selecting the scale and mirror this checkbox and select the output to new layer and click on the apply and click on the OK. I have created the new layer background copy."
+      },
+      {
+        "type": "text",
+        "text": "22. Now this time need to select the clone stamp tool and select the sample is current and flow and opacity 60 was written flow and now just hold press alter key."
+      },
+      {
+        "type": "text",
+        "text": "23. This is very important."
+      },
+      {
+        "type": "text",
+        "text": "24. Hold press alter key and and select the sample area and drag and paste over the image."
+      },
+      {
+        "type": "text",
+        "text": "25. The sample area opacity increases."
+      },
+      {
+        "type": "text",
+        "text": "26. Make sure to selecting, selecting this area if, if this area deselect."
+      },
+      {
+        "type": "text",
+        "text": "27. So just hold press control key and selecting this area and just hold press alter key to select the sample area and just paste over your image area, which area was was the person."
+      },
+      {
+        "type": "text",
+        "text": "28. Now totally remove the people from photo and perfectly remove the people from photo."
+      },
+      {
+        "type": "text",
+        "text": "29. You can see the output of the image that is the before image and that is the after image."
+      },
+      {
+        "type": "text",
+        "text": "30. Perfectly and smoothly remove all area, which area was this person, this method and my secret way you can remove people from photo."
+      },
+      {
+        "type": "text",
+        "text": "31. I hope this video helped you and if it did, make sure to give us like and don't forget to subscribe to my channel and click the bell icon to get notifications for any updates."
+      },
+      {
+        "type": "text",
+        "text": "32. Thanks for watching."
+      },
+      {
+        "type": "text",
+        "text": "33. Thank you very much for stay with me."
+      },
+      {
+        "type": "text",
+        "text": "34. Thank you."
+      },
+      {
+        "type": "text",
+        "text": "35. See you next tutorial."
+      }
+    ]
+  }
+]
+RESPONSE: {
+  "instructions": [
+    {
+      "instruction": "Open your Photoshop software.",
+      "start": 6,
+      "end": 6
+    },
+    {
+      "instruction": "Go to the file menu and click on 'Open' to open your image.",
+      "start": 6,
+      "end": 6
+    },
+    {
+      "instruction": "Select the person you want to remove using the Pen Tool.",
+      "start": 11,
+      "end": 12
+    },
+    {
+      "instruction": "Right-click and click on 'Make Selection', then click 'OK'.",
+      "start": 14,
+      "end": 14
+    },
+    {
+      "instruction": "Go to the Edit menu and click on 'Fill' or 'Content-Aware Fill'.",
+      "start": 16,
+      "end": 16
+    },
+    {
+      "instruction": "Select 'Content-Aware Fill' and ensure the 'Output' is set to 'New Layer'.",
+      "start": 21,
+      "end": 21
+    },
+    {
+      "instruction": "Click 'Apply' and then click 'OK'.",
+      "start": 21,
+      "end": 21
+    },
+    {
+      "instruction": "Select the Clone Stamp Tool.",
+      "start": 22,
+      "end": 22
+    },
+    {
+      "instruction": "Hold the 'Alt' key and select the sample area.",
+      "start": 24,
+      "end": 24
+    },
+    {
+      "instruction": "Drag and paste over the area where the person was.",
+      "start": 24,
+      "end": 24
+    },
+    {
+      "instruction": "If the area becomes deselected, hold the 'Control' key and reselect the area.",
+      "start": 26,
+      "end": 26
+    },
+    {
+      "instruction": "Continue holding the 'Alt' key to select the sample area and paste over the image area where the person was.",
+      "start": 27,
+      "end": 27
+    }
+  ]
+}
+MESSAGES: [
+  {
+    "role": "system",
+    "content": "\nExtract instructions from tutorial video subtitles for the task: How to remove objects from an image in PhotoShop?.\nThe extracted instructions should adhere to the following requirements:\n1. Focus on a single action at a time.\n2. Useful for completing the task.\n3. Clear and concise.\n4. Self-sufficient and do not refer to earlier or later instructions.\n5. Free of any ambiguous terms or phrases.\n6. Written in the imperative mood.\n"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
+      },
+      {
+        "type": "text",
+        "text": "0. Today, we're gonna talk about a selection method in Photoshop that you maybe have not used before, but it works amazing for selecting and removing all of one color from your photo really quickly."
+      },
+      {
+        "type": "text",
+        "text": "1. So, let's get started."
+      },
+      {
+        "type": "text",
+        "text": "2. Hello, friends."
+      },
+      {
+        "type": "text",
+        "text": "3. My name's Brendan from BeWellCreative.com, and today, we're gonna talk about another selection method to use in your Photoshop toolkit."
+      },
+      {
+        "type": "text",
+        "text": "4. Although I've talked about a bunch of amazing ways to cut out images in Photoshop in previous videos on my channel, this one focuses on something a little bit different, as it uses color to create a selection rather than any of the edges in your photo."
+      },
+      {
+        "type": "text",
+        "text": "5. What this tool is actually called is Select Color, and how it works is you sample a color somewhere in your photo, and it will turn that color into a selection."
+      },
+      {
+        "type": "text",
+        "text": "6. Now, this works really well if you have a photo taken in a studio with a solidcolored background, or, for example, you're working with a product image and you need to remove the white background from behind it."
+      },
+      {
+        "type": "text",
+        "text": "7. No matter what you're trying to cut out, as long as it has some type of solid color behind it, you can quickly remove it using this technique."
+      },
+      {
+        "type": "text",
+        "text": "8. So, let's hop into Photoshop and see how to do it."
+      },
+      {
+        "type": "text",
+        "text": "9. So, the photo that we're working with today was obviously taken in a studio and it has a solidcolored background, making it the perfect candidate for this selection method."
+      },
+      {
+        "type": "text",
+        "text": "10. To start things off, I'll click on the background layer and just press Command or Control J to duplicate that layer so we can edit nondestructively."
+      },
+      {
+        "type": "text",
+        "text": "11. Now, to access our Select Color tool with our duplicated layer selected, I'll go up to Select and then Color Range."
+      },
+      {
+        "type": "text",
+        "text": "12. The Color Range panel will appear, and it might look something like this, and at first, it's quite confusing because what the heck are you looking at?"
+      },
+      {
+        "type": "text",
+        "text": "13. Well, to make life a little easier, you can set your selection preview to None, and that's going to ensure that you see your regular image while this is the preview that stays within the panel."
+      },
+      {
+        "type": "text",
+        "text": "14. So, what you're looking at here is essentially how a layer mask works."
+      },
+      {
+        "type": "text",
+        "text": "15. Everything that is white within this thumbnail here is going to be added to your selection while everything that is black will not be included."
+      },
+      {
+        "type": "text",
+        "text": "16. So, essentially, what we need to do is make all of the background black while our subject stays white."
+      },
+      {
+        "type": "text",
+        "text": "17. Now, in order for that to happen, we need to first sample a color from our photo."
+      },
+      {
+        "type": "text",
+        "text": "18. By default, our Eyedropper tool will be selected so we can go and click anywhere on our image to sample the color we're looking for."
+      },
+      {
+        "type": "text",
+        "text": "19. Now, notice as I sampled right here, it changed this area to black, meaning that it is excluded from the selection currently."
+      },
+      {
+        "type": "text",
+        "text": "20. However, if you do not have this Invert option checked off like I do, then you're going to see something like this."
+      },
+      {
+        "type": "text",
+        "text": "21. So, anywhere that you click is going to add to your selection."
+      },
+      {
+        "type": "text",
+        "text": "22. So, for this example, since we want to get rid of the background, we're going to be sampling the area we want to delete."
+      },
+      {
+        "type": "text",
+        "text": "23. Therefore, I'll click the Invert option, and then I can sample all of the background while my subject remains visible, aka white."
+      },
+      {
+        "type": "text",
+        "text": "24. Now, the problem here is that as you click, your selection area changes."
+      },
+      {
+        "type": "text",
+        "text": "25. So, we need to add to our sample."
+      },
+      {
+        "type": "text",
+        "text": "26. You can do that by either clicking on this Eyedropper tool with the plus icon, or you can hold the Shift key, and notice how I now have a plus icon beside my Eyedropper."
+      },
+      {
+        "type": "text",
+        "text": "27. With that plus icon, I can continue to click around my image until all of the background is black, aka deselected, deleted from our selection area."
+      },
+      {
+        "type": "text",
+        "text": "28. So, once you've done the bulk of your sampling, we'll just change the selection preview down to grayscale."
+      },
+      {
+        "type": "text",
+        "text": "29. Now, we can get a much clearer view of what's happening here."
+      },
+      {
+        "type": "text",
+        "text": "30. So then, you can see right near her headphones, there's an area that I need to add."
+      },
+      {
+        "type": "text",
+        "text": "31. So, I'll hold the Shift key, click near those headphones, and then likewise, down by her hip, I can hold the Shift key, click there."
+      },
+      {
+        "type": "text",
+        "text": "32. That's going to make those slightly gray areas now fully black."
+      },
+      {
+        "type": "text",
+        "text": "33. Now, at this point, our cutout is looking really, really nice, and we have a very clear difference between our background and our subject here."
+      },
+      {
+        "type": "text",
+        "text": "34. However, in some images, this may not work so perfectly right out of the gate, and that's where the fuzziness slider comes into play."
+      },
+      {
+        "type": "text",
+        "text": "35. As I increase the fuzziness, notice how more and more gets deselected from our sampled areas, and that's because as you increase the fuzziness, you increase the tolerance for which colored areas can be added into your selection."
+      },
+      {
+        "type": "text",
+        "text": "36. So, in this photo, since we've sampled the orange background with a high fuzziness, we're also sampling some of the yellow and orange hues in her skin tones, which is why some of that is now being deselected."
+      },
+      {
+        "type": "text",
+        "text": "37. Now, if I went and decreased this all the way down, it's going to be a little bit more picky since some of these orange hues in the background maybe have a bit of shadow on them, so they don't match the same hue that the oranges over here have."
+      },
+      {
+        "type": "text",
+        "text": "38. So, that's where the fuzziness slider becomes super useful, is because you can help refine it to tell Photoshop how much tolerance is allowed between where you just sampled and what you want in your selection area."
+      },
+      {
+        "type": "text",
+        "text": "39. I usually like to play around with this option until I find something that works for me, but in this case, it seems like right around 40 works really well because all of the background is black while all of my subject is white."
+      },
+      {
+        "type": "text",
+        "text": "40. So, this is a perfect fuzziness setting for this image."
+      },
+      {
+        "type": "text",
+        "text": "41. With everything all set up here, we need to now turn this into a selection, and all we have to do to do that is press OK."
+      },
+      {
+        "type": "text",
+        "text": "42. Now, those black and white areas will be turned into our selection."
+      },
+      {
+        "type": "text",
+        "text": "43. With our duplicated layer chosen, we can just add that selection onto a layer mask."
+      },
+      {
+        "type": "text",
+        "text": "44. Now, I still have my background layer turned on, so I'll hide that one, and now our background has been removed because of this layer mask right here."
+      },
+      {
+        "type": "text",
+        "text": "45. Now, looking at this, it looks pretty good against a white background, but you don't always know exactly how perfect a cutout is until you put it into another photo or against a dark background."
+      },
+      {
+        "type": "text",
+        "text": "46. So, let's add a black layer underneath this one to see how the edges are looking."
+      },
+      {
+        "type": "text",
+        "text": "47. Adding a new layer, setting my foreground color to black, and then just filling that layer, you can now get a better idea of how these edges are looking."
+      },
+      {
+        "type": "text",
+        "text": "48. Now, although they look pretty good considering we were just sampling some colors, there is obviously some fringing left over, which is this orange bit around the edges of our subject, and that's just a few pixels left over from the background of the original background."
+      },
+      {
+        "type": "text",
+        "text": "49. Luckily, we can get rid of all of this stuff quite easily using Select and Mask."
+      },
+      {
+        "type": "text",
+        "text": "50. Now, to access Select and Mask, all we need to do is doubleclick on the layer mask thumbnail in question, and that's gonna bring up our Select and Mask adjustments."
+      },
+      {
+        "type": "text",
+        "text": "51. The first thing I like to do in this case, since we only need to really get rid of some of that fringing is we'll just work within these global refinements."
+      },
+      {
+        "type": "text",
+        "text": "52. I'll increase the smoothing a few points here, and then increase the feather as well, just around one pixel."
+      },
+      {
+        "type": "text",
+        "text": "53. That's gonna smooth out the edges and also give them a slight blur."
+      },
+      {
+        "type": "text",
+        "text": "54. Now, obviously, we don't want blurry edges, so we'll add back some contrast by bringing it up to around 15 or 20."
+      },
+      {
+        "type": "text",
+        "text": "55. Now, already, this does do a pretty good job, but now we can take it one step further and shift the edge in by a few percent."
+      },
+      {
+        "type": "text",
+        "text": "56. So this is gonna move the selection edge inwards towards our subject and help get rid of some of that fringing."
+      },
+      {
+        "type": "text",
+        "text": "57. Now, you can go crazy with this if you wanted, but you may end up with some issues, especially around hair or small edges, so that's why I'm going to just leave this around 10 for now."
+      },
+      {
+        "type": "text",
+        "text": "58. Now, with all of that looking good, I'll go to the Decontaminate Colors option, check that off, and that's gonna get rid of the remaining bit of fringing for us."
+      },
+      {
+        "type": "text",
+        "text": "59. I'll set my output to New Layer with Layer Mask so it stays separate, and then I'll click OK."
+      },
+      {
+        "type": "text",
+        "text": "60. Now, our new version is on a new layer here."
+      },
+      {
+        "type": "text",
+        "text": "61. I'll just call this to Select and Mask, and I'll just call this to Original so that we're both on the same page here."
+      },
+      {
+        "type": "text",
+        "text": "62. So now, looking at our Select and Mask, this is after all of the adjustments we just created to get rid of that fringing, our cutout is looking pretty good and the edges look very clean."
+      },
+      {
+        "type": "text",
+        "text": "63. If I turn on the original image, you can see where that fringing comes into play, and it just doesn't look as clean, so doing that Select and Mask adjustment afterwards is a really nice way to just touch everything up a bit so then when you go and add this into another photo or replace the background, you have a perfectly clean cutout."
+      },
+      {
+        "type": "text",
+        "text": "64. Deleting that black background layer, we are now certain that we have a nice selection and cutout of our subject using our Select Color option."
+      },
+      {
+        "type": "text",
+        "text": "65. Now, like I said before, this is an amazing tool for selecting studio backgrounds or product image backgrounds, and as well, you can use this same feature for removing the background from a logo, for example, as well."
+      },
+      {
+        "type": "text",
+        "text": "66. Although this tool is quite niche as it only can be used in some situations that have those solid colors that you need to remove, I think it is still a great selection method to have in the back of your mind and add to your Photoshop toolkit when you're trying to make some new selections."
+      },
+      {
+        "type": "text",
+        "text": "67. All right, so now you know how to use Select Color in Photoshop like a pro to make awesome, clean selections in no time by sampling colors."
+      },
+      {
+        "type": "text",
+        "text": "68. Now, if you enjoyed today's tutorial and are gonna use this exact technique in your future edits, then make sure to hit that Like button down below as it really does make a difference."
+      },
+      {
+        "type": "text",
+        "text": "69. And also, consider subscribing to stay up to date with more editing tutorials just like today."
+      },
+      {
+        "type": "text",
+        "text": "70. Again, my name is Brendan from BeWellCreative.com and I'll catch you back here next time for another new tutorial."
+      },
+      {
+        "type": "text",
+        "text": "71. See you then."
+      },
+      {
+        "type": "text",
+        "text": "72. We are in a war   Get out of my town   We are in a war"
+      }
+    ]
+  }
+]
+RESPONSE: {
+  "instructions": [
+    {
+      "instruction": "Click on the background layer.",
+      "start": 10,
+      "end": 10
+    },
+    {
+      "instruction": "Press Command or Control J to duplicate the layer.",
+      "start": 10,
+      "end": 10
+    },
+    {
+      "instruction": "Go to Select and then Color Range.",
+      "start": 11,
+      "end": 11
+    },
+    {
+      "instruction": "Set your selection preview to None in the Color Range panel.",
+      "start": 13,
+      "end": 13
+    },
+    {
+      "instruction": "Sample a color from your photo using the Eyedropper tool.",
+      "start": 18,
+      "end": 18
+    },
+    {
+      "instruction": "Check the Invert option to sample the background color.",
+      "start": 23,
+      "end": 23
+    },
+    {
+      "instruction": "Add to your sample by clicking the Eyedropper tool with the plus icon or holding the Shift key.",
+      "start": 26,
+      "end": 26
+    },
+    {
+      "instruction": "Click around your image until all of the background is black.",
+      "start": 27,
+      "end": 27
+    },
+    {
+      "instruction": "Change the selection preview to grayscale.",
+      "start": 28,
+      "end": 28
+    },
+    {
+      "instruction": "Hold the Shift key and click to add areas to your selection.",
+      "start": 31,
+      "end": 31
+    },
+    {
+      "instruction": "Adjust the fuzziness slider to refine your selection.",
+      "start": 35,
+      "end": 35
+    },
+    {
+      "instruction": "Press OK to turn the black and white areas into a selection.",
+      "start": 41,
+      "end": 41
+    },
+    {
+      "instruction": "Add the selection onto a layer mask.",
+      "start": 43,
+      "end": 43
+    },
+    {
+      "instruction": "Hide the background layer to see the cutout.",
+      "start": 44,
+      "end": 44
+    },
+    {
+      "instruction": "Add a new layer, set the foreground color to black, and fill that layer.",
+      "start": 47,
+      "end": 47
+    },
+    {
+      "instruction": "Double-click on the layer mask thumbnail to access Select and Mask.",
+      "start": 50,
+      "end": 50
+    },
+    {
+      "instruction": "Increase the smoothing and feather in the global refinements.",
+      "start": 52,
+      "end": 52
+    },
+    {
+      "instruction": "Increase the contrast to around 15 or 20.",
+      "start": 54,
+      "end": 54
+    },
+    {
+      "instruction": "Shift the edge inwards by a few percent to reduce fringing.",
+      "start": 55,
+      "end": 55
+    },
+    {
+      "instruction": "Check the Decontaminate Colors option.",
+      "start": 58,
+      "end": 58
+    },
+    {
+      "instruction": "Set the output to New Layer with Layer Mask and click OK.",
+      "start": 59,
+      "end": 59
+    },
+    {
+      "instruction": "Rename the new layer to Select and Mask.",
+      "start": 61,
+      "end": 61
+    },
+    {
+      "instruction": "Delete the black background layer to finalize the cutout.",
+      "start": 64,
+      "end": 64
+    }
+  ]
+}
+MESSAGES: [
+  {
+    "role": "system",
+    "content": "\nExtract instructions from tutorial video subtitles for the task: How to remove objects from an image in PhotoShop?.\nThe extracted instructions should adhere to the following requirements:\n1. Focus on a single action at a time.\n2. Useful for completing the task.\n3. Clear and concise.\n4. Self-sufficient and do not refer to earlier or later instructions.\n5. Free of any ambiguous terms or phrases.\n6. Written in the imperative mood.\n"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
+      },
+      {
+        "type": "text",
+        "text": "0. Today, I'm going to show you how to automatically remove objects from your photos."
+      },
+      {
+        "type": "text",
+        "text": "1. Hey, guys, and welcome to Phlearn."
+      },
+      {
+        "type": "text",
+        "text": "2. My name is Aaron Nace, and you can find me on phlearn.com, where we make learning Photoshop and photography fun."
+      },
+      {
+        "type": "text",
+        "text": "3. And today's episode, it's super cool, because it's actually very simple to do in Photoshop, but it's going to help you out a ton, especially for those of you guys out there who've taken pictures on vacation, or let's say you're in, like, Times Square, a busy environment where people are moving, and there's just tons of stuff going on in the background, and you want to be able to eliminate it all completely."
+      },
+      {
+        "type": "text",
+        "text": "4. So, today, we're going to take a bunch of different photos that were taken on a tripod, and that's important, the tripod part, because the camera needs to stay still."
+      },
+      {
+        "type": "text",
+        "text": "5. So, we're going to take a bunch of those different photos, we're going to combine them in together in Photoshop, and then we're going to show you how to use a script inside of Photoshop that's going to automatically take care of removing those objects."
+      },
+      {
+        "type": "text",
+        "text": "6. It's going to be a very cool episode, and super helpful for anyone who wants to remove objects in their backgrounds automatically."
+      },
+      {
+        "type": "text",
+        "text": "7. To start with, I'm going to show you the manual version, which is how, up until now, you would have had to remove these objects."
+      },
+      {
+        "type": "text",
+        "text": "8. And after we're done with the manual version, then we're going to go into the automatic version."
+      },
+      {
+        "type": "text",
+        "text": "9. So, the manual version, let's go from file, I'm going to go to scripts, and we're going to go to load files into stack."
+      },
+      {
+        "type": "text",
+        "text": "10. Okay, basically, it's just going to load a bunch of images."
+      },
+      {
+        "type": "text",
+        "text": "11. So, I'm going to hit browse here, we've got our images here, and you can see, let's just click here, these are from Lake Shore Drive in Chicago."
+      },
+      {
+        "type": "text",
+        "text": "12. It's a perfect example, the camera's on a tripod, and we've got cars that are kind of moving in from, you know, one image to another, the cars are in a different place, and I want all the cars completely gone."
+      },
+      {
+        "type": "text",
+        "text": "13. So, for now, let's just click, we're going to click on all those images, we're going to hit open, and we're going to hit okay."
+      },
+      {
+        "type": "text",
+        "text": "14. So, it's going to stick them all together in a stack."
+      },
+      {
+        "type": "text",
+        "text": "15. Now, keep in mind, this is the manual way."
+      },
+      {
+        "type": "text",
+        "text": "16. In just a minute, we're going to go into the automatic way."
+      },
+      {
+        "type": "text",
+        "text": "17. Okay, now, for now, we have basically a bunch of different images that we're going to turn off and on, and we can see some of these contain information with cars on the left, some of them have information with cars on the right."
+      },
+      {
+        "type": "text",
+        "text": "18. So, for instance, this photo doesn't have any cars right here on the left."
+      },
+      {
+        "type": "text",
+        "text": "19. So, if I wanted to, you can see this car does have information left."
+      },
+      {
+        "type": "text",
+        "text": "20. So, if I wanted to erase some of these cars, I could use a layer mask, and I could paint black on my layer mask."
+      },
+      {
+        "type": "text",
+        "text": "21. Let's just paint with our brush tool at 100."
+      },
+      {
+        "type": "text",
+        "text": "22. Black on our layer mask right here."
+      },
+      {
+        "type": "text",
+        "text": "23. There we go."
+      },
+      {
+        "type": "text",
+        "text": "24. All right, and basically, what layer mask is going to allow us to see right through this layer."
+      },
+      {
+        "type": "text",
+        "text": "25. So, by seeing right through this layer, that's a really great way to remove a couple of objects in your images."
+      },
+      {
+        "type": "text",
+        "text": "26. So, if all you need to do is like remove one or two objects, you can totally use a layer mask, but there's an even better way, and that's going to be the automatic."
+      },
+      {
+        "type": "text",
+        "text": "27. So, let's go ahead, and we're going to exit out of this."
+      },
+      {
+        "type": "text",
+        "text": "28. There we go."
+      },
+      {
+        "type": "text",
+        "text": "29. Let's don't save."
+      },
+      {
+        "type": "text",
+        "text": "30. Now, we're going to jump into the automatic mode."
+      },
+      {
+        "type": "text",
+        "text": "31. So, we're going to go to file."
+      },
+      {
+        "type": "text",
+        "text": "32. I'm going to go to scripts, and then we're going to go, instead of load files into stack, we're going to go down to this guy that says statistics."
+      },
+      {
+        "type": "text",
+        "text": "33. So, statistics, we have a couple new options here."
+      },
+      {
+        "type": "text",
+        "text": "34. This is totally new."
+      },
+      {
+        "type": "text",
+        "text": "35. Many of you guys probably haven't seen this before."
+      },
+      {
+        "type": "text",
+        "text": "36. So, we can choose our stack mode, and you want to click this little drop down button."
+      },
+      {
+        "type": "text",
+        "text": "37. You have a lot of different options here, and for now, we're not going to worry about the different options."
+      },
+      {
+        "type": "text",
+        "text": "38. We're just going to click right here on median, and what this is going to do is it's going to choose all the areas that are different in each of the photos, and it's going to remove those differences."
+      },
+      {
+        "type": "text",
+        "text": "39. So, let's go ahead and hit browse."
+      },
+      {
+        "type": "text",
+        "text": "40. There we go."
+      },
+      {
+        "type": "text",
+        "text": "41. We're just going to use the same exact images we chose earlier, all these JPEGs here."
+      },
+      {
+        "type": "text",
+        "text": "42. We're going to hit open, and this time, we are going to check attempt to automatically align source images."
+      },
+      {
+        "type": "text",
+        "text": "43. That's going to make sure everything really is aligned."
+      },
+      {
+        "type": "text",
+        "text": "44. Now, again, it's important that you shoot on a tripod for this method because you want all those frames to be the same, just some objects moving, but in this case, we are aligning the source images just to make sure they're in the exact same place."
+      },
+      {
+        "type": "text",
+        "text": "45. So, there we go."
+      },
+      {
+        "type": "text",
+        "text": "46. We've clicked all those."
+      },
+      {
+        "type": "text",
+        "text": "47. Let's hit okay, and that's really all there is to it."
+      },
+      {
+        "type": "text",
+        "text": "48. We sit back and wait, and Photoshop does the rest for us."
+      },
+      {
+        "type": "text",
+        "text": "49. There's no layer masking involved."
+      },
+      {
+        "type": "text",
+        "text": "50. All we have to do is open up those images, and we can see this is exactly what Photoshop gives us."
+      },
+      {
+        "type": "text",
+        "text": "51. This is amazing."
+      },
+      {
+        "type": "text",
+        "text": "52. You can see all the cars are removed, every little piece of difference."
+      },
+      {
+        "type": "text",
+        "text": "53. So, if you were to go to a very busy area and stand there with a tripod for a couple hours and continue taking photo after photo, eventually, you'd have blank spaces in the photos, and you'd be able to remove everything using this method."
+      },
+      {
+        "type": "text",
+        "text": "54. Now, the cool part is this actually does create a smart object as well."
+      },
+      {
+        "type": "text",
+        "text": "55. So, if you wanted to, you could go back."
+      },
+      {
+        "type": "text",
+        "text": "56. You can double click on your smart object here, and you can see all the files used to actually create the object just to make sure that these are the actual files being used."
+      },
+      {
+        "type": "text",
+        "text": "57. When you're done with your smart object, just close it by hitting command W. There we go."
+      },
+      {
+        "type": "text",
+        "text": "58. We don't need to save this, and we're good to go."
+      },
+      {
+        "type": "text",
+        "text": "59. So, this is exactly what we put out using that automatic script, and that's it for today's episode, guys."
+      },
+      {
+        "type": "text",
+        "text": "60. Very, very simple, but it's going to help you out a ton if you've got a bunch of objects you need to remove in your image."
+      },
+      {
+        "type": "text",
+        "text": "61. Remember, you can do this the manual way by loading up each of your layers and then using layer masks to mask out the things you don't want to be visible, but the automatic way by going from file down to scripts down to statistics, and then choose median, choose your images, and then load them up into Photoshop is going to make your job much, much easier."
+      },
+      {
+        "type": "text",
+        "text": "62. If you love Photoshop and photography just like I do, you're going to love phlearn.com, and you can subscribe to our YouTube channel just by clicking on your screen."
+      },
+      {
+        "type": "text",
+        "text": "63. We send free Photoshop and photography videos every single week, and if you have an idea for a new episode or a question or a comment about today's episode, just let us know in a comment right down below."
+      },
+      {
+        "type": "text",
+        "text": "64. We'd love to hear from you."
+      },
+      {
+        "type": "text",
+        "text": "65. Thanks so much for watching phlearn, guys."
+      },
+      {
+        "type": "text",
+        "text": "66. I love that you are watching phlearn."
+      },
+      {
+        "type": "text",
+        "text": "67. I didn't script that at all, but hey, why not?"
+      },
+      {
+        "type": "text",
+        "text": "68. I do love you're watching phlearn."
+      },
+      {
+        "type": "text",
+        "text": "69. Thanks, guys."
+      },
+      {
+        "type": "text",
+        "text": "70. I'll phlearn you later."
+      },
+      {
+        "type": "text",
+        "text": "71. Bye, everyone."
+      },
+      {
+        "type": "text",
+        "text": "72. I love that you're watching phlearn."
+      },
+      {
+        "type": "text",
+        "text": "73. It's really good."
+      },
+      {
+        "type": "text",
+        "text": "74. It's a good decision you made."
+      },
+      {
+        "type": "text",
+        "text": "75. I should teach singing."
+      },
+      {
+        "type": "text",
+        "text": "76. I'm really good at that."
+      }
+    ]
+  }
+]
+RESPONSE: {
+  "instructions": [
+    {
+      "instruction": "Go to File in the menu.",
+      "start": 31,
+      "end": 31
+    },
+    {
+      "instruction": "Select Scripts from the dropdown menu.",
+      "start": 32,
+      "end": 32
+    },
+    {
+      "instruction": "Choose Load Files into Stack.",
+      "start": 9,
+      "end": 9
+    },
+    {
+      "instruction": "Click Browse to select your images.",
+      "start": 11,
+      "end": 11
+    },
+    {
+      "instruction": "Select all the images you want to use and click Open.",
+      "start": 13,
+      "end": 13
+    },
+    {
+      "instruction": "Click OK to load the images into a stack.",
+      "start": 14,
+      "end": 14
+    },
+    {
+      "instruction": "Use a layer mask to paint black on the areas you want to remove.",
+      "start": 20,
+      "end": 20
+    },
+    {
+      "instruction": "Go to File in the menu again.",
+      "start": 31,
+      "end": 31
+    },
+    {
+      "instruction": "Select Scripts from the dropdown menu.",
+      "start": 32,
+      "end": 32
+    },
+    {
+      "instruction": "Choose Statistics from the options.",
+      "start": 32,
+      "end": 32
+    },
+    {
+      "instruction": "Click the dropdown button to choose a stack mode.",
+      "start": 36,
+      "end": 36
+    },
+    {
+      "instruction": "Select Median from the stack mode options.",
+      "start": 38,
+      "end": 38
+    },
+    {
+      "instruction": "Click Browse to select the same images again.",
+      "start": 39,
+      "end": 39
+    },
+    {
+      "instruction": "Check the box for Attempt to Automatically Align Source Images.",
+      "start": 42,
+      "end": 42
+    },
+    {
+      "instruction": "Click OK to process the images and remove the objects.",
+      "start": 47,
+      "end": 47
+    },
+    {
+      "instruction": "Double click on the smart object to view the files used.",
+      "start": 55,
+      "end": 56
+    },
+    {
+      "instruction": "Close the smart object by hitting Command W.",
+      "start": 57,
+      "end": 57
+    }
+  ]
+}
+MESSAGES: [
+  {
+    "role": "system",
+    "content": "\nExtract instructions from tutorial video subtitles for the task: How to remove objects from an image in PhotoShop?.\nThe extracted instructions should adhere to the following requirements:\n1. Focus on a single action at a time.\n2. Useful for completing the task.\n3. Clear and concise.\n4. Self-sufficient and do not refer to earlier or later instructions.\n5. Free of any ambiguous terms or phrases.\n6. Written in the imperative mood.\n"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
+      },
+      {
+        "type": "text",
+        "text": "0. For this video, I'm going to show you how to remove unwanted people using AI and all you need to do is, first of all, go ahead and go onto the link down below in the description."
+      },
+      {
+        "type": "text",
+        "text": "1. The website is called DollyE2 and you need to, first of all, sign up and you want to click on upload image."
+      },
+      {
+        "type": "text",
+        "text": "2. We want to locate where the image is and you want to go ahead and open it up."
+      },
+      {
+        "type": "text",
+        "text": "3. Once you've done that, you will need to sometimes crop this image."
+      },
+      {
+        "type": "text",
+        "text": "4. You can click on crop and go ahead and click on edit image."
+      },
+      {
+        "type": "text",
+        "text": "5. In here, you will have a simple workspace."
+      },
+      {
+        "type": "text",
+        "text": "6. You have the move cursor, you have the select and the one that we want to do or select is the eraser."
+      },
+      {
+        "type": "text",
+        "text": "7. We need to, first of all, tell the AI what we want it to remove and all we need to do is get ourself a selection."
+      },
+      {
+        "type": "text",
+        "text": "8. Make sure you get yourself a nice quick selection."
+      },
+      {
+        "type": "text",
+        "text": "9. It doesn't have to be perfect."
+      },
+      {
+        "type": "text",
+        "text": "10. So, we just want to remove it from here and there we go."
+      },
+      {
+        "type": "text",
+        "text": "11. So, the next step from here is to tell the AI what you want it to do exactly."
+      },
+      {
+        "type": "text",
+        "text": "12. So, in here, we're going to type in remove from photo."
+      },
+      {
+        "type": "text",
+        "text": "13. You can click on generate and what this will do is it will remove this person from this image."
+      },
+      {
+        "type": "text",
+        "text": "14. Once it's done Once it's done loading, you'll get a variation of four different types of photos and as you can see so far, some of them are decent."
+      },
+      {
+        "type": "text",
+        "text": "15. However, it has removed the person but also added some unnecessary things as well."
+      },
+      {
+        "type": "text",
+        "text": "16. Now, keep in mind this program is in its early stages, so it's not going to be perfect."
+      },
+      {
+        "type": "text",
+        "text": "17. So, you may need to do it a few times until you get a much better result."
+      },
+      {
+        "type": "text",
+        "text": "18. So, for example, the first time that I did it, I got this one right here, which was really good because it meant that I can go into Photoshop and just easily remove this bit and this bit right here."
+      },
+      {
+        "type": "text",
+        "text": "19. Go ahead and download this image and we're going to edit the rest in Photoshop."
+      },
+      {
+        "type": "text",
+        "text": "20. Once you're in Photoshop, this is the easy part because all we need to do is get ourself the lasso tool, which is the third tool down, right click in here and get yourself the regular lasso."
+      },
+      {
+        "type": "text",
+        "text": "21. You can then left click on here, drag this out, select yourself this area and you want to press shift and F5."
+      },
+      {
+        "type": "text",
+        "text": "22. However, if you have the latest version of Photoshop, you can do something even better and you can right click on here and go down to delete fill selection."
+      },
+      {
+        "type": "text",
+        "text": "23. This does a much better job at removing the item from the background or the image."
+      },
+      {
+        "type": "text",
+        "text": "24. So, we can do this for the arm as well."
+      },
+      {
+        "type": "text",
+        "text": "25. Once you include this, go around it, get yourself a decent selection and once again, right click on here and go to delete and fill selection."
+      },
+      {
+        "type": "text",
+        "text": "26. Now, we also have a few little dots here and there and we can remove these by going to the healing brush tool, right click in here and get yourself the spot healing brush tool."
+      },
+      {
+        "type": "text",
+        "text": "27. We're going to use the first square bracket to make it smaller and you just want to simply left click on here, to remove the extra areas."
+      },
+      {
+        "type": "text",
+        "text": "28. So, we're just going to remove this one."
+      },
+      {
+        "type": "text",
+        "text": "29. Keep on clicking on the ones that you want to remove and we're just going to get rid of these."
+      },
+      {
+        "type": "text",
+        "text": "30. Same goes for this one as well and also if you want to remove the logo, you can remove it from here and there we go."
+      },
+      {
+        "type": "text",
+        "text": "31. But anyway, that has been my video on how to remove unwanted people."
+      },
+      {
+        "type": "text",
+        "text": "32. If you'd like to see how to replace anyone or anything from a photo, click on the screen and watch the next video."
+      },
+      {
+        "type": "text",
+        "text": "33. Until next time, I will see you all in our next video."
+      },
+      {
+        "type": "text",
+        "text": "34. Bye!"
+      }
+    ]
+  }
+]
+RESPONSE: {
+  "instructions": [
+    {
+      "instruction": "Go to the website DollyE2 and sign up.",
+      "start": 1,
+      "end": 1
+    },
+    {
+      "instruction": "Click on upload image.",
+      "start": 1,
+      "end": 1
+    },
+    {
+      "instruction": "Locate the image you want to edit and open it.",
+      "start": 2,
+      "end": 2
+    },
+    {
+      "instruction": "Crop the image if necessary by clicking on crop.",
+      "start": 4,
+      "end": 4
+    },
+    {
+      "instruction": "Select the eraser tool from the workspace.",
+      "start": 6,
+      "end": 6
+    },
+    {
+      "instruction": "Make a selection of the object you want to remove.",
+      "start": 7,
+      "end": 8
+    },
+    {
+      "instruction": "Type 'remove from photo' in the text box.",
+      "start": 12,
+      "end": 12
+    },
+    {
+      "instruction": "Click on generate to remove the selected object from the image.",
+      "start": 13,
+      "end": 13
+    },
+    {
+      "instruction": "Download the edited image after the AI processing is complete.",
+      "start": 19,
+      "end": 19
+    },
+    {
+      "instruction": "Open the downloaded image in Photoshop.",
+      "start": 20,
+      "end": 20
+    },
+    {
+      "instruction": "Select the lasso tool from the toolbar.",
+      "start": 20,
+      "end": 20
+    },
+    {
+      "instruction": "Make a selection around the area you want to remove using the lasso tool.",
+      "start": 21,
+      "end": 21
+    },
+    {
+      "instruction": "Press shift and F5 to fill the selection with the background.",
+      "start": 21,
+      "end": 21
+    },
+    {
+      "instruction": "Right click and select 'delete fill selection' if using the latest version of Photoshop.",
+      "start": 22,
+      "end": 22
+    },
+    {
+      "instruction": "Make a selection around any additional areas you want to remove.",
+      "start": 25,
+      "end": 25
+    },
+    {
+      "instruction": "Use the healing brush tool to remove small dots or imperfections.",
+      "start": 26,
+      "end": 26
+    },
+    {
+      "instruction": "Adjust the size of the spot healing brush tool using the first square bracket.",
+      "start": 27,
+      "end": 27
+    },
+    {
+      "instruction": "Click on the areas you want to remove with the spot healing brush tool.",
+      "start": 28,
+      "end": 29
+    },
+    {
+      "instruction": "Remove any logos or unwanted elements using the same method.",
+      "start": 30,
+      "end": 30
+    }
+  ]
+}
+MESSAGES: [
+  {
+    "role": "system",
+    "content": "\nExtract instructions from tutorial video subtitles for the task: How to remove objects from an image in PhotoShop?.\nThe extracted instructions should adhere to the following requirements:\n1. Focus on a single action at a time.\n2. Useful for completing the task.\n3. Clear and concise.\n4. Self-sufficient and do not refer to earlier or later instructions.\n5. Free of any ambiguous terms or phrases.\n6. Written in the imperative mood.\n"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
+      },
+      {
+        "type": "text",
+        "text": "0. Hey everyone, it's Scott with NewPortraitBiz.com, and what I want to do in this short little video is show you how to remove an unwanted object."
+      },
+      {
+        "type": "text",
+        "text": "1. Now in this case, this was a shot of me and my wife, and we were in Puerto Plata in the Dominican Republic, and we had a great time, but, you know, this here, this shot was set up, and I believe my daughter was taking the shot, and no fault of hers, but, you know, this palm tree was kind of growing out of our head, and that's kind of like rule number one, right?"
+      },
+      {
+        "type": "text",
+        "text": "2. You don't want anything growing out of your head."
+      },
+      {
+        "type": "text",
+        "text": "3. But it's no big deal, because with this new Content Aware, where you can actually go through now and basically just remove little objects like that real, real easy, I mean, before we could always clone it, or we could take a chunk over here and slide it over, and then blend it, and all that stuff, but this new little trick that I learned, and I'm not even sure when it was introduced, but I just recently started using it."
+      },
+      {
+        "type": "text",
+        "text": "4. I knew of it, but I didn't really know, you know, how well it worked, but it works really well for little things like this."
+      },
+      {
+        "type": "text",
+        "text": "5. So let's just go ahead and just select this here, the palm tree, and then all you do is hit Shift and then Delete, and then you'll get this little fill box, and it says Content Aware, or you can say Pattern, or Foreground Color, Background Color, Color, Black, Gray, you know, whatever."
+      },
+      {
+        "type": "text",
+        "text": "6. We want Content Aware."
+      },
+      {
+        "type": "text",
+        "text": "7. Then just go ahead and click OK, and as simple as that, it's going to disappear."
+      },
+      {
+        "type": "text",
+        "text": "8. Now you can just click here somewhere, and you can see it's totally gone."
+      },
+      {
+        "type": "text",
+        "text": "9. Now you may want to zoom in on it, and then you can just look around the edges and see if it left any type of square edge or anything like that that you might need to smooth out, but it does a really, really good job."
+      },
+      {
+        "type": "text",
+        "text": "10. Same thing over here."
+      },
+      {
+        "type": "text",
+        "text": "11. There's little buoys in my way here."
+      },
+      {
+        "type": "text",
+        "text": "12. I don't really like it, so I can just go here, and then just go Shift, Delete, and boom, it's gone."
+      },
+      {
+        "type": "text",
+        "text": "13. All right?"
+      },
+      {
+        "type": "text",
+        "text": "14. Now another cool little trick while I'm at it, let me just step back here, that you can do for something like that as well, is you can use the Patch Tool, and if you go right here under the Spot Healing Brush and the Healing Brush and all that stuff, just go to Patch Tool, and then if you just make a selection around it, and then just drag it off to an area that looks like the area like you want it to look like, and then just let go, you can do almost the same thing, all right?"
+      },
+      {
+        "type": "text",
+        "text": "15. But the Content Aware is so quick and easy."
+      },
+      {
+        "type": "text",
+        "text": "16. I mean, I have one other picture that I, well, let me actually get rid of that while I'm here again."
+      },
+      {
+        "type": "text",
+        "text": "17. So again, you just take the Rectangular Tool, or any selection tool for that matter, and then just Shift, Delete, Content Aware Box, and then hit OK, and then just deselect it, and you're good to go."
+      },
+      {
+        "type": "text",
+        "text": "18. I do have another image."
+      },
+      {
+        "type": "text",
+        "text": "19. I just pulled this one up because it was just kind of interesting to see how this would work."
+      },
+      {
+        "type": "text",
+        "text": "20. This has a lot of different stuff going on, and I tested it out, and it worked pretty good."
+      },
+      {
+        "type": "text",
+        "text": "21. So if I just go here and select it, and you got to play around with sometimes how much you select, but I found that if you bring it in close enough, but giving it some room, it does a pretty good job."
+      },
+      {
+        "type": "text",
+        "text": "22. So I'm just going to go there, and then Shift, Delete, Content Aware, hit OK, and it's going to kind of guess and see how to fill that in, and you can use your own judgment of whether it did a good job, and it looks like it would pass, or you might want to redo it again, and that's pretty good."
+      },
+      {
+        "type": "text",
+        "text": "23. I mean, look at it."
+      },
+      {
+        "type": "text",
+        "text": "24. It's got all the rocks."
+      },
+      {
+        "type": "text",
+        "text": "25. It gave a little bit of a hump to the wall, but you know what?"
+      },
+      {
+        "type": "text",
+        "text": "26. It's kind of messy anyway, the wall."
+      },
+      {
+        "type": "text",
+        "text": "27. So who's to say that that wasn't going up there, but it's blended really, really well."
+      },
+      {
+        "type": "text",
+        "text": "28. So if I back off of that, you can see that's how it was, and that's how it is, see?"
+      },
+      {
+        "type": "text",
+        "text": "29. So that's pretty cool."
+      },
+      {
+        "type": "text",
+        "text": "30. So just a little trick for you because I think that you could use it, especially in little situations like this, to get rid of something behind someone's head if there was a clear shot like that, or even a buoy out here, or anything like that, all right?"
+      },
+      {
+        "type": "text",
+        "text": "31. So use it, have fun with it, and again, if you have any questions, you can always leave a comment below, or you can email me."
+      },
+      {
+        "type": "text",
+        "text": "32. If you're one of our subscribers, you can just go to NewPortraitBiz.com."
+      },
+      {
+        "type": "text",
+        "text": "33. You can sign up to be one of our subscribers, and you'll get more videos like this, or if you're watching this on YouTube, you can just subscribe to our channel, which is right above this video as well."
+      },
+      {
+        "type": "text",
+        "text": "34. All right?"
+      },
+      {
+        "type": "text",
+        "text": "35. So that's it."
+      },
+      {
+        "type": "text",
+        "text": "36. I'll talk to you later."
+      },
+      {
+        "type": "text",
+        "text": "37. Byebye."
+      }
+    ]
+  }
+]
+RESPONSE: {
+  "instructions": [
+    {
+      "instruction": "Select the unwanted object in the image.",
+      "start": 5,
+      "end": 5
+    },
+    {
+      "instruction": "Press Shift and then Delete.",
+      "start": 5,
+      "end": 5
+    },
+    {
+      "instruction": "Choose 'Content Aware' in the fill box that appears.",
+      "start": 6,
+      "end": 6
+    },
+    {
+      "instruction": "Click OK to remove the selected object.",
+      "start": 7,
+      "end": 7
+    },
+    {
+      "instruction": "Zoom in to check the edges for any remaining artifacts.",
+      "start": 9,
+      "end": 9
+    },
+    {
+      "instruction": "Select another unwanted object in the image.",
+      "start": 12,
+      "end": 12
+    },
+    {
+      "instruction": "Press Shift and then Delete again.",
+      "start": 12,
+      "end": 12
+    },
+    {
+      "instruction": "Use the Patch Tool to make a selection around the object you want to remove.",
+      "start": 14,
+      "end": 14
+    },
+    {
+      "instruction": "Drag the selection to an area that resembles the background you want.",
+      "start": 14,
+      "end": 14
+    },
+    {
+      "instruction": "Press Shift and then Delete for another object removal.",
+      "start": 17,
+      "end": 17
+    },
+    {
+      "instruction": "Select the area you want to remove.",
+      "start": 21,
+      "end": 21
+    },
+    {
+      "instruction": "Press Shift and then Delete, then choose 'Content Aware' and hit OK.",
+      "start": 22,
+      "end": 22
+    }
+  ]
+}
+MESSAGES: [
+  {
+    "role": "system",
+    "content": "\nExtract instructions from tutorial video subtitles for the task: How to remove objects from an image in PhotoShop?.\nThe extracted instructions should adhere to the following requirements:\n1. Focus on a single action at a time.\n2. Useful for completing the task.\n3. Clear and concise.\n4. Self-sufficient and do not refer to earlier or later instructions.\n5. Free of any ambiguous terms or phrases.\n6. Written in the imperative mood.\n"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
+      },
+      {
+        "type": "text",
+        "text": "0. In this video, I'm talking all about the Clone Stamp tool in Adobe Photoshop."
+      },
+      {
+        "type": "text",
+        "text": "1. So, let's get into the video."
+      },
+      {
+        "type": "text",
+        "text": "2. So, once you're inside of Adobe Photoshop and you've got a photo imported, we can go and scroll down the left toolbar to find the Clone Stamp tool."
+      },
+      {
+        "type": "text",
+        "text": "3. So, this is the Clone Stamp tool here, and as you can see, if we drag across, we've got Clone Stamp and Pattern Stamp."
+      },
+      {
+        "type": "text",
+        "text": "4. We're not going to focus on the Pattern Stamp today, we're just going to look at Clone Stamp."
+      },
+      {
+        "type": "text",
+        "text": "5. So, select Clone Stamp tool, and then you can just go up to the brush size, we can decrease the brush size to around 100 and increase the hardness to 100."
+      },
+      {
+        "type": "text",
+        "text": "6. So, as you can see, we've got our image loaded up and we've got this brush, but if we just select the image, we're going to get this message come up."
+      },
+      {
+        "type": "text",
+        "text": "7. Could not use the Clone Stamp tool because the area to clone has not been defined."
+      },
+      {
+        "type": "text",
+        "text": "8. Option click to define a source point."
+      },
+      {
+        "type": "text",
+        "text": "9. So, what exactly is the Clone Stamp tool?"
+      },
+      {
+        "type": "text",
+        "text": "10. Well, essentially, it is what it sounds like."
+      },
+      {
+        "type": "text",
+        "text": "11. It's going to clone a part of your image and paste that onto somewhere else."
+      },
+      {
+        "type": "text",
+        "text": "12. Let's take this handle here, for example."
+      },
+      {
+        "type": "text",
+        "text": "13. I'm going to select Option on the keyboard, and as you can see, that's turned this big circle into this selection point."
+      },
+      {
+        "type": "text",
+        "text": "14. I'm going to draw over this part of the image, and as you can see, nothing is happening, and that's because I'm copying this part of the image."
+      },
+      {
+        "type": "text",
+        "text": "15. And then when I go over here, as you can see, this part of the image, this handle, is now inside this brush."
+      },
+      {
+        "type": "text",
+        "text": "16. So, if I just select over here, there you go, I've added that handle up there."
+      },
+      {
+        "type": "text",
+        "text": "17. But the Clone Stamp tool doesn't just copy what's inside this immediate area, it uses this area kind of like an anchor point."
+      },
+      {
+        "type": "text",
+        "text": "18. So, we drag this up here, and as you can see, if I start painting and going towards the right, the rest of the camera starts to appear, and that's because the brush is copying everything that the cross copies over."
+      },
+      {
+        "type": "text",
+        "text": "19. So, there's a cross in the middle of the camera right now, and if I pull this all the way to the left, it goes past the lens and goes into the white background, and as it does, it's pasting that on to the top right of the image."
+      },
+      {
+        "type": "text",
+        "text": "20. So, the Clone Stamp tool is essentially just taking one part of an image and cloning that into another area of the image."
+      },
+      {
+        "type": "text",
+        "text": "21. But why use the Clone Stamp tool?"
+      },
+      {
+        "type": "text",
+        "text": "22. Why would you use this?"
+      },
+      {
+        "type": "text",
+        "text": "23. Obviously, this example that I've just done now looks a little bit ugly, and you wouldn't really do that."
+      },
+      {
+        "type": "text",
+        "text": "24. So, why is the Clone Stamp tool really useful?"
+      },
+      {
+        "type": "text",
+        "text": "25. Now, the first example why I love to use the Clone Stamp tool is because it's very good at removing objects that are not needed in the frame."
+      },
+      {
+        "type": "text",
+        "text": "26. So, if we look at this picture of the Eiffel Tower, you can see we've got this security camera on the left, and we've got this light just creeping into the top of the frame there, and obviously, this is distracting from the image."
+      },
+      {
+        "type": "text",
+        "text": "27. So, if we zoom into this area here, we go to our Clone Stamp tool, we'll go up to the brush size, we'll increase the brush size to around 200, and then we'll pull the hardness down to zero."
+      },
+      {
+        "type": "text",
+        "text": "28. The hardness is basically your feathering, so when your feathering or your hardness is at zero, there's going to be a nice soft fade around the brush, whereas when it's 100, it's going to be a solid edge."
+      },
+      {
+        "type": "text",
+        "text": "29. Now, when I'm blending things in, I like to keep this to zero because it's really going to help to blend."
+      },
+      {
+        "type": "text",
+        "text": "30. So, now if I move over to this area of clouds just around the security camera, I'm going to select Option, I'm going to paint in this area, we'll let go of Option, move down, and we'll paint over the security camera, and it's copying these clouds from up here and pasting them on top of the security camera."
+      },
+      {
+        "type": "text",
+        "text": "31. So, the Clone Stamp tool is really useful at removing those specific objects from an image, but it's also really useful at removing blemishes and spots from a talent's face when you're doing portrait photography."
+      },
+      {
+        "type": "text",
+        "text": "32. I'll give you an example."
+      },
+      {
+        "type": "text",
+        "text": "33. Now, this image that I've got loaded up inside of Adobe Photoshop now is completely unedited."
+      },
+      {
+        "type": "text",
+        "text": "34. It's got no color, it's had no editing, it's completely, completely natural."
+      },
+      {
+        "type": "text",
+        "text": "35. So, we're just going to zoom in, and as you can see, I've got a few marks on my face here."
+      },
+      {
+        "type": "text",
+        "text": "36. So, I'm just going to move this freckle here."
+      },
+      {
+        "type": "text",
+        "text": "37. So, I'm just going to decrease the size of the Clone Stamp tool."
+      },
+      {
+        "type": "text",
+        "text": "38. It should be just a little bit bigger than the mark that you're trying to cover."
+      },
+      {
+        "type": "text",
+        "text": "39. Now, I'm going to go to a part of the skin which is just next to this mark, hold Option, we're going to go over this mark, and there you go."
+      },
+      {
+        "type": "text",
+        "text": "40. We're just going to draw over it, and that has been completely removed."
+      },
+      {
+        "type": "text",
+        "text": "41. And you can do this for however many marks you like."
+      },
+      {
+        "type": "text",
+        "text": "42. So, we've got this mark just here, copy this part of the skin, paste that on, and that's completely covered that mark up."
+      },
+      {
+        "type": "text",
+        "text": "43. So, as well as removing random objects from an image, the Clone Stamp tool is also very handy at removing spots, blemishes, and marks from a talent's face."
+      },
+      {
+        "type": "text",
+        "text": "44. The Clone Stamp tool is an absolute staple for me. I use the Clone Stamp tool on almost every single picture that I'm editing."
+      },
+      {
+        "type": "text",
+        "text": "45. So, invest a little bit of your time into learning how to use this Clone Stamp tool, and I promise you it's really going to help you in the future when you're editing your photos."
+      },
+      {
+        "type": "text",
+        "text": "46. So, there you go, the Clone Stamp tool."
+      },
+      {
+        "type": "text",
+        "text": "47. It's awesome."
+      }
+    ]
+  }
+]
+RESPONSE: {
+  "instructions": [
+    {
+      "instruction": "Open Adobe Photoshop and import your photo.",
+      "start": 2,
+      "end": 2
+    },
+    {
+      "instruction": "Scroll down the left toolbar to find the Clone Stamp tool.",
+      "start": 2,
+      "end": 2
+    },
+    {
+      "instruction": "Select the Clone Stamp tool.",
+      "start": 5,
+      "end": 5
+    },
+    {
+      "instruction": "Adjust the brush size to around 100 and set the hardness to 100.",
+      "start": 5,
+      "end": 5
+    },
+    {
+      "instruction": "Option click to define a source point for cloning.",
+      "start": 8,
+      "end": 8
+    },
+    {
+      "instruction": "Move the brush over the area you want to clone from.",
+      "start": 13,
+      "end": 13
+    },
+    {
+      "instruction": "Paint over the object you want to remove.",
+      "start": 30,
+      "end": 30
+    },
+    {
+      "instruction": "Increase the brush size to around 200 and set the hardness to zero for a soft edge.",
+      "start": 27,
+      "end": 27
+    },
+    {
+      "instruction": "Select an area near the object to clone from by holding Option.",
+      "start": 39,
+      "end": 39
+    },
+    {
+      "instruction": "Draw over the mark or object to cover it with the cloned area.",
+      "start": 40,
+      "end": 40
+    },
+    {
+      "instruction": "Repeat the process for any additional marks or objects you want to remove.",
+      "start": 41,
+      "end": 41
+    }
+  ]
+}
+MESSAGES: [
+  {
+    "role": "system",
+    "content": "\nExtract instructions from tutorial video subtitles for the task: How to remove objects from an image in PhotoShop?.\nThe extracted instructions should adhere to the following requirements:\n1. Focus on a single action at a time.\n2. Useful for completing the task.\n3. Clear and concise.\n4. Self-sufficient and do not refer to earlier or later instructions.\n5. Free of any ambiguous terms or phrases.\n6. Written in the imperative mood.\n"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
+      },
+      {
+        "type": "text",
+        "text": "0. In this video, I'm going to show you how you can remove items from your still images inside of Adobe Photoshop 2024."
+      },
+      {
+        "type": "text",
+        "text": "1. So let's get into it."
+      },
+      {
+        "type": "text",
+        "text": "2. So there's multiple different ways that we can approach this and the first option is to go down the clone stamp tool option."
+      },
+      {
+        "type": "text",
+        "text": "3. Now this is the traditional route before generative fill became an option, so let me show you how to do that."
+      },
+      {
+        "type": "text",
+        "text": "4. So in order to use the clone stamp tool, we want to hover over to the bar on the left and we're looking for this, which is the clone stamp tool."
+      },
+      {
+        "type": "text",
+        "text": "5. And as you can see, we get this brush up here and this is just a normal brush, so we can control the size of this and the hardness of this by just adjusting the brush values up here."
+      },
+      {
+        "type": "text",
+        "text": "6. Now for the clone stamp tool, I would generally keep this on the lower hardness level just because it's going to help to blend this off a lot better."
+      },
+      {
+        "type": "text",
+        "text": "7. If it's a hard edge, then it's going to be very visible."
+      },
+      {
+        "type": "text",
+        "text": "8. So I'm going to keep this at 0, I'm going to increase the size to around 200 and this is what we have."
+      },
+      {
+        "type": "text",
+        "text": "9. Now let's say I want to get rid of some of these pegs up in the top right of the frame."
+      },
+      {
+        "type": "text",
+        "text": "10. Now this is where the clone stamp tool comes in really handy because the clone stamp tool is essentially taking one part of the frame and pasting it in elsewhere."
+      },
+      {
+        "type": "text",
+        "text": "11. So because we've got this solid wall color here, I'm just going to hold option on the keyboard and this is basically me selecting which part of the frame I'm going to steal."
+      },
+      {
+        "type": "text",
+        "text": "12. So I'm going to take this section up here, so left click on the mouse, release the option button and then if I move over and now I paint over this, you can see we've got this plus on the left and we've got the brush on the right."
+      },
+      {
+        "type": "text",
+        "text": "13. So the plus is where this is being taken from and the brush is obviously the brush."
+      },
+      {
+        "type": "text",
+        "text": "14. So you can see if I go all the way down, it's going to start to copy this board here, that's not what we want here."
+      },
+      {
+        "type": "text",
+        "text": "15. So I'm just going to copy it again, I'm going to draw this in and as you can see that's done a pretty good job, but if we go in really far you can see the light changes a little bit."
+      },
+      {
+        "type": "text",
+        "text": "16. So I could just increase the size of the brush and I'm just going to blend that off a little bit more and that looks pretty convincing."
+      },
+      {
+        "type": "text",
+        "text": "17. So we've removed that by just using the clone stamp tool and the clone stamp tool is really powerful."
+      },
+      {
+        "type": "text",
+        "text": "18. Of course you don't just have to use the clone stamp tool for removing something in Photoshop, you could create copies."
+      },
+      {
+        "type": "text",
+        "text": "19. So if I wanted to add my face in again, for whatever reason you would want to do that, you would just hold option over the face and then just paste that in elsewhere."
+      },
+      {
+        "type": "text",
+        "text": "20. So it's a really cool and interesting technique, however in 2023 Photoshop introduced a new AI feature called generative fill and this is an absolute game changer for removing stuff like this."
+      },
+      {
+        "type": "text",
+        "text": "21. So rather than going through the process of doing the clone stamp tool, instead we can just go into this option here which is going to be the selection tool."
+      },
+      {
+        "type": "text",
+        "text": "22. So we're basically just going to the polygonal lasso tool."
+      },
+      {
+        "type": "text",
+        "text": "23. Let's start off really simple, so let's go for one of these pegs again."
+      },
+      {
+        "type": "text",
+        "text": "24. So I'm just going to draw the mask around this peg here or this hook and generative fill will pop up."
+      },
+      {
+        "type": "text",
+        "text": "25. So we're going to select that and we can just type remove and we're going to press generate and Photoshop is just going to take a very quick second to figure out what it is doing and then there you go you can see we've been given three different options."
+      },
+      {
+        "type": "text",
+        "text": "26. Now they're all really good options but if either one of those were not good and it didn't look quite right then you can just press generate again but I'm happy with that and as you can see if we look in the bottom right if I turn that on and off again you can see what it has done."
+      },
+      {
+        "type": "text",
+        "text": "27. So it's really powerful but let's go for something a little bit more complicated."
+      },
+      {
+        "type": "text",
+        "text": "28. This is really easy because it's in a dark corner and it's not really where the eye is being led to, however let's say I wanted to remove this bf."
+      },
+      {
+        "type": "text",
+        "text": "29. Now I would just go through the exact same process and make sure the background layer is selected and then just draw a mask around what you want to remove."
+      },
+      {
+        "type": "text",
+        "text": "30. So as you can see it can mess up quite a lot here you can see it's very close to my face it's close to the computer screen there's a lot that can go wrong."
+      },
+      {
+        "type": "text",
+        "text": "31. So let's try this again let's go for remove press generate and there we go you can see the first generation not really good the second one absolutely knocks it out the park the second one is brilliant and the third one is also good as well but you can see there's a bit of cable here which we could clean up with the clone stamp tool but there's no need because it's done a brilliant job on number two."
+      },
+      {
+        "type": "text",
+        "text": "32. Like I said before if it didn't do a good job and all three of your options looked a bit like this then you would just select generate again and you would just repeat this process until you are happy."
+      },
+      {
+        "type": "text",
+        "text": "33. So if I zoom back out you can see that this was the before and this was the after."
+      },
+      {
+        "type": "text",
+        "text": "34. So you could remove things from your frame using the clone stamp tool or alternatively if you update your photoshop to one of the latest versions then you can use the generative fill option."
+      },
+      {
+        "type": "text",
+        "text": "35. Like I said though this is a fairly new feature so if you've got photoshop 22, 21, 20 you're not going to see this option so make sure you do an update to your software and this will give you that option."
+      },
+      {
+        "type": "text",
+        "text": "36. There's one really quick and easy way to tell if you've got the latest version and then it's just to go to the mask tool up here draw a mask and if generative fill pops up you've got it if it doesn't pop up you haven't got it it's as simple as that and if you don't then all you need to do is just go into your adobe creative cloud and just do an update so you go into your apps go into updates and then you can do an update here."
+      },
+      {
+        "type": "text",
+        "text": "37. As you can see I have got a new update that I need to do but it's new enough for me that I have got the generative fill option."
+      },
+      {
+        "type": "text",
+        "text": "38. So there you go that is how you remove objects from your still images inside of adobe photoshop using the clone stamp tool and the generative fill option."
+      },
+      {
+        "type": "text",
+        "text": "39. Both are really great options at doing this so thank you ever so much for watching this video I really do appreciate your support and hopefully I will see you on the next video see you there"
+      }
+    ]
+  }
+]
+RESPONSE: {
+  "instructions": [
+    {
+      "instruction": "Select the clone stamp tool from the toolbar on the left.",
+      "start": 4,
+      "end": 4
+    },
+    {
+      "instruction": "Adjust the brush size and hardness in the options bar.",
+      "start": 5,
+      "end": 5
+    },
+    {
+      "instruction": "Set the hardness of the brush to a lower level for better blending.",
+      "start": 6,
+      "end": 6
+    },
+    {
+      "instruction": "Hold the option key and click on the area you want to clone from.",
+      "start": 11,
+      "end": 11
+    },
+    {
+      "instruction": "Move the brush over the area you want to remove and paint over it.",
+      "start": 12,
+      "end": 12
+    },
+    {
+      "instruction": "Use the polygonal lasso tool to draw a mask around the object you want to remove.",
+      "start": 21,
+      "end": 22
+    },
+    {
+      "instruction": "Select the generative fill option after drawing the mask.",
+      "start": 24,
+      "end": 24
+    },
+    {
+      "instruction": "Type 'remove' in the generative fill prompt and press generate.",
+      "start": 25,
+      "end": 25
+    },
+    {
+      "instruction": "Repeat the generate process if the results are not satisfactory.",
+      "start": 32,
+      "end": 32
+    },
+    {
+      "instruction": "Zoom out to compare the before and after results.",
+      "start": 33,
+      "end": 33
+    },
+    {
+      "instruction": "Check for the generative fill option by drawing a mask and seeing if it appears.",
+      "start": 36,
+      "end": 36
+    },
+    {
+      "instruction": "Update your Photoshop software through Adobe Creative Cloud if generative fill is not available.",
+      "start": 35,
+      "end": 35
+    }
+  ]
+}
+MESSAGES: [
+  {
+    "role": "system",
+    "content": "\nExtract instructions from tutorial video subtitles for the task: How to remove objects from an image in PhotoShop?.\nThe extracted instructions should adhere to the following requirements:\n1. Focus on a single action at a time.\n2. Useful for completing the task.\n3. Clear and concise.\n4. Self-sufficient and do not refer to earlier or later instructions.\n5. Free of any ambiguous terms or phrases.\n6. Written in the imperative mood.\n"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
+      },
+      {
+        "type": "text",
+        "text": "0. So, here we have the actual image and on top of that we have our subject masked out."
+      },
+      {
+        "type": "text",
+        "text": "1. Now, if you wanted to move around the subject, you definitely wouldn't want it in the background, right?"
+      },
+      {
+        "type": "text",
+        "text": "2. So, how do we take that away?"
+      },
+      {
+        "type": "text",
+        "text": "3. With the help of Content Aware Fill."
+      },
+      {
+        "type": "text",
+        "text": "4. So, let's turn off the subject layer, select the background layer and let's make a selection around the subject leaving a little space."
+      },
+      {
+        "type": "text",
+        "text": "5. I already have a selection, so we're going to go to Select, Load Selection, Subject, hit OK."
+      },
+      {
+        "type": "text",
+        "text": "6. Now, fill it by going to Edit, Content Aware Fill."
+      },
+      {
+        "type": "text",
+        "text": "7. Now, we cannot expect Photoshop to do a fantastic job here because the way Photoshop does it is by sampling surrounding areas or in other words, copying surrounding areas and pasting it in the areas that we want to fill."
+      },
+      {
+        "type": "text",
+        "text": "8. Have a look at the train tracks."
+      },
+      {
+        "type": "text",
+        "text": "9. They are in perspective, right?"
+      },
+      {
+        "type": "text",
+        "text": "10. So, it's very hard for Photoshop to just generate or create those areas because it doesn't create them."
+      },
+      {
+        "type": "text",
+        "text": "11. It just copy pastes."
+      },
+      {
+        "type": "text",
+        "text": "12. Also, have a look at the slabs between these tracks."
+      },
+      {
+        "type": "text",
+        "text": "13. They have very less gap between them as it goes further away from the camera."
+      },
+      {
+        "type": "text",
+        "text": "14. But as it comes closer to the camera, the gap increases."
+      },
+      {
+        "type": "text",
+        "text": "15. We cannot expect Photoshop to invent those details, create those graduations and also, if you look at the buildings and the platforms, there are some details that we have to generate."
+      },
+      {
+        "type": "text",
+        "text": "16. It just cannot be copy pasted."
+      },
+      {
+        "type": "text",
+        "text": "17. And if you try to do it manually, it's going to be a painstaking hair pulling or head knocking job, at least for me."
+      },
+      {
+        "type": "text",
+        "text": "18. But this tool fills it like magic, no matter how complicated the scene is."
+      },
+      {
+        "type": "text",
+        "text": "19. The great news is this magical tool is free, to an extent of course, and accessible to everyone."
+      },
+      {
+        "type": "text",
+        "text": "20. Now, before I tell you about it, I don't want you to miss out on a major giveaway that's happening, especially if you are a creative professional."
+      },
+      {
+        "type": "text",
+        "text": "21. The giveaway sponsors are giving out Kelby One Pro memberships."
+      },
+      {
+        "type": "text",
+        "text": "22. By the way, I have two courses on Kelby One as well."
+      },
+      {
+        "type": "text",
+        "text": "23. They're giving out a MacBook Pro Smug Mug Pro subscriptions, which is an amazing platform to sell your photos and incredible visual tools and plugins used by Hollywood that cost more than 1,000 a year."
+      },
+      {
+        "type": "text",
+        "text": "24. You can enter to win by going to pix.live slash giveaway or simply click the link in the description."
+      },
+      {
+        "type": "text",
+        "text": "25. Back to Photoshop and now to get the best results using this tool, we need to make a selection of the areas that we want to remove."
+      },
+      {
+        "type": "text",
+        "text": "26. So first of all, let's make a copy of the background layer to be on the safer side."
+      },
+      {
+        "type": "text",
+        "text": "27. And you can use the Lasso tool for it."
+      },
+      {
+        "type": "text",
+        "text": "28. You can just zoom in, leave a little gap and just start selecting the areas."
+      },
+      {
+        "type": "text",
+        "text": "29. Or you can also use the Pen tool."
+      },
+      {
+        "type": "text",
+        "text": "30. It's all up to you."
+      },
+      {
+        "type": "text",
+        "text": "31. I already have a selection."
+      },
+      {
+        "type": "text",
+        "text": "32. So we're going to go to Select, Load Selection, and let's choose Subject."
+      },
+      {
+        "type": "text",
+        "text": "33. This is just a simple hand selection, nothing complicated."
+      },
+      {
+        "type": "text",
+        "text": "34. We have left a little space right there."
+      },
+      {
+        "type": "text",
+        "text": "35. Now we want to remove this area, we want to delete this area, make it transparent."
+      },
+      {
+        "type": "text",
+        "text": "36. For it, in this copy, press the Delete key."
+      },
+      {
+        "type": "text",
+        "text": "37. By the way, I'm keeping every other layer turned off."
+      },
+      {
+        "type": "text",
+        "text": "38. Now to make the process easier, I recommend that you crop this image to square."
+      },
+      {
+        "type": "text",
+        "text": "39. It's not that it's not possible without it, but it's just easier."
+      },
+      {
+        "type": "text",
+        "text": "40. So first of all, let's make a copy of this layer into a different document so that we don't destroy this one."
+      },
+      {
+        "type": "text",
+        "text": "41. So with this layer selected, click on this grid right there and choose Duplicate Layer."
+      },
+      {
+        "type": "text",
+        "text": "42. And we want to create a new document right here."
+      },
+      {
+        "type": "text",
+        "text": "43. Hit OK."
+      },
+      {
+        "type": "text",
+        "text": "44. And now press C for the Crop tool."
+      },
+      {
+        "type": "text",
+        "text": "45. You want to make sure that it is square and let's bring it next to the subject."
+      },
+      {
+        "type": "text",
+        "text": "46. I don't have as much detail, as much surrounding areas as possible."
+      },
+      {
+        "type": "text",
+        "text": "47. Hit Enter and let's export the image as a PNG."
+      },
+      {
+        "type": "text",
+        "text": "48. File Export, Quick Export as PNG."
+      },
+      {
+        "type": "text",
+        "text": "49. Make sure you maintain transparency."
+      },
+      {
+        "type": "text",
+        "text": "50. Let's save it as Train Station and click on Save."
+      },
+      {
+        "type": "text",
+        "text": "51. The tool that we're going to be using today is powered by artificial intelligence and to call it mind boggling would be an understatement."
+      },
+      {
+        "type": "text",
+        "text": "52. Yes, we are talking about DALE."
+      },
+      {
+        "type": "text",
+        "text": "53. Some of you might have perfectly guessed it."
+      },
+      {
+        "type": "text",
+        "text": "54. Now before you jump onto me, let me already tell you that DALE is now available without any waitlist."
+      },
+      {
+        "type": "text",
+        "text": "55. So you can just sign in and get started."
+      },
+      {
+        "type": "text",
+        "text": "56. The other thing is, you do get 50 free credits your first month and after that, 15 free credits every month."
+      },
+      {
+        "type": "text",
+        "text": "57. Now, one more thing."
+      },
+      {
+        "type": "text",
+        "text": "58. I am not at all sponsored by DALE."
+      },
+      {
+        "type": "text",
+        "text": "59. They have not reached out to me. I don't know them."
+      },
+      {
+        "type": "text",
+        "text": "60. This is just crazy amazing."
+      },
+      {
+        "type": "text",
+        "text": "61. That's why I'm sharing this with you."
+      },
+      {
+        "type": "text",
+        "text": "62. So all you need to do is to click on Upload an image and if you want to play along, you can also download these links in the description."
+      },
+      {
+        "type": "text",
+        "text": "63. Select that image with transparency and click on Open."
+      },
+      {
+        "type": "text",
+        "text": "64. Now we already cropped it to square, so it's not an issue."
+      },
+      {
+        "type": "text",
+        "text": "65. So let's click on Crop."
+      },
+      {
+        "type": "text",
+        "text": "66. Let's click on Edit Image."
+      },
+      {
+        "type": "text",
+        "text": "67. Now you can also erase the subject in the program as well, but with Photoshop, it's a little more precise."
+      },
+      {
+        "type": "text",
+        "text": "68. Now unless you dab anywhere, it won't show the generation bar right there."
+      },
+      {
+        "type": "text",
+        "text": "69. So let's dab in a transparent area."
+      },
+      {
+        "type": "text",
+        "text": "70. Now simply explain the entire scene."
+      },
+      {
+        "type": "text",
+        "text": "71. I'm just going to type in train station and click on Generate."
+      },
+      {
+        "type": "text",
+        "text": "72. And here, my friend, we have our results."
+      },
+      {
+        "type": "text",
+        "text": "73. If this is not mind boggling, truly mind boggling, I don't know what is."
+      },
+      {
+        "type": "text",
+        "text": "74. So take a look at this."
+      },
+      {
+        "type": "text",
+        "text": "75. This is fantastic as well."
+      },
+      {
+        "type": "text",
+        "text": "76. There's a grass there."
+      },
+      {
+        "type": "text",
+        "text": "77. If you want to remove that, you can easily do it."
+      },
+      {
+        "type": "text",
+        "text": "78. There are some people as well."
+      },
+      {
+        "type": "text",
+        "text": "79. That's also cool."
+      },
+      {
+        "type": "text",
+        "text": "80. In my opinion, this looks absolutely the best."
+      },
+      {
+        "type": "text",
+        "text": "81. So let's go ahead and download it."
+      },
+      {
+        "type": "text",
+        "text": "82. Let's save it right here."
+      },
+      {
+        "type": "text",
+        "text": "83. Now we got an incredible result with just one generation."
+      },
+      {
+        "type": "text",
+        "text": "84. But if something was not all right, if you didn't want these people, if you didn't want this area, no problem."
+      },
+      {
+        "type": "text",
+        "text": "85. Click on Edit one more time and just simply erase those areas."
+      },
+      {
+        "type": "text",
+        "text": "86. That's all."
+      },
+      {
+        "type": "text",
+        "text": "87. Explain the scene again."
+      },
+      {
+        "type": "text",
+        "text": "88. It's already explained and generate again."
+      },
+      {
+        "type": "text",
+        "text": "89. Those will be gone."
+      },
+      {
+        "type": "text",
+        "text": "90. Or you can also change the explanation to empty train station."
+      },
+      {
+        "type": "text",
+        "text": "91. So there you go."
+      },
+      {
+        "type": "text",
+        "text": "92. Those are gone."
+      },
+      {
+        "type": "text",
+        "text": "93. I don't know what that is."
+      },
+      {
+        "type": "text",
+        "text": "94. Sometimes AI can have a mind of its own."
+      },
+      {
+        "type": "text",
+        "text": "95. Actually, it has a mind of its own."
+      },
+      {
+        "type": "text",
+        "text": "96. So anyway, back to Photoshop, back to this image."
+      },
+      {
+        "type": "text",
+        "text": "97. And now we need to replace this area."
+      },
+      {
+        "type": "text",
+        "text": "98. How do we do that?"
+      },
+      {
+        "type": "text",
+        "text": "99. Let's bring in the dial E image on top of the canvas in Photoshop."
+      },
+      {
+        "type": "text",
+        "text": "100. Let's paste it right there."
+      },
+      {
+        "type": "text",
+        "text": "101. Let's make it larger."
+      },
+      {
+        "type": "text",
+        "text": "102. Make sure it matches the edge."
+      },
+      {
+        "type": "text",
+        "text": "103. Just like that."
+      },
+      {
+        "type": "text",
+        "text": "104. You have to be accurate about it."
+      },
+      {
+        "type": "text",
+        "text": "105. Press Ctrl or Command zero to fit the canvas to screen."
+      },
+      {
+        "type": "text",
+        "text": "106. And now let's adjust the position."
+      },
+      {
+        "type": "text",
+        "text": "107. There you go."
+      },
+      {
+        "type": "text",
+        "text": "108. It's all done."
+      },
+      {
+        "type": "text",
+        "text": "109. Now, of course, you might want to take that away."
+      },
+      {
+        "type": "text",
+        "text": "110. So click on the Mask button, take the brush, black as the foreground color and just remove that."
+      },
+      {
+        "type": "text",
+        "text": "111. Not a big deal."
+      },
+      {
+        "type": "text",
+        "text": "112. Make sure it's a soft round brush to make sure everything is seamless."
+      },
+      {
+        "type": "text",
+        "text": "113. And there you go."
+      },
+      {
+        "type": "text",
+        "text": "114. This is perfect."
+      },
+      {
+        "type": "text",
+        "text": "115. Now, the only drawback with dial E is that at a time it only generates images with 1024 by 1024 pixels resolution, which can be limiting."
+      },
+      {
+        "type": "text",
+        "text": "116. But then again, it's more than enough for stuff like this."
+      },
+      {
+        "type": "text",
+        "text": "117. And on top of that, if you want to upscale it, there are several other AIs to do that for you."
+      },
+      {
+        "type": "text",
+        "text": "118. We have to understand that generating image from scratch using AI is very heavy on any system at the moment of recording this video."
+      },
+      {
+        "type": "text",
+        "text": "119. I tried installing stable diffusion in my computer locally."
+      },
+      {
+        "type": "text",
+        "text": "120. And when I tried to run it, even generating a 512 by 512 pixels image is very stressing on my graphics card."
+      },
+      {
+        "type": "text",
+        "text": "121. So imagine dial E being an entire platform, a lot of users using it, and it still generates 1024 by 1024."
+      },
+      {
+        "type": "text",
+        "text": "122. I think it's generous looking at how intensive, how computer intensive these AI models can be."
+      },
+      {
+        "type": "text",
+        "text": "123. Now let's take a look at this example."
+      },
+      {
+        "type": "text",
+        "text": "124. Look at how complicated this is."
+      },
+      {
+        "type": "text",
+        "text": "125. We have this pole that we want to remove, there are no details to fill up the arch of those windows."
+      },
+      {
+        "type": "text",
+        "text": "126. We have these signs to remove, we want to remove all the cars."
+      },
+      {
+        "type": "text",
+        "text": "127. And with dial E, this my friend is the result."
+      },
+      {
+        "type": "text",
+        "text": "128. So this is all what we removed."
+      },
+      {
+        "type": "text",
+        "text": "129. Here's the first result."
+      },
+      {
+        "type": "text",
+        "text": "130. Have a look, it introduced the snow."
+      },
+      {
+        "type": "text",
+        "text": "131. It noticed that the subject is wearing winter clothes and there you go."
+      },
+      {
+        "type": "text",
+        "text": "132. That was crazy."
+      },
+      {
+        "type": "text",
+        "text": "133. Although there are still certain areas that we might want to improve, this is amazing."
+      },
+      {
+        "type": "text",
+        "text": "134. This is amazing as well."
+      },
+      {
+        "type": "text",
+        "text": "135. So take a look at it."
+      },
+      {
+        "type": "text",
+        "text": "136. It generates the details whereas in Photoshop, it just copy pastes the details from surrounding areas."
+      },
+      {
+        "type": "text",
+        "text": "137. Artificial intelligence in photo editing is inevitable."
+      },
+      {
+        "type": "text",
+        "text": "138. We can romanticize all day about how bad the AI is, how it's taking away the real skills and how the manual way of photo editing has its charm."
+      },
+      {
+        "type": "text",
+        "text": "139. While all of that may be valid, the fact of the matter is AI is here to stay and it's here to grow."
+      },
+      {
+        "type": "text",
+        "text": "140. We can either accept it, use it in our workflow, use it to our advantage or ignore it and possibly miss out on the incredible things that we might create."
+      },
+      {
+        "type": "text",
+        "text": "141. Now I'm not saying there isn't a place for manually crafted piece of work."
+      },
+      {
+        "type": "text",
+        "text": "142. There of course is."
+      },
+      {
+        "type": "text",
+        "text": "143. But we cannot ignore the convenience of an automatic gearbox over a manual one."
+      },
+      {
+        "type": "text",
+        "text": "144. To each their own."
+      },
+      {
+        "type": "text",
+        "text": "145. Each has its advantages, but you cannot ignore the conveniences."
+      },
+      {
+        "type": "text",
+        "text": "146. I hope you enjoyed this video and if you did, make sure to give us a like and also don't forget to subscribe and not just subscribe, ring the bell so that you my friend don't miss any other future tips, tricks or tutorials."
+      },
+      {
+        "type": "text",
+        "text": "147. I would like to take this moment to thank all of these nice and amazing people for supporting PiXimperfect on Patreon and helping keep PiXimperfect free for everybody forever."
+      },
+      {
+        "type": "text",
+        "text": "148. Thank you so much for watching."
+      },
+      {
+        "type": "text",
+        "text": "149. I'll see you in my next one."
+      },
+      {
+        "type": "text",
+        "text": "150. Until then, stay tuned and make sure that you keep creating."
+      }
+    ]
+  }
+]
+RESPONSE: {
+  "instructions": [
+    {
+      "instruction": "Turn off the subject layer.",
+      "start": 4,
+      "end": 4
+    },
+    {
+      "instruction": "Select the background layer.",
+      "start": 4,
+      "end": 4
+    },
+    {
+      "instruction": "Make a selection around the subject, leaving a little space.",
+      "start": 4,
+      "end": 4
+    },
+    {
+      "instruction": "Go to Select, then Load Selection, and choose Subject.",
+      "start": 5,
+      "end": 5
+    },
+    {
+      "instruction": "Hit OK to load the selection.",
+      "start": 5,
+      "end": 5
+    },
+    {
+      "instruction": "Go to Edit, then select Content Aware Fill.",
+      "start": 6,
+      "end": 6
+    },
+    {
+      "instruction": "Make a copy of the background layer.",
+      "start": 26,
+      "end": 26
+    },
+    {
+      "instruction": "Use the Lasso tool to select the areas you want to remove.",
+      "start": 27,
+      "end": 27
+    },
+    {
+      "instruction": "Press the Delete key to remove the selected area.",
+      "start": 36,
+      "end": 36
+    },
+    {
+      "instruction": "Crop the image to square using the Crop tool.",
+      "start": 44,
+      "end": 44
+    },
+    {
+      "instruction": "Duplicate the layer into a new document.",
+      "start": 41,
+      "end": 41
+    },
+    {
+      "instruction": "Click on the grid icon and choose Duplicate Layer.",
+      "start": 41,
+      "end": 41
+    },
+    {
+      "instruction": "Select the new document option and hit OK.",
+      "start": 43,
+      "end": 43
+    },
+    {
+      "instruction": "Press C to activate the Crop tool.",
+      "start": 44,
+      "end": 44
+    },
+    {
+      "instruction": "Ensure the crop is square and position it next to the subject.",
+      "start": 45,
+      "end": 45
+    },
+    {
+      "instruction": "Hit Enter to apply the crop.",
+      "start": 47,
+      "end": 47
+    },
+    {
+      "instruction": "Export the image as a PNG by going to File, then Export, and select Quick Export as PNG.",
+      "start": 48,
+      "end": 48
+    },
+    {
+      "instruction": "Save the file with a desired name.",
+      "start": 50,
+      "end": 50
+    },
+    {
+      "instruction": "Click on Upload an image in the AI tool.",
+      "start": 62,
+      "end": 62
+    },
+    {
+      "instruction": "Select the image with transparency and click Open.",
+      "start": 63,
+      "end": 63
+    },
+    {
+      "instruction": "Click on Crop in the AI tool.",
+      "start": 65,
+      "end": 65
+    },
+    {
+      "instruction": "Click on Edit Image in the AI tool.",
+      "start": 66,
+      "end": 66
+    },
+    {
+      "instruction": "Dab in a transparent area to activate the generation bar.",
+      "start": 69,
+      "end": 69
+    },
+    {
+      "instruction": "Type in a description of the scene and click Generate.",
+      "start": 71,
+      "end": 71
+    },
+    {
+      "instruction": "Download the generated image.",
+      "start": 81,
+      "end": 81
+    },
+    {
+      "instruction": "Click on Edit in the AI tool to make further adjustments.",
+      "start": 85,
+      "end": 85
+    },
+    {
+      "instruction": "Erase unwanted areas in the image.",
+      "start": 85,
+      "end": 85
+    },
+    {
+      "instruction": "Explain the scene again and generate the image once more.",
+      "start": 87,
+      "end": 87
+    },
+    {
+      "instruction": "Bring the generated image into Photoshop.",
+      "start": 99,
+      "end": 99
+    },
+    {
+      "instruction": "Paste the image onto the canvas in Photoshop.",
+      "start": 100,
+      "end": 100
+    },
+    {
+      "instruction": "Resize the image to match the edges of the original.",
+      "start": 101,
+      "end": 101
+    },
+    {
+      "instruction": "Press Ctrl or Command zero to fit the canvas to the screen.",
+      "start": 105,
+      "end": 105
+    },
+    {
+      "instruction": "Adjust the position of the pasted image as needed.",
+      "start": 106,
+      "end": 106
+    },
+    {
+      "instruction": "Click on the Mask button to add a mask to the layer.",
+      "start": 110,
+      "end": 110
+    },
+    {
+      "instruction": "Select the brush tool with black as the foreground color.",
+      "start": 110,
+      "end": 110
+    },
+    {
+      "instruction": "Use a soft round brush to remove unwanted areas seamlessly.",
+      "start": 112,
+      "end": 112
+    }
+  ]
+}
+MESSAGES: [
+  {
+    "role": "system",
+    "content": "\nExtract instructions from tutorial video subtitles for the task: How to remove objects from an image in PhotoShop?.\nThe extracted instructions should adhere to the following requirements:\n1. Focus on a single action at a time.\n2. Useful for completing the task.\n3. Clear and concise.\n4. Self-sufficient and do not refer to earlier or later instructions.\n5. Free of any ambiguous terms or phrases.\n6. Written in the imperative mood.\n"
+  },
+  {
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "## Narration:\n"
+      },
+      {
+        "type": "text",
+        "text": "0. Welcome to the Photoshop in 5 series, where today, in less than 5 minutes, I'll teach you how to remove unwanted subjects or objects from your photos in 3 simple steps."
+      },
+      {
+        "type": "text",
+        "text": "1. Selection, removal and touch up."
+      },
+      {
+        "type": "text",
+        "text": "2. First, we're going to start with some easy to use selection methods."
+      },
+      {
+        "type": "text",
+        "text": "3. That way, no matter the job, you're always going to have a method to remove your subjects."
+      },
+      {
+        "type": "text",
+        "text": "4. The first is the quick selection tool, or W. Simply select around the subject or object you want to remove, and Photoshop will select what is inside."
+      },
+      {
+        "type": "text",
+        "text": "5. This works best with space around it."
+      },
+      {
+        "type": "text",
+        "text": "6. Second is the lasso tool, or L. This is good if you have a steady hand and for smaller or simple subjects, simply draw around them."
+      },
+      {
+        "type": "text",
+        "text": "7. If you need to move the canvas whilst you're doing this, hold down left click and hold spacebar at the same time to move the canvas."
+      },
+      {
+        "type": "text",
+        "text": "8. The polygonal lasso tool, or L, works the same, but with straight lines you click between, and is a little more forgiving if your path is not quite right."
+      },
+      {
+        "type": "text",
+        "text": "9. You can also hold spacebar to move the canvas."
+      },
+      {
+        "type": "text",
+        "text": "10. Third, we have the quick mask mode."
+      },
+      {
+        "type": "text",
+        "text": "11. Hit this button to activate it, then select the paintbrush or hit B. Everything will be painted transparent red, and this shows what we are selecting."
+      },
+      {
+        "type": "text",
+        "text": "12. Make sure that the hardness is 100, opacity is 100 and flow is 100."
+      },
+      {
+        "type": "text",
+        "text": "13. You can find these settings in the option bar located at the top of the screen."
+      },
+      {
+        "type": "text",
+        "text": "14. To adjust your brush size, hold alt, right click and slide left or right to change it."
+      },
+      {
+        "type": "text",
+        "text": "15. You can also go up to the options panel to change it as well."
+      },
+      {
+        "type": "text",
+        "text": "16. Now you can paint over your subject."
+      },
+      {
+        "type": "text",
+        "text": "17. Remember we are making sure, if possible, to leave a little bit of space."
+      },
+      {
+        "type": "text",
+        "text": "18. When you are finished, hit the quick mask mode button again and your painting will become a selection."
+      },
+      {
+        "type": "text",
+        "text": "19. We want to invert our selection, so simply press shift, control and I at the same time, and our selection is ready to go."
+      },
+      {
+        "type": "text",
+        "text": "20. The final method is the pen tool, or P. Simply click to drop a point."
+      },
+      {
+        "type": "text",
+        "text": "21. When you drop another point, the two will connect."
+      },
+      {
+        "type": "text",
+        "text": "22. You can hold and drag on your new point to make the line curved."
+      },
+      {
+        "type": "text",
+        "text": "23. Hold the alt button and press on the middle of the curved point if you want to continue with a straight line instead for your next point."
+      },
+      {
+        "type": "text",
+        "text": "24. If you don't, the line will continue in its natural curve when you make your next point."
+      },
+      {
+        "type": "text",
+        "text": "25. This tool has so many options and cool features, so be sure to check out one of Photoshop's other amazing tutorials to learn even more about the pen tool."
+      },
+      {
+        "type": "text",
+        "text": "26. Once finished, go to paths, control click the path in the box and your path will become a selection."
+      },
+      {
+        "type": "text",
+        "text": "27. Now I'll show you how to expand the selection for those methods that don't leave space around the selection."
+      },
+      {
+        "type": "text",
+        "text": "28. You can simply go to select, modify, expand."
+      },
+      {
+        "type": "text",
+        "text": "29. The number will depend on how big your image is. 15 should work well for this image and your selection now has some room to make filling it even smoother."
+      },
+      {
+        "type": "text",
+        "text": "30. Now let me show you where the magic happens with the content aware fill tool."
+      },
+      {
+        "type": "text",
+        "text": "31. For the automatic option, hit control backspace to bring up the fill panel."
+      },
+      {
+        "type": "text",
+        "text": "32. Set the contents to content aware fill."
+      },
+      {
+        "type": "text",
+        "text": "33. Make sure colour adaptation is ticked and hit ok to let Photoshop do its magic."
+      },
+      {
+        "type": "text",
+        "text": "34. How incredible is that result?"
+      },
+      {
+        "type": "text",
+        "text": "35. If our subject is a little bit more complex or the background is a little bit more difficult, we can actually manually select the data we want to fill with."
+      },
+      {
+        "type": "text",
+        "text": "36. Go edit, content aware fill."
+      },
+      {
+        "type": "text",
+        "text": "37. Here you can choose what data is used to remove subjects."
+      },
+      {
+        "type": "text",
+        "text": "38. We can change the opacity of our selection here and the colour if it clashes with our image so I'm going to choose red."
+      },
+      {
+        "type": "text",
+        "text": "39. Keep all these other settings as is for now."
+      },
+      {
+        "type": "text",
+        "text": "40. This preview window will show you how the fill will look with the info you have given it."
+      },
+      {
+        "type": "text",
+        "text": "41. This is looking great."
+      },
+      {
+        "type": "text",
+        "text": "42. If I wanted to remove some of the selection or add to it, I simply select the brushes at the top and hold alt and right click as you slide your mouse to change the size of your brush."
+      },
+      {
+        "type": "text",
+        "text": "43. I'm going to remove everything except the beach around this young girl to make sure it doesn't sample from it."
+      },
+      {
+        "type": "text",
+        "text": "44. My preview looks great so I'm going to hit ok."
+      },
+      {
+        "type": "text",
+        "text": "45. Again, perfectly blends the image to remove the subject."
+      },
+      {
+        "type": "text",
+        "text": "46. For our final step, let me show you how to touch up your removals so that they're always seamless."
+      },
+      {
+        "type": "text",
+        "text": "47. Let's follow this process again with a more complex removal of this blanket that touches our other subject who is the main focus."
+      },
+      {
+        "type": "text",
+        "text": "48. Again, we remove anything we don't want to sample from, so anything that isn't the backdrop must be removed."
+      },
+      {
+        "type": "text",
+        "text": "49. Then we hit ok."
+      },
+      {
+        "type": "text",
+        "text": "50. Highlight both layers, ctrl j to duplicate them, then ctrl e to merge them."
+      },
+      {
+        "type": "text",
+        "text": "51. Let's choose the clone stamp tool."
+      },
+      {
+        "type": "text",
+        "text": "52. And now we're going to set the flow to less than 5 and a low opacity to help us blend."
+      },
+      {
+        "type": "text",
+        "text": "53. Here we hold alt and click to choose our reference point."
+      },
+      {
+        "type": "text",
+        "text": "54. Then wherever we next click, hold and paint, we'll paint from our reference point, the little plus, so we can blend."
+      },
+      {
+        "type": "text",
+        "text": "55. Did you see that?"
+      },
+      {
+        "type": "text",
+        "text": "56. I went too wide and my plus started referencing my subject to paint with."
+      },
+      {
+        "type": "text",
+        "text": "57. To avoid this from happening, make smaller brush strokes and take your time."
+      },
+      {
+        "type": "text",
+        "text": "58. I slowly painted the center and worked my way out until I had a gradient I was happy with."
+      },
+      {
+        "type": "text",
+        "text": "59. Constantly using the alt click to get a new reference point, trying to always focus on a natural blend, setting my flow low to help me do this."
+      },
+      {
+        "type": "text",
+        "text": "60. Now you have touched up the removal and look how seamless it is with this beautiful photo."
+      },
+      {
+        "type": "text",
+        "text": "61. If you want more Photoshop in 5 content, other tutorials and amazing works, hit the subscribe button and follow Photoshop."
+      },
+      {
+        "type": "text",
+        "text": "62. And as always, keep creating."
+      }
+    ]
+  }
+]
+RESPONSE: {
+  "instructions": [
+    {
+      "instruction": "Select the quick selection tool by pressing W.",
+      "start": 4,
+      "end": 4
+    },
+    {
+      "instruction": "Select around the subject or object you want to remove.",
+      "start": 4,
+      "end": 4
+    },
+    {
+      "instruction": "Select the lasso tool by pressing L.",
+      "start": 6,
+      "end": 6
+    },
+    {
+      "instruction": "Draw around the subject or object you want to remove using the lasso tool.",
+      "start": 6,
+      "end": 6
+    },
+    {
+      "instruction": "Hold down left click and spacebar to move the canvas while using the lasso tool.",
+      "start": 7,
+      "end": 7
+    },
+    {
+      "instruction": "Select the polygonal lasso tool by pressing L.",
+      "start": 8,
+      "end": 8
+    },
+    {
+      "instruction": "Click to drop points and create straight lines around the subject or object using the polygonal lasso tool.",
+      "start": 8,
+      "end": 8
+    },
+    {
+      "instruction": "Activate quick mask mode by hitting the quick mask button.",
+      "start": 10,
+      "end": 10
+    },
+    {
+      "instruction": "Select the paintbrush tool by pressing B.",
+      "start": 11,
+      "end": 11
+    },
+    {
+      "instruction": "Ensure the hardness, opacity, and flow of the brush are set to 100.",
+      "start": 12,
+      "end": 12
+    },
+    {
+      "instruction": "Adjust your brush size by holding alt, right clicking, and sliding left or right.",
+      "start": 14,
+      "end": 14
+    },
+    {
+      "instruction": "Paint over your subject to select it in quick mask mode.",
+      "start": 16,
+      "end": 16
+    },
+    {
+      "instruction": "Hit the quick mask mode button again to convert your painting into a selection.",
+      "start": 18,
+      "end": 18
+    },
+    {
+      "instruction": "Invert your selection by pressing shift, control, and I at the same time.",
+      "start": 19,
+      "end": 19
+    },
+    {
+      "instruction": "Select the pen tool by pressing P.",
+      "start": 20,
+      "end": 20
+    },
+    {
+      "instruction": "Click to drop a point with the pen tool.",
+      "start": 20,
+      "end": 20
+    },
+    {
+      "instruction": "Hold and drag on a point to create a curve with the pen tool.",
+      "start": 22,
+      "end": 22
+    },
+    {
+      "instruction": "Hold the alt button and click on the middle of a curved point to create a straight line.",
+      "start": 23,
+      "end": 23
+    },
+    {
+      "instruction": "Go to paths and control click the path to convert it into a selection.",
+      "start": 26,
+      "end": 26
+    },
+    {
+      "instruction": "Go to select, modify, and then expand to adjust your selection.",
+      "start": 28,
+      "end": 28
+    },
+    {
+      "instruction": "Set the expansion value to 15 for a smoother fill.",
+      "start": 29,
+      "end": 29
+    },
+    {
+      "instruction": "Press control and backspace to bring up the fill panel.",
+      "start": 31,
+      "end": 31
+    },
+    {
+      "instruction": "Set the contents to content aware fill in the fill panel.",
+      "start": 32,
+      "end": 32
+    },
+    {
+      "instruction": "Ensure colour adaptation is ticked and hit ok to apply the fill.",
+      "start": 33,
+      "end": 33
+    },
+    {
+      "instruction": "Go to edit and select content aware fill for manual adjustments.",
+      "start": 36,
+      "end": 36
+    },
+    {
+      "instruction": "Choose the data you want to use for filling in the content aware fill panel.",
+      "start": 37,
+      "end": 37
+    },
+    {
+      "instruction": "Change the opacity of your selection if needed in the content aware fill panel.",
+      "start": 38,
+      "end": 38
+    },
+    {
+      "instruction": "Select the brushes at the top to adjust your selection in the content aware fill panel.",
+      "start": 42,
+      "end": 42
+    },
+    {
+      "instruction": "Hold alt and right click to change the size of your brush in the content aware fill panel.",
+      "start": 42,
+      "end": 42
+    },
+    {
+      "instruction": "Hit ok to apply the content aware fill after adjustments.",
+      "start": 44,
+      "end": 44
+    },
+    {
+      "instruction": "Highlight both layers and press ctrl J to duplicate them.",
+      "start": 50,
+      "end": 50
+    },
+    {
+      "instruction": "Press ctrl E to merge the duplicated layers.",
+      "start": 50,
+      "end": 50
+    },
+    {
+      "instruction": "Select the clone stamp tool.",
+      "start": 51,
+      "end": 51
+    },
+    {
+      "instruction": "Set the flow of the clone stamp tool to less than 5 and adjust the opacity.",
+      "start": 52,
+      "end": 52
+    },
+    {
+      "instruction": "Hold alt and click to choose your reference point with the clone stamp tool.",
+      "start": 53,
+      "end": 53
+    },
+    {
+      "instruction": "Click and paint to blend using the reference point with the clone stamp tool.",
+      "start": 54,
+      "end": 54
+    },
+    {
+      "instruction": "Make smaller brush strokes to avoid referencing the subject while painting.",
+      "start": 57,
+      "end": 57
+    },
+    {
+      "instruction": "Constantly use alt click to get new reference points while painting.",
+      "start": 59,
+      "end": 59
+    }
+  ]
+}
