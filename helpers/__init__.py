@@ -5,15 +5,17 @@ import json
 from openai import OpenAI
 from uuid import uuid4
 
-API_KEY = os.getenv('OPENAI_API_KEY')   
-client = OpenAI(
-    api_key=API_KEY,
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')   
+
+client_openai = OpenAI(
+    api_key=OPENAI_API_KEY,
 )
 
 SEED = 13774
 TEMPERATURE = 0
-# MODEL_NAME = 'gpt-4o-2024-08-06'
-MODEL_NAME = 'gpt-4o-mini-2024-07-18'
+MAX_TOKENS = 4096
+# MODEL_NAME_OPENAI = 'gpt-4o-2024-08-06'
+MODEL_NAME_OPENAI = 'gpt-4o-mini-2024-07-18'
 
 
 def random_uid():
@@ -25,7 +27,7 @@ def encode_image(image_path):
 
 def transcribe_audio(audio_path, granularity=["segment"]):
     with open(audio_path, "rb") as audio:
-        response = client.audio.transcriptions.create(
+        response = client_openai.audio.transcriptions.create(
             model="whisper-1",
             file=audio,
             response_format="verbose_json",
@@ -37,14 +39,33 @@ def transcribe_audio(audio_path, granularity=["segment"]):
     return None
 
 
-def get_response(messages, response_format="json_object", retries=1):
+def get_response_pydantic_openai(messages, response_format):
+    print("MESSAGES:", json.dumps(messages, indent=2))
+    completion = client_openai.beta.chat.completions.parse(
+        model=MODEL_NAME_OPENAI,
+        messages=messages,
+        seed=SEED,
+        temperature=TEMPERATURE,
+        response_format=response_format,
+    )
+
+    response = completion.choices[0].message
+    if (response.refusal):
+        print("REFUSED: ", response.refusal)
+        return None
     
+    json_response = response.parsed.dict()
+
+    print("RESPONSE:", json.dumps(json_response, indent=2))
+    return json_response
+
+def get_response(messages, response_format="json_object", retries=1):
     generated_text = ""
     finish_reason = ""
     usages = []
     while True:
-        response = client.chat.completions.create(
-            model=MODEL_NAME,
+        response = client_openai.chat.completions.create(
+            model=MODEL_NAME_OPENAI,
             messages=messages,
             seed=SEED,
             temperature=TEMPERATURE,
@@ -78,32 +99,12 @@ def get_response(messages, response_format="json_object", retries=1):
                 return get_response(messages, response_format, retries - 1)
 
     return generated_text
-
-
-def get_response_pydantic(messages, response_format):
-    print("MESSAGES:", json.dumps(messages, indent=2))
-    completion = client.beta.chat.completions.parse(
-        model=MODEL_NAME,
-        messages=messages,
-        seed=SEED,
-        temperature=TEMPERATURE,
-        response_format=response_format,
-    )
-
-    response = completion.choices[0].message
-    if (response.refusal):
-        print("REFUSED: ", response.refusal)
-        return None
     
-    json_response = response.parsed.dict()
-
-    print("RESPONSE:", json.dumps(json_response, indent=2))
-    return json_response
 
 def get_response_pydantic_with_message(messages, response_format):
     print("MESSAGES:", json.dumps(messages, indent=2))
-    completion = client.beta.chat.completions.parse(
-        model=MODEL_NAME,
+    completion = client_openai.beta.chat.completions.parse(
+        model=MODEL_NAME_OPENAI,
         messages=messages,
         seed=SEED,
         temperature=TEMPERATURE,
@@ -158,3 +159,115 @@ import pysbd
 def segment_into_sentences(text):
     seg = pysbd.Segmenter(language="en", clean=False)
     return seg.segment(text)
+
+
+def split_system_prompt(messages):
+    system_prompt = "You are a helpful assistant."
+    for message in messages:
+        if message["role"] == "system":
+            system_prompt = message["content"]
+            break
+
+    messages = [message for message in messages if message["role"] != "system"]
+
+    return messages, system_prompt
+
+from anthropic import AnthropicBedrock, AsyncAnthropicBedrock
+
+ANTHROPIC_ACCESS_KEY = os.getenv('ANTHROPIC_ACCESS_KEY')
+ANTHROPIC_SECRET_KEY = os.getenv('ANTHROPIC_SECRET_KEY')
+
+ANTHROPIC_REGION = 'us-west-2'
+MODEL_NAME_ANTHROPIC = "us.anthropic.claude-3-5-haiku-20241022-v1:0" ### fastest 0.8$/4$
+# MODEL_NAME_ANTHROPIC = "us.anthropic.claude-3-7-sonnet-20250219-v1:0" ### slower, ### 3$/15$
+
+client_anthropic = AnthropicBedrock(
+    aws_access_key=ANTHROPIC_ACCESS_KEY,
+    aws_secret_key=ANTHROPIC_SECRET_KEY,
+    aws_region=ANTHROPIC_REGION,
+)
+
+def get_response_anthropic(messages):
+    messages, system_prompt = split_system_prompt(messages)
+    response = client_anthropic.messages.create(
+        model=MODEL_NAME_ANTHROPIC,
+        max_tokens=MAX_TOKENS,
+        system=system_prompt,
+        messages=messages,
+        temperature=TEMPERATURE,
+    )
+    return response.content[0].text
+
+
+client_anthropic_async = AsyncAnthropicBedrock(
+    aws_access_key=ANTHROPIC_ACCESS_KEY,
+    aws_secret_key=ANTHROPIC_SECRET_KEY,
+    aws_region=ANTHROPIC_REGION,
+)
+
+async def get_response_anthropic_async(messages):
+    messages, system_prompt = split_system_prompt(messages)
+    response = await client_anthropic_async.messages.create(
+        model=MODEL_NAME_ANTHROPIC,
+        max_tokens=MAX_TOKENS,
+        system=system_prompt,
+        messages=messages,
+        temperature=TEMPERATURE,
+    )
+    return response.content[0].text
+
+
+FORMATTING_PROMPT = """
+Please format the final output in the JSON format specified within the <format> tag. Enclose the JSON in <response> tags (i.e., <response>{{JSON-parsable-text}}</response>).
+<format>
+{format}
+</format>
+"""
+
+
+def get_response_pydantic_anthropic(messages, response_format):
+    format_schema = response_format.model_json_schema()
+    messages += [
+        {
+            "role": "user",
+            "content": FORMATTING_PROMPT.format(format=format_schema)
+        }
+    ]
+    
+    print("MESSAGES:", json.dumps(messages, indent=2))
+    
+    response = get_response_anthropic(messages)
+    print("RAW RESPONSE:", response)
+    try:
+        json_text = response.split("<response>")[1].split("</response>")[0]
+        json_response = json.loads(json_text)
+    except json.JSONDecodeError:
+        json_response = None
+        print("ERROR PARSING JSON")
+
+    return json_response
+
+def get_response_anthropic_with_tries(messages, response_format, tries=3):
+    for _ in range(tries):
+        try:
+            response = get_response_pydantic_anthropic(messages, response_format)
+            if response:
+                return response
+            else:
+                print("ERROR PARSING JSON")
+                continue
+        except Exception as e:
+            print(f"Error: {e}")
+            continue
+    return None
+
+
+# RESPONSE_FUNC = get_response_pydantic_anthropic
+# RESPONSE_FUNC = get_response_anthropic_with_tries
+RESPONSE_FUNC = get_response_pydantic_openai
+
+def get_response_pydantic(messages, response_format):
+
+    json_response = RESPONSE_FUNC(messages, response_format)
+    
+    return json_response
