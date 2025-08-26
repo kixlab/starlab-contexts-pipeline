@@ -1,4 +1,19 @@
 {
+    "tech-ec2": {
+        "title": "How to create an EC2 instance?",
+        "videos": [
+            "https://www.youtube.com/watch?v=86Tuwtn3zp0",
+            "https://www.youtube.com/watch?v=Mz10Qliu1eo",
+            "https://www.youtube.com/watch?v=4AsXvvEyaZ4",
+            "https://www.youtube.com/watch?v=OwdIhnpl4BQ",
+            "https://www.youtube.com/watch?v=Ee5nOufD9Q4",
+            "https://www.youtube.com/watch?v=YB_qanudIzA",
+            "https://www.youtube.com/watch?v=tnU48ByHidk",
+            "https://www.youtube.com/watch?v=XnW6C9Ypkkw",
+            "https://www.youtube.com/watch?v=MmHWh4p2Sqs",
+            "https://www.youtube.com/watch?v=LYhwnLH8ztk"
+        ]
+    },
     "tech-photoshop": {
         "title": "How to remove objects from an image in PhotoShop?",
         "videos": [
@@ -37,6 +52,7 @@
     },
     "carbonara": {
         "title": "How to make Pasta Carbonara?",
+        "activity": "cooking pasta",
         "videos": [
             "https://www.youtube.com/watch?v=75p4UHRIMcU",
             "https://www.youtube.com/watch?v=dzyXBU3dIys",
@@ -47,6 +63,7 @@
     },
     "photoshop": {
         "title": "How to remove objects from an image in PhotoShop?",
+        "activity": "removing objects from an image",
         "videos": [
             "https://www.youtube.com/watch?v=cTM853qX7cM",
             "https://www.youtube.com/watch?v=WmDG0xp2liA",
@@ -57,6 +74,7 @@
     },
     "binary-search": {
         "title": "How to implement binary search?",
+        "activity": "implementing binary search",
         "videos": [
             "https://www.youtube.com/watch?v=tgVSkMA8joQ",
             "https://www.youtube.com/watch?v=P3YID7liBug",
@@ -68,6 +86,7 @@
     },
     "muffins": {
         "title": "How to bake muffins?",
+        "activity": "baking muffins",
         "videos": [
             "https://www.youtube.com/shorts/B-XGIGS4Ipw",
             "https://www.youtube.com/shorts/fWp5z_YM07Q",
