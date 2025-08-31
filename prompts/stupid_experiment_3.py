@@ -34,63 +34,9 @@ TAXONOMY = {
     "other": "None of the specfied categories",
 }
 
-SYSTEM_PROMPT = """
-You are a helpful assistant who can understand and analyze tutorial videos.
-"""
-
-USER_SEGMENT_TRANSCRIPT_PROMPT = """
-Given a tutorial video's transcript, please segment it into atomic information pieces. Then, classify each piece into one of the following categories:
-```
-{taxonomy}
-```
-
-The transcript is as follows:
-```
-{transcript}
-```
-
-Ensure that the transcript is segmented into pieces that are atomic and do not overlap. Respond with a JSON object containing the segmentation and the category of each piece:
-```
-{example}
-```
-"""
-
-EXAMPLE_SEGMENT_TRANSCRIPT = {
-    "segments": [
-        {
-            "text": "...", # the text of the segment
-            "type": "..." # one of the categories in the taxonomy
-        },
-        {
-            "text": "...", # the text of the segment
-            "type": "..." # one of the categories in the taxonomy
-        },
-    ]
-}
-
-def segment_transcript_stupid(transcript):
-
-    def format_response(response):
-        return json.dumps(response, indent=2)
-
-    messages = [
-        {
-            "role": "system",
-            "content": SYSTEM_PROMPT,
-        },
-        {
-            "role": "user",
-            "content": USER_SEGMENT_TRANSCRIPT_PROMPT.format(transcript=transcript, taxonomy=TAXONOMY, example=format_response(EXAMPLE_SEGMENT_TRANSCRIPT)),
-        },
-    ]
-
-    response = get_response_pydantic(messages, SegmentationSchema)
-    return response
-
 
 SYSTEM_PROMPT_PROCESS_TRANSCRIPT = """
-You are a helpful assistant who can understand and analyze tutorial videos.
-"""
+You are a helpful assistant who can understand and analyze tutorial videos."""
 
 USER_PROMPT_FORM_INFORMATION_UNITS = """
 You are analyzing a tutorial video for {task}.
@@ -103,13 +49,11 @@ From a tutorial-style transcript (recipe, SOP, repair guide, etc.) produce a str
     - Indivisible = removing any word breaks the meaning.
 - If a sentence contains multiple actions (`whisk, then fold`) or multiple rationales, split them.
 - Rewrite each piece so it is understandable standing alone—no dangling `it`,`they`, `this step`, etc.
-
 Examples:
 - `Whisk the eggs for 30 s, then fold in the flour.` -> `Whisk the eggs for 30 seconds.` `Fold in the flour.`
 - `Let the paint dry so it won't smudge.` -> `Let the paint dry.` (method) `This prevents smudging.` (explanation)
 - `Add the beaten eggs to the mixture and mix well.` -> `Add the beaten eggs to the mixture.` `Mix well.`
 - `Add 1 cup of white chocolate chips and stir until thoroughly combined.` -> `Add 1 cup of white chocolate chips.` `Stir the mixture until thoroughly combined.`
-
 
 2. Assign `content_type` to each piece: `Greeting`, `Overview`, `Method`, `Supplementary`, `Explanation`, `Description`, `Conclusion`, and `Miscellaneous`. Do not add sub category!
 - Greeting
@@ -165,14 +109,12 @@ Filler: Conventional filler words.
 Example: "Whoops."
 
 3. Time-stamps
-- For video/audio transcripts, copy the exact start_time and end_time in ISO 8601 seconds ("123.45") that bracket the source text of the item.
+- For video/audio transcripts, copy the exact start_time and end_time (in seconds) that bracket the source text of the item.
 - If no timing metadata exists, output null for both.
 
-The transcript is as follows:
+The transcript with time-stamps (in seconds) is as follows:
 ```
-{transcript}
-```
-"""
+{transcript}```"""
 
 def form_information_units(task, transcript):
 
@@ -200,37 +142,31 @@ def form_information_units(task, transcript):
 
 USER_PROMPT_FORM_CONTEXT_CODEBOOK = """
 You are analyzing a tutorial video for {task}.
-
 From a tutorial-style transcript (recipe, SOP, repair guide, etc.) extract the {schema_plural} involved in the task. A {schema} is {definition}.
 
 Follow these guidelines when extracting {schema_plural}:
 {guidelines}
 
-First, review the existing list of {schema_plural} to identify if any of them are mentioned in the transcript.
-Use the same {schema_plural} names to ensure consistency whenever possible.
-If you identify new {schema_plural} that are not in the existing list, add them appropriately.
+First, review the existing list of {schema_plural} to identify if any of them are mentioned in the transcript. If so, use the same {schema_plural} names to ensure consistency whenever possible.
+If you identify new {schema_plural} that are not in the existing list, add them appropriately at the end of the list.
 
 Here is the existing list of {schema_plural}:
 ```
-{items}
-```
-Here is the transcript:
-```
-{transcript}
-```
-Return a series of {schema_plural} as a list. When providing the examples for each {schema}, try to include a variety of examples (around 1-3) based on the given transcript or from the existing list of {schema_plural}.
-"""
+{items}```
 
-ITEM_FORMAT = """
-- {item_label} - {item_definition}.
-Examples:
-{examples}
-"""
+Here is the transcript with time-stamps (in seconds):
+```
+{transcript}```
 
-ITEM_EXAMPLE_FORMAT = """
-Context: {example_context}
-Content: {example_content}
-Label: {example_label}
+Return a series of {schema_plural} as a list (both old and new). When providing the examples for each {schema}, try to ensure that there is a variety of examples (around 1-3) based on the given transcript or from the existing list of {schema_plural}."""
+
+ITEM_FORMAT = """[{item_id}] {item_label}
+Definition: {item_definition}
+Examples: 
+{examples}"""
+
+ITEM_EXAMPLE_FORMAT = """\t- Context {example_idx}: {example_context}
+\t- Content {example_idx}: {example_content}
 """
 
 
@@ -241,14 +177,19 @@ def form_context_codebook(task, transcript, schema):
         end_str = f"{int(subtitle['end'])}"
         transcript_str += f"[{start_str} - {end_str}] {subtitle['text']}\n"
 
-    guidelines_str = "\n".join(schema["codebook_guidelines"])
+    guidelines_str = ""
+    for guideline in schema["codebook_guidelines"]:
+        guidelines_str += f"- {guideline}\n"
 
     items_str = ""
-    for item in schema["labels"]:
+    for item_idx, item in enumerate(schema["labels"]):
         examples_str = ""
-        for example in item["examples"]:
-            examples_str += ITEM_EXAMPLE_FORMAT.format(example_context=example["context"], example_content=example["content"], example_label=item["title"])
-        items_str += ITEM_FORMAT.format(item_label=item["title"], item_definition=item["definition"], examples=examples_str)
+        for example_idx, example in enumerate(item["examples"]):
+            examples_str += ITEM_EXAMPLE_FORMAT.format(example_context=example["context"], example_content=example["content"], example_idx=example_idx + 1)
+        item_id = f"L{item_idx + 1}"
+        items_str += ITEM_FORMAT.format(item_id=item_id, item_label=item["title"], item_definition=item["definition"], examples=examples_str)
+    
+    items_str = f"No {schema['schema_plural']} yet. Define new ones."
 
     messages = [
         {
@@ -257,51 +198,50 @@ def form_context_codebook(task, transcript, schema):
         },
         {
             "role": "user",
-            "content": USER_PROMPT_FORM_CONTEXT_CODEBOOK.format(task=task, schema_plural=schema["schema_plural"], schema=schema["schema"], definition=schema["definition"], guidelines=guidelines_str, items=items_str,transcript=transcript_str)
+            "content": USER_PROMPT_FORM_CONTEXT_CODEBOOK.format(task=task, schema_plural=schema["schema_plural"], schema=schema["schema"], definition=schema["definition"], guidelines=guidelines_str, items=items_str, transcript=transcript_str)
         },
     ]
 
     response = get_response_pydantic(messages, ItemListSchema)
 
     items = response["items"]
+    for item in items:
+        del item["id"]
     return items
 
 
 USER_PROMPT_LABEL_TRANSCRIPT_PIECES = """
 You are analyzing a tutorial video for {task}.
-
 You are given a list of pieces of information from a tutorial (recipe, SOP, repair guide, etc.) along with a list of possible {schema_plural} involved in the task. A {schema} is {definition}.
 
 Your task is to read through the pieces of information sequentially and label the pieces of information with the appropriate {schema}.
-
-The {schema_plural} may not be in order in the list, and some {schema_plural} may not be used at all. Only assign a {schema} when the content clearly matches the {schema}.
+The {schema_plural} may not be in order in the list, and some {schema_plural} may not be used at all. Only assign a {schema} when the content clearly matches the {schema}. If it does not match any {schema}, leave it as empty string `""`.
 
 Here is the list of {schema_plural}:
 ```
-{items}
-```
+{items}```
 
-Here is the list of pieces of information:
+Here is the list of pieces of information with ids in square brackets `[]` (e.g., `[piece_id] content`):
 ```
-{pieces}
-```
+{pieces}```
 
-Return the labeled pieces of information in the same order as they were provided.
-"""
+Return the pieces of information with labels in the same order as they were provided."""
 
 def label_transcript_pieces(task, pieces, schema):
     pieces_str = ""
-    for piece in pieces:
-        pieces_str += f"{piece['piece_id']}. {piece['content']}\n"
+    for piece_idx, piece in enumerate(pieces):
+        pieces_str += f"[{piece_idx+1}] {piece['content']}\n"
 
     items_str = ""
-    for item in schema["items"]:
+    for item_idx, item in enumerate(schema["labels"]):
         examples_str = ""
-        for example in item["examples"]:
-            examples_str += ITEM_EXAMPLE_FORMAT.format(
-                example_context=example["context"], example_content=example["content"], example_label=item["title"]
-            )
-        items_str += ITEM_FORMAT.format(item_label=item["title"], item_definition=item["definition"], examples=examples_str)
+        for example_idx, example in enumerate(item["examples"]):
+            examples_str += ITEM_EXAMPLE_FORMAT.format(example_context=example["context"], example_content=example["content"], example_idx=example_idx + 1)
+        item_id = f"L{item_idx + 1}"
+        items_str += ITEM_FORMAT.format(item_id=item_id, item_label=item["title"], item_definition=item["definition"], examples=examples_str)
+    if items_str == "":
+        print("STRONG WARNING: No items found in the schema.")
+        return []
 
     messages = [
         {
@@ -318,19 +258,20 @@ def label_transcript_pieces(task, pieces, schema):
     labeled_pieces = response["labeled_pieces"]
     piece_to_label = {}
     for labeled_piece in labeled_pieces:
-        if labeled_piece["piece_id"] in piece_to_label:
-            print("STRONG WARNING: Multiple labels found for the same piece ID.", labeled_piece["piece_id"])
-        piece_to_label[labeled_piece["piece_id"]] = labeled_piece["label"]
+        cur_piece_id = pieces[int(labeled_piece["piece_id"])-1]["piece_id"]
+        if cur_piece_id in piece_to_label:
+            print("STRONG WARNING: Multiple labels found for the same piece ID.", cur_piece_id)
+        piece_to_label[cur_piece_id] = labeled_piece["label"]
 
     formatted_pieces = []
     for piece in pieces:
-        if piece["piece_id"] in piece_to_label:
-            formatted_pieces.append(piece_to_label[piece["piece_id"]])
+        cur_piece_id = piece["piece_id"]
+        if cur_piece_id in piece_to_label:
+            formatted_pieces.append(piece_to_label[cur_piece_id])
         else:
-            print("STRONG WARNING: No label found for the piece ID.", piece["piece_id"])
-            formatted_pieces.append(None)
+            print("STRONG WARNING: No label found for the piece ID.", cur_piece_id)
+            formatted_pieces.append("")
 
-    ### returns the list of labels --> easy
     return formatted_pieces
 
 

@@ -34,6 +34,7 @@ class ItemExampleSchema(BaseModel):
     content: str = Field(..., title="The content of the example.")
 
 class ItemSchema(BaseModel):
+    id: str = Field(..., title="The id of the item.")
     title: str = Field(..., title="The title")
     definition: str = Field(..., title="The definition")
     examples: list[ItemExampleSchema] = Field(..., title="The list of examples. There should be at least 1 example and no more than 3 examples.")
@@ -45,6 +46,7 @@ class ItemListSchema(BaseModel):
 ### labeled pieces
 class LabeledPieceSchema(BaseModel):
     piece_id: int = Field(..., title="The provided id of the piece.")
+    label_id: str = Field(..., title="The id of the label.")
     label: str = Field(..., title="The label of the piece.")
 
 class LabeledPiecesSchema(BaseModel):
