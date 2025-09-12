@@ -5,9 +5,11 @@ from pydantic_models.experiment_3 import SegmentationSchema
 
 from pydantic_models.experiment_3 import InformationPiecesSchema
 
-from pydantic_models.experiment_3 import ItemListSchema
+from pydantic_models.experiment_3 import LabelListSchema
 
 from pydantic_models.experiment_3 import LabeledPiecesSchema
+
+from pydantic_models.experiment_3 import CandidateConditionsSchema
 
 TAXONOMY = {
     "opening": "Starting remarks and instructor/channel introductions",
@@ -148,11 +150,11 @@ Follow these guidelines when extracting {schema_plural}:
 {guidelines}
 
 First, review the existing list of {schema_plural} to identify if any of them are mentioned in the transcript. If so, use the same {schema_plural} names to ensure consistency whenever possible.
-If you identify new {schema_plural} that are not in the existing list, add them appropriately at the end of the list.
+If you identify new {schema_plural} that are not in the existing list, add them appropriately at the end of the list along with the examples. An example should contain the content () and the context (some text (around 10-20 words) surrounding the content and the content itself).
 
 Here is the existing list of {schema_plural}:
 ```
-{items}```
+{labels}```
 
 Here is the transcript with time-stamps (in seconds):
 ```
@@ -160,14 +162,30 @@ Here is the transcript with time-stamps (in seconds):
 
 Return a series of {schema_plural} as a list (both old and new). When providing the examples for each {schema}, try to ensure that there is a variety of examples (around 1-3) based on the given transcript or from the existing list of {schema_plural}."""
 
-ITEM_FORMAT = """[{item_id}] {item_label}
-Definition: {item_definition}
+LABEL_FORMAT = """[{label_id}] {label_title}
+Definition: {label_definition}
 Examples: 
 {examples}"""
 
-ITEM_EXAMPLE_FORMAT = """\t- Context {example_idx}: {example_context}
-\t- Content {example_idx}: {example_content}
+LABEL_EXAMPLE_FORMAT = """\t- Content {example_idx}: {example_content}
+\t- Context {example_idx}: {example_context}
 """
+
+def labels_to_str(labels):
+    labels_str = ""
+    for label_idx, label in enumerate(labels):
+        examples_str = ""
+        for example_idx, example in enumerate(label["examples"]):
+            examples_str += LABEL_EXAMPLE_FORMAT.format(example_context=example["context"], example_content=example["content"], example_idx=example_idx + 1)
+        label_id = f"L{label_idx + 1}"
+        labels_str += LABEL_FORMAT.format(label_id=label_id, label_title=label["title"], label_definition=label["definition"], examples=examples_str)
+    return labels_str
+
+def guidelines_to_str(guidelines):
+    guidelines_str = ""
+    for guideline in guidelines:
+        guidelines_str += f"- {guideline}\n"
+    return guidelines_str
 
 
 def form_context_codebook(task, transcript, schema):
@@ -177,19 +195,12 @@ def form_context_codebook(task, transcript, schema):
         end_str = f"{int(subtitle['end'])}"
         transcript_str += f"[{start_str} - {end_str}] {subtitle['text']}\n"
 
-    guidelines_str = ""
-    for guideline in schema["codebook_guidelines"]:
-        guidelines_str += f"- {guideline}\n"
+    guidelines_str = guidelines_to_str(schema["codebook_guidelines"])
 
-    items_str = ""
-    for item_idx, item in enumerate(schema["labels"]):
-        examples_str = ""
-        for example_idx, example in enumerate(item["examples"]):
-            examples_str += ITEM_EXAMPLE_FORMAT.format(example_context=example["context"], example_content=example["content"], example_idx=example_idx + 1)
-        item_id = f"L{item_idx + 1}"
-        items_str += ITEM_FORMAT.format(item_id=item_id, item_label=item["title"], item_definition=item["definition"], examples=examples_str)
+    labels_str = labels_to_str(schema["labels"])
     
-    items_str = f"No {schema['schema_plural']} yet. Define new ones."
+    if len(schema["labels"]) == 0:
+        labels_str = f"No {schema['schema_plural']} yet. Define new ones.\n"
 
     messages = [
         {
@@ -198,16 +209,16 @@ def form_context_codebook(task, transcript, schema):
         },
         {
             "role": "user",
-            "content": USER_PROMPT_FORM_CONTEXT_CODEBOOK.format(task=task, schema_plural=schema["schema_plural"], schema=schema["schema"], definition=schema["definition"], guidelines=guidelines_str, items=items_str, transcript=transcript_str)
+            "content": USER_PROMPT_FORM_CONTEXT_CODEBOOK.format(task=task, schema_plural=schema["schema_plural"], schema=schema["schema"], definition=schema["definition"], guidelines=guidelines_str, labels=labels_str, transcript=transcript_str)
         },
     ]
 
-    response = get_response_pydantic(messages, ItemListSchema)
+    response = get_response_pydantic(messages, LabelListSchema)
 
-    items = response["items"]
-    for item in items:
-        del item["id"]
-    return items
+    labels = response["labels"]
+    for label in labels:
+        del label["id"]
+    return labels
 
 
 USER_PROMPT_LABEL_TRANSCRIPT_PIECES = """
@@ -219,7 +230,7 @@ The {schema_plural} may not be in order in the list, and some {schema_plural} ma
 
 Here is the list of {schema_plural}:
 ```
-{items}```
+{labels}```
 
 Here is the list of pieces of information with ids in square brackets `[]` (e.g., `[piece_id] content`):
 ```
@@ -232,15 +243,10 @@ def label_transcript_pieces(task, pieces, schema):
     for piece_idx, piece in enumerate(pieces):
         pieces_str += f"[{piece_idx+1}] {piece['content']}\n"
 
-    items_str = ""
-    for item_idx, item in enumerate(schema["labels"]):
-        examples_str = ""
-        for example_idx, example in enumerate(item["examples"]):
-            examples_str += ITEM_EXAMPLE_FORMAT.format(example_context=example["context"], example_content=example["content"], example_idx=example_idx + 1)
-        item_id = f"L{item_idx + 1}"
-        items_str += ITEM_FORMAT.format(item_id=item_id, item_label=item["title"], item_definition=item["definition"], examples=examples_str)
-    if items_str == "":
-        print("STRONG WARNING: No items found in the schema.")
+    labels_str = labels_to_str(schema["labels"])
+    
+    if len(schema["labels"]) == 0:
+        print("STRONG WARNING: No labels found in the schema.")
         return []
 
     messages = [
@@ -250,7 +256,7 @@ def label_transcript_pieces(task, pieces, schema):
         },
         {
             "role": "user",
-            "content": USER_PROMPT_LABEL_TRANSCRIPT_PIECES.format(task=task, pieces=pieces_str, schema_plural=schema["schema_plural"], schema=schema["schema"], definition=schema["definition"], items=items_str),
+            "content": USER_PROMPT_LABEL_TRANSCRIPT_PIECES.format(task=task, pieces=pieces_str, schema_plural=schema["schema_plural"], schema=schema["schema"], definition=schema["definition"], labels=labels_str),
         },
     ]
     response = get_response_pydantic(messages, LabeledPiecesSchema)
@@ -275,5 +281,172 @@ def label_transcript_pieces(task, pieces, schema):
     return formatted_pieces
 
 
+SYSTEM_PROMPT_FORM_FACET_CANDIDATES = """
+You are a helpful assistant who can identify important applicability conditions that can differentiate between different pieces of knowledge."""
+
+USER_PROMPT_FORM_FACET_CANDIDATES = """
+You are analyzing pieces of information from different tutorials for {task}.
+
+You are given (a) pieces of information and (b) a list of candidate conditions that can differentiate where each of the pieces is applicable.
+
+Condition Definition: A condition is a set of instances/values that can be used to describe the scope of applicability of a piece of knowledge. For example, if there is a piece of knowledge X (e.g., instruction) that applies at a step Y, then the condition is "step". and Y is the instance of the condition "step".
+
+Create the smallest set of orthogonal conditions that together differentiate all conflicting pieces of information. It's fine if a condition ends up with 3-5 instances/values when that improves discrimination. Reuse and extend existing conditions first, then devise new ones only if needed. To ensure orthogonality, MERGE or REMOVE redundant conditions.
+
+Process: REUSE, UPDATE, ADD, and MERGE/REMOVE;
+1. Find conflicts: Identify pairs/groups of pieces that cannot apply together in the same context and note what distinguishes them.
+2. Start from existing candidates:
+    - REUSE exact matches.
+    - If close, UPDATE the definition and/or guidelines so the condition now covers both the old and new meanings.
+3. Only if necessary, ADD a new condition:
+    - Decide if the condition should be method-based (i.e., "how/") or purpose-based (i.e., "why/outcome").
+    - Ensure that the condition is concrete and concise.
+4. MERGE/REMOVE redundant conditions:
+    - If two conditions encode the same idea, MERGE them.
+    - If a condition is irrelevant to the current set of pieces of information, REMOVE it.
+In general, favor fewer conditions over fewer total instances/values.
+
+Return the new list of relevant conditions.
+For each condition, provide:
+- Id (reuse the existing ids where possible)
+- Name
+- Plural name
+- One-line definition focused on applicability and how is it different from other conditions.
+- Guidelines (5-8 bullets) for extracting instances/values of the condition — concise rules for deriving further instances/values from data (e.g., what signals to look for, what is the format of the instances/values, what are the meaningful/canonical distinctions between instances/values, etc.). Keep bullets short and actionable.
+- Example instances/values (1-2) — representative and illustrative only, not an exhaustive list.
+
+Here is the list of pieces of information:
+```
+{pieces}```
+
+Here is the list of candidate conditions:
+```
+{candidates}```
+"""
 
 
+SCHEMA_FORMAT = """[{schema_id}] {schema_title} (Plural: {schema_plural})
+Definition: {schema_definition}
+Condition Guidelines:
+{schema_guidelines}
+Example condition cases: 
+{schema_labels}"""
+
+def candidates_to_str(candidates):
+    candidates_str = ""
+    for candidate_idx, candidate in enumerate(candidates):
+        guidelines_str = ""
+        for guideline in candidate["codebook_guidelines"]:
+            guidelines_str += f"\t- {guideline}\n"
+        if len(candidate["codebook_guidelines"]) == 0:
+            guidelines_str = "No guidelines for defining instances of this condition.\n"
+        labels_str = ""
+        for label in candidate["labels"][:3]:
+            labels_str += f"\t- {label['title']}: {label['definition']}\n"
+
+        if len(candidate["labels"]) == 0:
+            labels_str = "No example instances of this condition (i.e., labels).\n"
+        schema_str = SCHEMA_FORMAT.format(schema_id=f"F{candidate_idx+1}", schema_title=candidate["schema"], schema_plural=candidate["schema_plural"], schema_definition=candidate["definition"], schema_guidelines=guidelines_str, schema_labels=labels_str)
+        candidates_str += f"{schema_str}\n"
+    return candidates_str
+
+def candidates_gen_to_struct(gen_candidates):
+    struct_candidates = []
+    for candidate in gen_candidates:
+        labels = []
+        for label in candidate["examples"]:
+            labels.append({
+                "title": label["title"],
+                "definition": label["definition"],
+                "examples": [],
+            })
+        struct_candidates.append({
+            "schema": candidate["title"],
+            "schema_plural": candidate["title_plural"],
+            "definition": candidate["definition"],
+            "codebook_guidelines": candidate["guidelines"],
+            "labels": labels,
+        })
+    return struct_candidates
+
+
+def form_facet_candidates(task, pieces, current_candidates):
+    pieces_str = ""
+    for piece_idx, piece in enumerate(pieces):
+        pieces_str += f"[{piece_idx+1}] {piece['content']}\n"
+
+    candidates_str = candidates_to_str(current_candidates)
+    
+    messages = [
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT_FORM_FACET_CANDIDATES,
+        },
+        {
+            "role": "user",
+            "content": USER_PROMPT_FORM_FACET_CANDIDATES.format(task=task, pieces=pieces_str, candidates=candidates_str),
+        },
+    ]
+    response = get_response_pydantic(messages, CandidateConditionsSchema)
+
+    merged_candidates = combine_facet_candidates(
+        task,
+        current_candidates,
+        candidates_gen_to_struct(response["candidate_conditions"]),
+    )
+
+    return merged_candidates
+
+
+SYSTEM_PROMPT_COMBINE_FACET_CANDIDATES = """
+You are a helpful assistant who can understand and analyze procedural knowledge and its applicability."""
+
+USER_PROMPT_COMBINE_FACET_CANDIDATES = """
+You are given two lists of candidate conditions that can describe the scope of applicability of pieces of knowledge about {task}: an OLD list and a NEW list of conditions.
+
+Condition Definition: A condition is a set of instances/values that can be used to describe the scope of applicability of a piece of knowledge. For example, if there is a piece of knowledge X (e.g., instruction) that applies at a step Y, then the condition is "step". and Y is the instance of the condition "step".
+
+Produce a SINGLE COMPREHENSIVE but ORTHOGONAL list of conditions by merging the two lists. When mergining the lists, follow these steps to make decisions on pairs of conditions:
+
+1. If condition X encompasses condition Y, then discard Y.
+2. If condition X and Y are similar, then either:
+    - try merging them into a single condition and see if it still satisfies the definition of the condition and remain concise and orthogonal to other conditions.
+    - replace them with two conditions A and B that together can represent X and Y, but are not similar to each other.
+3. If condition X and Y are different, keep both conditions.
+
+Return the merged list of conditions.
+For each condition, provide:
+- Id (reuse the existing ids where possible)
+- Name
+- Plural name
+- One-line definition focused on applicability and how is it different from other conditions.
+- Guidelines (5-8 bullets) for extracting instances/values of the condition — concise rules for deriving further instances/values from data (e.g., what signals to look for, what is the format of the instances/values, what are the meaningful/canonical distinctions between instances/values, etc.). Keep bullets short and actionable.
+- Example instances/values (1-2) — representative and illustrative only, not an exhaustive list.
+
+Here is the OLD list of conditions:
+```
+{old_candidates}```
+
+Here is the NEW list of conditions:
+```
+{new_candidates}```
+"""
+
+def combine_facet_candidates(task, prev_candidates, new_candidates):
+    prev_candidates_str = candidates_to_str(prev_candidates)
+    new_candidates_str = candidates_to_str(new_candidates)
+
+    messages = [
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT_COMBINE_FACET_CANDIDATES,
+        },
+        {
+            "role": "user",
+            "content": USER_PROMPT_COMBINE_FACET_CANDIDATES.format(task=task, old_candidates=prev_candidates_str, new_candidates=new_candidates_str),
+        },
+    ]
+    response = get_response_pydantic(messages, CandidateConditionsSchema)
+
+    merged_candidates = candidates_gen_to_struct(response["candidate_conditions"])
+    return merged_candidates
