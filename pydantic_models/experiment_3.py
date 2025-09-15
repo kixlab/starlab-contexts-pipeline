@@ -54,17 +54,18 @@ class LabeledPiecesSchema(BaseModel):
     
 
 ### facet candidates
-class ConditionInstanceSchema(BaseModel):
-    title: str = Field(..., title="The title of the instance.")
-    definition: str = Field(..., title="The definition of the instance.")
+class FacetValueSchema(BaseModel):
+    title: str = Field(..., title="The title of the facet value.")
+    definition: str = Field(..., title="The definition of the facet value.")
 
-class CandidateConditionSchema(BaseModel):
-    id: str = Field(..., title="The id of the condition.")
-    title: str = Field(..., title="The title of the condition.")
-    title_plural: str = Field(..., title="The plural of the title of the condition.")
-    definition: str = Field(..., title="The definition of the condition.")
-    guidelines: list[str] = Field(..., title="The guidelines for the LLM to generate different instances of the condition.")
-    examples: list[ConditionInstanceSchema] = Field(..., title="The examples of the condition.")
+class CandidateApplicabilityFacetSchema(BaseModel):
+    type: Literal["why", "when", "where"] = Field(..., title="The type of the applicability facet.")
+    id: str = Field(..., title="The id of the applicability facet.")
+    title: str = Field(..., title="The title of the applicability facet.")
+    title_plural: str = Field(..., title="The plural of the applicability facet.")
+    definition: str = Field(..., title="The definition of the applicability facet.")
+    guidelines: list[str] = Field(..., title="The guidelines for the LLM to generate different facet values of the applicability facet.")
+    examples: list[FacetValueSchema] = Field(..., title="The examples of the applicability facet.")
 
-class CandidateConditionsSchema(BaseModel):
-    candidate_conditions: list[CandidateConditionSchema] = Field(..., title="The list of candidate conditions.")
+class CandidateApplicabilityFacetsSchema(BaseModel):
+    candidates: list[CandidateApplicabilityFacetSchema] = Field(..., title="The list of candidate applicability facets.")

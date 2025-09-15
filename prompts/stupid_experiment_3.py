@@ -9,7 +9,7 @@ from pydantic_models.experiment_3 import LabelListSchema
 
 from pydantic_models.experiment_3 import LabeledPiecesSchema
 
-from pydantic_models.experiment_3 import CandidateConditionsSchema
+from pydantic_models.experiment_3 import CandidateApplicabilityFacetsSchema
 
 TAXONOMY = {
     "opening": "Starting remarks and instructor/channel introductions",
@@ -223,7 +223,7 @@ def form_context_codebook(task, transcript, schema):
 
 USER_PROMPT_LABEL_TRANSCRIPT_PIECES = """
 You are analyzing a tutorial video for {task}.
-You are given a list of pieces of information from a tutorial (recipe, SOP, repair guide, etc.) along with a list of possible {schema_plural} involved in the task. A {schema} is {definition}.
+You are given a list of pieces of information from a tutorial-style transcript (recipe, SOP, repair guide, etc.) along with a list of possible {schema_plural} involved in the task. A {schema} is {definition}.
 
 Your task is to read through the pieces of information sequentially and label the pieces of information with the appropriate {schema}.
 The {schema_plural} may not be in order in the list, and some {schema_plural} may not be used at all. Only assign a {schema} when the content clearly matches the {schema}. If it does not match any {schema}, leave it as empty string `""`.
@@ -281,51 +281,56 @@ def label_transcript_pieces(task, pieces, schema):
     return formatted_pieces
 
 
-SYSTEM_PROMPT_FORM_FACET_CANDIDATES = """
-You are a helpful assistant who can identify important applicability conditions that can differentiate between different pieces of knowledge."""
+SYSTEM_PROMPT_FORM_FACET_CANDIDATES = """You are a helpful assistant who identifies and refines `applicability facets` that define why/when/where pieces of information about a procedural task apply.
+"""
 
+### TODO: try directly asking why/when/where the pieces of information apply?
 USER_PROMPT_FORM_FACET_CANDIDATES = """
-You are analyzing pieces of information from different tutorials for {task}.
+You are analyzing pieces of information from different tutorial-style transcripts (recipe, SOP, repair guide, etc.) for {task}.
 
-You are given (a) pieces of information and (b) a list of candidate conditions that can differentiate where each of the pieces is applicable.
+INPUTS:
+- Information items:
+{pieces}
+- Candidate APPLICABILITY FACETS:
+{candidates}
 
-Condition Definition: A condition is a set of instances/values that can be used to describe the scope of applicability of a piece of knowledge. For example, if there is a piece of knowledge X (e.g., instruction) that applies at a step Y, then the condition is "step". and Y is the instance of the condition "step".
+GOAL:
+Update the existing list of APPLICABILITY FACETS to differentiate given information items (i.e., each semantically distinct item can be given a unique applicability signature across the chosen FACETS). Reuse/extend existing FACETS first; add new ones only if required to resolve remaining collisions.
 
-Create the smallest set of orthogonal conditions that together differentiate all conflicting pieces of information. It's fine if a condition ends up with 3-5 instances/values when that improves discrimination. Reuse and extend existing conditions first, then devise new ones only if needed. To ensure orthogonality, MERGE or REMOVE redundant conditions.
+DEFINITIONS:
+- APPLICABILITY FACET: one atomic discriminator on a single axis type (Why | When | Where).
+- FACET VALUES: mutually exclusive options for that discriminator. In this task, give only 1-2 illustrative examples per FACET (not exhaustive).
+- Atomicity rule: reject umbrella FACETS (e.g., context/method); split into minimal, non-overlapping discriminators.
 
-Process: REUSE, UPDATE, ADD, and MERGE/REMOVE;
-1. Find conflicts: Identify pairs/groups of pieces that cannot apply together in the same context and note what distinguishes them.
-2. Start from existing candidates:
-    - REUSE exact matches.
-    - If close, UPDATE the definition and/or guidelines so the condition now covers both the old and new meanings.
-3. Only if necessary, ADD a new condition:
-    - Decide if the condition should be method-based (i.e., "how/") or purpose-based (i.e., "why/outcome").
-    - Ensure that the condition is concrete and concise.
-4. MERGE/REMOVE redundant conditions:
-    - If two conditions encode the same idea, MERGE them.
-    - If a condition is irrelevant to the current set of pieces of information, REMOVE it.
-In general, favor fewer conditions over fewer total instances/values.
+TYPES OF APPLICABILITY FACETS:
+- Why: the outcome/intent the information item advances.
+- When: the procedural stage or a state (incl. phase/step, preconditions, version/time window) that the information item applies to.
+- Where: the environment/setting in which the information item holds.
 
-Return the new list of relevant conditions.
-For each condition, provide:
-- Id (reuse the existing ids where possible)
-- Name
-- Plural name
-- One-line definition focused on applicability and how is it different from other conditions.
-- Guidelines (5-8 bullets) for extracting instances/values of the condition — concise rules for deriving further instances/values from data (e.g., what signals to look for, what is the format of the instances/values, what are the meaningful/canonical distinctions between instances/values, etc.). Keep bullets short and actionable.
-- Example instances/values (1-2) — representative and illustrative only, not an exhaustive list.
+PROCEDURE: repeat steps 1-6 until no collisions (no indistinguishable pairs) and no redundant facets remain.
+1) Find collisions: identify semantically different item pairs that remain indistinguishable under the current facet set; note the concrete discriminator(s) hinted by the items.
+2) REUSE: map each discriminator to an existing facet. If it fits, keep the facet.
+3) UPDATE (make atomic and clear): if a reused facet is umbrella/multi-axis, split or tighten it so each facet encodes exactly one discriminator on one axis and still covers old+new meaning.
+4) ADD (only if needed): if a collision persists and no existing facet can host the discriminator, introduce one new atomic facet of a one of the three types (Why | When | Where).
+5) MERGE: merge facets that encode the same discriminator, ensuring that they are atomic and clear; If there are irrelevant facets, keep them for comprehensiveness.
+exit condition: all item pairs are separated by at least one facet.
 
-Here is the list of pieces of information:
-```
-{pieces}```
+OUTPUT: An updated list of APPLICABILITY FACETS
+For each APPLICABILITY FACET, provide:
+- Id (reuse if possible)
+- Type: Why | When | Where
+- Name (<=4 words)
+- Definition (<= 20 words)
+- Guidelines (5-8 bullets) to define and extract the FACET VALUES (signals to look for, the formats of the values, etc.)
+- Example FACET VALUES (1-2): Value name — value definition
 
-Here is the list of candidate conditions:
-```
-{candidates}```
+NOTES:
+- Keep APPLICABILITY FACET definitions concrete;
+- FACET VALUES are illustrative only; do not attempt completeness.
 """
 
 
-SCHEMA_FORMAT = """[{schema_id}] {schema_title} (Plural: {schema_plural})
+SCHEMA_FORMAT = """[{schema_id}] (Type: {schema_type}) {schema_title} (Plural: {schema_plural})
 Definition: {schema_definition}
 Condition Guidelines:
 {schema_guidelines}
@@ -346,7 +351,7 @@ def candidates_to_str(candidates):
 
         if len(candidate["labels"]) == 0:
             labels_str = "No example instances of this condition (i.e., labels).\n"
-        schema_str = SCHEMA_FORMAT.format(schema_id=f"F{candidate_idx+1}", schema_title=candidate["schema"], schema_plural=candidate["schema_plural"], schema_definition=candidate["definition"], schema_guidelines=guidelines_str, schema_labels=labels_str)
+        schema_str = SCHEMA_FORMAT.format(schema_id=f"F{candidate_idx+1}", schema_type=candidate["schema_type"], schema_title=candidate["schema"], schema_plural=candidate["schema_plural"], schema_definition=candidate["definition"], schema_guidelines=guidelines_str, schema_labels=labels_str)
         candidates_str += f"{schema_str}\n"
     return candidates_str
 
@@ -361,6 +366,7 @@ def candidates_gen_to_struct(gen_candidates):
                 "examples": [],
             })
         struct_candidates.append({
+            "schema_type": candidate["type"],
             "schema": candidate["title"],
             "schema_plural": candidate["title_plural"],
             "definition": candidate["definition"],
@@ -376,6 +382,8 @@ def form_facet_candidates(task, pieces, current_candidates):
         pieces_str += f"[{piece_idx+1}] {piece['content']}\n"
 
     candidates_str = candidates_to_str(current_candidates)
+    if len(current_candidates) == 0:
+        candidates_str = "No candidates provided."
     
     messages = [
         {
@@ -387,66 +395,122 @@ def form_facet_candidates(task, pieces, current_candidates):
             "content": USER_PROMPT_FORM_FACET_CANDIDATES.format(task=task, pieces=pieces_str, candidates=candidates_str),
         },
     ]
-    response = get_response_pydantic(messages, CandidateConditionsSchema)
+    response = get_response_pydantic(messages, CandidateApplicabilityFacetsSchema)
 
-    merged_candidates = combine_facet_candidates(
-        task,
-        current_candidates,
-        candidates_gen_to_struct(response["candidate_conditions"]),
-    )
+    # merged_candidates = combine_facet_candidates(
+    #     task,
+    #     current_candidates,
+    #     candidates_gen_to_struct(response["candidates"]),
+    # )
 
-    return merged_candidates
+    # return merged_candidates
+    return candidates_gen_to_struct(response["candidates"])
 
 
-SYSTEM_PROMPT_COMBINE_FACET_CANDIDATES = """
-You are a helpful assistant who can understand and analyze procedural knowledge and its applicability."""
+# SYSTEM_PROMPT_COMBINE_FACET_CANDIDATES = """
+# You are a helpful assistant who can understand and analyze procedural knowledge and its applicability."""
 
-USER_PROMPT_COMBINE_FACET_CANDIDATES = """
-You are given two lists of candidate conditions that can describe the scope of applicability of pieces of knowledge about {task}: an OLD list and a NEW list of conditions.
+# USER_PROMPT_COMBINE_FACET_CANDIDATES = """
+# You are given two lists of candidate CONDITIONS that describe where knowledge about {task} applies:
+# - OLD candidates:
+# {old_candidates}
+# - NEW candidates:
+# {new_candidates}
 
-Condition Definition: A condition is a set of instances/values that can be used to describe the scope of applicability of a piece of knowledge. For example, if there is a piece of knowledge X (e.g., instruction) that applies at a step Y, then the condition is "step". and Y is the instance of the condition "step".
+# GOAL
+# Produce ONE comprehensive, orthogonal set of atomic CONDITIONS (with concrete illustrative example VALUES). Prefer NEW conditions only if coverage is equal or better.
 
-Produce a SINGLE COMPREHENSIVE but ORTHOGONAL list of conditions by merging the two lists. When mergining the lists, follow these steps to make decisions on pairs of conditions:
+# DEFINITION
+# - CONDITION = one atomic discriminator on a single axis: Purpose (why/outcome) | Method (how/technique) | Context (state/equipment/constraints, incl. workflow phase/step).
+# - VALUES = mutually-exclusive options for that discriminator.
+# - Reject umbrella categories (e.g., "context/strategy/handling")—split into atomic CONDITIONS.
 
-1. If condition X encompasses condition Y, then discard Y.
-2. If condition X and Y are similar, then either:
-    - try merging them into a single condition and see if it still satisfies the definition of the condition and remain concise and orthogonal to other conditions.
-    - replace them with two conditions A and B that together can represent X and Y, but are not similar to each other.
-3. If condition X and Y are different, keep both conditions.
+# REPRESENTATIVE EXAMPLES (for guidance only)
+# - Purpose example — Removal intent
+#     Values: Seamless realism, Privacy redaction, Make layout space.
+# - Method example — Removal technique
+#     Values: Clone/heal brush, Content-aware/patch, Generative inpainting.
+# - Context example — Removal scale
+#     Values: Spot/blemish, Small object, Large/structural.
 
-Return the merged list of conditions.
-For each condition, provide:
-- Id (reuse the existing ids where possible)
-- Name
-- Plural name
-- One-line definition focused on applicability and how is it different from other conditions.
-- Guidelines (5-8 bullets) for extracting instances/values of the condition — concise rules for deriving further instances/values from data (e.g., what signals to look for, what is the format of the instances/values, what are the meaningful/canonical distinctions between instances/values, etc.). Keep bullets short and actionable.
-- Example instances/values (1-2) — representative and illustrative only, not an exhaustive list.
+# PROCESS
+# 1) Combine: Simply concatenate OLD + NEW into one working list.
+# 2) Remove duplicates and subset conditions: 
+#     - Duplicate: If two conditions have the same axis and definition.
+#     - Subset: If one of the conditions completely contain the other.
+#    Positive examples — MERGE:
+#    - Context: "Removal scale" vs "Object size"
+#      • Same discriminator (area/px). → Keep "Removal scale".
+#    - Method: "Inpainting method" vs "Synthesis method"
+#      • Same discriminator (how pixels are generated). → Keep "Synthesis method".
+#    - Purpose: "Seamless realism" vs "Invisible cleanup"
+#      • Same discriminator (goal: invisibility). → Keep "Seamless realism" (NEW wording).
 
-Here is the OLD list of conditions:
-```
-{old_candidates}```
+#    Negative examples — DO NOT MERGE:
+#    - Cross-axis: "Removal intent" (Purpose) vs "Clone/Heal" (Method)
+#      • Different axes → keep both.
+#    - Same axis, different discriminator: "Background variation" vs "Lighting condition" (Context)
+#      • Different ideas (texture vs illumination) → keep both.
+#    - Not a subset: "Convection bake" (device) vs "High-then-lower" (temperature profile) (Context)
+#      • Independent discriminators → keep both.
 
-Here is the NEW list of conditions:
-```
-{new_candidates}```
-"""
+# 3) Non-orthogonal pairs (split or reframe)
+#    Overlap test:
+#    - Q1: Could the **same instance** satisfy both conditions *for the same reason*?
+#    - Q2: Do both conditions name the **same discriminator**?
+#    If YES to both → they collide; **split/reframe** so each names one atomic discriminator with non-overlapping applicability tests.
 
-def combine_facet_candidates(task, prev_candidates, new_candidates):
-    prev_candidates_str = candidates_to_str(prev_candidates)
-    new_candidates_str = candidates_to_str(new_candidates)
+#    Positive examples — SPLIT / REFRAME:
+#    - Mixed axes in one label: "Quick fix for small objects"
+#      • Mixes Method (quick fix) + Context (small objects).
+#      → Split into "Removal technique" (Method) and "Removal scale" (Context).
+#    - Same axis collision: "Background complexity" vs "Texture continuity" (Context)
+#      • Both encode variation of background; overlap on signals ("busy", "patterned").
+#      → Reframe into a single "Background variation" with values {Uniform, Repetitive pattern, Multi-texture}.
+#    - Purpose/Context tangle: "Seamless realism" (Purpose) vs "Invisibility level" (Context with strength buckets)
+#      • Goal vs quality threshold collide in wording.
+#      → Keep Purpose "Seamless realism"; move numeric thresholds under Context "Obfuscation strength"; remove duplicate purpose value.
 
-    messages = [
-        {
-            "role": "system",
-            "content": SYSTEM_PROMPT_COMBINE_FACET_CANDIDATES,
-        },
-        {
-            "role": "user",
-            "content": USER_PROMPT_COMBINE_FACET_CANDIDATES.format(task=task, old_candidates=prev_candidates_str, new_candidates=new_candidates_str),
-        },
-    ]
-    response = get_response_pydantic(messages, CandidateConditionsSchema)
+#    Negative examples — DO NOT SPLIT:
+#    - Co-applicable but different discriminators (same axis): "Synthesis method" (Method) and "Selection method" (Method)
+#      • An edit rightly has both a selection and a synthesis; no collision → keep both.
+#    - Different axes by design: "Privacy redaction" (Purpose) and "Pixelate" (Method)
+#      • Goal vs tool; co-apply is intended → keep both.
+#    - Values already mutually exclusive: "Removal scale" {Spot, Small, Large}
+#      • No overlap between values; no split needed.
 
-    merged_candidates = candidates_gen_to_struct(response["candidate_conditions"])
-    return merged_candidates
+# 4) Loop
+#    - If you merged or split in Steps 2–3, **repeat Step 2** on the updated list until no more merges/splits trigger.
+
+# 5) Coverage check
+#    - Map every OLD/NEW item → exactly one final CONDITION (record the mapping).
+#    - If something doesn’t map, add a new atomic CONDITION (1 axis, 1 discriminator, clear signals).
+
+# OUTPUT — New list of relevant CONDITIONS
+# For each CONDITION, provide:
+# - Id (reuse if possible)
+# - Axis: Purpose | Method | Context
+# - Name (<=4 words)
+# - Definition (<= 20 words)
+# - Guidelines (5-8 bullets) to extract VALUES (signals, pattern/threshold formats, canonical distinctions, synonym handling, when to split/merge)
+# - Example VALUES (1-2): {Value name — value definition}
+# """
+
+# def combine_facet_candidates(task, prev_candidates, new_candidates):
+#     prev_candidates_str = candidates_to_str(prev_candidates)
+#     new_candidates_str = candidates_to_str(new_candidates)
+
+#     messages = [
+#         {
+#             "role": "system",
+#             "content": SYSTEM_PROMPT_COMBINE_FACET_CANDIDATES,
+#         },
+#         {
+#             "role": "user",
+#             "content": USER_PROMPT_COMBINE_FACET_CANDIDATES.format(task=task, old_candidates=prev_candidates_str, new_candidates=new_candidates_str),
+#         },
+#     ]
+#     response = get_response_pydantic(messages, CandidateApplicabilityFacetsSchema)
+
+#     merged_candidates = candidates_gen_to_struct(response["candidates"])
+#     return merged_candidates
