@@ -262,9 +262,9 @@ def get_response_anthropic_with_tries(messages, response_format, tries=3):
     return None
 
 
-RESPONSE_FUNC = get_response_pydantic_anthropic
+# RESPONSE_FUNC = get_response_pydantic_anthropic
 # RESPONSE_FUNC = get_response_anthropic_with_tries
-# RESPONSE_FUNC = get_response_pydantic_openai
+RESPONSE_FUNC = get_response_pydantic_openai
 
 def get_response_pydantic(messages, response_format):
 
