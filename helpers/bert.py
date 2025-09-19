@@ -4,9 +4,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import AgglomerativeClustering
 from stop_words import get_stop_words
 
-en_stop_words = get_stop_words('en')
-
-model = SentenceTransformer("all-MiniLM-L6-v2")
 
 ### fine-tune the model
 # model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -18,6 +15,8 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 # )
 
 def bert_embedding(texts):
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    en_stop_words = get_stop_words('en')
     if len(texts) == 0:
         return np.array([])
 

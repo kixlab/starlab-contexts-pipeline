@@ -14,8 +14,12 @@ client_openai = OpenAI(
 SEED = 13774
 TEMPERATURE = 0
 MAX_TOKENS = 4096
-# MODEL_NAME_OPENAI = 'gpt-4o-2024-08-06'
-MODEL_NAME_OPENAI = 'gpt-4o-mini-2024-07-18'
+MODEL_NAME_OPENAI = 'gpt-5-mini-2025-08-07' #reasoning
+# MODEL_NAME_OPENAI = 'gpt-4.1-2025-04-14'
+# MODEL_NAME_OPENAI = 'gpt-4.1-mini-2025-04-14'
+# MODEL_NAME_OPENAI = 'gpt-4.1-nano-2025-04-14'
+
+REASONING_EFFORT = "low" ### "low", "medium", "high"
 
 
 def random_uid():
@@ -24,6 +28,9 @@ def random_uid():
 def encode_image(image_path):
     with open(image_path, "rb") as image:
         return base64.b64encode(image.read()).decode("utf-8")
+
+def messages_to_str(messages):
+    return "\n".join([f"ROLE: {message['role']}\n{message['content']}" for message in messages])
 
 def transcribe_audio(audio_path, granularity=["segment"]):
     with open(audio_path, "rb") as audio:
@@ -36,18 +43,27 @@ def transcribe_audio(audio_path, granularity=["segment"]):
         )
         response = response.to_dict()
         return response
-    return None
 
 
 def get_response_pydantic_openai(messages, response_format):
-    print("MESSAGES:", json.dumps(messages, indent=2))
-    completion = client_openai.beta.chat.completions.parse(
-        model=MODEL_NAME_OPENAI,
-        messages=messages,
-        seed=SEED,
-        temperature=TEMPERATURE,
-        response_format=response_format,
-    )
+    print("MESSAGES:", messages_to_str(messages))
+
+    if 'gpt-5' in MODEL_NAME_OPENAI:
+        completion = client_openai.chat.completions.parse(
+            model=MODEL_NAME_OPENAI,
+            messages=messages,
+            seed=SEED,
+            response_format=response_format,
+            reasoning_effort=REASONING_EFFORT,
+        )
+    else:
+        completion = client_openai.chat.completions.parse(
+            model=MODEL_NAME_OPENAI,
+            messages=messages,
+            seed=SEED,
+            temperature=TEMPERATURE,
+            response_format=response_format,
+        )
 
     response = completion.choices[0].message
     if (response.refusal):
@@ -234,7 +250,7 @@ def get_response_pydantic_anthropic(messages, response_format):
         }
     ]
     
-    print("MESSAGES:", json.dumps(messages, indent=2))
+    print("MESSAGES:", messages_to_str(messages))
     
     response = get_response_anthropic(messages)
     print("RAW RESPONSE:", response)

@@ -2,13 +2,14 @@ import torch
 import clip
 from PIL import Image
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model, preprocess = clip.load("ViT-B/32", device=device)
-
 def clip_embed_image(image_paths):
     """
     Embed an image using a CLIP model
     """
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model, preprocess = clip.load("ViT-B/32", device=device)
+
     ### transform the image to a tensor
     images = torch.cat([preprocess(Image.open(path)).unsqueeze(0) for path in image_paths]).to(device)
     with torch.no_grad():
@@ -20,6 +21,10 @@ def clip_embed_text(texts):
     """
     Embed a text using a CLIP model
     """
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model, preprocess = clip.load("ViT-B/32", device=device)
+    
     # prefix = "A photo of "
     prefix = ""
 

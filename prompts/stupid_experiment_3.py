@@ -5,11 +5,11 @@ from pydantic_models.experiment_3 import SegmentationSchema
 
 from pydantic_models.experiment_3 import InformationPiecesSchema
 
-from pydantic_models.experiment_3 import LabelListSchema
+from pydantic_models.experiment_3 import AnswerListSchema
 
 from pydantic_models.experiment_3 import LabeledPiecesSchema
 
-from pydantic_models.experiment_3 import CandidateApplicabilityFacetsSchema
+from pydantic_models.experiment_3 import CandidateFacetsSchema
 
 TAXONOMY = {
     "opening": "Starting remarks and instructor/channel introductions",
@@ -114,17 +114,27 @@ Example: "Whoops."
 - For video/audio transcripts, copy the exact start_time and end_time (in seconds) that bracket the source text of the item.
 - If no timing metadata exists, output null for both.
 
-The transcript with time-stamps (in seconds) is as follows:
-```
-{transcript}```"""
+The transcript with time-stamps (in seconds) is as follows: ```
+{transcript}
+```"""
+
+def transcript_to_str(transcript, with_timestamps=True):
+    if len(transcript) == 0:
+        return "No transcript provided."
+    
+    transcript_strs = []
+    for subtitle in transcript:
+        if with_timestamps:
+            start_str = f"{int(subtitle['start'])}"
+            end_str = f"{int(subtitle['end'])}"
+            transcript_strs.append(f"[{start_str} - {end_str}] {subtitle['text']}")
+        else:
+            transcript_strs.append(subtitle['text'])
+    return "\n".join(transcript_strs)
 
 def form_information_units(task, transcript):
 
-    transcript_str = ""
-    for i, subtitle in enumerate(transcript):
-        start_str = f"{int(subtitle['start'])}"
-        end_str = f"{int(subtitle['end'])}"
-        transcript_str += f"[{start_str} - {end_str}] {subtitle['text']}\n"
+    transcript_str = transcript_to_str(transcript)
 
     messages = [
         {
@@ -143,64 +153,98 @@ def form_information_units(task, transcript):
     return pieces
 
 USER_PROMPT_FORM_CONTEXT_CODEBOOK = """
-You are analyzing a tutorial video for {task}.
-From a tutorial-style transcript (recipe, SOP, repair guide, etc.) extract the {schema_plural} involved in the task. A {schema} is {definition}.
+You are updating a codebook for the {facet} facet of {task}. 
+A "{facet}" is defined as a canonical answer to the question: "{question}".
 
-Follow these guidelines when extracting {schema_plural}:
-{guidelines}
+### INPUTS
+- Existing canonical {facet_plural}:
+{answers}
+- Tutorial-style transcript with timestamps (in seconds):
+{transcript}    
 
-First, review the existing list of {schema_plural} to identify if any of them are mentioned in the transcript. If so, use the same {schema_plural} names to ensure consistency whenever possible.
-If you identify new {schema_plural} that are not in the existing list, add them appropriately at the end of the list along with the examples. An example should contain the content () and the context (some text (around 10-20 words) surrounding the content and the content itself).
+### GOAL
+Return an updated list of canonical {facet_plural} (including existing and any new ones needed to cover the given transcript), each with 1-2 concrete examples grounded in the given transcript (or reused from the existing list if not found in the transcript).
 
-Here is the existing list of {schema_plural}:
-```
-{labels}```
+### GUIDELINES FOR CANONICAL ANSWERS:
+{answer_guidelines}
 
-Here is the transcript with time-stamps (in seconds):
-```
-{transcript}```
+### GENERAL NORMALIZATION RULES (apply in addition to the above):
+- Merge synonyms/variants into one canonical value; keep the existing value as the canonical form when applicable.
+- Use concise, unambiguous phrasing; avoid brand-specific or overly narrow wording unless essential to task fidelity.
+- Only add a new {facet} if the transcript clearly contains an answer to "{question}" that is not covered by any existing canonical value.
 
-Return a series of {schema_plural} as a list (both old and new). When providing the examples for each {schema}, try to ensure that there is a variety of examples (around 1-3) based on the given transcript or from the existing list of {schema_plural}."""
+### PROCEDURE
+1) Scan the transcript for spans that directly answer "{question}".
+2) For each span:
+    - Map it to an existing canonical {facet} if it's the same concept (consider synonyms, pluralization, formatting).
+    - If no existing value fits, propose a new canonical {facet} that follows the guidelines.
+3) For every canonical {facet} in the final list (existing or new):
+    - Provide 1-2 representative examples.
+    - Each example must include:
+        - content (the exact minimal excerpt that supports the answer)
+        - context (around 10-20 words surrounding the content and the content itself)
+    - If a canonical {facet} is not evidenced in the given transcript, reuse one example from the existing list if available.
 
-LABEL_FORMAT = """[{label_id}] {label_title}
-Definition: {label_definition}
-Examples: 
-{examples}"""
+### OUTPUT
+Return a list of canonical answers. Each answer should have the following fields:
+- id: id of the canonical {facet}
+- answer: short representative value less than 2-3 words
+- definition: elaboration of what the answer means
+- examples: 1-2 short representative content and context that would be labeled as the answer
 
-LABEL_EXAMPLE_FORMAT = """\t- Content {example_idx}: {example_content}
-\t- Context {example_idx}: {example_context}
-"""
+NOTES
+- Ground everything in the provided inputs; no external knowledge or speculation.
+- Do not create duplicate or overlapping canonical values.
+- Keep examples short and specific; avoid paraphrasing for the 'content' field."""
 
-def labels_to_str(labels):
-    labels_str = ""
-    for label_idx, label in enumerate(labels):
-        examples_str = ""
-        for example_idx, example in enumerate(label["examples"]):
-            examples_str += LABEL_EXAMPLE_FORMAT.format(example_context=example["context"], example_content=example["content"], example_idx=example_idx + 1)
-        label_id = f"L{label_idx + 1}"
-        labels_str += LABEL_FORMAT.format(label_id=label_id, label_title=label["title"], label_definition=label["definition"], examples=examples_str)
-    return labels_str
+ANSWER_FORMAT = """[{answer_id}] {answer_title}
+Definition: {answer_definition}
+Examples (Contents and Context): ```
+{examples}
+```"""
+
+ANSWER_EXAMPLE_FORMAT = """\t- Content {example_idx}: {example_content}
+\t- Context {example_idx}: {example_context}"""
+
+def examples_to_str(examples):
+    if len(examples) == 0:
+        return "No examples contents and context are available."
+    
+    example_strs = []
+    for example_idx, example in enumerate(examples):
+        example_strs.append(ANSWER_EXAMPLE_FORMAT.format(example_context=example["context"], example_content=example["content"], example_idx=example_idx + 1))
+    example_str = "\n".join(example_strs)
+    return example_str
+
+def answers_to_str(answers):
+    if len(answers) == 0:
+        return "No facet values (i.e., canonical answers) are available."
+
+    answer_strs = []
+    for answer_idx, answer in enumerate(answers):
+        answer_id = f"A{answer_idx + 1}"
+        answer_strs.append(ANSWER_FORMAT.format(answer_id=answer_id, answer_title=answer["answer"], answer_definition=answer["definition"], examples=examples_to_str(answer["examples"])))
+
+    answer_str = "\n".join(answer_strs)
+    return answer_str
 
 def guidelines_to_str(guidelines):
-    guidelines_str = ""
-    for guideline in guidelines:
-        guidelines_str += f"- {guideline}\n"
-    return guidelines_str
-
-
-def form_context_codebook(task, transcript, schema):
-    transcript_str = ""
-    for i, subtitle in enumerate(transcript):
-        start_str = f"{int(subtitle['start'])}"
-        end_str = f"{int(subtitle['end'])}"
-        transcript_str += f"[{start_str} - {end_str}] {subtitle['text']}\n"
-
-    guidelines_str = guidelines_to_str(schema["codebook_guidelines"])
-
-    labels_str = labels_to_str(schema["labels"])
+    if len(guidelines) == 0:
+        return "No guidelines are available."
     
-    if len(schema["labels"]) == 0:
-        labels_str = f"No {schema['schema_plural']} yet. Define new ones.\n"
+    guideline_strs = []
+    for guideline in guidelines:
+        guideline_strs.append(f"- {guideline}")
+    guideline_str = "\n".join(guideline_strs)
+    return guideline_str
+
+
+def form_codebook(task, transcript, facet):
+    transcript_str = transcript_to_str(transcript)
+
+    answer_guidelines_str = guidelines_to_str(facet["answer_guidelines"])
+
+    answers_str = answers_to_str(facet["answers"])
 
     messages = [
         {
@@ -209,44 +253,67 @@ def form_context_codebook(task, transcript, schema):
         },
         {
             "role": "user",
-            "content": USER_PROMPT_FORM_CONTEXT_CODEBOOK.format(task=task, schema_plural=schema["schema_plural"], schema=schema["schema"], definition=schema["definition"], guidelines=guidelines_str, labels=labels_str, transcript=transcript_str)
+            "content": USER_PROMPT_FORM_CONTEXT_CODEBOOK.format(task=task, facet_plural=facet["title_plural"], facet=facet["title"], question=facet["question"], answer_guidelines=answer_guidelines_str, answers=answers_str, transcript=transcript_str)
         },
     ]
 
-    response = get_response_pydantic(messages, LabelListSchema)
+    response = get_response_pydantic(messages, AnswerListSchema)
 
-    labels = response["labels"]
-    for label in labels:
-        del label["id"]
-    return labels
+    answers = response["answers"]
+    for answer in answers:
+        del answer["id"]
+    return answers
 
 
 USER_PROMPT_LABEL_TRANSCRIPT_PIECES = """
-You are analyzing a tutorial video for {task}.
-You are given a list of pieces of information from a tutorial-style transcript (recipe, SOP, repair guide, etc.) along with a list of possible {schema_plural} involved in the task. A {schema} is {definition}.
+You are labeling a tutorial video for {task}.
 
-Your task is to read through the pieces of information sequentially and label the pieces of information with the appropriate {schema}.
-The {schema_plural} may not be in order in the list, and some {schema_plural} may not be used at all. Only assign a {schema} when the content clearly matches the {schema}. If it does not match any {schema}, leave it as empty string `""`.
+### DEFINITION
+- A "{facet}" is defined as a canonical answer to the question: "{question}".
+- "{facet_plural}" refers to the full set of canonical answers provided below. You must choose only from this set.
 
-Here is the list of {schema_plural}:
-```
-{labels}```
+### INPUTS
+- Canonical {facet_plural} (codebook) (each starts with an ID in square brackets, e.g., "[A1] ..."):
+{answers}
+- Pieces of information (each starts with an ID in square brackets, e.g., "[p12] ..."):
+{pieces}
 
-Here is the list of pieces of information with ids in square brackets `[]` (e.g., `[piece_id] content`):
-```
-{pieces}```
+### GOAL
+For each piece, assign exactly one {facet} from the codebook when the content or context clearly answers the question "{question}". 
+If no {facet} is clearly supported, assign the empty string "".
 
-Return the pieces of information with labels in the same order as they were provided."""
+### MATCHING RULES
+- Choose only from the provided canonical {facet_plural}; output the canonical string exactly as given.
+- Treat synonyms/variants in the piece as mapping to the relevant canonical value; do not invent new values.
+- Ignore negations, hypotheticals, and uncertain mentions (e.g., "maybe", "could", "if needed")—return "" in those cases.
+- If multiple {facet_plural} seem plausible, pick the single best answer that is most specific to the piece's content.
+- Do not use external knowledge. Ground decisions strictly in the provided transcript.
 
-def label_transcript_pieces(task, pieces, schema):
-    pieces_str = ""
+### OUTPUT
+Return a list of labeled pieces. Each piece should have the following fields:
+- piece_id: id of the piece
+- answer_id: id of the canonical {facet} from the codebook or ""
+- answer: canonical {facet} string or ""
+
+### NOTES
+- Preserve the original order of pieces.
+- Do not drop or merge pieces.
+"""
+
+def pieces_to_str(pieces):
+    pieces_strs = []
     for piece_idx, piece in enumerate(pieces):
-        pieces_str += f"[{piece_idx+1}] {piece['content']}\n"
+        pieces_strs.append(f"[{piece_idx+1}] {piece['content']}")
+    pieces_str = "\n".join(pieces_strs)
+    return pieces_str
 
-    labels_str = labels_to_str(schema["labels"])
+def label_transcript_pieces(task, pieces, facet):
+    pieces_str = pieces_to_str(pieces)
+
+    answers_str = answers_to_str(facet["answers"])
     
-    if len(schema["labels"]) == 0:
-        print("STRONG WARNING: No labels found in the schema.")
+    if len(facet["answers"]) == 0:
+        print("STRONG WARNING: No canonical answers found in the facet.")
         return []
 
     messages = [
@@ -256,7 +323,7 @@ def label_transcript_pieces(task, pieces, schema):
         },
         {
             "role": "user",
-            "content": USER_PROMPT_LABEL_TRANSCRIPT_PIECES.format(task=task, pieces=pieces_str, schema_plural=schema["schema_plural"], schema=schema["schema"], definition=schema["definition"], labels=labels_str),
+            "content": USER_PROMPT_LABEL_TRANSCRIPT_PIECES.format(task=task, pieces=pieces_str, facet_plural=facet["title_plural"], facet=facet["title"], question=facet["question"], answers=answers_str),
         },
     ]
     response = get_response_pydantic(messages, LabeledPiecesSchema)
@@ -267,7 +334,7 @@ def label_transcript_pieces(task, pieces, schema):
         cur_piece_id = pieces[int(labeled_piece["piece_id"])-1]["piece_id"]
         if cur_piece_id in piece_to_label:
             print("STRONG WARNING: Multiple labels found for the same piece ID.", cur_piece_id)
-        piece_to_label[cur_piece_id] = labeled_piece["label"]
+        piece_to_label[cur_piece_id] = labeled_piece["answer"]
 
     formatted_pieces = []
     for piece in pieces:
@@ -281,110 +348,114 @@ def label_transcript_pieces(task, pieces, schema):
     return formatted_pieces
 
 
-SYSTEM_PROMPT_FORM_FACET_CANDIDATES = """You are a helpful assistant who identifies and refines `applicability facets` that define why/when/where pieces of information about a procedural task apply.
-"""
+SYSTEM_PROMPT_FORM_FACET_CANDIDATES = """You are a helpful assistant who identifies/refines `applicability facets` that define why/when/where pieces of information about a procedural task apply."""
 
-### TODO: try directly asking why/when/where the pieces of information apply?
 USER_PROMPT_FORM_FACET_CANDIDATES = """
-You are analyzing pieces of information from different tutorial-style transcripts (recipe, SOP, repair guide, etc.) for {task}.
+You are analyzing tutorial-style information (recipe, SOP, repair guide, etc.) for {task}.
 
-INPUTS:
+### INPUTS
 - Information items:
 {pieces}
-- Candidate APPLICABILITY FACETS:
-{candidates}
 
-GOAL:
-Update the existing list of APPLICABILITY FACETS to differentiate given information items (i.e., each semantically distinct item can be given a unique applicability signature across the chosen FACETS). Reuse/extend existing FACETS first; add new ones only if required to resolve remaining collisions.
+### GOAL
+You are given a list of information items. Provide a smallest list of applicability facets that can be used to differentiate all the provided information items (i.e., each semantically distinct item can be given a unique applicability signature across the facets). The facets should be:
+- based on a single, concrete question about applicability of the information (why/when/where the information applies).
+- orthogonal (the answer to one facet does not deterministically fix the answer to another).
+- single-slot (the answer is one short phrase less than 3 words).
 
-DEFINITIONS:
-- APPLICABILITY FACET: one atomic discriminator on a single axis type (Why | When | Where).
-- FACET VALUES: mutually exclusive options for that discriminator. In this task, give only 1-2 illustrative examples per FACET (not exhaustive).
-- Atomicity rule: reject umbrella FACETS (e.g., context/method); split into minimal, non-overlapping discriminators.
+### PROCEDURE (iterate until stable)
+1) Go over all the pairs of information items and check:
+    a) if they are semantically similar, skip.
+    b) if they are semantically distinct, try the following methods and pick the one that satisfy the main goal:
+        - REUSE/EXTEND: See if the pair can be distinguished by at least one of the existing facets or by extending one of the existing facets; if necessary, refine the question to cover the distinction of the new pair.
+        - ADD: Introduce exactly one new applicability facet (short facet title, question with less than 20 words, guidelines for the answer). The question should be about applicability of the information (why/when/where the information applies). The question should be single-slot (answerable with a short phrase less than 3 words) and orthogonal to others.
+2) Check for orthogonality, single-slot, and "about applicability":
+    - Check for orthogonality:
+        - Redefine or replace non-orthogonal pairs with independent facets.  
+        - Example (WRONG: not independent):  
+            - [F3] In what place would this information be useful?  
+            - [F4] What tools does this information apply to?
+            - Tool applicability is deterministically tied to physical setting, so can focus on one of the two.
+        - Example (CORRECT: independent redesign):  
+            - [F4] What tools does this information apply to?
+    - Check for single-slot:
+        - Rephrase questions so answers fit in less than 3 words.
+        - Example (WRONG: open-ended):  
+            - [F5] Why does this information apply in this situation?  
+        - Example (CORRECT: single-slot):  
+            - [F5] What result/effect is this information trying to help achieve?
+    - Check for "about applicability":
+        - Ensure the question is about applicability of the information, not its description.
+        - Example (WRONG: descriptive):  
+                - [F6] Why pressing the button?
+        - Example (CORRECT: applicability):  
+                - [F6] What result/effect is this information trying to help achieve when pressing the button?
 
-TYPES OF APPLICABILITY FACETS:
-- Why: the outcome/intent the information item advances.
-- When: the procedural stage or a state (incl. phase/step, preconditions, version/time window) that the information item applies to.
-- Where: the environment/setting in which the information item holds.
-
-PROCEDURE: repeat steps 1-6 until no collisions (no indistinguishable pairs) and no redundant facets remain.
-1) Find collisions: identify semantically different item pairs that remain indistinguishable under the current facet set; note the concrete discriminator(s) hinted by the items.
-2) REUSE: map each discriminator to an existing facet. If it fits, keep the facet.
-3) UPDATE (make atomic and clear): if a reused facet is umbrella/multi-axis, split or tighten it so each facet encodes exactly one discriminator on one axis and still covers old+new meaning.
-4) ADD (only if needed): if a collision persists and no existing facet can host the discriminator, introduce one new atomic facet of a one of the three types (Why | When | Where).
-5) MERGE: merge facets that encode the same discriminator, ensuring that they are atomic and clear; If there are irrelevant facets, keep them for comprehensiveness.
-exit condition: all item pairs are separated by at least one facet.
-
-OUTPUT: An updated list of APPLICABILITY FACETS
-For each APPLICABILITY FACET, provide:
-- Id (reuse if possible)
+### OUTPUT
+The list of APPLICABILITY FACETS, where each facet has the following fields:
+- ID
 - Type: Why | When | Where
-- Name (<=4 words)
-- Definition (<= 20 words)
-- Guidelines (5-8 bullets) to define and extract the FACET VALUES (signals to look for, the formats of the values, etc.)
-- Example FACET VALUES (1-2): Value name — value definition
+- Title (less than 2-3 words)
+- Plural title
+- Question (less than 20 words)
+- Guidelines on how to extract the answer from the information item/context (e.g., what to look for, what to ignore, format of the answer: length, how to canonize the answer)
+- Example answers (1-2): short representative values 1-2 words
 
-NOTES:
-- Keep APPLICABILITY FACET definitions concrete;
-- FACET VALUES are illustrative only; do not attempt completeness.
+### NOTES
+- Use domain-canonical labels/units. Try to ensure consistency in the format of the answers.
+- Example answers are illustrative only, do not attempt completeness or invent unsupported values.
 """
 
+CANDIDATE_FACET_FORMAT = """[{facet_id}] ({facet_type}) {facet_title} (Plural: {facet_title_plural})
+Question formulation: {question} 
+Answer guidelines: ```
+{answer_guidelines}
+```
+Example answers: ```
+{answers}
+```"""
 
-SCHEMA_FORMAT = """[{schema_id}] (Type: {schema_type}) {schema_title} (Plural: {schema_plural})
-Definition: {schema_definition}
-Condition Guidelines:
-{schema_guidelines}
-Example condition cases: 
-{schema_labels}"""
-
-def candidates_to_str(candidates):
-    candidates_str = ""
-    for candidate_idx, candidate in enumerate(candidates):
-        guidelines_str = ""
-        for guideline in candidate["codebook_guidelines"]:
-            guidelines_str += f"\t- {guideline}\n"
-        if len(candidate["codebook_guidelines"]) == 0:
-            guidelines_str = "No guidelines for defining instances of this condition.\n"
-        labels_str = ""
-        for label in candidate["labels"][:3]:
-            labels_str += f"\t- {label['title']}: {label['definition']}\n"
-
-        if len(candidate["labels"]) == 0:
-            labels_str = "No example instances of this condition (i.e., labels).\n"
-        schema_str = SCHEMA_FORMAT.format(schema_id=f"F{candidate_idx+1}", schema_type=candidate["schema_type"], schema_title=candidate["schema"], schema_plural=candidate["schema_plural"], schema_definition=candidate["definition"], schema_guidelines=guidelines_str, schema_labels=labels_str)
-        candidates_str += f"{schema_str}\n"
-    return candidates_str
 
 def candidates_gen_to_struct(gen_candidates):
     struct_candidates = []
     for candidate in gen_candidates:
-        labels = []
-        for label in candidate["examples"]:
-            labels.append({
-                "title": label["title"],
-                "definition": label["definition"],
+        answers = []
+        for answer in candidate["examples"]:
+            answers.append({
+                "answer": answer["answer"],
+                "definition": answer["definition"],
                 "examples": [],
             })
         struct_candidates.append({
-            "schema_type": candidate["type"],
-            "schema": candidate["title"],
-            "schema_plural": candidate["title_plural"],
-            "definition": candidate["definition"],
-            "codebook_guidelines": candidate["guidelines"],
-            "labels": labels,
+            "type": candidate["type"],
+            "title": candidate["title"],
+            "title_plural": candidate["title_plural"],
+            "question": candidate["question"],
+            "answer_guidelines": candidate["answer_guidelines"],
+            "answers": answers,
         })
     return struct_candidates
 
+def candidates_to_str(candidates):
+    candidates_strs = []
+    for idx, candidate in enumerate(candidates):
+        guideliens_str = guidelines_to_str(candidate["answer_guidelines"])
+        answers_str = answers_to_str(candidate["answers"])
+        candidates_strs.append(CANDIDATE_FACET_FORMAT.format(
+            facet_id=f"F{idx+1}",
+            facet_type=candidate["type"],
+            facet_title=candidate["title"],
+            facet_title_plural=candidate["title_plural"],
+            question=candidate["question"],
+            answer_guidelines=guideliens_str,
+            answers=answers_str,
+        ))
+    candidates_str = "\n".join(candidates_strs)
+    return candidates_str
 
-def form_facet_candidates(task, pieces, current_candidates):
-    pieces_str = ""
-    for piece_idx, piece in enumerate(pieces):
-        pieces_str += f"[{piece_idx+1}] {piece['content']}\n"
+def form_facet_candidates(task, pieces):
+    pieces_str = pieces_to_str(pieces)
 
-    candidates_str = candidates_to_str(current_candidates)
-    if len(current_candidates) == 0:
-        candidates_str = "No candidates provided."
-    
     messages = [
         {
             "role": "system",
@@ -392,10 +463,10 @@ def form_facet_candidates(task, pieces, current_candidates):
         },
         {
             "role": "user",
-            "content": USER_PROMPT_FORM_FACET_CANDIDATES.format(task=task, pieces=pieces_str, candidates=candidates_str),
+            "content": USER_PROMPT_FORM_FACET_CANDIDATES.format(task=task, pieces=pieces_str),
         },
     ]
-    response = get_response_pydantic(messages, CandidateApplicabilityFacetsSchema)
+    response = get_response_pydantic(messages, CandidateFacetsSchema)
 
     # merged_candidates = combine_facet_candidates(
     #     task,
@@ -407,110 +478,88 @@ def form_facet_candidates(task, pieces, current_candidates):
     return candidates_gen_to_struct(response["candidates"])
 
 
-# SYSTEM_PROMPT_COMBINE_FACET_CANDIDATES = """
-# You are a helpful assistant who can understand and analyze procedural knowledge and its applicability."""
+SYSTEM_PROMPT_COMBINE_FACET_CANDIDATES = """
+You are a helpful assistant who can understand and analyze procedural knowledge and its applicability.
+"""
 
-# USER_PROMPT_COMBINE_FACET_CANDIDATES = """
-# You are given two lists of candidate CONDITIONS that describe where knowledge about {task} applies:
-# - OLD candidates:
-# {old_candidates}
-# - NEW candidates:
-# {new_candidates}
+USER_PROMPT_COMBINE_FACET_CANDIDATES = """
+You are analyzing applicability facets (a single concrete question) that describe where knowledge about {task} applies. There are three general types of facets: Why (e.g., why this information applies), When (e.g., when this information applies), Where (e.g., where this information applies).
 
-# GOAL
-# Produce ONE comprehensive, orthogonal set of atomic CONDITIONS (with concrete illustrative example VALUES). Prefer NEW conditions only if coverage is equal or better.
+### INPUTS
+- Applicability facets, each labeled with an ID in square brackets (e.g., "[F1] ..."):  
+{candidates}
 
-# DEFINITION
-# - CONDITION = one atomic discriminator on a single axis: Purpose (why/outcome) | Method (how/technique) | Context (state/equipment/constraints, incl. workflow phase/step).
-# - VALUES = mutually-exclusive options for that discriminator.
-# - Reject umbrella categories (e.g., "context/strategy/handling")—split into atomic CONDITIONS.
+### GOAL
+Combine the given facets to get a set of facets that:
+- Cover all initial facets.
+- Are orthogonal (the answer to one facet does not deterministically fix the answer to another).
+- Are about applicability (the question concerns when/where/why a piece of information about the task applies).
+- Are single-slot (the answer is one short phrase <3 words).
 
-# REPRESENTATIVE EXAMPLES (for guidance only)
-# - Purpose example — Removal intent
-#     Values: Seamless realism, Privacy redaction, Make layout space.
-# - Method example — Removal technique
-#     Values: Clone/heal brush, Content-aware/patch, Generative inpainting.
-# - Context example — Removal scale
-#     Values: Spot/blemish, Small object, Large/structural.
+### PROCEDURE
+Iterate until stable:
+1) Check for duplicates:
+    - Merge semantically equivalent facets.  
+    - Example (WRONG: treated separately):  
+        - [F1] What phase does this information apply?  
+        - [F2] What time in the process does this information apply?  
+    - Example (CORRECT: merged):  
+        - [F1] What phase does this information apply?  
+2) Check for orthogonality:
+    - Redefine or replace non-orthogonal pairs with independent facets.  
+    - Example (WRONG: not independent):  
+        - [F3] In what place would this information be useful?  
+        - [F4] What tools does this information apply to?
+        - Tool applicability is deterministically tied to physical setting, so can focus on one of the two.
+    - Example (CORRECT: independent redesign):  
+        - [F4] What tools does this information apply to?
+3) Check for single-slot:
+    - Rephrase questions so answers fit in less than 3 words.
+    - Example (WRONG: open-ended):  
+        - [F5] Why does this information apply in this situation?  
+    - Example (CORRECT: single-slot):  
+        - [F5] What result/effect is this information trying to help achieve?
+4) Check for "about applicability":
+   - Ensure the question is about applicability of the information, not its description.
+   - Example (WRONG: descriptive):  
+        - [F6] Why pressing the button?
+   - Example (CORRECT: applicability):  
+        - [F6] What result/effect is this information trying to help achieve when pressing the button?
+5) Check for coverage:
+    - Ensure the new set preserves all the meaning of the original facets.
 
-# PROCESS
-# 1) Combine: Simply concatenate OLD + NEW into one working list.
-# 2) Remove duplicates and subset conditions: 
-#     - Duplicate: If two conditions have the same axis and definition.
-#     - Subset: If one of the conditions completely contain the other.
-#    Positive examples — MERGE:
-#    - Context: "Removal scale" vs "Object size"
-#      • Same discriminator (area/px). → Keep "Removal scale".
-#    - Method: "Inpainting method" vs "Synthesis method"
-#      • Same discriminator (how pixels are generated). → Keep "Synthesis method".
-#    - Purpose: "Seamless realism" vs "Invisible cleanup"
-#      • Same discriminator (goal: invisibility). → Keep "Seamless realism" (NEW wording).
+### EXIT CONDITION
+The final facet set is smallest, orthogonal, single-slot, and fully covers the initial set. The facets should be about applicability of the information.
 
-#    Negative examples — DO NOT MERGE:
-#    - Cross-axis: "Removal intent" (Purpose) vs "Clone/Heal" (Method)
-#      • Different axes → keep both.
-#    - Same axis, different discriminator: "Background variation" vs "Lighting condition" (Context)
-#      • Different ideas (texture vs illumination) → keep both.
-#    - Not a subset: "Convection bake" (device) vs "High-then-lower" (temperature profile) (Context)
-#      • Independent discriminators → keep both.
+### OUTPUT
+The list of APPLICABILITY FACETS, where each facet has the following fields:
+- ID
+- Type: Why | When | Where
+- Title (less than 2-3 words)
+- Plural title
+- Question (less than 20 words)
+- Guidelines on how to extract the answer from the information item/context (e.g., what to look for, what to ignore, format of the answer: length, how to canonize the answer)
+- Example answers (1-2): short representative values 1-2 words
 
-# 3) Non-orthogonal pairs (split or reframe)
-#    Overlap test:
-#    - Q1: Could the **same instance** satisfy both conditions *for the same reason*?
-#    - Q2: Do both conditions name the **same discriminator**?
-#    If YES to both → they collide; **split/reframe** so each names one atomic discriminator with non-overlapping applicability tests.
+### NOTES
+- Use domain-canonical labels/units.
+- Example answers are illustrative, not exhaustive.
+"""
 
-#    Positive examples — SPLIT / REFRAME:
-#    - Mixed axes in one label: "Quick fix for small objects"
-#      • Mixes Method (quick fix) + Context (small objects).
-#      → Split into "Removal technique" (Method) and "Removal scale" (Context).
-#    - Same axis collision: "Background complexity" vs "Texture continuity" (Context)
-#      • Both encode variation of background; overlap on signals ("busy", "patterned").
-#      → Reframe into a single "Background variation" with values {Uniform, Repetitive pattern, Multi-texture}.
-#    - Purpose/Context tangle: "Seamless realism" (Purpose) vs "Invisibility level" (Context with strength buckets)
-#      • Goal vs quality threshold collide in wording.
-#      → Keep Purpose "Seamless realism"; move numeric thresholds under Context "Obfuscation strength"; remove duplicate purpose value.
+def combine_facet_candidates(task, all_candidates):
+    all_candidates_str = candidates_to_str(all_candidates)
 
-#    Negative examples — DO NOT SPLIT:
-#    - Co-applicable but different discriminators (same axis): "Synthesis method" (Method) and "Selection method" (Method)
-#      • An edit rightly has both a selection and a synthesis; no collision → keep both.
-#    - Different axes by design: "Privacy redaction" (Purpose) and "Pixelate" (Method)
-#      • Goal vs tool; co-apply is intended → keep both.
-#    - Values already mutually exclusive: "Removal scale" {Spot, Small, Large}
-#      • No overlap between values; no split needed.
+    messages = [
 
-# 4) Loop
-#    - If you merged or split in Steps 2–3, **repeat Step 2** on the updated list until no more merges/splits trigger.
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT_COMBINE_FACET_CANDIDATES,
+        },
+        {
+            "role": "user",
+            "content": USER_PROMPT_COMBINE_FACET_CANDIDATES.format(task=task, candidates=all_candidates_str),
+        },
+    ]
+    response = get_response_pydantic(messages, CandidateFacetsSchema)
 
-# 5) Coverage check
-#    - Map every OLD/NEW item → exactly one final CONDITION (record the mapping).
-#    - If something doesn’t map, add a new atomic CONDITION (1 axis, 1 discriminator, clear signals).
-
-# OUTPUT — New list of relevant CONDITIONS
-# For each CONDITION, provide:
-# - Id (reuse if possible)
-# - Axis: Purpose | Method | Context
-# - Name (<=4 words)
-# - Definition (<= 20 words)
-# - Guidelines (5-8 bullets) to extract VALUES (signals, pattern/threshold formats, canonical distinctions, synonym handling, when to split/merge)
-# - Example VALUES (1-2): {Value name — value definition}
-# """
-
-# def combine_facet_candidates(task, prev_candidates, new_candidates):
-#     prev_candidates_str = candidates_to_str(prev_candidates)
-#     new_candidates_str = candidates_to_str(new_candidates)
-
-#     messages = [
-#         {
-#             "role": "system",
-#             "content": SYSTEM_PROMPT_COMBINE_FACET_CANDIDATES,
-#         },
-#         {
-#             "role": "user",
-#             "content": USER_PROMPT_COMBINE_FACET_CANDIDATES.format(task=task, old_candidates=prev_candidates_str, new_candidates=new_candidates_str),
-#         },
-#     ]
-#     response = get_response_pydantic(messages, CandidateApplicabilityFacetsSchema)
-
-#     merged_candidates = candidates_gen_to_struct(response["candidates"])
-#     return merged_candidates
+    return candidates_gen_to_struct(response["candidates"])
