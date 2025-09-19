@@ -11,4 +11,3 @@ export function Tooltip({ tip }: { tip: TooltipData }) {
     </div>
   );
 }
-
