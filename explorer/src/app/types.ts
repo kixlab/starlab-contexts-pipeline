@@ -8,10 +8,18 @@ export type DatasetVideoPiece = {
   unit_id: string;
 };
 
+export type TranscriptEntry = {
+  text: string;
+  start: number;
+  end: number;
+};
+
 export type DatasetVideo = {
   url: string;
   title: string;
   original_title: string;
+  content: string;
+  transcript: TranscriptEntry[];
   pieces: DatasetVideoPiece[];
 };
 
