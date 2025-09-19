@@ -3,14 +3,17 @@ export type InfoTypeDefinition = { title: string; text: string };
 export const ALL_TYPES_DEFINITION: InfoTypeDefinition = {
   title: "Total Information Coverage",
   text:
-    "Average coverage across all types.\n\n" +
-    "We compute each type’s % (contexts where it appears / all contexts) and then average those %s.\n\n" +
+    "Average coverage across all information types.\n\n" +
+    "Calculation: For each information type, compute (contexts with that type / total contexts), then average these percentages.\n\n" +
+    "The denominator can be set to 'Theoretical' (all possible facet combinations) or 'Relative' (only combinations that exist in the data).\n\n" +
     "Higher % = more saturation; lower % = bigger gaps.",
 };
 
 export const GENERIC_TYPE_DEFINITION: InfoTypeDefinition = {
-  title: "Information Type",
-  text: "The % of contexts (facet combinations) that include at least one item of this type.\n\n" + 
+  title: "Information Type Coverage",
+  text: "The percentage of contexts (facet value combinations) that include at least one item of this specific type.\n\n" + 
+  "Calculation: (contexts with this type / total contexts) × 100\n\n" +
+  "The denominator can be set to 'Theoretical' (all possible facet combinations) or 'Relative' (only combinations that exist in the data).\n\n" +
   "We count presence, not quantity—multiple items in the same context still count once.\n\n" +
   "Higher % = more saturation; lower % = bigger gaps.",
 };
