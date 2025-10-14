@@ -444,59 +444,59 @@ def get_cell_to_units(context_schema, dataset, important_piece_types):
     print("Sparsity %: ", sparsity)
     
     return cell_to_units, len(relevant_units)
-# from helpers.bert import bert_embedding, clustering_custom
+from helpers.bert import bert_embedding, clustering_custom
 from prompts.stupid_experiment_3 import form_information_units
 
-def build_information_units_v0(task, dataset, information_unit_similarity_threshold):
+def build_information_units_v0(task, dataset, information_unit_similarity_threshold, dummy=""):
     
     taskname = task.replace(" ", "_").lower()
     parent_path = os.path.join(FRAMEWORK_PATH, f'{taskname}')
     if not os.path.exists(parent_path):
         os.makedirs(parent_path)
 
-    path = os.path.join(parent_path, "information_units_v0.json")
+    path = os.path.join(parent_path, f"information_units_{dummy}.json")
     if os.path.exists(path):
         with open(path) as f:
             dataset = json.load(f)
             return dataset
     
-    # for video_idx, video in enumerate(dataset):
-    #     if "pieces" in video:
-    #         pieces = video["pieces"]
-    #     else:
-    #         ### forming the information units (conceptually should be easily redefinable)
-    #         pieces = form_information_units(task, video['transcript'])
-    #         video['pieces'] = []
-    #         for i, piece in enumerate(pieces):
-    #             video['pieces'].append({
-    #                 "piece_id": f"piece_{video_idx}_{i}",
-    #                 **piece,
-    #                 "labels": {},
-    #             })
+    for video_idx, video in enumerate(dataset):
+        if "pieces" in video:
+            pieces = video["pieces"]
+        else:
+            ### forming the information units (conceptually should be easily redefinable)
+            pieces = form_information_units(task, video['transcript'])
+            video['pieces'] = []
+            for i, piece in enumerate(pieces):
+                video['pieces'].append({
+                    "piece_id": f"piece_{video_idx}_{i}",
+                    **piece,
+                    "labels": {},
+                })
 
-    # ### TODO: maybe cluster for each type of information separately?
-    # all_pieces = []
-    # for video_idx, video in enumerate(dataset):
-    #     for i, piece in enumerate(video['pieces']):
-    #         piece["piece_id"] = f"piece_{video_idx}_{i}"
-    #         all_pieces.append(piece)
+    ### TODO: maybe cluster for each type of information separately?
+    all_pieces = []
+    for video_idx, video in enumerate(dataset):
+        for i, piece in enumerate(video['pieces']):
+            piece["piece_id"] = f"piece_{video_idx}_{i}"
+            all_pieces.append(piece)
 
-    # #### cluster similar pieces in `all_pieces`
-    # information_units = {}
+    #### cluster similar pieces in `all_pieces`
+    information_units = {}
 
-    # unit_labels = clustering_custom([piece["content"] for piece in all_pieces], information_unit_similarity_threshold)
-    # for i, piece in enumerate(all_pieces):
-    #     cur_unit_id = f"unit_{unit_labels[i]}"
-    #     piece["unit_id"] = cur_unit_id
-    #     if cur_unit_id not in information_units:
-    #         ### first piece is the representative of the cluster (IU)
-    #         information_units[cur_unit_id] = {
-    #             "content": piece["content"],
-    #             "content_type": piece["content_type"],
-    #             "instances": [piece["piece_id"]],
-    #         }
-    #     else:
-    #         information_units[cur_unit_id]["instances"].append(piece["piece_id"])
+    unit_labels = clustering_custom([piece["content"] for piece in all_pieces], information_unit_similarity_threshold)
+    for i, piece in enumerate(all_pieces):
+        cur_unit_id = f"unit_{unit_labels[i]}"
+        piece["unit_id"] = cur_unit_id
+        if cur_unit_id not in information_units:
+            ### first piece is the representative of the cluster (IU)
+            information_units[cur_unit_id] = {
+                "content": piece["content"],
+                "content_type": piece["content_type"],
+                "instances": [piece["piece_id"]],
+            }
+        else:
+            information_units[cur_unit_id]["instances"].append(piece["piece_id"])
 
     with open(path, "w") as f:
         json.dump(dataset, f, indent=4)
@@ -774,7 +774,7 @@ def process_videos_approach_1(task, dataset, important_piece_types, dummy):
     app1_dummy = "app1_" + dummy
 
     ### build the `information units`
-    labeled_dataset = build_information_units_v0(task, dataset, information_unit_similarity_threshold)
+    labeled_dataset = build_information_units_v0(task, dataset, information_unit_similarity_threshold, app1_dummy)
 
     ### Greedy Algorithm for constructing the schema:
 
@@ -874,7 +874,7 @@ def process_videos_approach_1(task, dataset, important_piece_types, dummy):
             "best_c": best_c,
             "improvement": o_biggest,
             "best_facet_toadd": best_facet_toadd,
-            "best_facet": (None if best_facet_toadd is None else facet_candidates[best_facet_toadd]),
+            "best_facet": (None if best_facet_toadd is None else facet_candidates[best_facet_toadd]["title"]),
         })
         if o_biggest < stopping_delta_threshold:
             print("WARNING: Adding a facet didn't improve the objective `significantly`", o_biggest, stopping_delta_threshold)
@@ -981,3 +981,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#### Fix the inofrmation_units building, clip, and bert.

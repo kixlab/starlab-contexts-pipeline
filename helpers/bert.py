@@ -6,7 +6,7 @@ from stop_words import get_stop_words
 
 
 ### fine-tune the model
-# model = SentenceTransformer("all-MiniLM-L6-v2")
+model = SentenceTransformer("all-MiniLM-L6-v2")
 # model.fit(
 #     train_objectives=[(train_dataloader, train_loss)],
 #     epochs=1,
@@ -14,9 +14,9 @@ from stop_words import get_stop_words
 #     optimizer_params={'lr': 1e-4},
 # )
 
+en_stop_words = get_stop_words('en')
+
 def bert_embedding(texts):
-    model = SentenceTransformer("all-MiniLM-L6-v2")
-    en_stop_words = get_stop_words('en')
     if len(texts) == 0:
         return np.array([])
 
