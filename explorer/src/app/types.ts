@@ -27,10 +27,10 @@ export type Facet = {
   type: string; // when | where | why
   title: string;
   title_plural: string;
-  question: string;
-  answer_guidelines?: string[];
-  answers: Array<{
-    answer: string;
+  definition: string;
+  guidelines?: string[];
+  vocabulary: Array<{
+    label: string;
     definition: string;
   }>;
 };
