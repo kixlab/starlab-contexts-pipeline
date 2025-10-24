@@ -13,7 +13,6 @@ from helpers.bert import bert_embedding, tfidf_embedding, mccs
 from prompts.rag import get_rag_response_full_tutorial, get_rag_response_tutorial_segment
 
 EMBEDDINGS_PATH = "./static/results/rag/"
-DOCUMENT_SCORE_THRESHOLD = 0.7
 
 def perform_embedding(embedding_method, texts):
     """
@@ -42,7 +41,7 @@ def encode_dataset(embedding_method, task, dataset):
         pickle.dump(embeddings, open(embeddings_path, "wb"))
     return embeddings
 
-def encode_query(embedding_method, tutorial, query, segment=None):
+def encode_query(embedding_method, tutorial, query, segment):
     """
     Encode the query into a vector.
     """
@@ -53,7 +52,7 @@ def encode_query(embedding_method, tutorial, query, segment=None):
     embeddings = perform_embedding(texts, embedding_method)
     return embeddings
 
-def perform_retrieval(embedding_method, task, dataset, tutorial, query, segment=None, k=10):
+def perform_retrieval(embedding_method, task, dataset, tutorial, query, segment, k):
     """
     Perform RAG retrieval on the vector database using the query vector and respond to the query.
     """
@@ -71,18 +70,19 @@ def perform_retrieval(embedding_method, task, dataset, tutorial, query, segment=
         })
     return documents, scores
 
-def respond_to_query_rag(embedding_method, task, dataset, tutorial, query, segment=None, k=10):
+def respond_to_query_rag(embedding_method, task, dataset, tutorial, query, segment, k, doc_score_threshold):
     documents, scores = perform_retrieval(embedding_method, task, dataset, tutorial, query, segment, k)
 
-    ### filter out documents with score less than 0.7
     filtered_documents = []
     for document in documents:
-        if document["score"] >= DOCUMENT_SCORE_THRESHOLD:
+        if document["score"] >= doc_score_threshold:
             filtered_documents.append(document)
     if len(filtered_documents) == 0:
-        raise ValueError("No documents with score >= 0.7 found.")
+        raise ValueError(f"No documents with score >= {doc_score_threshold} found.")
 
     if segment is None:
         return get_rag_response_full_tutorial(task, filtered_documents, tutorial, query)
     else:
         return get_rag_response_tutorial_segment(task, filtered_documents, tutorial, segment, query)
+
+generic_call_rag = lambda embedding_method, task, dataset, tutorial, query, segment, n, k, doc_score_threshold: respond_to_query_rag(embedding_method, task, dataset, tutorial, query, segment, k, doc_score_threshold)

@@ -1,9 +1,9 @@
 from src.framework_v0 import construct_cim
-from src import MUFFIN_TASK, CUSTOM_TASKS, CROSS_TASK_TASKS, IMPORTANT_TYPES
+from helpers.dataset import MUFFIN_TASK, CUSTOM_TASKS, CROSS_TASK_TASKS
 
 def run_framework(task):
     dummy = "segmentation_v1"
-    _ = construct_cim(task, IMPORTANT_TYPES, dummy)
+    _ = construct_cim(task, dummy)
     print("COMPLETED!")
 
 def run_rag():
