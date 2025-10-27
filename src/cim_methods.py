@@ -12,6 +12,7 @@ def context_similarity_retrieval(task, tutorial, query, segment, n):
     dataset = get_dataset(task)
     cim = construct_cim(task, "final")
 
+    ### single response: {"content": "...", "source_doc_idx": "..."}
     pass
 
 generic_call_context_similarity = lambda embedding_method, task, dataset, tutorial, query, segment, n, k, doc_score_threshold: context_similarity_retrieval(embedding_method, task, dataset, tutorial, query, segment, n)
@@ -21,6 +22,7 @@ def shortest_path_retrieval(task, tutorial, query, segment, n):
     dataset = get_dataset(task)
     cim = construct_cim(task, "final")
 
+    ### single response: {"content": "...", "source_doc_idx": "..."}
     pass
 
 generic_call_shortest_path = lambda embedding_method, task, dataset, tutorial, query, segment, n, k, doc_score_threshold: shortest_path_retrieval(embedding_method, task, dataset, tutorial, query, segment, n)

@@ -16,134 +16,55 @@ import random
 import os
 import json
 
-from helpers.dataset import MUFFIN_TASK, CUSTOM_TASKS, CROSS_TASK_TASKS
-from helpers.dataset import IMPORTANT_TYPES
+from helpers.dataset import IMPORTANT_TYPES, IMPORTANT_TYPE_DESCRIPTIONS
 from helpers.dataset import get_dataset
+
+from eval import DatasetConfig, MethodConfig, EvalConfig
+
+from helpers.dataset import MUFFIN_TASK, CUSTOM_TASKS, CROSS_TASK_TASKS
 
 from src.rag import generic_call_rag
 from src.cim_methods import generic_call_context_similarity, generic_call_shortest_path
 
-TECH_EVAL_PATH = "./static/results/tech_eval/"
+from eval.llm_judge import relevance_absolute_evaluation
 
-DATASETS = [
-    {
-        "label": "test_q0_n5",
-        "tasks": [MUFFIN_TASK],
-        "query_idx": 0,
-        "N_idx": 0,
-    },
-    {
-        "label": "cross-task_q0_n5",
-        "tasks": CROSS_TASK_TASKS,
-        "query_idx": 0,
-        "N_idx": 0,
-    },
-    {
-        "label": "custom_q0_n5",
-        "tasks": CUSTOM_TASKS[:4],
-        "query_idx": 0,
-        "N_idx": 0,
-    },
-]
+from pydantic_models.evaluation import MetricScale
 
-METHODS = {
-    "rag": {
-        "label": "RAG-bert-10-0.7",
-        "embedding_method": "bert",
-        "k": 10,
-        "doc_score_threshold": 0.7,
-        "func": generic_call_rag,
-    },
-    "vanilla": {
-        "label": "vanilla-bert",
-        "embedding_method": "bert",
-        "k": None,
-        "doc_score_threshold": None,
-        "func": generic_call_rag,
-    },
-    "context_similarity": {
-        "label": "context-similarity-bert",
-        "embedding_method": "bert",
-        "k": None,
-        "doc_score_threshold": None,
-        "func": generic_call_context_similarity,
-    },
-    "shortest_path": {
-        "label": "shortest-path-bert",
-        "embedding_method": "bert",
-        "k": None,
-        "doc_score_threshold": None,
-        "func": generic_call_shortest_path,
-    },
-}
-
-EVALS = {
-    "relevance_abs": {
-        "label": "relevance-analysis-abs",
-        "func": None,
-    },
-    "relevance_rel": {
-        "label": "relevance-analysis-rel",
-        "func": None,
-    },
-    "faithfulness": {
-        "label": "faithfulness-analysis",
-        "func": None,
-    },
-    "comprehensiveness": {
-        "label": "comprehensiveness-analysis",
-        "func": None,
-    },
-}
-
-QUERIES = [
-    "Given a tutorial with the highlighted segment, retrieve top-{N} missing, but relevant {TYPE} information for the segment.",
-    "Given a tutorial, retrieve top-{N} missing, but relevant {TYPE} information for the entire tutorial.",
-    "Given a tutorial, retrieve all missing, but relevant {TYPE} information.",
-]
-
-Ns = [5, 20]
-
-TYPES = IMPORTANT_TYPES
-
-def sample_test_dataset(tasks, sample_per_task, query_idx, N_idx):
+def sample_test_dataset(tasks, sample_per_task, sample_segment_per_tutorial, query, n):
     test_dataset = []
-    N = Ns[N_idx]
-    query = QUERIES[query_idx]
     for task in tasks:
         dataset = get_dataset(task)
         sampled_tutorials = random.sample(dataset, sample_per_task)
         for tutorial in sampled_tutorials:
-            TYPE = random.choice(TYPES)
-            
+            TYPE = random.choice(IMPORTANT_TYPES)
+            TYPE_DESCRIPTION = IMPORTANT_TYPE_DESCRIPTIONS[TYPE]
+            TYPE_DESCRIPTION = TYPE_DESCRIPTION.strip()
             cur_query = query
-            if query_idx < 2:
-                cur_query = cur_query.format(N=N, TYPE=TYPE)
-            else:
-                cur_query = cur_query.format(TYPE=TYPE)
+            cur_query = cur_query.format(N=n, TYPE=TYPE)
+            cur_query = cur_query + f"\nFollowing are examples of {TYPE} information: \n{TYPE_DESCRIPTION}" ### add definition for the kind of information to retrieve
 
             cur_segment = None
-            if query_idx < 1:
-                cur_segment = "TODO"
+            if sample_segment_per_tutorial > 0:
+                cur_segment = f"TODO: sample {sample_segment_per_tutorial} segments per tutorial"
             
             test_dataset.append({
                 "task": task,
                 "tutorial": tutorial,
                 "segment": cur_segment,
                 "query": cur_query,
-                "n": N,
+                "n": n,
             })
 
     return test_dataset
 
 def construct_test_dataset(dataset_config):
-    label = dataset_config["label"]
+    label = dataset_config.label
     test_dataset_path = os.path.join(TECH_EVAL_PATH, label + ".json")
     if os.path.exists(test_dataset_path):
         with open(test_dataset_path, "r") as f:
             return json.load(f)
 
-    test_dataset = sample_test_dataset(dataset_config["tasks"], dataset_config["query_idx"], dataset_config["N_idx"])
+    test_dataset = sample_test_dataset(dataset_config.tasks, dataset_config.sample_per_task, dataset_config.sample_segment_per_tutorial, dataset_config.query, dataset_config.n)
     with open(test_dataset_path, "w") as f:
         json.dump(test_dataset, f, indent=4)
     return test_dataset
@@ -171,10 +92,10 @@ def test_dataset_statistics(test_dataset):
         print("-"*20)
 
 def run_method(method_config, test_dataset):
-    method_func = method_config["func"]
-    embedding_method = method_config["embedding_method"]
-    k = method_config["k"]
-    doc_score_threshold = method_config["doc_score_threshold"]
+    method_func = method_config.func
+    embedding_method = method_config.embedding_method
+    k = method_config.k
+    doc_score_threshold = method_config.doc_score_threshold
     responses = []
     for test in test_dataset:
         task = test["task"]
@@ -187,10 +108,10 @@ def run_method(method_config, test_dataset):
         responses.append(response)
     return responses
 
-def run_eval_abs(dataset_config, method_config, eval_config):
-    dataset_label = dataset_config["label"]
-    eval_label = eval_config["label"]
-    method_label = method_config["label"]
+def run_absolute_eval(dataset_config, method_config, eval_config):
+    dataset_label = dataset_config.label
+    eval_label = eval_config.label
+    method_label = method_config.label
 
     results_path = os.path.join(TECH_EVAL_PATH, f"{dataset_label}_{method_label}_{eval_label}.json")
 
@@ -207,13 +128,55 @@ def run_eval_abs(dataset_config, method_config, eval_config):
     
 
     print("Running eval...")
-    eval_func = eval_config["func"]
-    results = eval_func(responses, test_dataset)
+    eval_func = eval_config.func
+    evaluation_results = eval_func(responses, test_dataset, eval_config.metric)
     
     results = {
+        "evaluation_type": "absolute",
+        "evaluation_results": evaluation_results,
         "responses": responses,
+        "dataset_config": dataset_config.to_json(),
+        "method_config": method_config.to_json(),
+        "eval_config": eval_config.to_json(),
+    }
+    
+    with open(results_path, "w") as f:
+        json.dump(results, f, indent=4)
+
+    return results
+
+def run_comparative_eval(dataset_config, method_config_A, method_config_B, eval_config):
+    dataset_label = dataset_config["label"]
+    eval_label = eval_config["label"]
+    method_labels = [method_config_A["label"], method_config_B["label"]]
+    ### sort method_labels alphabetically
+    method_labels.sort()
+    method_labels = '_'.join(method_labels)
+    results_path = os.path.join(TECH_EVAL_PATH, f"{dataset_label}_{method_labels}_{eval_label}.json")
+    if os.path.exists(results_path):
+        with open(results_path, "r") as f:
+            return json.load(f)
+    
+    print("Constructing test dataset...")
+    test_dataset = construct_test_dataset(dataset_config)
+    test_dataset_statistics(test_dataset)
+
+    print("Running methods...")
+    responses_A = run_method(method_config_A, test_dataset)
+    responses_B = run_method(method_config_B, test_dataset)
+
+    print("Running eval...")
+    eval_func = eval_config["func"]
+    evaluation_results = eval_func(responses_A, responses_B, test_dataset)
+    
+    results = {
+        "evaluation_type": "comparative",
+        "evaluation_results": evaluation_results,
+        "responses_A": responses_A,
+        "responses_B": responses_B,
         "dataset_config": dataset_config,
-        "method_config": method_config,
+        "method_config_A": method_config_A,
+        "method_config_B": method_config_B,
         "eval_config": eval_config,
     }
     
@@ -222,20 +185,112 @@ def run_eval_abs(dataset_config, method_config, eval_config):
 
     return results
 
-def run_eval_rel(dataset_config, method_configs, eval_config):
-    ### Get responses from all the methods and run the comparative eval_config on them.
-    pass
-
 def main():
     dataset_config = DATASETS[0] ### test_q0_n5
     ## dataset_config = DATASETS[1] ### cross-task_q0_n5
     ## dataset_config = DATASETS[2] ### custom_q0_n5
 
-    method_config = METHODS["rag"]
-    eval_config = EVALS["relevance_abs"]
+    method_config = METHODS[1]
+    eval_config = EVALS[0]
     
-    results = run_eval_abs(dataset_config, method_config, eval_config)
+    results = run_absolute_eval(dataset_config, method_config, eval_config)
     print(json.dumps(results, indent=4))
+
+TECH_EVAL_PATH = "./static/results/tech_eval/"
+
+QUERIES = [
+    "Given a tutorial with the highlighted segment, retrieve top-{N} missing, but relevant {TYPE} information for the segment. {TYPE}",
+    "Given a tutorial, retrieve top-{N} missing, but relevant {TYPE} information for the entire tutorial.",
+    "Given a tutorial, retrieve all missing, but relevant {TYPE} information.",
+]
+
+DATASETS = [
+    DatasetConfig(
+        label="test_q1_n2",
+        tasks=[MUFFIN_TASK],
+        sample_per_task=2,
+        query=QUERIES[1],
+        sample_segment_per_tutorial=0, ### specify if query_idx = 0
+        n=5,
+    ),
+    DatasetConfig(
+        label="cross-task_q0_n5",
+        tasks=CROSS_TASK_TASKS,
+        sample_per_task=5,
+        query=QUERIES[0],
+        sample_segment_per_tutorial=1,
+        n=5,
+    ),
+    DatasetConfig(
+        label="custom_q0_n5",
+        tasks=CUSTOM_TASKS[:4], ### TODO: actually sample 4 tasks
+        sample_per_task=5,
+        query=QUERIES[0],
+        sample_segment_per_tutorial=1,
+        n=5,
+    ),
+]
+
+METHODS = [
+    MethodConfig(
+        label="RAG-bert-10-0.7",
+        embedding_method="bert",
+        k=10,
+        doc_score_threshold=0.7,
+        func=generic_call_rag,
+    ),
+    MethodConfig(
+        label="vanilla-bert",
+        embedding_method="bert",
+        k=None,
+        doc_score_threshold=None,
+        func=generic_call_rag,
+    ),
+    MethodConfig(
+        label="context-similarity-bert",
+        embedding_method="bert",
+        k=None,
+        doc_score_threshold=None,
+        func=generic_call_context_similarity,
+    ),
+    MethodConfig(
+        label="shortest-path-bert",
+        embedding_method="bert",
+        k=None,
+        doc_score_threshold=None,
+        func=generic_call_shortest_path,
+    ),
+]
+
+EVALS = [
+    EvalConfig(
+        label="relevance-absolute-evaluation-3",
+        func=relevance_absolute_evaluation,
+        metric=MetricScale.LIKERT_3,
+    ),
+    EvalConfig(
+        label="relevance-absolute-evaluation-binary",
+        func=relevance_absolute_evaluation,
+        metric=MetricScale.BINARY,
+    ),
+    EvalConfig(
+        label="faithfulness-absolute-evaluation",
+        func=None,
+        metric=None,
+    ),
+    EvalConfig(
+        label="relevance-comparative-evaluation",
+        func=None,
+        metric=MetricScale.COMPARISON,
+    ),
+    EvalConfig(
+        label="comprehensiveness-comparative-evaluation",
+        func=None,
+        metric=MetricScale.COMPARISON,
+    ),
+]
+
+
 
 if __name__ == "__main__":
     main()

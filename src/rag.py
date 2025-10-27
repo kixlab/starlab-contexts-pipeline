@@ -49,7 +49,7 @@ def encode_query(embedding_method, tutorial, query, segment):
         texts = ["Tutorial: " + tutorial["content"] + "\n" + "Query: " + query]
     else:
         texts = ["Tutorial: " + tutorial["content"] + "\n" + "Segment: " + segment + "\n" + "Query: " + query]
-    embeddings = perform_embedding(texts, embedding_method)
+    embeddings = perform_embedding(embedding_method, texts)
     return embeddings
 
 def perform_retrieval(embedding_method, task, dataset, tutorial, query, segment, k):
@@ -58,27 +58,42 @@ def perform_retrieval(embedding_method, task, dataset, tutorial, query, segment,
     """
     dataset_embeddings = encode_dataset(embedding_method, task, dataset)
     query_embeddings = encode_query(embedding_method, tutorial, query, segment)
-    document_idxs, scores = mccs(dataset_embeddings, query_embeddings, top_k=k)
-    scores = scores.flatten()
+    
+    if k is None:
+        k = dataset_embeddings.shape[0]
+    
+    document_idxs, scores = mccs(dataset_embeddings, query_embeddings, top_k=k + 1) ### k + 1 to later filter out the tutorial itself
     document_idxs = document_idxs.flatten()
+    scores = scores.flatten()
+    
     documents = []
     for idx, score in zip(document_idxs, scores):
+        if dataset[idx]["url"] == tutorial["url"]:
+            ### skip the tutorial itself
+            print(f"retrieval works okay, because it can retrieve itself")
+            continue
         documents.append({
             "title": dataset[idx]["title"],
             "content": dataset[idx]["content"],
             "score": score,
         })
-    return documents, scores
+    if len(documents) > k:
+        documents = documents[:k]
+    return documents
 
 def respond_to_query_rag(embedding_method, task, dataset, tutorial, query, segment, k, doc_score_threshold):
-    documents, scores = perform_retrieval(embedding_method, task, dataset, tutorial, query, segment, k)
+    documents = perform_retrieval(embedding_method, task, dataset, tutorial, query, segment, k)
 
     filtered_documents = []
-    for document in documents:
-        if document["score"] >= doc_score_threshold:
-            filtered_documents.append(document)
+    if doc_score_threshold is not None:
+        for document in documents:
+            if document["score"] >= doc_score_threshold:
+                filtered_documents.append(document)
+    else:
+        filtered_documents = documents
+    
     if len(filtered_documents) == 0:
-        raise ValueError(f"No documents with score >= {doc_score_threshold} found.")
+        raise ValueError(f"No documents retrieved.")
 
     if segment is None:
         return get_rag_response_full_tutorial(task, filtered_documents, tutorial, query)

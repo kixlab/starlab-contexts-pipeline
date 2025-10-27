@@ -56,15 +56,14 @@ def mccs(embeddings, query_embeddings, top_k):
     Maximum Cosine Similarity Search for each query
     Return N x K matrix (N: number of queries, K: top_k) where each cell is the index of the j-th similar embedding.
     """
-    if top_k is None:
-        top_k = embeddings.shape[0]
-    else:
-        top_k = min(top_k, embeddings.shape[0])
+    
+    top_k = min(top_k, embeddings.shape[0])
     if top_k == 0:
         return [], []
+
     mccs_scores = np.dot(query_embeddings, embeddings.T)
-    top_k_indices_per_query = mccs_scores.argsort()[:,::-1][:,:top_k].tolist()
-    scores = np.take_along_axis(mccs_scores, top_k_indices_per_query, axis=-1)
+    top_k_indices_per_query = mccs_scores.argsort()[:,::-1][:,:top_k]
+    scores = np.array([row[p] for row, p in zip(mccs_scores, top_k_indices_per_query)])
     return top_k_indices_per_query, scores
 
 def clustering_custom(texts, similarity_threshold, embedding_method="bert"):

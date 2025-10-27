@@ -14,10 +14,11 @@ client_openai = OpenAI(
 SEED = 13774
 TEMPERATURE = 0
 MAX_TOKENS = 4096
-MODEL_NAME_OPENAI = 'gpt-5-mini-2025-08-07' #reasoning
+# MODEL_NAME_OPENAI = 'gpt-5-mini-2025-08-07' #reasoning
 # MODEL_NAME_OPENAI = 'gpt-4.1-2025-04-14'
 # MODEL_NAME_OPENAI = 'gpt-4.1-mini-2025-04-14'
 # MODEL_NAME_OPENAI = 'gpt-4.1-nano-2025-04-14'
+MODEL_NAME_OPENAI = 'gpt-4o-mini-2024-07-18'
 
 REASONING_EFFORT = "low" ### "low", "medium", "high"
 

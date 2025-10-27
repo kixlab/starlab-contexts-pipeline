@@ -5,27 +5,32 @@ SYSTEM_PROMPT_RAG = """You are a helpful assistant that can retrieve information
 
 ### e.g., query: "Given a tutorial, retrieve all missing, but relevant explanations for the tutorial."
 USER_PROMPT_FULL_TUTORIAL = """
-Here is available tutorials for the task `{task}` (formatted as [idx]: [title] [content]):
+Here are the available tutorials for the task `{task}`:
 <library>
 {library}
 </library>
 
-You are given a tutorial. Please answer the query `{query}`.
-<tutorial>
-{tutorial}
-</tutorial>
+You are given a context tutorial and a query. Please answer the query.
+<query>
+{query}
+</query>
+
+<context tutorial>
+{context_tutorial}
+</context tutorial>
 """
 
-def documents_to_context(documents):
+def tutorials_to_str(tutorials):
+    TUTORIAL_FORMAT = "<tutorial idx={idx} title={title}>\n{content}\n</tutorial>"
     text = ""
-    for idx, document in enumerate(documents):
-        text += f"[{idx+1}] {document['title']}\n```\n{document['content']}\n```\n"
+    for idx, tutorial in enumerate(tutorials):
+        text += TUTORIAL_FORMAT.format(idx=idx+1, title=tutorial['title'], content=tutorial['content']) + "\n"
     return text
 
 def get_rag_response_full_tutorial(task, documents, tutorial, query):
     
-    library_str = documents_to_context(documents)
-    tutorial_str = documents_to_context([tutorial])
+    library_str = tutorials_to_str(documents)
+    context_tutorial_str = tutorial["content"]
 
     messages = [
 
@@ -35,7 +40,7 @@ def get_rag_response_full_tutorial(task, documents, tutorial, query):
         },
         {
             "role": "user",
-            "content": USER_PROMPT_FULL_TUTORIAL.format(task=task, library=library_str, tutorial=tutorial_str, query=query),
+            "content": USER_PROMPT_FULL_TUTORIAL.format(task=task, library=library_str, context_tutorial=context_tutorial_str, query=query),
         },
     ]
     response = get_response_pydantic(messages, InformationListSchema)
@@ -43,26 +48,26 @@ def get_rag_response_full_tutorial(task, documents, tutorial, query):
 
 ### e.g., query: "Given a tutorial with the highlighted segment, retrieve top-{N} missing, but relevant explanations for the segment"
 USER_PROMPT_TUTORIAL_SEGMENT = """
-Here is available tutorials for the task `{task}` (formatted as [idx]: [title] [content]):
+Here are the available tutorials for the task `{task}`:
 <library>
 {library}
 </library>
 
-You are given a tutorial and its highlighted segment. Please answer the query `{query}`.
+You are given a context tutorial and its highlighted segment. Please answer the query.
 
-<tutorial>
-{tutorial}
-</tutorial>
+<context tutorial>
+{context_tutorial}
+</context tutorial>
 
 <highlighted_segment>
-{segment}
+{highlighted_segment}
 </highlighted_segment>
 """
 
 def get_rag_response_tutorial_segment(task, documents, tutorial, segment, query):
     
-    library_str = documents_to_context(documents)
-    tutorial_str = documents_to_context([tutorial])
+    library_str = tutorials_to_str(documents)
+    context_tutorial_str = tutorial["content"]
 
     messages = [
 
@@ -72,7 +77,7 @@ def get_rag_response_tutorial_segment(task, documents, tutorial, segment, query)
         },
         {
             "role": "user",
-            "content": USER_PROMPT_TUTORIAL_SEGMENT.format(task=task, library=library_str, tutorial=tutorial_str, segment=segment, query=query),
+            "content": USER_PROMPT_TUTORIAL_SEGMENT.format(task=task, library=library_str, context_tutorial=context_tutorial_str, highlighted_segment=segment, query=query),
         },
     ]
     response = get_response_pydantic(messages, InformationListSchema)
