@@ -1,6 +1,17 @@
 Constructing test dataset...
 Size:  2
 --------------------
+Given a tutorial, retrieve top-5 missing, but relevant Explanation information for the entire tutorial.
+Following are examples of Explanation information: 
+Justification: Reasons why the instruction was performed.
+Example: "Because every time we wear our contact lenses, makeup and even dirt particles [...] might harm our eyes directly."
+Effect: Consequences of the instruction.
+Example: "And these will overhang a little to help hide the gap."
+count: 1
+tasks: ['Making Muffins']
+segments: [None]
+--------------------
+--------------------
 Given a tutorial, retrieve top-5 missing, but relevant Description information for the entire tutorial.
 Following are examples of Description information: 
 Status: Descriptions of the current state of the target object.
@@ -9,1080 +20,816 @@ Context: Descriptions of the method or the setting.
 Example: "[...] The process of putting on a tip by hand [...] takes a lot of patience but it can be done if you're in a pinch."
 Tool Specification: Descriptions of the tools and equipment.
 Example: "These are awesome beans, creamy texture, slightly nutty loaded with flavor."
-count: 1
-tasks: ['Making Muffins']
-segments: [None]
---------------------
---------------------
-Given a tutorial, retrieve top-5 missing, but relevant Method information for the entire tutorial.
-Following are examples of Method information: 
-Subgoal: Objective of a subsection.
-Example: "Now for the intricate layer that will give me the final webbing look."
-Instruction: Actions that the instructor performs to complete the task.
-Example: "We're going to pour that into our silicone baking cups."
-Tool: Introduction of the materials, ingredients, and equipment to be used.
-Example: "I'm also going to use a pair of scissors, a glue stick, some fancy tape or some regular tape."
 count: 1
 tasks: ['Making Muffins']
 segments: [None]
 --------------------
 Running method...
-retrieval works okay, because it can retrieve itself
-MESSAGES: ROLE: system
-You are a helpful assistant that can retrieve information from a library of tutorials for a procedural task. You only consider the provided information (no external knowledge) when answering the query.
-ROLE: user
-
-Here are the available tutorials for the task `Making Muffins`:
-<library>
-<tutorial idx=1 title=Making Muffins>
-Classic blueberry muffins are nearly impossible to beat. Sweet, fluffy and studded with tangy blueberries, these muffins are always a favorite for breakfast, brunch or a snack. This easy blueberry muffin recipe is a keeper for anytime you're in need of a comforting treat. With plenty of room for adaptation, you can make these muffins gluten-free, refined sugar-free or dairy-free.
-Things You'll Need
-3 cups all-purpose flour
-1 cup light brown sugar, packed
-1 tablespoon baking powder
-1/2 teaspoon sea salt
-2 eggs, lightly beaten
-1 cup buttermilk
-1/2 cup canola oil
-1 2/3 cups fresh or frozen blueberries
-Preparation
-Heat the oven to 375 F. Coat a muffin tray with nonstick spray, or line your muffin tray with baking cups. Mix the flour, brown sugar, baking powder and salt to a mixing bowl. In a separate mixing bowl, combine the eggs, buttermilk and canola oil.
-{image caption}{Combine wet and dry ingredients in separate bowls}
-Stir together the dry ingredients until well combined. Similarly, whisk together the wet ingredients until combined.
-{image caption}{Stir together the ingredients}
-Pour the wet ingredients into the bowl with the dry ingredients, and stir until just combined.
-{image caption}{Combine wet and dry ingredients.}
-Add the blueberries, and gently fold them into the batter using a rubber spatula until just combined.
-{image caption}{Fold blueberries into muffin batter}
-Scoop blueberry muffin batter into the prepared muffin tray, filling the holes 3/4 of the way up.
-{image caption}{Scoop batter into muffin tray}
-Bake them on the center rack for 30 to 35 minutes or until the muffins test clean when poked in the center.
-{image caption}{Bake muffins in preheated oven.}
-Allow the muffins to cool at least 10 minutes before serving. Serve them warm with butter and honey.
-{image caption}{Allow muffins to cool before eating.}
-Tip
-To make these muffins gluten-free, you can replace the regular all-purpose flour with gluten-free all-purpose flour. For a dairy-free recipe, replace the buttermilk with unsweetened almond milk. If you are avoiding refined sugar, replace the brown sugar with coconut sugar. You also can use coconut oil or grapeseed oil instead of canola oil.
-Note that bake times may differ for those who live at high elevation.
-</tutorial>
-<tutorial idx=2 title=Making Muffins>
-Hey guys, I'm Dina from simplyhomecooked.com and today I'll be showing you how to make these fluffy and moist blueberry muffins.
-They're loaded with a ton of blueberries and they're topped with simple and delicious brown sugar streusel.
-So you want to start off by combining all of your dry ingredients.
-So in a large bowl, combine two cups of allpurpose flour, a teaspoon of baking powder, half a teaspoon of baking soda, and a quarter teaspoon of salt.
-Then whisk it all together and reserve one tablespoon of that flour mixture.
-Now mix that reserved tablespoon of the flour mixture with one and a half cups of fresh blueberries.
-The reason why we add that little tiny bit of flour to those blueberries is when we add them to the batter.
-During baking, the blueberries don't sink as fast when they're coated in flour.
-Now add three eggs into a large bowl and whisk them on high speed using an electric mixer.
-So you'll want to do this for about three minutes until the eggs become fluffy and pale.
-Then continue beating the eggs as you slowly add one cup of granulated sugar.
-You'll want to keep beating those eggs for about three more minutes.
-So the key to really fluffy muffins is wellbeaten eggs.
-Now you want to add a teaspoon of vanilla extract and a tablespoon of fresh lemon juice.
-Now continue beating the egg mixture as you slowly add three quarter cups of heavy cream.
-Now you can begin adding your dry ingredients, but don't do it all at once.
-So get a sifter out and then add about a third of that flour mixture at a time with mixing in between.
-So once you've got all of your dry ingredients well combined into the muffin batter, continue beating with your electric mixer as you slowly, gradually add in four tablespoons of melted unsalted butter.
-All right, now the last and final step is adding in those blueberries.
-And at this point you want to fold it in with a spatula.
-Now line your muffin tin with cupcake liners and begin scooping the batter out using a large cookie scoop.
-I like to top my blueberry muffins with a few extra blueberries on top, but that's totally optional.
-Now before the muffins go into the oven, you want to make that simple streusel.
-In a small bowl, combine one tablespoon of unsalted cold cube butter, two tablespoons of allpurpose flour, a pinch of salt, a teaspoon of cinnamon, and three tablespoons of brown sugar.
-Mash that all together using a fork until the ingredients are well combined and they have a crumbly texture to them.
-Now top the blueberry muffins with the streusel topping and bake them in the oven at 350 degrees Fahrenheit for about 35 minutes.
-I hope you guys enjoyed watching this video and if you did, please be sure to share, like, and subscribe to our channel so you guys never miss out on any of our new recipes.
-See you next time!
-
-</tutorial>
-<tutorial idx=3 title=Making Muffins>
-Today on The Stay At Home Chef I'm showing you my Master Muffin Recipe.
-Instead of giving you dozens of recipes for different flavors of muffins, today I'm sharing my Master Muffin Recipe, which you can use to make almost any flavor, and it's super easy.
-Start by preheating your oven to 425 degrees Fahrenheit.
-Then line a 12 cup muffin tin with paper baking cups.
-Then I like to give mine just a spritz of nonstick cooking spray right on those paper baking cups, to prevent the muffins from sticking.
-Now it's time to put together our batter.
-First I'm going to demonstrate a basic muffin batter, and then I'm going to show you 5 different variations, each demonstrating a different way that you can build upon the base recipe.
-The batter starts with 1 cup of softened salted butter, and 1 cup of granulated sugar.
-We're going to use a hand mixer to cream this together.
-At first this mixture will be lumpy, but keep on mixing for about 2 minutes.
-After 2 minutes your sugar and butter will be well combined, and it will be a smooth paste like creamy consistency.
-Then you'll add in 2 large eggs and mix this briefly until just combined, about 30 seconds.
-Then I'm going to add in 1 teaspoon of vanilla extract, or you can use other flavors of extract like almond extract, orange extract, lemon extract, those are all super popular options.
-For the lemon and citrus extracts I recommend only using 1 teaspoon of those, and combining that with 1 teaspoon of vanilla extract.
-You'll also need 2 teaspoons of baking powder, and 1 teaspoon of salt.
-This is also the point where you'd add in any spices like cinnamon or pumpkin pie spice.
-We're going to give this a quick mix just to combine about 10 seconds.
-Now at this point it's time to ditch our hand mixer and grab a rubber spatula.
-Add in 1 half of your allpurpose flour.
-You're going to use 2 cups total, so you're going to add in 1 cup right now.
-Then use the rubber spatula to stir this in.
-Once all those white specks of flour start to disappear, you'll pour in 1 half cup of either milk or buttermilk.
-Buttermilk is going to give you a little bit of a poofier muffin, and you'll stir this in as well until it's well combined.
-Last you'll add in the remaining 1 cup of allpurpose flour.
-Stir this together, scraping the sides and bottom of the bowl to ensure that everything gets mixed in.
-Now if you're going to add anything into your muffins, like dried fruit, chocolate chips, or berries, now would be the time to do so, but I'll show you that in just a minute.
-Your batter should be thick but also spreadable.
-We're going to divide the batter up amongst our 12 muffin cups, and you should fill each one about 2 thirds of the way full.
-It's always a little bit hard to tell what's 2 thirds or what's 3 quarters, so just try to divide your batter up as evenly as possible, because this does make 12 muffins.
-You can let your muffin batter rest for about 15 minutes before popping it in the oven, or if you're making a larger batch, it's totally okay to let it rest in between cooking different batches.
-Bake your muffins in the 425 degree oven for 7 minutes.
-After 7 minutes reduce the temperature on your oven to 350 degrees without opening the oven door.
-Continue baking for 1215 minutes and watch them carefully, as the cooking time will vary a little bit depending on your oven.
-Now let's start going over some variations, starting with a lemon blueberry muffin.
-This is great because it demonstrates both using another flavor of extract, as well as adding in fresh fruit.
-I've already creamed together the sugar and butter and added in the eggs, so now I'm going to add in 1 teaspoon of vanilla extract, and 1 teaspoon of lemon extract before adding in my baking powder and salt.
-Continue on with the rest of the recipe, adding in the flour and buttermilk, once you have your batter finished, you'll add in 1 cup of fresh blueberries, or frozen even, you can use those too.
-Then this is optional, but I like to add in the zest of 1 lemon, so about 1 tablespoon of lemon zest.
-Then simply fold this in.
-Then it's just a matter of once again dividing the batter evenly amongst the 12 muffin cups.
-One fun topping you can experiment with is sprinkling on about 1 teaspoon of granulated sugar on top of your muffins.
-This gives it a nice little crunchy sweet top.
-And then of course bake these just as we did before.
-Next up I'm going to show you how to make a chocolate version.
-For a chocolate version you'll use your butter and sugar again just like before, but this time you'll add in 1 12 cup of cocoa powder, unsweetened cocoa powder, and cream that in with it.
-From here you'll proceed with the rest of the master muffin recipe by adding in eggs, baking powder, salt, vanilla extract, all purpose flour, and milk or buttermilk.
-The addition of the cocoa powder really doesn't do much to change the texture of the final batter.
-Then just for fun I'm going to add in 1 cup of semisweet chocolate chips and fold those in.
-Even though you can mix and match addins, you want to total any additions that you make, like chocolate chips or nuts or dried fruit, to 1 cup total.
-Next I'm going to show you one of my very favorite muffin hacks that allows you to switch up with all sorts of different flavors by using instant pudding.
-This time you're only going to add in 34 cup of granulated sugar, because you're going to replace that additional 14 cup with a 3.4 ounce package of instant pudding mix, and this time I'm using pistachio because it's one of my favorite flavors.
-Cream this together and then proceed with the master muffin recipe as directed.
-You could even fold in some chopped pistachios if you wanted.
-This variation is fun because there's just so many different flavors of instant pudding out there, it makes it really easy to mix and match flavors really quickly without having to buy a bunch of extracts.
-Next I want to show just how easy it is to mix and match addins to add a little bit of flavor to the base recipe without too much hassle.
-So I'm going to show you a cranberry white chocolate chip with a little bit of orange zest.
-This is the master recipe with no alterations to it.
-I'm going to add in 12 cup of dried cranberries, because like I said before we're going to use 1 cup of addins total.
-That means that the white chocolate chips will also come in at 12 cup for 1 cup total.
-I didn't have any orange extract today, but that's okay because a little bit of orange zest, 12 tablespoons total, will add just a hint of orange flavor.
-Once again it's simply a matter of folding this in until the ingredients are evenly distributed.
-You can do chocolate chips, raisins, nuts, really the possibilities are endless.
-Last I want to show you how to add in spices, which is super easy and I really don't have to show you, but I thought it would be fun to show a cinnamon muffin with cinnamon chips folded in, topped with a brown sugar streusel, and that's just delicious.
-I've already creamed together the butter and sugar, added in the eggs, baking powder, salt, and vanilla extract, and now I'm going to add in 1 teaspoon of ground cinnamon.
-You can use between 12 teaspoon and 1 full teaspoon.
-It really just depends on how pronounced you want that cinnamon flavor to be.
-Finish with the rest of the master muffin recipe by adding in the flour and buttermilk.
-I'm going to fold in 1 cup of cinnamon chips, which are delicious, but they can be a little harder to find when it's not the holidays.
-Go ahead and divide up the batter in your prepared muffin cups before making your streusel topping.
-A streusel is easy to make and it is a decadent addition to lots of different flavors of muffins.
-It starts with 14 cup of cold cubed butter.
-Then you'll add in 12 cup of brown sugar and 12 cup of allpurpose flour, adding in 14 teaspoon of ground cinnamon.
-Then use a pastry cutter or you can use two knives, cutting across each other like this.
-Then you want to cut this all together until it resembles a coarse meal or sand.
-Then you want to sprinkle this generously on top of your muffin batter.
-It's almost like having little piles of sand on top of each muffin.
-And of course the baking time on all of these are the same.
-Now you know how to make pretty much any flavor of muffin that you want using one master recipe.
-Thanks for watching.
-You can find the full written recipe as well as other flavor ideas in the video description.
-Be sure to subscribe, like, and follow, and check out the rest of my videos, where you can find hundreds of restaurant quality recipes you can easily make at home.
-We'll see you later.
-
-</tutorial>
-<tutorial idx=4 title=Making Muffins>
-Homemade muffins are a special addition to breakfast or brunch. Enjoy them with friends and family, or make them as a grab-and-go breakfast for busy work weeks. Warmly spiced with cinnamon, Morning Glory muffins are made with grated carrot, apple, raisins, walnuts, shredded coconut, and sometimes pineapple. While the list of ingredients is long, the process for baking these muffins is simple and well worth the required steps.
-​​This recipe makes 12 muffins. ​
-Things You'll Need
-1-1/4 cups all-purpose flour
-1 cup shredded coconut
-3/4 cup light brown sugar, tightly packed
-1-1/2 teaspoons ground cinnamon
-1/2 teaspoon sea salt
-1 teaspoon baking powder
-1 cup grated carrot (about 1 large carrot, peeled and grated)
-1 cup grated apple (about 1/2 large apple such as Honeycrisp)
-1/2 cup raisins
-1/2 cup raw walnuts, chopped
-2 large eggs
-1/4 cup olive oil or canola oil
-2 teaspoons pure vanilla extract
-Box grater
-2 mixing bowls
-Spoon or fork for mixing
-12 disposable baking cups
-12-hole muffin tray
-Tip
-To save time, use a food processor to shred the carrot and apple.
-Not a fan of gluten? Replace the all-purpose flour with gluten-free all-purpose flour.
-For naturally sweetened, refined sugar-free muffins, replace the brown sugar with coconut sugar.
-You can choose to use sweetened or unsweetened shredded coconut.
-Instructions:
-Preheat the oven to 350 degrees F. Grate 1 cup-worth of carrot, and 1 cup-worth of apple.
-Add the flour, cinnamon, brown sugar, baking powder, and salt to a mixing and stir together.
-Add the grated carrot, apple, raisins, and walnuts to the flour mixture and stir to combine.
-In a separate bowl, whisk together the eggs, oil, and vanilla extract.
-Add the egg mixture to the bowl with the flour mixture and stir well until a thick batter forms.
-Line a 12-hole muffin pan with baking cups. Scoop batter into the pan using an ice cream scoop or small measuring cup, filling the holes 2/3 of the way up.
-Bake on the center rack of the preheated oven for 30 to 40 minutes, or until muffins test clean when poked with a toothpick.
-Allow muffins to cool for 10 minutes before serving. Enjoy!
-</tutorial>
-<tutorial idx=5 title=Making Muffins>
-Now that I've successfully learnt how to make muffins, I had to make a triple chocolate version.
-Add all the wet ingredients to a bowl and whisk until combined.
-In another bowl, add the flour, cocoa powder and caster sugar and whisk these together.
-Then add your chocolate chips.
-Coating them in the flour helps stop them from sinking.
-Fold the wet ingredients into the mix, then refrigerate for at least one hour.
-This helps them rise without overflowing.
-Scoop the batter into muffin cases, then top with a mix of chocolate chips.
-Follow these baking instructions and that's it.
-Enjoy!
-
-</tutorial>
-<tutorial idx=6 title=Making Muffins>
-The perfect combination of spicy pumpkin and dreamy cheesecake married together in a bite-sized muffin.  It's the treat you've been waiting for!
-These soft muffins with a saucy swirl of cheesecake make for the perfect treat to bring to all of your holiday gatherings.  Whether your into jumbo muffins, or bite-sized minis, these muffins are sure to be an instant hit !
-Step 1: Ingredients
-TOOLS:
-Mini Muffin Tin
-Mixer
-Digital Scale - I like this one
-MUFFINS:
-1 15 oz can pumpkin
-1/4 cup vegetable oil
-2 large eggs
-1 (200g) cup sugar
-1 teaspoon vanilla
-1 1/2 cups (188g) all-purpose flour
-1 teaspoon baking powder
-1/2 teaspoon baking soda
-1/2 teaspoon ground cinnamon
-1/2 teaspoon ground ginger
-1/2 teaspoon ground nutmeg
-1/8 teaspoon ground cloves
-1/2 teaspoon salt
-1/4 teaspoon freshly ground black pepper
-FILLING:
-8 ounces (200g) cream cheese, at room temperature
-1 large egg yolk
-5 tablespoons (75g) sugar
-1/8 teaspoon vanilla extract
-Chopped nuts (walnuts, pecans) (optional)
-Step 2: Muffins
-Preheat oven to 350F (180C)
-Mix canned pumpkin, oil, and sugar together, either by hand or with a mixer on low.
-Add in eggs, one at a time, combining thoroughly after each.
-Add vanilla.
-Whisk together flour, baking powder, baking soda, salt, and spices.
-Slowly add flour mixture to liquids, combining thoroughly and scraping the sides of the bowl with a spatula until well combined.
-Step 3: Filling
-Mix together cream cheese, sugar, egg yolk and vanilla until well combined.
-Step 4: Assemble
-Grease your muffin tins or line with paper cups. 
-Drop in spoonfuls of pumpkin mixture.
-Add smaller spoonfuls of cream cheese mixture on top.
-Swirl with a skewer.
-Optional:  top with crushed nuts.  Pumpkin seeds (pepitas) are also a great topping!
-Step 5: Bake
-Bake as follows, turning the tins half way through baking times:
-mini muffins: 20-25 min
-standard muffins: 25-30 min
-jumbo muffins: 30-40 min
-Wasn't that easy?
-Enjoy!
-</tutorial>
-<tutorial idx=7 title=Making Muffins>
-On crisp fall mornings, warm your belly with a breakfast that celebrates one of the most popular flavors of fall: pumpkin spice latte muffins. It only takes about 30 minutes to make these streusel-topped muffins, from start to delicious finish.
-Things You'll Need
-1/2 cup rolled oats (not instant)
-1/2 cup flour
-1/2 cup brown sugar, packed
-1/2 cup roasted pumpkin seeds
-1/4 cup butter, softened
-2 2/3 cup all-purpose flour
-3 Tbsp. espresso powder
-2 tsp. baking soda
-1 tsp. salt
-1 can of pumpkin pie filling, 15 oz.
-1/4 cup sugar
-1 cup brown sugar, packed
-1 cup vegetable oil
-4 large eggs
-1 cup white chocolate chips
-Cupcake liners
-Muffin pan
-1. Make the streusel topping
-To begin, heat the oven to 350°F. Place paper liners in a muffin pan and set aside.
-In a small bowl, combine the rolled oats, 1/2 cup of flour, 1/2 cup of brown sugar, roasted pumpkin seeds, and softened butter. Combine thoroughly and set aside (to use as the streusel topping later).
-2. Mix the flour base for the muffins
-Sift together 2 2/3 cups of flour, 3 tablespoons of espresso powder, 2 teaspoons of baking soda, and 1 teaspoon of salt.
-3. Make the pumpkin mixture
-Combine the pumpkin pie filling, 1/4 cup of sugar, 1 cup of brown sugar, and 1 cup of vegetable oil. Lightly beat 4 large eggs. Add to the mixture and mix well.
-4. Combine the wet ingredients with the flour base
-Make a small well in the dry ingredients, and then add the wet ingredients. Stir to moisten.
-5. Add the chocolate chips
-Add 1 cup of white chocolate chips and stir until thoroughly combined.
-6. Fill the liners and top with streusel
-Spoon the batter into the prepared muffin tin, filling each liner about 2/3 full. Top each muffin with the streusel.
-7. Bake the muffins
-Bake for 18 to 20 minutes. Serve warm.
-</tutorial>
-<tutorial idx=8 title=Making Muffins>
-There are so many things to love about this one-bowl oatmeal protein muffin recipe: It's low in sugar, flexible with substitutions and includes three simple sources of protein (nut butter, chia seeds, and flaxseed). But best of all... these muffins are seriously delicious.
-{image caption}{Oatmeal protein muffins with chocolate chips and banana chips}
-Things You'll Need
-3 very ripe bananas (or 1 cup of applesauce)
-1 cup milk (dairy, coconut, or almond)
-1/2 cup peanut butter (or any nut butter)
-2 eggs
-1/4 cup maple syrup (or honey)
-1 teaspoon vanilla
-1 tablespoon baking powder
-1/4 cup flaxseed (ground)
-1 tablespoon chia seeds
-3 cups whole oats
-Optional toppings: chocolate chips, dried banana chips
-Tip
-The peanut butter-banana base can be adapted to suit many different tastes. Applesauce works in place of bananas and any nut butter can pinch hit for the peanut butter.
-{image caption}{Ingredients for oatmeal protein muffins}
-Get Started
-Set your oven to 375 degrees F and grease the muffin pan. Use coconut oil, spray or butter to grease your pan. Next, mash your bananas in a large mixing bowl.
-{image caption}{When it comes to baking with bananas, the browner the better. They'll have more flavor.}
-{image caption}{A potato masher works best but a fork would also do for very ripe bananas.}
-Add the Remaining Ingredients
-There's no way to mess this up. Simply combine all the ingredients and stir until thoroughly mixed.
-{image caption}{Use regular milk, almond milk or coconut milk.}
-{image caption}{No need to beat the eggs ahead of time, just crack and mix.}
-{image caption}{We used maple syrup here but honey is also delicious.}
-{image caption}{Make this recipe gluten-free with specially marked containers of whole oats.}
-{image caption}{Without flour in the recipe, there's no worry of over-mixing.}
-Prepare to Bake
-Fill muffin cups to the top. A 3-ounce ice cream scoop works perfectly for evenly distributing muffin batter into pans. This is the time to add optional toppings such as chocolate chips or banana chips.
-{image caption}{Tip: Place a couple of chocolate or banana chips in the bottom of each cup before ladling in the batter.}
-{image caption}{Try using coconut oil spray to grease the pan. It's delicious!}
-Bake at 375 degrees F for 25 minutes. Then cool on a rack.
-{image caption}{Oatmeal protein muffins with banana chips on top}
-Store refrigerated in an airtight container for 3 to 5 days. Or freeze in a single layer, inside a zip-top freezer bag.
-{image caption}{Mix and match your toppings, or add more.}
-</tutorial>
-<tutorial idx=9 title=Making Muffins>
-Do you love moist, fluffy chocolate chip muffins with that skyhigh bakery top and a nice crisp edge?
-Well, today's your lucky day because I'm gonna show you how to make them.
-Hey, you're watching Preppy Kitchen, where I, John Kanell, teach you how to make delicious homemade dishes to share with your family and friends.
-These chocolate chip muffins are gonna whip up in a snap, so let's get started.
-First off, set that oven to 425 degrees Fahrenheit.
-We want a really high blast of heat when these go in because that'll set the edge and let them rise up so you'll have a nice bakerystyle dome on top.
-If you did 350, they would spread out and it just wouldn't be the right kind of muffin.
-Okay, now for the dry ingredients.
-I'm using a scale because that gives you the most accurate results, but if you're using cups, click up here for my how to measure flour video.
-It shows you all the ins and outs of measuring flour correctly.
-It's the thing that goes wrong the most often in baking, and it sucks when you add too much flour.
-Okay, into my bowl, and I'm using a sifter here.
-I'm adding in two and 3 14 cups, that is 330 grams, of allpurpose flour.
-One teaspoon of salt, and that might seem like a lot, but you want some contrast to all that chocolate and the sugar, so it'll really like amp the flavor up and let you appreciate what's going on in the muffin.
-For leavening, I'm using one tablespoon of baking powder, and again, it's kind of a lot of leavening agent, but this is how you get that bakerystyle top.
-Sift it out.
-We're done with that scale, you can set it aside as well.
-Give it a quick whisk, and now we can set it aside.
-This was melted a minute ago.
-It already cooled down, I'm gonna put it into the microwave.
-For the wet ingredients, it's important that you're dealing with roomtemperature things, and if it gets cold, we're gonna warm it up in the microwave, and P.S., it's gonna get cold.
-This counter's freezing.
-All right, 300 ml, or 1 14 cups, of whole milk.
-In you go.
-Half a cup, or 113 grams, of unsalted butter that's been melted, and get it all out there.
-So, by the by, today is the first time ever in the history of Preppy Kitchen that Brian is filming.
-You wanna say hi?
-He's eating cookies that I made.
-One cup, or 200 grams, of sugar right in that bowl.
-Let's give it a little whisk to bring it together.
-If you notice some clumps of butter happen when you mix it all together, pop it into the microwave for 40 seconds, and it should be totally fine.
-I used warm milk, so it's not happening to me.
-So right now, we're gonna add in the eggs and the sour cream.
-Two large eggs, one, two, as well as 1 14 cup of sour cream, and if you don't have that, you can go ahead and use fullfat plain yogurt.
-It'll be completely delicious still.
-This is optional, but I am adding one tablespoon of vanilla.
-That's 15 ml.
-Wow, delicious.
-I'm gonna mix this up right now, but look what's happened just in the few seconds that we've been doing this.
-What's going on here?
-Look, it's turned into like a butter mush.
-That's not what I want, so I will be popping this into the microwave after I whisk the eggs in.
-You don't wanna do that before the eggs get whisked in, because they could be overcooked.
-A little heat's gonna fix all of our problems.
-Okay, a little bit of heat later.
-Let's give this a whisk.
-That's nice.
-Nice, homogenous, fluid mixture is what we want.
-Now it's time to pour the wet into the dry, give it a whisk, and take it to almost combined.
-You could have a couple clumps of flour hanging out here and there, because we'll do more mixing once those chocolate chips go in.
-So you can see we have a couple clumps here and there, but it's no big deal.
-It's time for some chocolate, the best part.
-All right, in my recipe, I specify 1 12 cups of semisweet chocolate, but I'm living large and using one cup of semisweet and half a cup of bittersweet.
-You could even use milk chocolate if that's what you prefer.
-There we go.
-That's the bittersweet chocolate, and I'm taking a handful of the semisweet chips and reserving them, because I'll be sprinkling them on top for beauty purposes.
-Rest of the chocolate chips go in, and you should fold them in with a spatula, not use a whisk.
-After those chocolate chips are folded in, it's time to pop this into the muffin tins.
-I'm doing it two different ways so you can see the difference between a naked muffin and one that's in the paper.
-It's gonna be different.
-I've buttered and floured half of the muffin tins so you can see just a nice coat of butter, good dash of flour, move all that flour around, and then dump out the excess.
-All right, and for the rest, I'm gonna use muffin papers, which go a bit higher, so you won't have that mushroomshaped muffin top, but they should still rise up with a nice dome.
-In you go.
-Unlike with cakes, some people really prefer that nice, crispy muffin edge, so if that's your jam, then you're gonna wanna do it without the papers.
-Just really be careful about adding in enough butter and flour so they pop out easily.
-I'm using a large ice cream scooper to transfer my batter into the muffin tin, and I wanna fill it up all the way.
-Normally, it's 2 13 of the way high for cupcakes, but this time, it's full to the brim.
-Okay, fill those papers up, and when you're doing that, try to be careful about getting batter on the edges.
-It'll burn.
-It's just a matter of how it looks.
-It'll still bake fine.
-When you're scooping the batter, it's a nice time to kind of monitor the chocolate chips and make sure that no one is getting a sad amount.
-You wanna have an equal distribution, so if you notice that your scoop didn't get any chips, scoop up some chips.
-After the batter goes in, you can top the muffins with a scattering of chocolate chips.
-This is not super necessary, but it'll give you nice, glossy, melty chocolate tops, and it makes a big difference.
-The chocolate chip muffins look a little bit naked if they don't have those chocolate chips on top.
-Okay, this recipe makes exactly 12 big muffins, and now it's time to go into the oven.
-You need to have a high heat to lock in the edge so it gets set, and then the top can burst through to create that big bakerystyle dome.
-This is gonna go into the oven at 425 Fahrenheit for five minutes, then it'll reduce the temperature to 350 and bake for 20 to 25 minutes, depending, you wanna have a nice golden top that's set in the middle, so you can insert a skewer through the center, it'll come out clean except for all that molten chocolate.
-Right, into the oven you go.
-Out of the oven and cooled just enough to touch, I wanna show you the difference between the in paper versus the out of paper.
-Out of paper, so nice, crisp edge, muffined over a little bit, and golden brown.
-In the paper, the paper really guided it up so it's a little bit taller, and the difference is that you don't have that crisp edge.
-It's really like soft all over and just delicious.
-You've gotta take a look at the inside of this.
-Take a look.
-If you like this video, check out my chocolate playlist.
-Ha, ha, ha, ha, ha, ha, ha, ha.
-Someone's making crazy faces behind the camera.
-If you like this video, check out my chocolate playlist.
-It has all my favorite chocolate recipes and they are amazingly delicious.
-You've gotta check it out.
-Now it's time for a bite.
-Oh my gosh, do you see how crazy this is?
-Oh my God, that is so good, so perfect.
-If you like my videos, hit that like button, subscribe, and I'll see you in the next video.
-
-</tutorial>
-<tutorial idx=10 title=Making Muffins>
-Going to the grocery store has turned into an epic quest to find the perfect bananas. In the Clothier home, we like them to still be a bit green - they are firmer and have a better flavor. But there's a lot to consider: How many to get? How many do I think we will eat in the next few days? Is one a day good, or will my wife and I both eat one each day? What about if I want to put them in cereal or something else? And the most important variable that determines if I leave with a bunch or empty handed is how green they are. Occasionally, I will find some that will be perfect in a couple of days and pair them with a few that are perfect right now.
-But no matter how hard I plan, there always seems to be one or two that go uneaten or ripen a lot quicker than expected. It is in these situations that I think banana bread was first conceived - a way to use those blackening bananas before they go to waste.
-The best thing about these muffins is the crumbly coating that goes on top of them. The added texture and flavor is well worth the extra calories.
-Since this is one of those things I don't make very often, I don't give much thought as to how bad it is for you. I'd rather be happy and plump than starve myself endlessly. If worse comes to worst, there's always the gym...
-Step 1: Ingredients
-For the Bread:
-3 - 4 Bananas, Mashed
-2 Cups all-purpose Flour
-3/4 Cup White Sugar
-1/4 Cup Brown Sugar
-1 Stick Butter, Softened
-2 Eggs, Slightly Beaten
-1 tsp Vanilla
-1 tsp Baking Soda
-1/2 tsp Salt
-For the Topping:
-2 Tbsp Olive Oil
-1/3 Cup Brown Sugar
-1 Tbsp Cinnamon
-Optional:
-1 Cup Walnuts, Chopped
-Oven Temp:
-Once you have everything, preheat the oven to 375 degrees F. 
-Step 2: Mush Those Bananas
-Peel the bananas and place them in a large bowl. It's OK if they have a few spots, but you can cut away the super gross black parts if there are any if that freaks you out. Also, peel off any of those clingy strings...
-Using a strong utensil, smush, smash, mush, and mash those bananas into oblivion! Be careful though, I actually shattered a spoon once when I got a bit too excited. This can be a stress reliever or an arm workout - your choice.
-Keep it up until the banana are mostly liquified. It's OK to have a few bits and pieces for consistency and texture.
-Step 3: A Sweet Start
-Once the butter is softened (try not to melt it completely!) combine it with 3/4 cup white sugar and 1/4 cup brown sugar. A fork or a strong whisk works best for this procedure. Mix until everything is well blended and creamy.
-Step 4: Mix It Up
-Beat the 2 eggs, vanilla and butter/sugar mixture into the bananas. If you are adding walnuts, now is a good time to do so.
-Step 5: Flour Is Your Friend
-Finally, add the flour, baking soda, and salt, and mix until it is totally incorporated. Once you are satisfied, pour the mixture into your cooking pan of choice. With this batch, I made muffins, but a loaf or cake pan is also acceptable. 
-Step 6: Coat It...
-To make the topping, blend the olive oil, brown sugar, and cinnamon until it is very crumbly. Then, sprinkle it over top of the batter. It's OK to make extra and really put it on thick. Typically, butter is used to make a streusel, but there is already a stick in the batter, and I'm trying to reduce my intake. If you would rather go that route, use a one to two tablespoons of butter instead of the oil.
-Step 7: And Cook It
-In case you forgot to do so earlier, preheat the oven to 375 degrees F. When it is ready, bake the batter appropriately for your cooking pan. For muffins, 18 to 20 minutes should be good. Be sure to test them with a clean knife or toothpick to make sure they are done. When you are satisfied, let them cool on a rack for 15 minutes, or until they can be safely touched. 
-I think you can figure out what to do after that...
-</tutorial>
-
-</library>
-
-You are given a context tutorial and a query. Please answer the query.
-<query>
-Given a tutorial, retrieve top-5 missing, but relevant Description information for the entire tutorial.
-Following are examples of Description information: 
-Status: Descriptions of the current state of the target object.
-Example: "Something sticky and dirty all through the back seat."
-Context: Descriptions of the method or the setting.
-Example: "[...] The process of putting on a tip by hand [...] takes a lot of patience but it can be done if you're in a pinch."
-Tool Specification: Descriptions of the tools and equipment.
-Example: "These are awesome beans, creamy texture, slightly nutty loaded with flavor."
-</query>
-
-<context tutorial>
-These are my blueberry muffins.
-Mmm, my favorite muffin.
-To a large mixing bowl, add grated lemon zest, a milk of choice, we're using soy milk, sugar, a neutral vegetable oil, and vanilla extract.
-Whisk well until the ingredients are well combined.
-Now, sift in the flour with baking powder and a pinch of salt.
-This is gonna make your muffin soft and fluffy.
-Whisk wet and dry ingredients for a short minute until lumps are gone, but without overmixing.
-Rinse the blueberries, shake the water off, then add them to a bowl, toss them with the cornstarch, and add them to the batter.
-Stir and fold the blueberries in the mixture gently.
-Transfer the batter to the muffin liners.
-You should be able to make 12 muffins.
-You can fill them almost to the top.
-Then you can sprinkle some sugar on top, or not.
-We're not gonna do it because we eat them for breakfast.
-Then bake in a preheated oven for 22 and a half minutes, or until a toothpick inserted in the center comes out dry.
-Now let them cool down for about 30 minutes.
-Easy, right?
-
-</context tutorial>
-
-RESPONSE: {
-  "information_list": [
-    {
-      "content": "Classic blueberry muffins are nearly impossible to beat. Sweet, fluffy and studded with tangy blueberries, these muffins are always a favorite for breakfast, brunch or a snack. This easy blueberry muffin recipe is a keeper for anytime you're in need of a comforting treat. With plenty of room for adaptation, you can make these muffins gluten-free, refined sugar-free or dairy-free.",
-      "source_doc_idx": 1
-    },
-    {
-      "content": "Hey guys, I'm Dina from simplyhomecooked.com and today I'll be showing you how to make these fluffy and moist blueberry muffins. They're loaded with a ton of blueberries and they're topped with simple and delicious brown sugar streusel.",
-      "source_doc_idx": 2
-    },
-    {
-      "content": "Today on The Stay At Home Chef I'm showing you my Master Muffin Recipe. Instead of giving you dozens of recipes for different flavors of muffins, today I'm sharing my Master Muffin Recipe, which you can use to make almost any flavor, and it's super easy.",
-      "source_doc_idx": 3
-    },
-    {
-      "content": "Homemade muffins are a special addition to breakfast or brunch. Enjoy them with friends and family, or make them as a grab-and-go breakfast for busy work weeks. Warmly spiced with cinnamon, Morning Glory muffins are made with grated carrot, apple, raisins, walnuts, shredded coconut, and sometimes pineapple.",
-      "source_doc_idx": 4
-    },
-    {
-      "content": "Now that I've successfully learnt how to make muffins, I had to make a triple chocolate version. Add all the wet ingredients to a bowl and whisk until combined. In another bowl, add the flour, cocoa powder and caster sugar and whisk these together. Then add your chocolate chips. Coating them in the flour helps stop them from sinking.",
-      "source_doc_idx": 5
-    }
-  ]
+Sparsity %:  100.0
+Entropy check:  7.658299112874142 7.1319854944155985 393 [47, 39, 270, 61]
+Sparsity %:  100.0
+Entropy check:  7.658299112874142 7.1319854944155985 393 [47, 39, 270, 61]
+Sparsity %:  76.78571428571429
+Entropy check:  5.039385443340739 4.249915015652927 393 [31, 23, 120, 30, 5, 19, 14, 14, 30, 17, 4, 9, 5, 3, 6, 14, 25, 6, 1, 3, 4, 5, 5, 7, 3, 1, 1, 3, 1, 1, 3, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1]
+Sparsity %:  75.0
+Entropy check:  7.017593199838469 6.293911974457972 393 [18, 12, 244, 25, 50, 26, 5, 2, 9, 8, 25, 2]
+Sparsity %:  85.0
+Entropy check:  5.488558037317733 4.523649736810407 393 [6, 5, 6, 129, 1, 15, 5, 11, 71, 8, 18, 12, 26, 4, 31, 5, 2, 7, 16, 6, 2, 1, 2, 6, 7, 4, 2, 13, 2, 5, 6, 1, 1, 1]
+Sparsity %:  100.0
+Entropy check:  6.187816923098036 5.332557293102908 393 [11, 11, 138, 19, 21, 112, 8, 33, 7, 22, 3, 3, 7, 1, 7, 6, 3, 8, 11, 1]
+Sparsity %:  100.0
+Entropy check:  6.352183898780154 5.387275598272826 393 [24, 12, 13, 194, 42, 38, 22, 25, 5, 9, 5, 2, 12, 7, 3, 4, 3, 10, 5, 2]
+Sparsity %:  62.5
+Entropy check:  7.381308551348886 6.811135464685465 393 [28, 16, 35, 270, 5, 54, 4, 5, 1, 1]
+Sparsity %:  76.78571428571429
+Entropy check:  5.039385443340739 4.249915015652927 393 [31, 23, 120, 30, 5, 19, 14, 14, 30, 17, 4, 9, 5, 3, 6, 14, 25, 6, 1, 3, 4, 5, 5, 7, 3, 1, 1, 3, 1, 1, 3, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1]
+Sparsity %:  26.339285714285715
+Entropy check:  4.547257191946574 3.5604191573368076 393 [10, 8, 98, 17, 23, 5, 19, 14, 14, 28, 17, 4, 9, 5, 25, 3, 6, 13, 24, 1, 5, 1, 2, 4, 5, 2, 5, 4, 3, 1, 5, 4, 3, 1, 1, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 2, 13, 2, 2, 2, 1, 1, 1, 1, 5, 2, 1, 2, 1]
+Sparsity %:  20.535714285714285
+Entropy check:  3.3528961633586913 2.1686905218269605 393 [5, 1, 5, 76, 1, 15, 5, 10, 3, 8, 7, 6, 18, 4, 3, 4, 2, 17, 9, 3, 2, 5, 6, 1, 11, 3, 8, 5, 10, 6, 3, 15, 1, 4, 1, 3, 3, 2, 5, 2, 1, 6, 2, 3, 4, 1, 1, 2, 3, 4, 3, 1, 1, 4, 3, 9, 1, 1, 3, 1, 1, 2, 2, 2, 4, 1, 1, 1, 1, 1, 2, 1, 1, 2, 5, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 7, 1, 2, 3, 4, 1, 3, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 2, 1, 1, 1]
+Sparsity %:  33.57142857142857
+Entropy check:  3.913536714115798 2.8170500089938235 393 [8, 8, 100, 17, 16, 5, 10, 7, 8, 24, 6, 3, 8, 2, 13, 3, 2, 2, 5, 1, 4, 7, 11, 10, 16, 6, 2, 1, 3, 3, 1, 2, 3, 3, 1, 4, 3, 1, 4, 3, 5, 7, 2, 1, 3, 8, 3, 3, 1, 1, 1, 1, 1, 1, 4, 1, 2, 1, 1, 1, 2, 1, 1, 1, 5, 2, 3, 1, 1, 1, 1, 1, 9, 3, 2, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 4, 1]
+Sparsity %:  31.785714285714285
+Entropy check:  4.071313166414303 2.887107524882577 393 [15, 11, 7, 98, 22, 3, 10, 12, 12, 26, 17, 4, 1, 3, 15, 4, 2, 1, 5, 11, 1, 7, 3, 8, 7, 5, 14, 4, 3, 1, 3, 2, 4, 2, 1, 1, 4, 3, 7, 4, 3, 6, 1, 1, 1, 5, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 3, 1, 4, 2, 5, 2, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1]
+Sparsity %:  24.107142857142858
+Entropy check:  4.819287276872065 4.00788711508181 393 [16, 14, 22, 120, 4, 5, 19, 14, 14, 30, 17, 4, 9, 5, 24, 3, 6, 14, 25, 1, 1, 3, 3, 5, 4, 4, 7, 1, 1, 1, 1, 3, 2, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 1, 1, 1]
+Sparsity %:  20.535714285714285
+Entropy check:  3.3528961633586913 2.1686905218269605 393 [5, 1, 5, 76, 1, 15, 5, 10, 3, 8, 7, 6, 18, 4, 3, 4, 2, 17, 9, 3, 2, 5, 6, 1, 11, 3, 8, 5, 10, 6, 3, 15, 1, 4, 1, 3, 3, 2, 5, 2, 1, 6, 2, 3, 4, 1, 1, 2, 3, 4, 3, 1, 1, 4, 3, 9, 1, 1, 3, 1, 1, 2, 2, 2, 4, 1, 1, 1, 1, 1, 2, 1, 1, 2, 5, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 7, 1, 2, 3, 4, 1, 3, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 2, 1, 1, 1]
+Sparsity %:  5.982142857142858
+Entropy check:  3.1109423351529872 1.7732285549041815 393 [5, 1, 4, 68, 1, 15, 5, 9, 3, 8, 7, 6, 18, 4, 3, 4, 2, 3, 9, 2, 8, 15, 2, 5, 6, 1, 11, 3, 8, 5, 8, 2, 6, 3, 15, 1, 1, 2, 1, 2, 3, 2, 2, 2, 1, 3, 2, 1, 3, 1, 1, 2, 3, 4, 2, 1, 3, 3, 1, 4, 3, 8, 1, 1, 3, 1, 1, 2, 2, 2, 2, 4, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 4, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 2, 1, 5, 2, 2, 3, 4, 1, 3, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 3, 2, 4, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  5.464285714285714
+Entropy check:  2.9076825975200262 1.504179614963901 393 [4, 1, 4, 65, 1, 15, 4, 10, 3, 7, 6, 6, 18, 3, 3, 4, 2, 17, 11, 8, 3, 1, 1, 1, 1, 1, 6, 3, 1, 8, 2, 2, 3, 9, 1, 6, 3, 8, 1, 4, 1, 3, 3, 1, 5, 2, 1, 3, 2, 1, 4, 1, 1, 1, 2, 3, 4, 3, 1, 7, 2, 1, 1, 3, 6, 3, 2, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 4, 1, 4, 1, 1, 3, 1, 1, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 2, 2, 1, 4, 1, 3, 1, 1, 2, 1, 1, 1, 2, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 2, 2, 4, 1, 1, 2, 1, 1, 1, 4, 1, 1]
+Sparsity %:  6.2857142857142865
+Entropy check:  2.7374459887604212 1.2242943356920988 393 [4, 1, 1, 2, 71, 1, 15, 4, 7, 2, 3, 6, 6, 16, 4, 3, 1, 2, 10, 2, 8, 3, 6, 2, 1, 3, 3, 1, 11, 1, 7, 4, 5, 6, 2, 1, 6, 3, 2, 3, 9, 1, 3, 1, 3, 2, 2, 4, 2, 1, 1, 3, 2, 2, 3, 1, 2, 1, 2, 3, 1, 2, 3, 1, 3, 5, 1, 1, 1, 5, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 2, 2, 1, 2, 2, 3, 2, 1, 1, 1, 1, 1, 1, 2, 2, 3, 1, 1, 2, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1]
+Sparsity %:  5.669642857142857
+Entropy check:  3.2436695910157862 2.037534215381614 393 [4, 1, 5, 76, 1, 15, 2, 8, 3, 8, 7, 6, 18, 4, 3, 4, 2, 17, 9, 3, 2, 5, 6, 1, 11, 3, 8, 5, 10, 6, 3, 15, 1, 2, 1, 3, 2, 2, 5, 2, 1, 6, 1, 3, 1, 3, 1, 1, 1, 3, 4, 3, 1, 1, 4, 3, 7, 1, 1, 3, 1, 1, 2, 2, 2, 4, 2, 1, 3, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 5, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 7, 1, 2, 2, 3, 4, 1, 2, 2, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 2, 1, 1, 1, 1, 1, 1]
+Sparsity %:  6.2857142857142865
+Entropy check:  2.7374459887604212 1.2242943356920988 393 [4, 1, 1, 2, 71, 1, 15, 4, 7, 2, 3, 6, 6, 16, 4, 3, 1, 2, 10, 2, 8, 3, 6, 2, 1, 3, 3, 1, 11, 1, 7, 4, 5, 6, 2, 1, 6, 3, 2, 3, 9, 1, 3, 1, 3, 2, 2, 4, 2, 1, 1, 3, 2, 2, 3, 1, 2, 1, 2, 3, 1, 2, 3, 1, 3, 5, 1, 1, 1, 5, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 2, 2, 1, 2, 2, 3, 2, 1, 1, 1, 1, 1, 1, 2, 2, 3, 1, 1, 2, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1]
+Sparsity %:  1.7321428571428572
+Entropy check:  2.5568588592121513 0.9121288015291926 393 [4, 1, 1, 2, 64, 1, 15, 4, 6, 2, 3, 6, 6, 16, 4, 3, 1, 2, 3, 1, 8, 2, 7, 6, 2, 1, 3, 3, 1, 11, 1, 7, 4, 5, 6, 2, 1, 6, 3, 2, 3, 9, 1, 1, 2, 8, 1, 2, 2, 2, 2, 2, 1, 1, 3, 2, 1, 2, 1, 1, 1, 2, 3, 1, 2, 2, 1, 3, 5, 2, 1, 1, 1, 4, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 3, 1, 3, 1, 2, 2, 1, 2, 2, 3, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 3, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 4, 1, 2, 2, 4, 1, 1, 1, 2, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  1.5071428571428571
+Entropy check:  2.407105081540002 0.6746560874472864 393 [3, 1, 1, 2, 60, 1, 15, 3, 7, 2, 3, 6, 6, 16, 3, 3, 1, 2, 10, 2, 10, 8, 3, 6, 1, 1, 1, 1, 1, 3, 3, 1, 8, 1, 2, 1, 3, 6, 1, 1, 6, 3, 2, 3, 5, 1, 3, 1, 1, 3, 2, 1, 4, 2, 1, 1, 3, 2, 1, 3, 1, 1, 1, 2, 3, 2, 1, 2, 3, 1, 4, 2, 1, 3, 1, 1, 4, 5, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 1, 1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  1.6607142857142858
+Entropy check:  2.6691132839963667 1.1340318968256036 393 [3, 1, 1, 2, 71, 1, 15, 2, 7, 2, 3, 6, 6, 16, 4, 3, 1, 2, 10, 2, 8, 3, 6, 2, 1, 3, 3, 1, 11, 1, 7, 4, 5, 6, 2, 1, 6, 3, 2, 3, 9, 1, 2, 1, 3, 2, 2, 4, 2, 1, 1, 3, 1, 2, 1, 2, 1, 2, 1, 1, 3, 1, 2, 3, 1, 3, 5, 1, 1, 1, 3, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 4, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 4, 1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 2, 2, 1, 2, 2, 3, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 1, 2, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  1.5071428571428571
+Entropy check:  2.407105081540002 0.6746560874472864 393 [3, 1, 1, 2, 60, 1, 15, 3, 7, 2, 3, 6, 6, 16, 3, 3, 1, 2, 10, 2, 10, 8, 3, 6, 1, 1, 1, 1, 1, 3, 3, 1, 8, 1, 2, 1, 3, 6, 1, 1, 6, 3, 2, 3, 5, 1, 3, 1, 1, 3, 2, 1, 4, 2, 1, 1, 3, 2, 1, 3, 1, 1, 1, 2, 3, 2, 1, 2, 3, 1, 4, 2, 1, 3, 1, 1, 4, 5, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 1, 1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  0.4035714285714286
+Entropy check:  2.255546029128138 0.3915186304207858 393 [3, 1, 1, 2, 53, 1, 15, 3, 6, 2, 3, 6, 6, 16, 3, 3, 1, 2, 3, 1, 10, 8, 2, 7, 6, 1, 1, 1, 1, 1, 3, 3, 1, 8, 1, 2, 1, 3, 6, 1, 1, 6, 3, 2, 3, 5, 1, 1, 2, 8, 1, 1, 2, 2, 1, 2, 2, 1, 1, 3, 2, 1, 2, 1, 1, 1, 2, 3, 2, 1, 2, 2, 1, 4, 2, 1, 3, 2, 1, 1, 4, 5, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 1, 3, 1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 4, 1, 1, 2, 4, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  0.3928571428571429
+Entropy check:  2.3587092799912637 0.604330551796108 393 [3, 1, 1, 2, 60, 1, 15, 1, 7, 2, 3, 6, 6, 16, 3, 3, 1, 2, 10, 2, 10, 8, 3, 6, 1, 1, 1, 1, 1, 3, 3, 1, 8, 1, 2, 1, 3, 6, 1, 1, 6, 3, 2, 3, 5, 1, 2, 1, 1, 3, 2, 1, 4, 2, 1, 1, 3, 1, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 2, 3, 1, 4, 2, 1, 3, 1, 1, 4, 5, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 1, 1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  0.4035714285714286
+Entropy check:  2.255546029128138 0.3915186304207858 393 [3, 1, 1, 2, 53, 1, 15, 3, 6, 2, 3, 6, 6, 16, 3, 3, 1, 2, 3, 1, 10, 8, 2, 7, 6, 1, 1, 1, 1, 1, 3, 3, 1, 8, 1, 2, 1, 3, 6, 1, 1, 6, 3, 2, 3, 5, 1, 1, 2, 8, 1, 1, 2, 2, 1, 2, 2, 1, 1, 3, 2, 1, 2, 1, 1, 1, 2, 3, 2, 1, 2, 2, 1, 4, 2, 1, 3, 2, 1, 1, 4, 5, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 1, 3, 1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 4, 1, 1, 2, 4, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  0.10312500000000001
+Entropy check:  2.2332689616926076 0.3473118288828159 393 [3, 1, 1, 2, 53, 1, 15, 1, 6, 2, 3, 6, 6, 16, 3, 3, 1, 2, 3, 1, 10, 8, 2, 7, 6, 1, 1, 1, 1, 1, 3, 3, 1, 8, 1, 2, 1, 3, 6, 1, 1, 6, 3, 2, 3, 5, 1, 1, 2, 8, 1, 1, 2, 2, 1, 2, 2, 1, 1, 3, 1, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 2, 2, 1, 4, 2, 1, 3, 2, 1, 1, 4, 5, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 1, 3, 1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 4, 1, 1, 2, 4, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+WARNING: Adding a facet didn't improve the objective `significantly` 0.01927706743553026 0.1
+Completed in 6 iterations
+{
+    "type": "relative_improvement",
+    "facet_title": "Ingredient type",
+    "iteration": 1,
+    "prev_d": 7.658299112874142,
+    "prev_c": 3,
+    "d": 5.039385443340739,
+    "c": 16,
+    "improvement": 2.605913669533403,
+    "absolute_improvement": 2.605913669533403
 }
-retrieval works okay, because it can retrieve itself
-MESSAGES: ROLE: system
-You are a helpful assistant that can retrieve information from a library of tutorials for a procedural task. You only consider the provided information (no external knowledge) when answering the query.
-ROLE: user
-
-Here are the available tutorials for the task `Making Muffins`:
-<library>
-<tutorial idx=1 title=Making Muffins>
-Homemade muffins are a special addition to breakfast or brunch. Enjoy them with friends and family, or make them as a grab-and-go breakfast for busy work weeks. Warmly spiced with cinnamon, Morning Glory muffins are made with grated carrot, apple, raisins, walnuts, shredded coconut, and sometimes pineapple. While the list of ingredients is long, the process for baking these muffins is simple and well worth the required steps.
-​​This recipe makes 12 muffins. ​
-Things You'll Need
-1-1/4 cups all-purpose flour
-1 cup shredded coconut
-3/4 cup light brown sugar, tightly packed
-1-1/2 teaspoons ground cinnamon
-1/2 teaspoon sea salt
-1 teaspoon baking powder
-1 cup grated carrot (about 1 large carrot, peeled and grated)
-1 cup grated apple (about 1/2 large apple such as Honeycrisp)
-1/2 cup raisins
-1/2 cup raw walnuts, chopped
-2 large eggs
-1/4 cup olive oil or canola oil
-2 teaspoons pure vanilla extract
-Box grater
-2 mixing bowls
-Spoon or fork for mixing
-12 disposable baking cups
-12-hole muffin tray
-Tip
-To save time, use a food processor to shred the carrot and apple.
-Not a fan of gluten? Replace the all-purpose flour with gluten-free all-purpose flour.
-For naturally sweetened, refined sugar-free muffins, replace the brown sugar with coconut sugar.
-You can choose to use sweetened or unsweetened shredded coconut.
-Instructions:
-Preheat the oven to 350 degrees F. Grate 1 cup-worth of carrot, and 1 cup-worth of apple.
-Add the flour, cinnamon, brown sugar, baking powder, and salt to a mixing and stir together.
-Add the grated carrot, apple, raisins, and walnuts to the flour mixture and stir to combine.
-In a separate bowl, whisk together the eggs, oil, and vanilla extract.
-Add the egg mixture to the bowl with the flour mixture and stir well until a thick batter forms.
-Line a 12-hole muffin pan with baking cups. Scoop batter into the pan using an ice cream scoop or small measuring cup, filling the holes 2/3 of the way up.
-Bake on the center rack of the preheated oven for 30 to 40 minutes, or until muffins test clean when poked with a toothpick.
-Allow muffins to cool for 10 minutes before serving. Enjoy!
-</tutorial>
-<tutorial idx=2 title=Making Muffins>
-Now that I've successfully learnt how to make muffins, I had to make a triple chocolate version.
-Add all the wet ingredients to a bowl and whisk until combined.
-In another bowl, add the flour, cocoa powder and caster sugar and whisk these together.
-Then add your chocolate chips.
-Coating them in the flour helps stop them from sinking.
-Fold the wet ingredients into the mix, then refrigerate for at least one hour.
-This helps them rise without overflowing.
-Scoop the batter into muffin cases, then top with a mix of chocolate chips.
-Follow these baking instructions and that's it.
-Enjoy!
-
-</tutorial>
-<tutorial idx=3 title=Making Muffins>
-Do you love moist, fluffy chocolate chip muffins with that skyhigh bakery top and a nice crisp edge?
-Well, today's your lucky day because I'm gonna show you how to make them.
-Hey, you're watching Preppy Kitchen, where I, John Kanell, teach you how to make delicious homemade dishes to share with your family and friends.
-These chocolate chip muffins are gonna whip up in a snap, so let's get started.
-First off, set that oven to 425 degrees Fahrenheit.
-We want a really high blast of heat when these go in because that'll set the edge and let them rise up so you'll have a nice bakerystyle dome on top.
-If you did 350, they would spread out and it just wouldn't be the right kind of muffin.
-Okay, now for the dry ingredients.
-I'm using a scale because that gives you the most accurate results, but if you're using cups, click up here for my how to measure flour video.
-It shows you all the ins and outs of measuring flour correctly.
-It's the thing that goes wrong the most often in baking, and it sucks when you add too much flour.
-Okay, into my bowl, and I'm using a sifter here.
-I'm adding in two and 3 14 cups, that is 330 grams, of allpurpose flour.
-One teaspoon of salt, and that might seem like a lot, but you want some contrast to all that chocolate and the sugar, so it'll really like amp the flavor up and let you appreciate what's going on in the muffin.
-For leavening, I'm using one tablespoon of baking powder, and again, it's kind of a lot of leavening agent, but this is how you get that bakerystyle top.
-Sift it out.
-We're done with that scale, you can set it aside as well.
-Give it a quick whisk, and now we can set it aside.
-This was melted a minute ago.
-It already cooled down, I'm gonna put it into the microwave.
-For the wet ingredients, it's important that you're dealing with roomtemperature things, and if it gets cold, we're gonna warm it up in the microwave, and P.S., it's gonna get cold.
-This counter's freezing.
-All right, 300 ml, or 1 14 cups, of whole milk.
-In you go.
-Half a cup, or 113 grams, of unsalted butter that's been melted, and get it all out there.
-So, by the by, today is the first time ever in the history of Preppy Kitchen that Brian is filming.
-You wanna say hi?
-He's eating cookies that I made.
-One cup, or 200 grams, of sugar right in that bowl.
-Let's give it a little whisk to bring it together.
-If you notice some clumps of butter happen when you mix it all together, pop it into the microwave for 40 seconds, and it should be totally fine.
-I used warm milk, so it's not happening to me.
-So right now, we're gonna add in the eggs and the sour cream.
-Two large eggs, one, two, as well as 1 14 cup of sour cream, and if you don't have that, you can go ahead and use fullfat plain yogurt.
-It'll be completely delicious still.
-This is optional, but I am adding one tablespoon of vanilla.
-That's 15 ml.
-Wow, delicious.
-I'm gonna mix this up right now, but look what's happened just in the few seconds that we've been doing this.
-What's going on here?
-Look, it's turned into like a butter mush.
-That's not what I want, so I will be popping this into the microwave after I whisk the eggs in.
-You don't wanna do that before the eggs get whisked in, because they could be overcooked.
-A little heat's gonna fix all of our problems.
-Okay, a little bit of heat later.
-Let's give this a whisk.
-That's nice.
-Nice, homogenous, fluid mixture is what we want.
-Now it's time to pour the wet into the dry, give it a whisk, and take it to almost combined.
-You could have a couple clumps of flour hanging out here and there, because we'll do more mixing once those chocolate chips go in.
-So you can see we have a couple clumps here and there, but it's no big deal.
-It's time for some chocolate, the best part.
-All right, in my recipe, I specify 1 12 cups of semisweet chocolate, but I'm living large and using one cup of semisweet and half a cup of bittersweet.
-You could even use milk chocolate if that's what you prefer.
-There we go.
-That's the bittersweet chocolate, and I'm taking a handful of the semisweet chips and reserving them, because I'll be sprinkling them on top for beauty purposes.
-Rest of the chocolate chips go in, and you should fold them in with a spatula, not use a whisk.
-After those chocolate chips are folded in, it's time to pop this into the muffin tins.
-I'm doing it two different ways so you can see the difference between a naked muffin and one that's in the paper.
-It's gonna be different.
-I've buttered and floured half of the muffin tins so you can see just a nice coat of butter, good dash of flour, move all that flour around, and then dump out the excess.
-All right, and for the rest, I'm gonna use muffin papers, which go a bit higher, so you won't have that mushroomshaped muffin top, but they should still rise up with a nice dome.
-In you go.
-Unlike with cakes, some people really prefer that nice, crispy muffin edge, so if that's your jam, then you're gonna wanna do it without the papers.
-Just really be careful about adding in enough butter and flour so they pop out easily.
-I'm using a large ice cream scooper to transfer my batter into the muffin tin, and I wanna fill it up all the way.
-Normally, it's 2 13 of the way high for cupcakes, but this time, it's full to the brim.
-Okay, fill those papers up, and when you're doing that, try to be careful about getting batter on the edges.
-It'll burn.
-It's just a matter of how it looks.
-It'll still bake fine.
-When you're scooping the batter, it's a nice time to kind of monitor the chocolate chips and make sure that no one is getting a sad amount.
-You wanna have an equal distribution, so if you notice that your scoop didn't get any chips, scoop up some chips.
-After the batter goes in, you can top the muffins with a scattering of chocolate chips.
-This is not super necessary, but it'll give you nice, glossy, melty chocolate tops, and it makes a big difference.
-The chocolate chip muffins look a little bit naked if they don't have those chocolate chips on top.
-Okay, this recipe makes exactly 12 big muffins, and now it's time to go into the oven.
-You need to have a high heat to lock in the edge so it gets set, and then the top can burst through to create that big bakerystyle dome.
-This is gonna go into the oven at 425 Fahrenheit for five minutes, then it'll reduce the temperature to 350 and bake for 20 to 25 minutes, depending, you wanna have a nice golden top that's set in the middle, so you can insert a skewer through the center, it'll come out clean except for all that molten chocolate.
-Right, into the oven you go.
-Out of the oven and cooled just enough to touch, I wanna show you the difference between the in paper versus the out of paper.
-Out of paper, so nice, crisp edge, muffined over a little bit, and golden brown.
-In the paper, the paper really guided it up so it's a little bit taller, and the difference is that you don't have that crisp edge.
-It's really like soft all over and just delicious.
-You've gotta take a look at the inside of this.
-Take a look.
-If you like this video, check out my chocolate playlist.
-Ha, ha, ha, ha, ha, ha, ha, ha.
-Someone's making crazy faces behind the camera.
-If you like this video, check out my chocolate playlist.
-It has all my favorite chocolate recipes and they are amazingly delicious.
-You've gotta check it out.
-Now it's time for a bite.
-Oh my gosh, do you see how crazy this is?
-Oh my God, that is so good, so perfect.
-If you like my videos, hit that like button, subscribe, and I'll see you in the next video.
-
-</tutorial>
-<tutorial idx=4 title=Making Muffins>
-These are my blueberry muffins.
-Mmm, my favorite muffin.
-To a large mixing bowl, add grated lemon zest, a milk of choice, we're using soy milk, sugar, a neutral vegetable oil, and vanilla extract.
-Whisk well until the ingredients are well combined.
-Now, sift in the flour with baking powder and a pinch of salt.
-This is gonna make your muffin soft and fluffy.
-Whisk wet and dry ingredients for a short minute until lumps are gone, but without overmixing.
-Rinse the blueberries, shake the water off, then add them to a bowl, toss them with the cornstarch, and add them to the batter.
-Stir and fold the blueberries in the mixture gently.
-Transfer the batter to the muffin liners.
-You should be able to make 12 muffins.
-You can fill them almost to the top.
-Then you can sprinkle some sugar on top, or not.
-We're not gonna do it because we eat them for breakfast.
-Then bake in a preheated oven for 22 and a half minutes, or until a toothpick inserted in the center comes out dry.
-Now let them cool down for about 30 minutes.
-Easy, right?
-
-</tutorial>
-<tutorial idx=5 title=Making Muffins>
-The perfect combination of spicy pumpkin and dreamy cheesecake married together in a bite-sized muffin.  It's the treat you've been waiting for!
-These soft muffins with a saucy swirl of cheesecake make for the perfect treat to bring to all of your holiday gatherings.  Whether your into jumbo muffins, or bite-sized minis, these muffins are sure to be an instant hit !
-Step 1: Ingredients
-TOOLS:
-Mini Muffin Tin
-Mixer
-Digital Scale - I like this one
-MUFFINS:
-1 15 oz can pumpkin
-1/4 cup vegetable oil
-2 large eggs
-1 (200g) cup sugar
-1 teaspoon vanilla
-1 1/2 cups (188g) all-purpose flour
-1 teaspoon baking powder
-1/2 teaspoon baking soda
-1/2 teaspoon ground cinnamon
-1/2 teaspoon ground ginger
-1/2 teaspoon ground nutmeg
-1/8 teaspoon ground cloves
-1/2 teaspoon salt
-1/4 teaspoon freshly ground black pepper
-FILLING:
-8 ounces (200g) cream cheese, at room temperature
-1 large egg yolk
-5 tablespoons (75g) sugar
-1/8 teaspoon vanilla extract
-Chopped nuts (walnuts, pecans) (optional)
-Step 2: Muffins
-Preheat oven to 350F (180C)
-Mix canned pumpkin, oil, and sugar together, either by hand or with a mixer on low.
-Add in eggs, one at a time, combining thoroughly after each.
-Add vanilla.
-Whisk together flour, baking powder, baking soda, salt, and spices.
-Slowly add flour mixture to liquids, combining thoroughly and scraping the sides of the bowl with a spatula until well combined.
-Step 3: Filling
-Mix together cream cheese, sugar, egg yolk and vanilla until well combined.
-Step 4: Assemble
-Grease your muffin tins or line with paper cups. 
-Drop in spoonfuls of pumpkin mixture.
-Add smaller spoonfuls of cream cheese mixture on top.
-Swirl with a skewer.
-Optional:  top with crushed nuts.  Pumpkin seeds (pepitas) are also a great topping!
-Step 5: Bake
-Bake as follows, turning the tins half way through baking times:
-mini muffins: 20-25 min
-standard muffins: 25-30 min
-jumbo muffins: 30-40 min
-Wasn't that easy?
-Enjoy!
-</tutorial>
-<tutorial idx=6 title=Making Muffins>
-Classic blueberry muffins are nearly impossible to beat. Sweet, fluffy and studded with tangy blueberries, these muffins are always a favorite for breakfast, brunch or a snack. This easy blueberry muffin recipe is a keeper for anytime you're in need of a comforting treat. With plenty of room for adaptation, you can make these muffins gluten-free, refined sugar-free or dairy-free.
-Things You'll Need
-3 cups all-purpose flour
-1 cup light brown sugar, packed
-1 tablespoon baking powder
-1/2 teaspoon sea salt
-2 eggs, lightly beaten
-1 cup buttermilk
-1/2 cup canola oil
-1 2/3 cups fresh or frozen blueberries
-Preparation
-Heat the oven to 375 F. Coat a muffin tray with nonstick spray, or line your muffin tray with baking cups. Mix the flour, brown sugar, baking powder and salt to a mixing bowl. In a separate mixing bowl, combine the eggs, buttermilk and canola oil.
-{image caption}{Combine wet and dry ingredients in separate bowls}
-Stir together the dry ingredients until well combined. Similarly, whisk together the wet ingredients until combined.
-{image caption}{Stir together the ingredients}
-Pour the wet ingredients into the bowl with the dry ingredients, and stir until just combined.
-{image caption}{Combine wet and dry ingredients.}
-Add the blueberries, and gently fold them into the batter using a rubber spatula until just combined.
-{image caption}{Fold blueberries into muffin batter}
-Scoop blueberry muffin batter into the prepared muffin tray, filling the holes 3/4 of the way up.
-{image caption}{Scoop batter into muffin tray}
-Bake them on the center rack for 30 to 35 minutes or until the muffins test clean when poked in the center.
-{image caption}{Bake muffins in preheated oven.}
-Allow the muffins to cool at least 10 minutes before serving. Serve them warm with butter and honey.
-{image caption}{Allow muffins to cool before eating.}
-Tip
-To make these muffins gluten-free, you can replace the regular all-purpose flour with gluten-free all-purpose flour. For a dairy-free recipe, replace the buttermilk with unsweetened almond milk. If you are avoiding refined sugar, replace the brown sugar with coconut sugar. You also can use coconut oil or grapeseed oil instead of canola oil.
-Note that bake times may differ for those who live at high elevation.
-</tutorial>
-<tutorial idx=7 title=Making Muffins>
-Hey guys, I'm Dina from simplyhomecooked.com and today I'll be showing you how to make these fluffy and moist blueberry muffins.
-They're loaded with a ton of blueberries and they're topped with simple and delicious brown sugar streusel.
-So you want to start off by combining all of your dry ingredients.
-So in a large bowl, combine two cups of allpurpose flour, a teaspoon of baking powder, half a teaspoon of baking soda, and a quarter teaspoon of salt.
-Then whisk it all together and reserve one tablespoon of that flour mixture.
-Now mix that reserved tablespoon of the flour mixture with one and a half cups of fresh blueberries.
-The reason why we add that little tiny bit of flour to those blueberries is when we add them to the batter.
-During baking, the blueberries don't sink as fast when they're coated in flour.
-Now add three eggs into a large bowl and whisk them on high speed using an electric mixer.
-So you'll want to do this for about three minutes until the eggs become fluffy and pale.
-Then continue beating the eggs as you slowly add one cup of granulated sugar.
-You'll want to keep beating those eggs for about three more minutes.
-So the key to really fluffy muffins is wellbeaten eggs.
-Now you want to add a teaspoon of vanilla extract and a tablespoon of fresh lemon juice.
-Now continue beating the egg mixture as you slowly add three quarter cups of heavy cream.
-Now you can begin adding your dry ingredients, but don't do it all at once.
-So get a sifter out and then add about a third of that flour mixture at a time with mixing in between.
-So once you've got all of your dry ingredients well combined into the muffin batter, continue beating with your electric mixer as you slowly, gradually add in four tablespoons of melted unsalted butter.
-All right, now the last and final step is adding in those blueberries.
-And at this point you want to fold it in with a spatula.
-Now line your muffin tin with cupcake liners and begin scooping the batter out using a large cookie scoop.
-I like to top my blueberry muffins with a few extra blueberries on top, but that's totally optional.
-Now before the muffins go into the oven, you want to make that simple streusel.
-In a small bowl, combine one tablespoon of unsalted cold cube butter, two tablespoons of allpurpose flour, a pinch of salt, a teaspoon of cinnamon, and three tablespoons of brown sugar.
-Mash that all together using a fork until the ingredients are well combined and they have a crumbly texture to them.
-Now top the blueberry muffins with the streusel topping and bake them in the oven at 350 degrees Fahrenheit for about 35 minutes.
-I hope you guys enjoyed watching this video and if you did, please be sure to share, like, and subscribe to our channel so you guys never miss out on any of our new recipes.
-See you next time!
-
-</tutorial>
-<tutorial idx=8 title=Making Muffins>
-On crisp fall mornings, warm your belly with a breakfast that celebrates one of the most popular flavors of fall: pumpkin spice latte muffins. It only takes about 30 minutes to make these streusel-topped muffins, from start to delicious finish.
-Things You'll Need
-1/2 cup rolled oats (not instant)
-1/2 cup flour
-1/2 cup brown sugar, packed
-1/2 cup roasted pumpkin seeds
-1/4 cup butter, softened
-2 2/3 cup all-purpose flour
-3 Tbsp. espresso powder
-2 tsp. baking soda
-1 tsp. salt
-1 can of pumpkin pie filling, 15 oz.
-1/4 cup sugar
-1 cup brown sugar, packed
-1 cup vegetable oil
-4 large eggs
-1 cup white chocolate chips
-Cupcake liners
-Muffin pan
-1. Make the streusel topping
-To begin, heat the oven to 350°F. Place paper liners in a muffin pan and set aside.
-In a small bowl, combine the rolled oats, 1/2 cup of flour, 1/2 cup of brown sugar, roasted pumpkin seeds, and softened butter. Combine thoroughly and set aside (to use as the streusel topping later).
-2. Mix the flour base for the muffins
-Sift together 2 2/3 cups of flour, 3 tablespoons of espresso powder, 2 teaspoons of baking soda, and 1 teaspoon of salt.
-3. Make the pumpkin mixture
-Combine the pumpkin pie filling, 1/4 cup of sugar, 1 cup of brown sugar, and 1 cup of vegetable oil. Lightly beat 4 large eggs. Add to the mixture and mix well.
-4. Combine the wet ingredients with the flour base
-Make a small well in the dry ingredients, and then add the wet ingredients. Stir to moisten.
-5. Add the chocolate chips
-Add 1 cup of white chocolate chips and stir until thoroughly combined.
-6. Fill the liners and top with streusel
-Spoon the batter into the prepared muffin tin, filling each liner about 2/3 full. Top each muffin with the streusel.
-7. Bake the muffins
-Bake for 18 to 20 minutes. Serve warm.
-</tutorial>
-<tutorial idx=9 title=Making Muffins>
-There are so many things to love about this one-bowl oatmeal protein muffin recipe: It's low in sugar, flexible with substitutions and includes three simple sources of protein (nut butter, chia seeds, and flaxseed). But best of all... these muffins are seriously delicious.
-{image caption}{Oatmeal protein muffins with chocolate chips and banana chips}
-Things You'll Need
-3 very ripe bananas (or 1 cup of applesauce)
-1 cup milk (dairy, coconut, or almond)
-1/2 cup peanut butter (or any nut butter)
-2 eggs
-1/4 cup maple syrup (or honey)
-1 teaspoon vanilla
-1 tablespoon baking powder
-1/4 cup flaxseed (ground)
-1 tablespoon chia seeds
-3 cups whole oats
-Optional toppings: chocolate chips, dried banana chips
-Tip
-The peanut butter-banana base can be adapted to suit many different tastes. Applesauce works in place of bananas and any nut butter can pinch hit for the peanut butter.
-{image caption}{Ingredients for oatmeal protein muffins}
-Get Started
-Set your oven to 375 degrees F and grease the muffin pan. Use coconut oil, spray or butter to grease your pan. Next, mash your bananas in a large mixing bowl.
-{image caption}{When it comes to baking with bananas, the browner the better. They'll have more flavor.}
-{image caption}{A potato masher works best but a fork would also do for very ripe bananas.}
-Add the Remaining Ingredients
-There's no way to mess this up. Simply combine all the ingredients and stir until thoroughly mixed.
-{image caption}{Use regular milk, almond milk or coconut milk.}
-{image caption}{No need to beat the eggs ahead of time, just crack and mix.}
-{image caption}{We used maple syrup here but honey is also delicious.}
-{image caption}{Make this recipe gluten-free with specially marked containers of whole oats.}
-{image caption}{Without flour in the recipe, there's no worry of over-mixing.}
-Prepare to Bake
-Fill muffin cups to the top. A 3-ounce ice cream scoop works perfectly for evenly distributing muffin batter into pans. This is the time to add optional toppings such as chocolate chips or banana chips.
-{image caption}{Tip: Place a couple of chocolate or banana chips in the bottom of each cup before ladling in the batter.}
-{image caption}{Try using coconut oil spray to grease the pan. It's delicious!}
-Bake at 375 degrees F for 25 minutes. Then cool on a rack.
-{image caption}{Oatmeal protein muffins with banana chips on top}
-Store refrigerated in an airtight container for 3 to 5 days. Or freeze in a single layer, inside a zip-top freezer bag.
-{image caption}{Mix and match your toppings, or add more.}
-</tutorial>
-<tutorial idx=10 title=Making Muffins>
-Going to the grocery store has turned into an epic quest to find the perfect bananas. In the Clothier home, we like them to still be a bit green - they are firmer and have a better flavor. But there's a lot to consider: How many to get? How many do I think we will eat in the next few days? Is one a day good, or will my wife and I both eat one each day? What about if I want to put them in cereal or something else? And the most important variable that determines if I leave with a bunch or empty handed is how green they are. Occasionally, I will find some that will be perfect in a couple of days and pair them with a few that are perfect right now.
-But no matter how hard I plan, there always seems to be one or two that go uneaten or ripen a lot quicker than expected. It is in these situations that I think banana bread was first conceived - a way to use those blackening bananas before they go to waste.
-The best thing about these muffins is the crumbly coating that goes on top of them. The added texture and flavor is well worth the extra calories.
-Since this is one of those things I don't make very often, I don't give much thought as to how bad it is for you. I'd rather be happy and plump than starve myself endlessly. If worse comes to worst, there's always the gym...
-Step 1: Ingredients
-For the Bread:
-3 - 4 Bananas, Mashed
-2 Cups all-purpose Flour
-3/4 Cup White Sugar
-1/4 Cup Brown Sugar
-1 Stick Butter, Softened
-2 Eggs, Slightly Beaten
-1 tsp Vanilla
-1 tsp Baking Soda
-1/2 tsp Salt
-For the Topping:
-2 Tbsp Olive Oil
-1/3 Cup Brown Sugar
-1 Tbsp Cinnamon
-Optional:
-1 Cup Walnuts, Chopped
-Oven Temp:
-Once you have everything, preheat the oven to 375 degrees F. 
-Step 2: Mush Those Bananas
-Peel the bananas and place them in a large bowl. It's OK if they have a few spots, but you can cut away the super gross black parts if there are any if that freaks you out. Also, peel off any of those clingy strings...
-Using a strong utensil, smush, smash, mush, and mash those bananas into oblivion! Be careful though, I actually shattered a spoon once when I got a bit too excited. This can be a stress reliever or an arm workout - your choice.
-Keep it up until the banana are mostly liquified. It's OK to have a few bits and pieces for consistency and texture.
-Step 3: A Sweet Start
-Once the butter is softened (try not to melt it completely!) combine it with 3/4 cup white sugar and 1/4 cup brown sugar. A fork or a strong whisk works best for this procedure. Mix until everything is well blended and creamy.
-Step 4: Mix It Up
-Beat the 2 eggs, vanilla and butter/sugar mixture into the bananas. If you are adding walnuts, now is a good time to do so.
-Step 5: Flour Is Your Friend
-Finally, add the flour, baking soda, and salt, and mix until it is totally incorporated. Once you are satisfied, pour the mixture into your cooking pan of choice. With this batch, I made muffins, but a loaf or cake pan is also acceptable. 
-Step 6: Coat It...
-To make the topping, blend the olive oil, brown sugar, and cinnamon until it is very crumbly. Then, sprinkle it over top of the batter. It's OK to make extra and really put it on thick. Typically, butter is used to make a streusel, but there is already a stick in the batter, and I'm trying to reduce my intake. If you would rather go that route, use a one to two tablespoons of butter instead of the oil.
-Step 7: And Cook It
-In case you forgot to do so earlier, preheat the oven to 375 degrees F. When it is ready, bake the batter appropriately for your cooking pan. For muffins, 18 to 20 minutes should be good. Be sure to test them with a clean knife or toothpick to make sure they are done. When you are satisfied, let them cool on a rack for 15 minutes, or until they can be safely touched. 
-I think you can figure out what to do after that...
-</tutorial>
-
-</library>
-
-You are given a context tutorial and a query. Please answer the query.
-<query>
-Given a tutorial, retrieve top-5 missing, but relevant Method information for the entire tutorial.
-Following are examples of Method information: 
-Subgoal: Objective of a subsection.
-Example: "Now for the intricate layer that will give me the final webbing look."
-Instruction: Actions that the instructor performs to complete the task.
-Example: "We're going to pour that into our silicone baking cups."
-Tool: Introduction of the materials, ingredients, and equipment to be used.
-Example: "I'm also going to use a pair of scissors, a glue stick, some fancy tape or some regular tape."
-</query>
-
-<context tutorial>
-Today on The Stay At Home Chef I'm showing you my Master Muffin Recipe.
-Instead of giving you dozens of recipes for different flavors of muffins, today I'm sharing my Master Muffin Recipe, which you can use to make almost any flavor, and it's super easy.
-Start by preheating your oven to 425 degrees Fahrenheit.
-Then line a 12 cup muffin tin with paper baking cups.
-Then I like to give mine just a spritz of nonstick cooking spray right on those paper baking cups, to prevent the muffins from sticking.
-Now it's time to put together our batter.
-First I'm going to demonstrate a basic muffin batter, and then I'm going to show you 5 different variations, each demonstrating a different way that you can build upon the base recipe.
-The batter starts with 1 cup of softened salted butter, and 1 cup of granulated sugar.
-We're going to use a hand mixer to cream this together.
-At first this mixture will be lumpy, but keep on mixing for about 2 minutes.
-After 2 minutes your sugar and butter will be well combined, and it will be a smooth paste like creamy consistency.
-Then you'll add in 2 large eggs and mix this briefly until just combined, about 30 seconds.
-Then I'm going to add in 1 teaspoon of vanilla extract, or you can use other flavors of extract like almond extract, orange extract, lemon extract, those are all super popular options.
-For the lemon and citrus extracts I recommend only using 1 teaspoon of those, and combining that with 1 teaspoon of vanilla extract.
-You'll also need 2 teaspoons of baking powder, and 1 teaspoon of salt.
-This is also the point where you'd add in any spices like cinnamon or pumpkin pie spice.
-We're going to give this a quick mix just to combine about 10 seconds.
-Now at this point it's time to ditch our hand mixer and grab a rubber spatula.
-Add in 1 half of your allpurpose flour.
-You're going to use 2 cups total, so you're going to add in 1 cup right now.
-Then use the rubber spatula to stir this in.
-Once all those white specks of flour start to disappear, you'll pour in 1 half cup of either milk or buttermilk.
-Buttermilk is going to give you a little bit of a poofier muffin, and you'll stir this in as well until it's well combined.
-Last you'll add in the remaining 1 cup of allpurpose flour.
-Stir this together, scraping the sides and bottom of the bowl to ensure that everything gets mixed in.
-Now if you're going to add anything into your muffins, like dried fruit, chocolate chips, or berries, now would be the time to do so, but I'll show you that in just a minute.
-Your batter should be thick but also spreadable.
-We're going to divide the batter up amongst our 12 muffin cups, and you should fill each one about 2 thirds of the way full.
-It's always a little bit hard to tell what's 2 thirds or what's 3 quarters, so just try to divide your batter up as evenly as possible, because this does make 12 muffins.
-You can let your muffin batter rest for about 15 minutes before popping it in the oven, or if you're making a larger batch, it's totally okay to let it rest in between cooking different batches.
-Bake your muffins in the 425 degree oven for 7 minutes.
-After 7 minutes reduce the temperature on your oven to 350 degrees without opening the oven door.
-Continue baking for 1215 minutes and watch them carefully, as the cooking time will vary a little bit depending on your oven.
-Now let's start going over some variations, starting with a lemon blueberry muffin.
-This is great because it demonstrates both using another flavor of extract, as well as adding in fresh fruit.
-I've already creamed together the sugar and butter and added in the eggs, so now I'm going to add in 1 teaspoon of vanilla extract, and 1 teaspoon of lemon extract before adding in my baking powder and salt.
-Continue on with the rest of the recipe, adding in the flour and buttermilk, once you have your batter finished, you'll add in 1 cup of fresh blueberries, or frozen even, you can use those too.
-Then this is optional, but I like to add in the zest of 1 lemon, so about 1 tablespoon of lemon zest.
-Then simply fold this in.
-Then it's just a matter of once again dividing the batter evenly amongst the 12 muffin cups.
-One fun topping you can experiment with is sprinkling on about 1 teaspoon of granulated sugar on top of your muffins.
-This gives it a nice little crunchy sweet top.
-And then of course bake these just as we did before.
-Next up I'm going to show you how to make a chocolate version.
-For a chocolate version you'll use your butter and sugar again just like before, but this time you'll add in 1 12 cup of cocoa powder, unsweetened cocoa powder, and cream that in with it.
-From here you'll proceed with the rest of the master muffin recipe by adding in eggs, baking powder, salt, vanilla extract, all purpose flour, and milk or buttermilk.
-The addition of the cocoa powder really doesn't do much to change the texture of the final batter.
-Then just for fun I'm going to add in 1 cup of semisweet chocolate chips and fold those in.
-Even though you can mix and match addins, you want to total any additions that you make, like chocolate chips or nuts or dried fruit, to 1 cup total.
-Next I'm going to show you one of my very favorite muffin hacks that allows you to switch up with all sorts of different flavors by using instant pudding.
-This time you're only going to add in 34 cup of granulated sugar, because you're going to replace that additional 14 cup with a 3.4 ounce package of instant pudding mix, and this time I'm using pistachio because it's one of my favorite flavors.
-Cream this together and then proceed with the master muffin recipe as directed.
-You could even fold in some chopped pistachios if you wanted.
-This variation is fun because there's just so many different flavors of instant pudding out there, it makes it really easy to mix and match flavors really quickly without having to buy a bunch of extracts.
-Next I want to show just how easy it is to mix and match addins to add a little bit of flavor to the base recipe without too much hassle.
-So I'm going to show you a cranberry white chocolate chip with a little bit of orange zest.
-This is the master recipe with no alterations to it.
-I'm going to add in 12 cup of dried cranberries, because like I said before we're going to use 1 cup of addins total.
-That means that the white chocolate chips will also come in at 12 cup for 1 cup total.
-I didn't have any orange extract today, but that's okay because a little bit of orange zest, 12 tablespoons total, will add just a hint of orange flavor.
-Once again it's simply a matter of folding this in until the ingredients are evenly distributed.
-You can do chocolate chips, raisins, nuts, really the possibilities are endless.
-Last I want to show you how to add in spices, which is super easy and I really don't have to show you, but I thought it would be fun to show a cinnamon muffin with cinnamon chips folded in, topped with a brown sugar streusel, and that's just delicious.
-I've already creamed together the butter and sugar, added in the eggs, baking powder, salt, and vanilla extract, and now I'm going to add in 1 teaspoon of ground cinnamon.
-You can use between 12 teaspoon and 1 full teaspoon.
-It really just depends on how pronounced you want that cinnamon flavor to be.
-Finish with the rest of the master muffin recipe by adding in the flour and buttermilk.
-I'm going to fold in 1 cup of cinnamon chips, which are delicious, but they can be a little harder to find when it's not the holidays.
-Go ahead and divide up the batter in your prepared muffin cups before making your streusel topping.
-A streusel is easy to make and it is a decadent addition to lots of different flavors of muffins.
-It starts with 14 cup of cold cubed butter.
-Then you'll add in 12 cup of brown sugar and 12 cup of allpurpose flour, adding in 14 teaspoon of ground cinnamon.
-Then use a pastry cutter or you can use two knives, cutting across each other like this.
-Then you want to cut this all together until it resembles a coarse meal or sand.
-Then you want to sprinkle this generously on top of your muffin batter.
-It's almost like having little piles of sand on top of each muffin.
-And of course the baking time on all of these are the same.
-Now you know how to make pretty much any flavor of muffin that you want using one master recipe.
-Thanks for watching.
-You can find the full written recipe as well as other flavor ideas in the video description.
-Be sure to subscribe, like, and follow, and check out the rest of my videos, where you can find hundreds of restaurant quality recipes you can easily make at home.
-We'll see you later.
-
-</context tutorial>
-
-RESPONSE: {
-  "information_list": [
-    {
-      "content": "Start by preheating your oven to 425 degrees Fahrenheit.",
-      "source_doc_idx": 1
-    },
-    {
-      "content": "Line a 12 cup muffin tin with paper baking cups.",
-      "source_doc_idx": 1
-    },
-    {
-      "content": "Cream together 1 cup of softened salted butter and 1 cup of granulated sugar using a hand mixer until smooth.",
-      "source_doc_idx": 1
-    },
-    {
-      "content": "Add in 2 large eggs and mix briefly until just combined, about 30 seconds.",
-      "source_doc_idx": 1
-    },
-    {
-      "content": "Fold in 1 cup of fresh blueberries or other add-ins after mixing the batter.",
-      "source_doc_idx": 1
-    }
-  ]
+{
+    "type": "relative_improvement",
+    "facet_title": "Stage",
+    "iteration": 1,
+    "prev_d": 7.658299112874142,
+    "prev_c": 3,
+    "d": 7.017593199838469,
+    "c": 6,
+    "improvement": 0.6377059130356724,
+    "absolute_improvement": 0.6377059130356724
 }
+{
+    "type": "relative_improvement",
+    "facet_title": "Purpose",
+    "iteration": 1,
+    "prev_d": 7.658299112874142,
+    "prev_c": 3,
+    "d": 5.488558037317733,
+    "c": 12,
+    "improvement": 2.160741075556409,
+    "absolute_improvement": 2.160741075556409
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Focus",
+    "iteration": 1,
+    "prev_d": 7.658299112874142,
+    "prev_c": 3,
+    "d": 6.187816923098036,
+    "c": 7,
+    "improvement": 1.466482189776106,
+    "absolute_improvement": 1.466482189776106
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Property type",
+    "iteration": 1,
+    "prev_d": 7.658299112874142,
+    "prev_c": 3,
+    "d": 6.352183898780154,
+    "c": 7,
+    "improvement": 1.3021152140939876,
+    "absolute_improvement": 1.3021152140939876
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Informational role",
+    "iteration": 1,
+    "prev_d": 7.658299112874142,
+    "prev_c": 3,
+    "d": 7.381308551348886,
+    "c": 6,
+    "improvement": 0.27399056152525514,
+    "absolute_improvement": 0.27399056152525514
+}
+{
+    "type": "add_facet",
+    "iteration": 1,
+    "prev_d": 7.658299112874142,
+    "prev_c": 3,
+    "best_d": 5.039385443340739,
+    "best_c": 16,
+    "improvement": 2.605913669533403,
+    "best_facet_toadd": 0,
+    "best_facet": "Ingredient type"
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Stage",
+    "iteration": 2,
+    "prev_d": 5.039385443340739,
+    "prev_c": 16,
+    "d": 4.547257191946574,
+    "c": 19,
+    "improvement": 0.48912825139416416,
+    "absolute_improvement": 3.0950419209275672
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Purpose",
+    "iteration": 2,
+    "prev_d": 5.039385443340739,
+    "prev_c": 16,
+    "d": 3.3528961633586913,
+    "c": 25,
+    "improvement": 1.6774892799820473,
+    "absolute_improvement": 4.28340294951545
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Focus",
+    "iteration": 2,
+    "prev_d": 5.039385443340739,
+    "prev_c": 16,
+    "d": 3.913536714115798,
+    "c": 20,
+    "improvement": 1.1218487292249404,
+    "absolute_improvement": 3.7277623987583435
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Property type",
+    "iteration": 2,
+    "prev_d": 5.039385443340739,
+    "prev_c": 16,
+    "d": 4.071313166414303,
+    "c": 20,
+    "improvement": 0.9640722769264363,
+    "absolute_improvement": 3.5699859464598394
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Informational role",
+    "iteration": 2,
+    "prev_d": 5.039385443340739,
+    "prev_c": 16,
+    "d": 4.819287276872065,
+    "c": 19,
+    "improvement": 0.21709816646867353,
+    "absolute_improvement": 2.8230118360020766
+}
+{
+    "type": "add_facet",
+    "iteration": 2,
+    "prev_d": 5.039385443340739,
+    "prev_c": 16,
+    "best_d": 3.3528961633586913,
+    "best_c": 25,
+    "improvement": 1.6774892799820473,
+    "best_facet_toadd": 1,
+    "best_facet": "Purpose"
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Stage",
+    "iteration": 3,
+    "prev_d": 3.3528961633586913,
+    "prev_c": 25,
+    "d": 3.1109423351529872,
+    "c": 28,
+    "improvement": 0.238953828205704,
+    "absolute_improvement": 4.522356777721154
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Focus",
+    "iteration": 3,
+    "prev_d": 3.3528961633586913,
+    "prev_c": 25,
+    "d": 2.9076825975200262,
+    "c": 29,
+    "improvement": 0.4412135658386651,
+    "absolute_improvement": 4.724616515354116
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Property type",
+    "iteration": 3,
+    "prev_d": 3.3528961633586913,
+    "prev_c": 25,
+    "d": 2.7374459887604212,
+    "c": 29,
+    "improvement": 0.6114501745982701,
+    "absolute_improvement": 4.8948531241137205
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Informational role",
+    "iteration": 3,
+    "prev_d": 3.3528961633586913,
+    "prev_c": 25,
+    "d": 3.2436695910157862,
+    "c": 28,
+    "improvement": 0.106226572342905,
+    "absolute_improvement": 4.389629521858355
+}
+{
+    "type": "add_facet",
+    "iteration": 3,
+    "prev_d": 3.3528961633586913,
+    "prev_c": 25,
+    "best_d": 2.7374459887604212,
+    "best_c": 29,
+    "improvement": 0.6114501745982701,
+    "best_facet_toadd": 2,
+    "best_facet": "Property type"
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Stage",
+    "iteration": 4,
+    "prev_d": 2.7374459887604212,
+    "prev_c": 29,
+    "d": 2.5568588592121513,
+    "c": 32,
+    "improvement": 0.17758712954826983,
+    "absolute_improvement": 5.07244025366199
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Focus",
+    "iteration": 4,
+    "prev_d": 2.7374459887604212,
+    "prev_c": 29,
+    "d": 2.407105081540002,
+    "c": 33,
+    "improvement": 0.3263409072204193,
+    "absolute_improvement": 5.221194031334139
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Informational role",
+    "iteration": 4,
+    "prev_d": 2.7374459887604212,
+    "prev_c": 29,
+    "d": 2.6691132839963667,
+    "c": 32,
+    "improvement": 0.0653327047640544,
+    "absolute_improvement": 4.9601858288777745
+}
+{
+    "type": "add_facet",
+    "iteration": 4,
+    "prev_d": 2.7374459887604212,
+    "prev_c": 29,
+    "best_d": 2.407105081540002,
+    "best_c": 33,
+    "improvement": 0.3263409072204193,
+    "best_facet_toadd": 1,
+    "best_facet": "Focus"
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Stage",
+    "iteration": 5,
+    "prev_d": 2.407105081540002,
+    "prev_c": 33,
+    "d": 2.255546029128138,
+    "c": 36,
+    "improvement": 0.14855905241186385,
+    "absolute_improvement": 5.369753083746003
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Informational role",
+    "iteration": 5,
+    "prev_d": 2.407105081540002,
+    "prev_c": 33,
+    "d": 2.3587092799912637,
+    "c": 36,
+    "improvement": 0.045395801548738124,
+    "absolute_improvement": 5.266589832882878
+}
+{
+    "type": "add_facet",
+    "iteration": 5,
+    "prev_d": 2.407105081540002,
+    "prev_c": 33,
+    "best_d": 2.255546029128138,
+    "best_c": 36,
+    "improvement": 0.14855905241186385,
+    "best_facet_toadd": 0,
+    "best_facet": "Stage"
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Informational role",
+    "iteration": 6,
+    "prev_d": 2.255546029128138,
+    "prev_c": 36,
+    "d": 2.2332689616926076,
+    "c": 39,
+    "improvement": 0.01927706743553026,
+    "absolute_improvement": 5.389030151181534
+}
+{
+    "type": "add_facet",
+    "iteration": 6,
+    "prev_d": 2.255546029128138,
+    "prev_c": 36,
+    "best_d": 2.2332689616926076,
+    "best_c": 39,
+    "improvement": 0.01927706743553026,
+    "best_facet_toadd": 0,
+    "best_facet": "Informational role"
+}
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Flour Flour
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Method Method
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Texture Texture
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Action Action
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Fat Fat
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Method Method
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Temperature Temperature
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Action Action
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Liquid Liquid
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Method Method
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Texture Texture
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Action Action
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Flour Flour
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Method Method
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Flavor Flavor
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Action Action
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Flour Flour
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Equipment Equipment
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Flavor Flavor
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Action Action
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Flour Flour
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Method Method
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Flavor Flavor
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Action Action
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Flour Flour
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Method Method
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Flavor Flavor
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Action Action
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Fat Fat
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Method Method
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Temperature Temperature
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Action Action
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Fat Fat
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Method Method
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Temperature Temperature
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Action Action
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+Sparsity %:  100.0
+Entropy check:  7.658299112874142 7.1319854944155985 393 [47, 39, 270, 61]
+Sparsity %:  100.0
+Entropy check:  7.658299112874142 7.1319854944155985 393 [47, 39, 270, 61]
+Sparsity %:  76.78571428571429
+Entropy check:  5.039385443340739 4.249915015652927 393 [31, 23, 120, 30, 5, 19, 14, 14, 30, 17, 4, 9, 5, 3, 6, 14, 25, 6, 1, 3, 4, 5, 5, 7, 3, 1, 1, 3, 1, 1, 3, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1]
+Sparsity %:  75.0
+Entropy check:  7.017593199838469 6.293911974457972 393 [18, 12, 244, 25, 50, 26, 5, 2, 9, 8, 25, 2]
+Sparsity %:  85.0
+Entropy check:  5.488558037317733 4.523649736810407 393 [6, 5, 6, 129, 1, 15, 5, 11, 71, 8, 18, 12, 26, 4, 31, 5, 2, 7, 16, 6, 2, 1, 2, 6, 7, 4, 2, 13, 2, 5, 6, 1, 1, 1]
+Sparsity %:  100.0
+Entropy check:  6.187816923098036 5.332557293102908 393 [11, 11, 138, 19, 21, 112, 8, 33, 7, 22, 3, 3, 7, 1, 7, 6, 3, 8, 11, 1]
+Sparsity %:  100.0
+Entropy check:  6.352183898780154 5.387275598272826 393 [24, 12, 13, 194, 42, 38, 22, 25, 5, 9, 5, 2, 12, 7, 3, 4, 3, 10, 5, 2]
+Sparsity %:  62.5
+Entropy check:  7.381308551348886 6.811135464685465 393 [28, 16, 35, 270, 5, 54, 4, 5, 1, 1]
+Sparsity %:  76.78571428571429
+Entropy check:  5.039385443340739 4.249915015652927 393 [31, 23, 120, 30, 5, 19, 14, 14, 30, 17, 4, 9, 5, 3, 6, 14, 25, 6, 1, 3, 4, 5, 5, 7, 3, 1, 1, 3, 1, 1, 3, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1]
+Sparsity %:  26.339285714285715
+Entropy check:  4.547257191946574 3.5604191573368076 393 [10, 8, 98, 17, 23, 5, 19, 14, 14, 28, 17, 4, 9, 5, 25, 3, 6, 13, 24, 1, 5, 1, 2, 4, 5, 2, 5, 4, 3, 1, 5, 4, 3, 1, 1, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 2, 13, 2, 2, 2, 1, 1, 1, 1, 5, 2, 1, 2, 1]
+Sparsity %:  20.535714285714285
+Entropy check:  3.3528961633586913 2.1686905218269605 393 [5, 1, 5, 76, 1, 15, 5, 10, 3, 8, 7, 6, 18, 4, 3, 4, 2, 17, 9, 3, 2, 5, 6, 1, 11, 3, 8, 5, 10, 6, 3, 15, 1, 4, 1, 3, 3, 2, 5, 2, 1, 6, 2, 3, 4, 1, 1, 2, 3, 4, 3, 1, 1, 4, 3, 9, 1, 1, 3, 1, 1, 2, 2, 2, 4, 1, 1, 1, 1, 1, 2, 1, 1, 2, 5, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 7, 1, 2, 3, 4, 1, 3, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 2, 1, 1, 1]
+Sparsity %:  33.57142857142857
+Entropy check:  3.913536714115798 2.8170500089938235 393 [8, 8, 100, 17, 16, 5, 10, 7, 8, 24, 6, 3, 8, 2, 13, 3, 2, 2, 5, 1, 4, 7, 11, 10, 16, 6, 2, 1, 3, 3, 1, 2, 3, 3, 1, 4, 3, 1, 4, 3, 5, 7, 2, 1, 3, 8, 3, 3, 1, 1, 1, 1, 1, 1, 4, 1, 2, 1, 1, 1, 2, 1, 1, 1, 5, 2, 3, 1, 1, 1, 1, 1, 9, 3, 2, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 4, 1]
+Sparsity %:  31.785714285714285
+Entropy check:  4.071313166414303 2.887107524882577 393 [15, 11, 7, 98, 22, 3, 10, 12, 12, 26, 17, 4, 1, 3, 15, 4, 2, 1, 5, 11, 1, 7, 3, 8, 7, 5, 14, 4, 3, 1, 3, 2, 4, 2, 1, 1, 4, 3, 7, 4, 3, 6, 1, 1, 1, 5, 1, 2, 1, 1, 2, 1, 2, 1, 1, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 3, 1, 4, 2, 5, 2, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1]
+Sparsity %:  24.107142857142858
+Entropy check:  4.819287276872065 4.00788711508181 393 [16, 14, 22, 120, 4, 5, 19, 14, 14, 30, 17, 4, 9, 5, 24, 3, 6, 14, 25, 1, 1, 3, 3, 5, 4, 4, 7, 1, 1, 1, 1, 3, 2, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 1, 1, 1]
+Sparsity %:  20.535714285714285
+Entropy check:  3.3528961633586913 2.1686905218269605 393 [5, 1, 5, 76, 1, 15, 5, 10, 3, 8, 7, 6, 18, 4, 3, 4, 2, 17, 9, 3, 2, 5, 6, 1, 11, 3, 8, 5, 10, 6, 3, 15, 1, 4, 1, 3, 3, 2, 5, 2, 1, 6, 2, 3, 4, 1, 1, 2, 3, 4, 3, 1, 1, 4, 3, 9, 1, 1, 3, 1, 1, 2, 2, 2, 4, 1, 1, 1, 1, 1, 2, 1, 1, 2, 5, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 7, 1, 2, 3, 4, 1, 3, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 2, 1, 1, 1]
+Sparsity %:  5.982142857142858
+Entropy check:  3.1109423351529872 1.7732285549041815 393 [5, 1, 4, 68, 1, 15, 5, 9, 3, 8, 7, 6, 18, 4, 3, 4, 2, 3, 9, 2, 8, 15, 2, 5, 6, 1, 11, 3, 8, 5, 8, 2, 6, 3, 15, 1, 1, 2, 1, 2, 3, 2, 2, 2, 1, 3, 2, 1, 3, 1, 1, 2, 3, 4, 2, 1, 3, 3, 1, 4, 3, 8, 1, 1, 3, 1, 1, 2, 2, 2, 2, 4, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 4, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 2, 1, 5, 2, 2, 3, 4, 1, 3, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 3, 2, 4, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  5.464285714285714
+Entropy check:  2.9076825975200262 1.504179614963901 393 [4, 1, 4, 65, 1, 15, 4, 10, 3, 7, 6, 6, 18, 3, 3, 4, 2, 17, 11, 8, 3, 1, 1, 1, 1, 1, 6, 3, 1, 8, 2, 2, 3, 9, 1, 6, 3, 8, 1, 4, 1, 3, 3, 1, 5, 2, 1, 3, 2, 1, 4, 1, 1, 1, 2, 3, 4, 3, 1, 7, 2, 1, 1, 3, 6, 3, 2, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 4, 1, 4, 1, 1, 3, 1, 1, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 2, 2, 1, 4, 1, 3, 1, 1, 2, 1, 1, 1, 2, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 2, 2, 4, 1, 1, 2, 1, 1, 1, 4, 1, 1]
+Sparsity %:  6.2857142857142865
+Entropy check:  2.7374459887604212 1.2242943356920988 393 [4, 1, 1, 2, 71, 1, 15, 4, 7, 2, 3, 6, 6, 16, 4, 3, 1, 2, 10, 2, 8, 3, 6, 2, 1, 3, 3, 1, 11, 1, 7, 4, 5, 6, 2, 1, 6, 3, 2, 3, 9, 1, 3, 1, 3, 2, 2, 4, 2, 1, 1, 3, 2, 2, 3, 1, 2, 1, 2, 3, 1, 2, 3, 1, 3, 5, 1, 1, 1, 5, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 2, 2, 1, 2, 2, 3, 2, 1, 1, 1, 1, 1, 1, 2, 2, 3, 1, 1, 2, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1]
+Sparsity %:  5.669642857142857
+Entropy check:  3.2436695910157862 2.037534215381614 393 [4, 1, 5, 76, 1, 15, 2, 8, 3, 8, 7, 6, 18, 4, 3, 4, 2, 17, 9, 3, 2, 5, 6, 1, 11, 3, 8, 5, 10, 6, 3, 15, 1, 2, 1, 3, 2, 2, 5, 2, 1, 6, 1, 3, 1, 3, 1, 1, 1, 3, 4, 3, 1, 1, 4, 3, 7, 1, 1, 3, 1, 1, 2, 2, 2, 4, 2, 1, 3, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 5, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 7, 1, 2, 2, 3, 4, 1, 2, 2, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 2, 1, 1, 1, 1, 1, 1]
+Sparsity %:  6.2857142857142865
+Entropy check:  2.7374459887604212 1.2242943356920988 393 [4, 1, 1, 2, 71, 1, 15, 4, 7, 2, 3, 6, 6, 16, 4, 3, 1, 2, 10, 2, 8, 3, 6, 2, 1, 3, 3, 1, 11, 1, 7, 4, 5, 6, 2, 1, 6, 3, 2, 3, 9, 1, 3, 1, 3, 2, 2, 4, 2, 1, 1, 3, 2, 2, 3, 1, 2, 1, 2, 3, 1, 2, 3, 1, 3, 5, 1, 1, 1, 5, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 2, 2, 1, 2, 2, 3, 2, 1, 1, 1, 1, 1, 1, 2, 2, 3, 1, 1, 2, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1]
+Sparsity %:  1.7321428571428572
+Entropy check:  2.5568588592121513 0.9121288015291926 393 [4, 1, 1, 2, 64, 1, 15, 4, 6, 2, 3, 6, 6, 16, 4, 3, 1, 2, 3, 1, 8, 2, 7, 6, 2, 1, 3, 3, 1, 11, 1, 7, 4, 5, 6, 2, 1, 6, 3, 2, 3, 9, 1, 1, 2, 8, 1, 2, 2, 2, 2, 2, 1, 1, 3, 2, 1, 2, 1, 1, 1, 2, 3, 1, 2, 2, 1, 3, 5, 2, 1, 1, 1, 4, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 3, 1, 3, 1, 2, 2, 1, 2, 2, 3, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 3, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 4, 1, 2, 2, 4, 1, 1, 1, 2, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  1.5071428571428571
+Entropy check:  2.407105081540002 0.6746560874472864 393 [3, 1, 1, 2, 60, 1, 15, 3, 7, 2, 3, 6, 6, 16, 3, 3, 1, 2, 10, 2, 10, 8, 3, 6, 1, 1, 1, 1, 1, 3, 3, 1, 8, 1, 2, 1, 3, 6, 1, 1, 6, 3, 2, 3, 5, 1, 3, 1, 1, 3, 2, 1, 4, 2, 1, 1, 3, 2, 1, 3, 1, 1, 1, 2, 3, 2, 1, 2, 3, 1, 4, 2, 1, 3, 1, 1, 4, 5, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 1, 1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  1.6607142857142858
+Entropy check:  2.6691132839963667 1.1340318968256036 393 [3, 1, 1, 2, 71, 1, 15, 2, 7, 2, 3, 6, 6, 16, 4, 3, 1, 2, 10, 2, 8, 3, 6, 2, 1, 3, 3, 1, 11, 1, 7, 4, 5, 6, 2, 1, 6, 3, 2, 3, 9, 1, 2, 1, 3, 2, 2, 4, 2, 1, 1, 3, 1, 2, 1, 2, 1, 2, 1, 1, 3, 1, 2, 3, 1, 3, 5, 1, 1, 1, 3, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 4, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 4, 1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 3, 1, 1, 2, 2, 1, 2, 2, 3, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 1, 2, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  1.5071428571428571
+Entropy check:  2.407105081540002 0.6746560874472864 393 [3, 1, 1, 2, 60, 1, 15, 3, 7, 2, 3, 6, 6, 16, 3, 3, 1, 2, 10, 2, 10, 8, 3, 6, 1, 1, 1, 1, 1, 3, 3, 1, 8, 1, 2, 1, 3, 6, 1, 1, 6, 3, 2, 3, 5, 1, 3, 1, 1, 3, 2, 1, 4, 2, 1, 1, 3, 2, 1, 3, 1, 1, 1, 2, 3, 2, 1, 2, 3, 1, 4, 2, 1, 3, 1, 1, 4, 5, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 1, 1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  0.4035714285714286
+Entropy check:  2.255546029128138 0.3915186304207858 393 [3, 1, 1, 2, 53, 1, 15, 3, 6, 2, 3, 6, 6, 16, 3, 3, 1, 2, 3, 1, 10, 8, 2, 7, 6, 1, 1, 1, 1, 1, 3, 3, 1, 8, 1, 2, 1, 3, 6, 1, 1, 6, 3, 2, 3, 5, 1, 1, 2, 8, 1, 1, 2, 2, 1, 2, 2, 1, 1, 3, 2, 1, 2, 1, 1, 1, 2, 3, 2, 1, 2, 2, 1, 4, 2, 1, 3, 2, 1, 1, 4, 5, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 1, 3, 1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 4, 1, 1, 2, 4, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  0.3928571428571429
+Entropy check:  2.3587092799912637 0.604330551796108 393 [3, 1, 1, 2, 60, 1, 15, 1, 7, 2, 3, 6, 6, 16, 3, 3, 1, 2, 10, 2, 10, 8, 3, 6, 1, 1, 1, 1, 1, 3, 3, 1, 8, 1, 2, 1, 3, 6, 1, 1, 6, 3, 2, 3, 5, 1, 2, 1, 1, 3, 2, 1, 4, 2, 1, 1, 3, 1, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 2, 3, 1, 4, 2, 1, 3, 1, 1, 4, 5, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 1, 1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  0.4035714285714286
+Entropy check:  2.255546029128138 0.3915186304207858 393 [3, 1, 1, 2, 53, 1, 15, 3, 6, 2, 3, 6, 6, 16, 3, 3, 1, 2, 3, 1, 10, 8, 2, 7, 6, 1, 1, 1, 1, 1, 3, 3, 1, 8, 1, 2, 1, 3, 6, 1, 1, 6, 3, 2, 3, 5, 1, 1, 2, 8, 1, 1, 2, 2, 1, 2, 2, 1, 1, 3, 2, 1, 2, 1, 1, 1, 2, 3, 2, 1, 2, 2, 1, 4, 2, 1, 3, 2, 1, 1, 4, 5, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 1, 3, 1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 4, 1, 1, 2, 4, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+Sparsity %:  0.10312500000000001
+Entropy check:  2.2332689616926076 0.3473118288828159 393 [3, 1, 1, 2, 53, 1, 15, 1, 6, 2, 3, 6, 6, 16, 3, 3, 1, 2, 3, 1, 10, 8, 2, 7, 6, 1, 1, 1, 1, 1, 3, 3, 1, 8, 1, 2, 1, 3, 6, 1, 1, 6, 3, 2, 3, 5, 1, 1, 2, 8, 1, 1, 2, 2, 1, 2, 2, 1, 1, 3, 1, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 2, 2, 1, 4, 2, 1, 3, 2, 1, 1, 4, 5, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 3, 1, 3, 1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 4, 1, 1, 2, 4, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+WARNING: Adding a facet didn't improve the objective `significantly` 0.01927706743553026 0.1
+Completed in 6 iterations
+{
+    "type": "relative_improvement",
+    "facet_title": "Ingredient type",
+    "iteration": 1,
+    "prev_d": 7.658299112874142,
+    "prev_c": 3,
+    "d": 5.039385443340739,
+    "c": 16,
+    "improvement": 2.605913669533403,
+    "absolute_improvement": 2.605913669533403
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Stage",
+    "iteration": 1,
+    "prev_d": 7.658299112874142,
+    "prev_c": 3,
+    "d": 7.017593199838469,
+    "c": 6,
+    "improvement": 0.6377059130356724,
+    "absolute_improvement": 0.6377059130356724
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Purpose",
+    "iteration": 1,
+    "prev_d": 7.658299112874142,
+    "prev_c": 3,
+    "d": 5.488558037317733,
+    "c": 12,
+    "improvement": 2.160741075556409,
+    "absolute_improvement": 2.160741075556409
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Focus",
+    "iteration": 1,
+    "prev_d": 7.658299112874142,
+    "prev_c": 3,
+    "d": 6.187816923098036,
+    "c": 7,
+    "improvement": 1.466482189776106,
+    "absolute_improvement": 1.466482189776106
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Property type",
+    "iteration": 1,
+    "prev_d": 7.658299112874142,
+    "prev_c": 3,
+    "d": 6.352183898780154,
+    "c": 7,
+    "improvement": 1.3021152140939876,
+    "absolute_improvement": 1.3021152140939876
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Informational role",
+    "iteration": 1,
+    "prev_d": 7.658299112874142,
+    "prev_c": 3,
+    "d": 7.381308551348886,
+    "c": 6,
+    "improvement": 0.27399056152525514,
+    "absolute_improvement": 0.27399056152525514
+}
+{
+    "type": "add_facet",
+    "iteration": 1,
+    "prev_d": 7.658299112874142,
+    "prev_c": 3,
+    "best_d": 5.039385443340739,
+    "best_c": 16,
+    "improvement": 2.605913669533403,
+    "best_facet_toadd": 0,
+    "best_facet": "Ingredient type"
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Stage",
+    "iteration": 2,
+    "prev_d": 5.039385443340739,
+    "prev_c": 16,
+    "d": 4.547257191946574,
+    "c": 19,
+    "improvement": 0.48912825139416416,
+    "absolute_improvement": 3.0950419209275672
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Purpose",
+    "iteration": 2,
+    "prev_d": 5.039385443340739,
+    "prev_c": 16,
+    "d": 3.3528961633586913,
+    "c": 25,
+    "improvement": 1.6774892799820473,
+    "absolute_improvement": 4.28340294951545
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Focus",
+    "iteration": 2,
+    "prev_d": 5.039385443340739,
+    "prev_c": 16,
+    "d": 3.913536714115798,
+    "c": 20,
+    "improvement": 1.1218487292249404,
+    "absolute_improvement": 3.7277623987583435
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Property type",
+    "iteration": 2,
+    "prev_d": 5.039385443340739,
+    "prev_c": 16,
+    "d": 4.071313166414303,
+    "c": 20,
+    "improvement": 0.9640722769264363,
+    "absolute_improvement": 3.5699859464598394
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Informational role",
+    "iteration": 2,
+    "prev_d": 5.039385443340739,
+    "prev_c": 16,
+    "d": 4.819287276872065,
+    "c": 19,
+    "improvement": 0.21709816646867353,
+    "absolute_improvement": 2.8230118360020766
+}
+{
+    "type": "add_facet",
+    "iteration": 2,
+    "prev_d": 5.039385443340739,
+    "prev_c": 16,
+    "best_d": 3.3528961633586913,
+    "best_c": 25,
+    "improvement": 1.6774892799820473,
+    "best_facet_toadd": 1,
+    "best_facet": "Purpose"
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Stage",
+    "iteration": 3,
+    "prev_d": 3.3528961633586913,
+    "prev_c": 25,
+    "d": 3.1109423351529872,
+    "c": 28,
+    "improvement": 0.238953828205704,
+    "absolute_improvement": 4.522356777721154
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Focus",
+    "iteration": 3,
+    "prev_d": 3.3528961633586913,
+    "prev_c": 25,
+    "d": 2.9076825975200262,
+    "c": 29,
+    "improvement": 0.4412135658386651,
+    "absolute_improvement": 4.724616515354116
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Property type",
+    "iteration": 3,
+    "prev_d": 3.3528961633586913,
+    "prev_c": 25,
+    "d": 2.7374459887604212,
+    "c": 29,
+    "improvement": 0.6114501745982701,
+    "absolute_improvement": 4.8948531241137205
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Informational role",
+    "iteration": 3,
+    "prev_d": 3.3528961633586913,
+    "prev_c": 25,
+    "d": 3.2436695910157862,
+    "c": 28,
+    "improvement": 0.106226572342905,
+    "absolute_improvement": 4.389629521858355
+}
+{
+    "type": "add_facet",
+    "iteration": 3,
+    "prev_d": 3.3528961633586913,
+    "prev_c": 25,
+    "best_d": 2.7374459887604212,
+    "best_c": 29,
+    "improvement": 0.6114501745982701,
+    "best_facet_toadd": 2,
+    "best_facet": "Property type"
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Stage",
+    "iteration": 4,
+    "prev_d": 2.7374459887604212,
+    "prev_c": 29,
+    "d": 2.5568588592121513,
+    "c": 32,
+    "improvement": 0.17758712954826983,
+    "absolute_improvement": 5.07244025366199
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Focus",
+    "iteration": 4,
+    "prev_d": 2.7374459887604212,
+    "prev_c": 29,
+    "d": 2.407105081540002,
+    "c": 33,
+    "improvement": 0.3263409072204193,
+    "absolute_improvement": 5.221194031334139
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Informational role",
+    "iteration": 4,
+    "prev_d": 2.7374459887604212,
+    "prev_c": 29,
+    "d": 2.6691132839963667,
+    "c": 32,
+    "improvement": 0.0653327047640544,
+    "absolute_improvement": 4.9601858288777745
+}
+{
+    "type": "add_facet",
+    "iteration": 4,
+    "prev_d": 2.7374459887604212,
+    "prev_c": 29,
+    "best_d": 2.407105081540002,
+    "best_c": 33,
+    "improvement": 0.3263409072204193,
+    "best_facet_toadd": 1,
+    "best_facet": "Focus"
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Stage",
+    "iteration": 5,
+    "prev_d": 2.407105081540002,
+    "prev_c": 33,
+    "d": 2.255546029128138,
+    "c": 36,
+    "improvement": 0.14855905241186385,
+    "absolute_improvement": 5.369753083746003
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Informational role",
+    "iteration": 5,
+    "prev_d": 2.407105081540002,
+    "prev_c": 33,
+    "d": 2.3587092799912637,
+    "c": 36,
+    "improvement": 0.045395801548738124,
+    "absolute_improvement": 5.266589832882878
+}
+{
+    "type": "add_facet",
+    "iteration": 5,
+    "prev_d": 2.407105081540002,
+    "prev_c": 33,
+    "best_d": 2.255546029128138,
+    "best_c": 36,
+    "improvement": 0.14855905241186385,
+    "best_facet_toadd": 0,
+    "best_facet": "Stage"
+}
+{
+    "type": "relative_improvement",
+    "facet_title": "Informational role",
+    "iteration": 6,
+    "prev_d": 2.255546029128138,
+    "prev_c": 36,
+    "d": 2.2332689616926076,
+    "c": 39,
+    "improvement": 0.01927706743553026,
+    "absolute_improvement": 5.389030151181534
+}
+{
+    "type": "add_facet",
+    "iteration": 6,
+    "prev_d": 2.255546029128138,
+    "prev_c": 36,
+    "best_d": 2.2332689616926076,
+    "best_c": 39,
+    "improvement": 0.01927706743553026,
+    "best_facet_toadd": 0,
+    "best_facet": "Informational role"
+}
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Vegetable Vegetable
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Method Method
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Texture Texture
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Action Action
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Flour Flour
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Core Core
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Flavor Flavor
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Filling Filling
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Liquid Liquid
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Core Core
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Flavor Flavor
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Filling Filling
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Spice/Flavor Spice/Flavor
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Core Core
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Flavor Flavor
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Filling Filling
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Flour Flour
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Core Core
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Flavor Flavor
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Filling Filling
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Spice/Flavor Spice/Flavor
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Core Core
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Flavor Flavor
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Filling Filling
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Chocolate Chocolate
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Core Core
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Flavor Flavor
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Filling Filling
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Spice/Flavor Spice/Flavor
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Core Core
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Flavor Flavor
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Filling Filling
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Flour Flour
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Method Method
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Texture Texture
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Action Action
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
+context_ingredient_type dict_keys(['', 'Flour', 'Sugar', 'Fat', 'Seeds/Nuts', 'Liquid', 'Leavening', 'Dairy', 'Spice/Flavor', 'Fruit', 'Oats/Grain', 'Chocolate', 'Vegetable', 'Starch']) Spice/Flavor Spice/Flavor
+context_purpose dict_keys(['', 'Aesthetic', 'Release', 'Safety', 'Core', 'Finish', 'Product', 'Method', 'Adaptation', 'Equipment']) Core Core
+context_property_type dict_keys(['', 'Texture', 'Flavor', 'Ripeness', 'Temperature']) Flavor Flavor
+context_focus dict_keys(['', 'Filling', 'Topping', 'Product', 'Action']) Filling Filling
+context_stage dict_keys(['', 'Preparation', 'Execution', 'Intro']) Preparation Preparation
 Running eval...
 MESSAGES: ROLE: system
 
@@ -1093,45 +840,54 @@ ROLE: user
 You are given a context tutorial, a query, and response.
 
 <query>
-Given a tutorial, retrieve top-5 missing, but relevant Description information for the entire tutorial.
-Following are examples of Description information: 
-Status: Descriptions of the current state of the target object.
-Example: "Something sticky and dirty all through the back seat."
-Context: Descriptions of the method or the setting.
-Example: "[...] The process of putting on a tip by hand [...] takes a lot of patience but it can be done if you're in a pinch."
-Tool Specification: Descriptions of the tools and equipment.
-Example: "These are awesome beans, creamy texture, slightly nutty loaded with flavor."
+Given a tutorial, retrieve top-5 missing, but relevant Explanation information for the entire tutorial.
+Following are examples of Explanation information: 
+Justification: Reasons why the instruction was performed.
+Example: "Because every time we wear our contact lenses, makeup and even dirt particles [...] might harm our eyes directly."
+Effect: Consequences of the instruction.
+Example: "And these will overhang a little to help hide the gap."
 </query>
 
 <context tutorial>
 <tutorial title=Making Muffins>
-These are my blueberry muffins.
-Mmm, my favorite muffin.
-To a large mixing bowl, add grated lemon zest, a milk of choice, we're using soy milk, sugar, a neutral vegetable oil, and vanilla extract.
-Whisk well until the ingredients are well combined.
-Now, sift in the flour with baking powder and a pinch of salt.
-This is gonna make your muffin soft and fluffy.
-Whisk wet and dry ingredients for a short minute until lumps are gone, but without overmixing.
-Rinse the blueberries, shake the water off, then add them to a bowl, toss them with the cornstarch, and add them to the batter.
-Stir and fold the blueberries in the mixture gently.
-Transfer the batter to the muffin liners.
-You should be able to make 12 muffins.
-You can fill them almost to the top.
-Then you can sprinkle some sugar on top, or not.
-We're not gonna do it because we eat them for breakfast.
-Then bake in a preheated oven for 22 and a half minutes, or until a toothpick inserted in the center comes out dry.
-Now let them cool down for about 30 minutes.
-Easy, right?
+Hey guys, I'm Dina from simplyhomecooked.com and today I'll be showing you how to make these fluffy and moist blueberry muffins.
+They're loaded with a ton of blueberries and they're topped with simple and delicious brown sugar streusel.
+So you want to start off by combining all of your dry ingredients.
+So in a large bowl, combine two cups of allpurpose flour, a teaspoon of baking powder, half a teaspoon of baking soda, and a quarter teaspoon of salt.
+Then whisk it all together and reserve one tablespoon of that flour mixture.
+Now mix that reserved tablespoon of the flour mixture with one and a half cups of fresh blueberries.
+The reason why we add that little tiny bit of flour to those blueberries is when we add them to the batter.
+During baking, the blueberries don't sink as fast when they're coated in flour.
+Now add three eggs into a large bowl and whisk them on high speed using an electric mixer.
+So you'll want to do this for about three minutes until the eggs become fluffy and pale.
+Then continue beating the eggs as you slowly add one cup of granulated sugar.
+You'll want to keep beating those eggs for about three more minutes.
+So the key to really fluffy muffins is wellbeaten eggs.
+Now you want to add a teaspoon of vanilla extract and a tablespoon of fresh lemon juice.
+Now continue beating the egg mixture as you slowly add three quarter cups of heavy cream.
+Now you can begin adding your dry ingredients, but don't do it all at once.
+So get a sifter out and then add about a third of that flour mixture at a time with mixing in between.
+So once you've got all of your dry ingredients well combined into the muffin batter, continue beating with your electric mixer as you slowly, gradually add in four tablespoons of melted unsalted butter.
+All right, now the last and final step is adding in those blueberries.
+And at this point you want to fold it in with a spatula.
+Now line your muffin tin with cupcake liners and begin scooping the batter out using a large cookie scoop.
+I like to top my blueberry muffins with a few extra blueberries on top, but that's totally optional.
+Now before the muffins go into the oven, you want to make that simple streusel.
+In a small bowl, combine one tablespoon of unsalted cold cube butter, two tablespoons of allpurpose flour, a pinch of salt, a teaspoon of cinnamon, and three tablespoons of brown sugar.
+Mash that all together using a fork until the ingredients are well combined and they have a crumbly texture to them.
+Now top the blueberry muffins with the streusel topping and bake them in the oven at 350 degrees Fahrenheit for about 35 minutes.
+I hope you guys enjoyed watching this video and if you did, please be sure to share, like, and subscribe to our channel so you guys never miss out on any of our new recipes.
+See you next time!
 
 </tutorial>
 </context tutorial>
 
 <response>
-<piece idx=1> Classic blueberry muffins are nearly impossible to beat. Sweet, fluffy and studded with tangy blueberries, these muffins are always a favorite for breakfast, brunch or a snack. This easy blueberry muffin recipe is a keeper for anytime you're in need of a comforting treat. With plenty of room for adaptation, you can make these muffins gluten-free, refined sugar-free or dairy-free. </piece>
-<piece idx=2> Hey guys, I'm Dina from simplyhomecooked.com and today I'll be showing you how to make these fluffy and moist blueberry muffins. They're loaded with a ton of blueberries and they're topped with simple and delicious brown sugar streusel. </piece>
-<piece idx=3> Today on The Stay At Home Chef I'm showing you my Master Muffin Recipe. Instead of giving you dozens of recipes for different flavors of muffins, today I'm sharing my Master Muffin Recipe, which you can use to make almost any flavor, and it's super easy. </piece>
-<piece idx=4> Homemade muffins are a special addition to breakfast or brunch. Enjoy them with friends and family, or make them as a grab-and-go breakfast for busy work weeks. Warmly spiced with cinnamon, Morning Glory muffins are made with grated carrot, apple, raisins, walnuts, shredded coconut, and sometimes pineapple. </piece>
-<piece idx=5> Now that I've successfully learnt how to make muffins, I had to make a triple chocolate version. Add all the wet ingredients to a bowl and whisk until combined. In another bowl, add the flour, cocoa powder and caster sugar and whisk these together. Then add your chocolate chips. Coating them in the flour helps stop them from sinking. </piece>
+<piece idx=1> Step 2: Mix the flour base for the muffins. </piece>
+<piece idx=2> Things you'll need are listed next. </piece>
+<piece idx=3> Prepare to bake by filling muffin cups to the top. </piece>
+<piece idx=4> Mix the flour, brown sugar, baking powder and salt in a mixing bowl. </piece>
+<piece idx=5> Step 4 is to mix the wet ingredients with the mashed bananas. </piece>
 
 </response>
 
@@ -1146,7 +902,7 @@ Assume that you are trying to learn based on the given context tutorial. If the 
 
 
 RESPONSE: {
-  "reasoning": "The response provides various pieces of information about muffins, including different recipes and variations, but none of them directly relate to the specific tutorial on making blueberry muffins. The information is not relevant to the task of retrieving missing descriptions from the tutorial, as it does not add any new or necessary context, tool specifications, or status descriptions that would enhance understanding of the tutorial provided.",
+  "reasoning": "The response contains steps and information that are either not relevant to the tutorial on making blueberry muffins or are incorrect (e.g., mentioning bananas which are not in the tutorial). Therefore, the information is not useful for learning how to make muffins as described in the tutorial.",
   "confidence": 8,
   "rating": 1
 }
@@ -1159,110 +915,61 @@ ROLE: user
 You are given a context tutorial, a query, and response.
 
 <query>
-Given a tutorial, retrieve top-5 missing, but relevant Method information for the entire tutorial.
-Following are examples of Method information: 
-Subgoal: Objective of a subsection.
-Example: "Now for the intricate layer that will give me the final webbing look."
-Instruction: Actions that the instructor performs to complete the task.
-Example: "We're going to pour that into our silicone baking cups."
-Tool: Introduction of the materials, ingredients, and equipment to be used.
-Example: "I'm also going to use a pair of scissors, a glue stick, some fancy tape or some regular tape."
+Given a tutorial, retrieve top-5 missing, but relevant Description information for the entire tutorial.
+Following are examples of Description information: 
+Status: Descriptions of the current state of the target object.
+Example: "Something sticky and dirty all through the back seat."
+Context: Descriptions of the method or the setting.
+Example: "[...] The process of putting on a tip by hand [...] takes a lot of patience but it can be done if you're in a pinch."
+Tool Specification: Descriptions of the tools and equipment.
+Example: "These are awesome beans, creamy texture, slightly nutty loaded with flavor."
 </query>
 
 <context tutorial>
 <tutorial title=Making Muffins>
-Today on The Stay At Home Chef I'm showing you my Master Muffin Recipe.
-Instead of giving you dozens of recipes for different flavors of muffins, today I'm sharing my Master Muffin Recipe, which you can use to make almost any flavor, and it's super easy.
-Start by preheating your oven to 425 degrees Fahrenheit.
-Then line a 12 cup muffin tin with paper baking cups.
-Then I like to give mine just a spritz of nonstick cooking spray right on those paper baking cups, to prevent the muffins from sticking.
-Now it's time to put together our batter.
-First I'm going to demonstrate a basic muffin batter, and then I'm going to show you 5 different variations, each demonstrating a different way that you can build upon the base recipe.
-The batter starts with 1 cup of softened salted butter, and 1 cup of granulated sugar.
-We're going to use a hand mixer to cream this together.
-At first this mixture will be lumpy, but keep on mixing for about 2 minutes.
-After 2 minutes your sugar and butter will be well combined, and it will be a smooth paste like creamy consistency.
-Then you'll add in 2 large eggs and mix this briefly until just combined, about 30 seconds.
-Then I'm going to add in 1 teaspoon of vanilla extract, or you can use other flavors of extract like almond extract, orange extract, lemon extract, those are all super popular options.
-For the lemon and citrus extracts I recommend only using 1 teaspoon of those, and combining that with 1 teaspoon of vanilla extract.
-You'll also need 2 teaspoons of baking powder, and 1 teaspoon of salt.
-This is also the point where you'd add in any spices like cinnamon or pumpkin pie spice.
-We're going to give this a quick mix just to combine about 10 seconds.
-Now at this point it's time to ditch our hand mixer and grab a rubber spatula.
-Add in 1 half of your allpurpose flour.
-You're going to use 2 cups total, so you're going to add in 1 cup right now.
-Then use the rubber spatula to stir this in.
-Once all those white specks of flour start to disappear, you'll pour in 1 half cup of either milk or buttermilk.
-Buttermilk is going to give you a little bit of a poofier muffin, and you'll stir this in as well until it's well combined.
-Last you'll add in the remaining 1 cup of allpurpose flour.
-Stir this together, scraping the sides and bottom of the bowl to ensure that everything gets mixed in.
-Now if you're going to add anything into your muffins, like dried fruit, chocolate chips, or berries, now would be the time to do so, but I'll show you that in just a minute.
-Your batter should be thick but also spreadable.
-We're going to divide the batter up amongst our 12 muffin cups, and you should fill each one about 2 thirds of the way full.
-It's always a little bit hard to tell what's 2 thirds or what's 3 quarters, so just try to divide your batter up as evenly as possible, because this does make 12 muffins.
-You can let your muffin batter rest for about 15 minutes before popping it in the oven, or if you're making a larger batch, it's totally okay to let it rest in between cooking different batches.
-Bake your muffins in the 425 degree oven for 7 minutes.
-After 7 minutes reduce the temperature on your oven to 350 degrees without opening the oven door.
-Continue baking for 1215 minutes and watch them carefully, as the cooking time will vary a little bit depending on your oven.
-Now let's start going over some variations, starting with a lemon blueberry muffin.
-This is great because it demonstrates both using another flavor of extract, as well as adding in fresh fruit.
-I've already creamed together the sugar and butter and added in the eggs, so now I'm going to add in 1 teaspoon of vanilla extract, and 1 teaspoon of lemon extract before adding in my baking powder and salt.
-Continue on with the rest of the recipe, adding in the flour and buttermilk, once you have your batter finished, you'll add in 1 cup of fresh blueberries, or frozen even, you can use those too.
-Then this is optional, but I like to add in the zest of 1 lemon, so about 1 tablespoon of lemon zest.
-Then simply fold this in.
-Then it's just a matter of once again dividing the batter evenly amongst the 12 muffin cups.
-One fun topping you can experiment with is sprinkling on about 1 teaspoon of granulated sugar on top of your muffins.
-This gives it a nice little crunchy sweet top.
-And then of course bake these just as we did before.
-Next up I'm going to show you how to make a chocolate version.
-For a chocolate version you'll use your butter and sugar again just like before, but this time you'll add in 1 12 cup of cocoa powder, unsweetened cocoa powder, and cream that in with it.
-From here you'll proceed with the rest of the master muffin recipe by adding in eggs, baking powder, salt, vanilla extract, all purpose flour, and milk or buttermilk.
-The addition of the cocoa powder really doesn't do much to change the texture of the final batter.
-Then just for fun I'm going to add in 1 cup of semisweet chocolate chips and fold those in.
-Even though you can mix and match addins, you want to total any additions that you make, like chocolate chips or nuts or dried fruit, to 1 cup total.
-Next I'm going to show you one of my very favorite muffin hacks that allows you to switch up with all sorts of different flavors by using instant pudding.
-This time you're only going to add in 34 cup of granulated sugar, because you're going to replace that additional 14 cup with a 3.4 ounce package of instant pudding mix, and this time I'm using pistachio because it's one of my favorite flavors.
-Cream this together and then proceed with the master muffin recipe as directed.
-You could even fold in some chopped pistachios if you wanted.
-This variation is fun because there's just so many different flavors of instant pudding out there, it makes it really easy to mix and match flavors really quickly without having to buy a bunch of extracts.
-Next I want to show just how easy it is to mix and match addins to add a little bit of flavor to the base recipe without too much hassle.
-So I'm going to show you a cranberry white chocolate chip with a little bit of orange zest.
-This is the master recipe with no alterations to it.
-I'm going to add in 12 cup of dried cranberries, because like I said before we're going to use 1 cup of addins total.
-That means that the white chocolate chips will also come in at 12 cup for 1 cup total.
-I didn't have any orange extract today, but that's okay because a little bit of orange zest, 12 tablespoons total, will add just a hint of orange flavor.
-Once again it's simply a matter of folding this in until the ingredients are evenly distributed.
-You can do chocolate chips, raisins, nuts, really the possibilities are endless.
-Last I want to show you how to add in spices, which is super easy and I really don't have to show you, but I thought it would be fun to show a cinnamon muffin with cinnamon chips folded in, topped with a brown sugar streusel, and that's just delicious.
-I've already creamed together the butter and sugar, added in the eggs, baking powder, salt, and vanilla extract, and now I'm going to add in 1 teaspoon of ground cinnamon.
-You can use between 12 teaspoon and 1 full teaspoon.
-It really just depends on how pronounced you want that cinnamon flavor to be.
-Finish with the rest of the master muffin recipe by adding in the flour and buttermilk.
-I'm going to fold in 1 cup of cinnamon chips, which are delicious, but they can be a little harder to find when it's not the holidays.
-Go ahead and divide up the batter in your prepared muffin cups before making your streusel topping.
-A streusel is easy to make and it is a decadent addition to lots of different flavors of muffins.
-It starts with 14 cup of cold cubed butter.
-Then you'll add in 12 cup of brown sugar and 12 cup of allpurpose flour, adding in 14 teaspoon of ground cinnamon.
-Then use a pastry cutter or you can use two knives, cutting across each other like this.
-Then you want to cut this all together until it resembles a coarse meal or sand.
-Then you want to sprinkle this generously on top of your muffin batter.
-It's almost like having little piles of sand on top of each muffin.
-And of course the baking time on all of these are the same.
-Now you know how to make pretty much any flavor of muffin that you want using one master recipe.
-Thanks for watching.
-You can find the full written recipe as well as other flavor ideas in the video description.
-Be sure to subscribe, like, and follow, and check out the rest of my videos, where you can find hundreds of restaurant quality recipes you can easily make at home.
-We'll see you later.
-
+On crisp fall mornings, warm your belly with a breakfast that celebrates one of the most popular flavors of fall: pumpkin spice latte muffins. It only takes about 30 minutes to make these streusel-topped muffins, from start to delicious finish.
+Things You'll Need
+1/2 cup rolled oats (not instant)
+1/2 cup flour
+1/2 cup brown sugar, packed
+1/2 cup roasted pumpkin seeds
+1/4 cup butter, softened
+2 2/3 cup all-purpose flour
+3 Tbsp. espresso powder
+2 tsp. baking soda
+1 tsp. salt
+1 can of pumpkin pie filling, 15 oz.
+1/4 cup sugar
+1 cup brown sugar, packed
+1 cup vegetable oil
+4 large eggs
+1 cup white chocolate chips
+Cupcake liners
+Muffin pan
+1. Make the streusel topping
+To begin, heat the oven to 350°F. Place paper liners in a muffin pan and set aside.
+In a small bowl, combine the rolled oats, 1/2 cup of flour, 1/2 cup of brown sugar, roasted pumpkin seeds, and softened butter. Combine thoroughly and set aside (to use as the streusel topping later).
+2. Mix the flour base for the muffins
+Sift together 2 2/3 cups of flour, 3 tablespoons of espresso powder, 2 teaspoons of baking soda, and 1 teaspoon of salt.
+3. Make the pumpkin mixture
+Combine the pumpkin pie filling, 1/4 cup of sugar, 1 cup of brown sugar, and 1 cup of vegetable oil. Lightly beat 4 large eggs. Add to the mixture and mix well.
+4. Combine the wet ingredients with the flour base
+Make a small well in the dry ingredients, and then add the wet ingredients. Stir to moisten.
+5. Add the chocolate chips
+Add 1 cup of white chocolate chips and stir until thoroughly combined.
+6. Fill the liners and top with streusel
+Spoon the batter into the prepared muffin tin, filling each liner about 2/3 full. Top each muffin with the streusel.
+7. Bake the muffins
+Bake for 18 to 20 minutes. Serve warm.
 </tutorial>
 </context tutorial>
 
 <response>
-<piece idx=1> Start by preheating your oven to 425 degrees Fahrenheit. </piece>
-<piece idx=2> Line a 12 cup muffin tin with paper baking cups. </piece>
-<piece idx=3> Cream together 1 cup of softened salted butter and 1 cup of granulated sugar using a hand mixer until smooth. </piece>
-<piece idx=4> Add in 2 large eggs and mix briefly until just combined, about 30 seconds. </piece>
-<piece idx=5> Fold in 1 cup of fresh blueberries or other add-ins after mixing the batter. </piece>
+<piece idx=1> 3 cups all-purpose flour. </piece>
+<piece idx=2> Start by combining all dry ingredients. </piece>
+<piece idx=3> Use 1 teaspoon vanilla. </piece>
+<piece idx=4> Step 1: Ingredients. </piece>
+<piece idx=5> Use 2 eggs, slightly beaten, for the bread. </piece>
 
 </response>
 
@@ -1277,7 +984,7 @@ Assume that you are trying to learn based on the given context tutorial. If the 
 
 
 RESPONSE: {
-  "reasoning": "The response includes steps that are already present in the tutorial, such as preheating the oven, lining the muffin tin, creaming butter and sugar, and adding eggs. Since these pieces of information are directly taken from the tutorial, they do not provide new or additional learning value.",
+  "reasoning": "The response contains several pieces of information that are either incorrect or not relevant to the tutorial on making muffins. For example, '3 cups all-purpose flour' contradicts the tutorial which specifies '2 2/3 cups of flour'. Similarly, 'Use 1 teaspoon vanilla' is not mentioned in the tutorial at all. The other pieces of information also do not align with the tutorial's instructions or ingredients. Therefore, the response does not provide helpful or relevant information for learning how to make muffins.",
   "confidence": 8,
   "rating": 1
 }
@@ -1292,12 +999,12 @@ Aggregated results:
     "evaluation_type": "absolute",
     "evaluation_results": [
         {
-            "reasoning": "The response provides various pieces of information about muffins, including different recipes and variations, but none of them directly relate to the specific tutorial on making blueberry muffins. The information is not relevant to the task of retrieving missing descriptions from the tutorial, as it does not add any new or necessary context, tool specifications, or status descriptions that would enhance understanding of the tutorial provided.",
+            "reasoning": "The response contains steps and information that are either not relevant to the tutorial on making blueberry muffins or are incorrect (e.g., mentioning bananas which are not in the tutorial). Therefore, the information is not useful for learning how to make muffins as described in the tutorial.",
             "confidence": 0.8,
             "rating": 1
         },
         {
-            "reasoning": "The response includes steps that are already present in the tutorial, such as preheating the oven, lining the muffin tin, creaming butter and sugar, and adding eggs. Since these pieces of information are directly taken from the tutorial, they do not provide new or additional learning value.",
+            "reasoning": "The response contains several pieces of information that are either incorrect or not relevant to the tutorial on making muffins. For example, '3 cups all-purpose flour' contradicts the tutorial which specifies '2 2/3 cups of flour'. Similarly, 'Use 1 teaspoon vanilla' is not mentioned in the tutorial at all. The other pieces of information also do not align with the tutorial's instructions or ingredients. Therefore, the response does not provide helpful or relevant information for learning how to make muffins.",
             "confidence": 0.8,
             "rating": 1
         }
@@ -1305,46 +1012,46 @@ Aggregated results:
     "responses": [
         [
             {
-                "content": "Classic blueberry muffins are nearly impossible to beat. Sweet, fluffy and studded with tangy blueberries, these muffins are always a favorite for breakfast, brunch or a snack. This easy blueberry muffin recipe is a keeper for anytime you're in need of a comforting treat. With plenty of room for adaptation, you can make these muffins gluten-free, refined sugar-free or dairy-free.",
+                "content": "Step 2: Mix the flour base for the muffins.",
                 "source_doc_idx": 1
             },
             {
-                "content": "Hey guys, I'm Dina from simplyhomecooked.com and today I'll be showing you how to make these fluffy and moist blueberry muffins. They're loaded with a ton of blueberries and they're topped with simple and delicious brown sugar streusel.",
-                "source_doc_idx": 2
+                "content": "Things you'll need are listed next.",
+                "source_doc_idx": 5
             },
             {
-                "content": "Today on The Stay At Home Chef I'm showing you my Master Muffin Recipe. Instead of giving you dozens of recipes for different flavors of muffins, today I'm sharing my Master Muffin Recipe, which you can use to make almost any flavor, and it's super easy.",
-                "source_doc_idx": 3
-            },
-            {
-                "content": "Homemade muffins are a special addition to breakfast or brunch. Enjoy them with friends and family, or make them as a grab-and-go breakfast for busy work weeks. Warmly spiced with cinnamon, Morning Glory muffins are made with grated carrot, apple, raisins, walnuts, shredded coconut, and sometimes pineapple.",
+                "content": "Prepare to bake by filling muffin cups to the top.",
                 "source_doc_idx": 4
             },
             {
-                "content": "Now that I've successfully learnt how to make muffins, I had to make a triple chocolate version. Add all the wet ingredients to a bowl and whisk until combined. In another bowl, add the flour, cocoa powder and caster sugar and whisk these together. Then add your chocolate chips. Coating them in the flour helps stop them from sinking.",
-                "source_doc_idx": 5
+                "content": "Mix the flour, brown sugar, baking powder and salt in a mixing bowl.",
+                "source_doc_idx": 2
+            },
+            {
+                "content": "Step 4 is to mix the wet ingredients with the mashed bananas.",
+                "source_doc_idx": 3
             }
         ],
         [
             {
-                "content": "Start by preheating your oven to 425 degrees Fahrenheit.",
-                "source_doc_idx": 1
+                "content": "3 cups all-purpose flour.",
+                "source_doc_idx": 2
             },
             {
-                "content": "Line a 12 cup muffin tin with paper baking cups.",
-                "source_doc_idx": 1
+                "content": "Start by combining all dry ingredients.",
+                "source_doc_idx": 9
             },
             {
-                "content": "Cream together 1 cup of softened salted butter and 1 cup of granulated sugar using a hand mixer until smooth.",
-                "source_doc_idx": 1
+                "content": "Use 1 teaspoon vanilla.",
+                "source_doc_idx": 4
             },
             {
-                "content": "Add in 2 large eggs and mix briefly until just combined, about 30 seconds.",
-                "source_doc_idx": 1
+                "content": "Step 1: Ingredients.",
+                "source_doc_idx": 0
             },
             {
-                "content": "Fold in 1 cup of fresh blueberries or other add-ins after mixing the batter.",
-                "source_doc_idx": 1
+                "content": "Use 2 eggs, slightly beaten, for the bread.",
+                "source_doc_idx": 3
             }
         ]
     ],
@@ -1354,12 +1061,12 @@ Aggregated results:
             "Making Muffins"
         ],
         "sample_per_task": 2,
-        "query": "Given a tutorial, retrieve top-{N} missing, but relevant {TYPE} information for the entire tutorial.",
+        "query": "Given a tutorial, retrieve top-{n} missing, but relevant {info_type} information for the entire tutorial.",
         "sample_segment_per_tutorial": 0,
         "n": 5
     },
     "method_config": {
-        "label": "vanilla-bert",
+        "label": "context-similarity-bert",
         "embedding_method": "bert",
         "k": null,
         "doc_score_threshold": null,

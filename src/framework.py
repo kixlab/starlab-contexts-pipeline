@@ -6,6 +6,8 @@ from helpers.dataset import IMPORTANT_TYPES
 
 from helpers.dataset import get_dataset
 
+from helpers.cim_scripts import get_facet_name
+
 FRAMEWORK_PATH = "./static/results/framework/"
 
 structs_summary = """
@@ -91,9 +93,6 @@ structs_summary = """
     }
 """
 
-def get_facet_name(facet):
-    return "context_" + facet["title"].replace(" ", "_").lower()
-
 def get_cell_to_units(context_schema, dataset, important_piece_types):
     def get_label(piece, facet_name):
         if facet_name not in piece["labels"]:
@@ -122,11 +121,11 @@ def get_cell_to_units(context_schema, dataset, important_piece_types):
             relevant_units.add(piece["unit_id"])
 
     ### TODO: remove sparsity check later
-    sparsity = len(important_piece_types)
-    for facet in context_schema:
-        sparsity *= len(facet["vocabulary"]) + 1
-    sparsity = len(cell_to_units) / sparsity * 100
-    print("Sparsity %: ", sparsity)
+    # sparsity = len(important_piece_types)
+    # for facet in context_schema:
+    #     sparsity *= len(facet["vocabulary"]) + 1
+    # sparsity = len(cell_to_units) / sparsity * 100
+    # print("Sparsity %: ", sparsity)
     
     return cell_to_units, len(relevant_units)
 
@@ -294,9 +293,6 @@ def build_facet_candidates_v0(task, cell_to_units, prev_facet_candidates, includ
 
     cell_ids.sort(key=lambda x: len(cell_to_units[x]), reverse=True)
     
-    print("[OUTPUT]: Most common cells:")
-    print([len(cell_to_units[cell_id]) for cell_id in cell_ids])
-    
     cell_ids = cell_ids[:include_cells]
 
     all_candidates = []
@@ -352,7 +348,7 @@ def calc_discriminativeness(cell_to_units, relevant_units_count):
         p_c = float(n_c) / relevant_units_count
         check_entropy += p_c * math.log(p_c, base)
     
-    print("Entropy check: ", total_entropy, check_entropy, relevant_units_count, n_c_list)
+    # print("Entropy check: ", total_entropy, check_entropy, relevant_units_count, n_c_list)
 
     return total_entropy
 
@@ -608,8 +604,8 @@ def process_videos_approach_1(task, dataset, important_piece_types, dummy):
         "cell_to_units": cell_to_units,
     }
 
-    for insight in iteration_insights:
-        print(json.dumps(insight, indent=4))
+    # for insight in iteration_insights:
+    #     print(json.dumps(insight, indent=4))
 
     ### save the results
     taskname = task.replace(" ", "_").lower()
@@ -625,8 +621,7 @@ def process_videos_approach_1(task, dataset, important_piece_types, dummy):
 ### OUTPUT
 import os
 
-def construct_cim(task, dummy):
-    dataset = get_dataset(task)
+def construct_cim(task, dataset,dummy):
     important_types = IMPORTANT_TYPES
     return process_videos_approach_1(task, dataset, important_types, dummy)
 

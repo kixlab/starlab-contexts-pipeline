@@ -177,6 +177,20 @@ def segment_into_sentences(text):
     seg = pysbd.Segmenter(language="en", clean=False)
     return seg.segment(text)
 
+from helpers.bert import tfidf_embedding, bert_embedding
+
+def perform_embedding(embedding_method, texts):
+    """
+    Embed the texts using the appropriate embedding method.
+    """
+    if embedding_method == "tfidf":
+        return tfidf_embedding(texts)
+    elif embedding_method == "bert":
+        return bert_embedding(texts)
+    else:
+        ### TODO: implement OpenAI embeddings
+        raise ValueError(f"Invalid embedding method: {embedding_method}")
+
 
 def split_system_prompt(messages):
     system_prompt = "You are a helpful assistant."

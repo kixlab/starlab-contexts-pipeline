@@ -1,0 +1,255 @@
+Running for task: Making Muffins
+WARNING: Adding a facet didn't improve the objective `significantly` 0.01927706743553026 0.1
+Completed in 6 iterations
+context_ingredient_type- context_stage-Preparation context_purpose-Finish context_focus-Topping context_property_type-
+context_ingredient_type-Seeds/Nuts context_stage-Preparation context_purpose-Finish context_focus-Topping context_property_type-
+context_ingredient_type- context_stage-Preparation context_purpose-Equipment context_focus-Action context_property_type-
+--------------------------------
+{
+    "context_ingredient_type- context_stage-Intro context_purpose-Core context_focus-Product context_property_type-Flavor": {
+        "count": 1,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "",
+            "context_stage": "Intro",
+            "context_purpose": "Core",
+            "context_focus": "Product",
+            "context_property_type": "Flavor",
+            "context_informational_role": "Justification"
+        }
+    },
+    "context_ingredient_type- context_stage-Intro context_purpose-Product context_focus-Product context_property_type-": {
+        "count": 5,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "",
+            "context_stage": "Intro",
+            "context_purpose": "Product",
+            "context_focus": "Product",
+            "context_property_type": "",
+            "context_informational_role": "Closing"
+        }
+    },
+    "context_ingredient_type- context_stage-Intro context_purpose-Product context_focus-Product context_property_type-Texture": {
+        "count": 1,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "",
+            "context_stage": "Intro",
+            "context_purpose": "Product",
+            "context_focus": "Product",
+            "context_property_type": "Texture",
+            "context_informational_role": "Justification"
+        }
+    },
+    "context_ingredient_type- context_stage-Intro context_purpose-Adaptation context_focus-Product context_property_type-": {
+        "count": 1,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "",
+            "context_stage": "Intro",
+            "context_purpose": "Adaptation",
+            "context_focus": "Product",
+            "context_property_type": "",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type- context_stage-Preparation context_purpose-Method context_focus-Action context_property_type-": {
+        "count": 14,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "",
+            "context_stage": "Preparation",
+            "context_purpose": "Method",
+            "context_focus": "Action",
+            "context_property_type": "",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type-Vegetable context_stage-Preparation context_purpose-Core context_focus-Filling context_property_type-": {
+        "count": 1,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "Vegetable",
+            "context_stage": "Preparation",
+            "context_purpose": "Core",
+            "context_focus": "Filling",
+            "context_property_type": "",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type-Fat context_stage-Preparation context_purpose-Core context_focus-Filling context_property_type-": {
+        "count": 1,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "Fat",
+            "context_stage": "Preparation",
+            "context_purpose": "Core",
+            "context_focus": "Filling",
+            "context_property_type": "",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type-Liquid context_stage-Preparation context_purpose-Core context_focus-Filling context_property_type-": {
+        "count": 2,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "Liquid",
+            "context_stage": "Preparation",
+            "context_purpose": "Core",
+            "context_focus": "Filling",
+            "context_property_type": "",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type-Sugar context_stage-Preparation context_purpose-Core context_focus-Filling context_property_type-": {
+        "count": 2,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "Sugar",
+            "context_stage": "Preparation",
+            "context_purpose": "Core",
+            "context_focus": "Filling",
+            "context_property_type": "",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type-Spice/Flavor context_stage-Preparation context_purpose-Core context_focus-Filling context_property_type-Flavor": {
+        "count": 8,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "Spice/Flavor",
+            "context_stage": "Preparation",
+            "context_purpose": "Core",
+            "context_focus": "Filling",
+            "context_property_type": "Flavor",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type-Flour context_stage-Preparation context_purpose-Core context_focus-Filling context_property_type-": {
+        "count": 1,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "Flour",
+            "context_stage": "Preparation",
+            "context_purpose": "Core",
+            "context_focus": "Filling",
+            "context_property_type": "",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type-Leavening context_stage-Preparation context_purpose-Core context_focus-Filling context_property_type-": {
+        "count": 2,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "Leavening",
+            "context_stage": "Preparation",
+            "context_purpose": "Core",
+            "context_focus": "Filling",
+            "context_property_type": "",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type-Dairy context_stage-Preparation context_purpose-Core context_focus-Filling context_property_type-Temperature": {
+        "count": 1,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "Dairy",
+            "context_stage": "Preparation",
+            "context_purpose": "Core",
+            "context_focus": "Filling",
+            "context_property_type": "Temperature",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type- context_stage-Preparation context_purpose-Safety context_focus-Action context_property_type-Temperature": {
+        "count": 1,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "",
+            "context_stage": "Preparation",
+            "context_purpose": "Safety",
+            "context_focus": "Action",
+            "context_property_type": "Temperature",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type- context_stage-Preparation context_purpose-Method context_focus-Action context_property_type-Flavor": {
+        "count": 1,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "",
+            "context_stage": "Preparation",
+            "context_purpose": "Method",
+            "context_focus": "Action",
+            "context_property_type": "Flavor",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type- context_stage-Preparation context_purpose-Method context_focus-Filling context_property_type-": {
+        "count": 3,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "",
+            "context_stage": "Preparation",
+            "context_purpose": "Method",
+            "context_focus": "Filling",
+            "context_property_type": "",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type- context_stage-Preparation context_purpose-Release context_focus-Action context_property_type-": {
+        "count": 1,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "",
+            "context_stage": "Preparation",
+            "context_purpose": "Release",
+            "context_focus": "Action",
+            "context_property_type": "",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type- context_stage-Execution context_purpose-Method context_focus-Action context_property_type-": {
+        "count": 1,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "",
+            "context_stage": "Execution",
+            "context_purpose": "Method",
+            "context_focus": "Action",
+            "context_property_type": "",
+            "context_informational_role": "Decision"
+        }
+    },
+    "context_ingredient_type- context_stage-Execution context_purpose-Safety context_focus-Action context_property_type-": {
+        "count": 4,
+        "pieces": [],
+        "labels": {
+            "context_ingredient_type": "",
+            "context_stage": "Execution",
+            "context_purpose": "Safety",
+            "context_focus": "Action",
+            "context_property_type": "",
+            "context_informational_role": "Decision"
+        }
+    }
+}
+[
+    {
+        "content": "Classic blueberry muffins are nearly impossible to beat.",
+        "source_doc_idx": 2
+    },
+    {
+        "content": "Do you love moist, fluffy chocolate chip muffins with a sky-high bakery top and a crisp edge?",
+        "source_doc_idx": 8
+    },
+    {
+        "content": "2 2/3 cups all-purpose flour.",
+        "source_doc_idx": 1
+    },
+    {
+        "content": "Step 1 is the list of ingredients.",
+        "source_doc_idx": 3
+    }
+]

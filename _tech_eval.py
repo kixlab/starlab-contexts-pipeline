@@ -36,22 +36,23 @@ def sample_test_dataset(tasks, sample_per_task, sample_segment_per_tutorial, que
         dataset = get_dataset(task)
         sampled_tutorials = random.sample(dataset, sample_per_task)
         for tutorial in sampled_tutorials:
-            TYPE = random.choice(IMPORTANT_TYPES)
-            TYPE_DESCRIPTION = IMPORTANT_TYPE_DESCRIPTIONS[TYPE]
-            TYPE_DESCRIPTION = TYPE_DESCRIPTION.strip()
+            info_type = random.choice(IMPORTANT_TYPES)
+            info_type_description = IMPORTANT_TYPE_DESCRIPTIONS[info_type]
+            info_type_description = info_type_description.strip()
             cur_query = query
-            cur_query = cur_query.format(N=n, TYPE=TYPE)
-            cur_query = cur_query + f"\nFollowing are examples of {TYPE} information: \n{TYPE_DESCRIPTION}" ### add definition for the kind of information to retrieve
+            cur_query = cur_query.format(n=n, info_type=info_type)
+            cur_query = cur_query + f"\nFollowing are examples of {info_type} information: \n{info_type_description}" ### add definition for the kind of information to retrieve
 
             cur_segment = None
             if sample_segment_per_tutorial > 0:
-                cur_segment = f"TODO: sample {sample_segment_per_tutorial} segments per tutorial"
+                cur_segment = f"TODO: sample {sample_segment_per_tutorial} segments per tutorial" ### let's do left;right timestamps?
             
             test_dataset.append({
                 "task": task,
                 "tutorial": tutorial,
                 "segment": cur_segment,
                 "query": cur_query,
+                "info_type": info_type,
                 "n": n,
             })
 
@@ -98,13 +99,14 @@ def run_method(method_config, test_dataset):
     doc_score_threshold = method_config.doc_score_threshold
     responses = []
     for test in test_dataset:
+        info_type = test["info_type"]
         task = test["task"]
         tutorial = test["tutorial"]
         segment = test["segment"]
         query = test["query"]
         n = test["n"]
         dataset = get_dataset(task)
-        response = method_func(embedding_method, task, dataset, tutorial, query, segment, n, k, doc_score_threshold)
+        response = method_func(embedding_method, task, dataset, tutorial, segment, query, info_type, n, k, doc_score_threshold)
         responses.append(response)
     return responses
 
@@ -190,7 +192,7 @@ def main():
     ## dataset_config = DATASETS[1] ### cross-task_q0_n5
     ## dataset_config = DATASETS[2] ### custom_q0_n5
 
-    method_config = METHODS[1]
+    method_config = METHODS[2]
     eval_config = EVALS[0]
     
     results = run_absolute_eval(dataset_config, method_config, eval_config)
@@ -199,9 +201,9 @@ def main():
 TECH_EVAL_PATH = "./static/results/tech_eval/"
 
 QUERIES = [
-    "Given a tutorial with the highlighted segment, retrieve top-{N} missing, but relevant {TYPE} information for the segment. {TYPE}",
-    "Given a tutorial, retrieve top-{N} missing, but relevant {TYPE} information for the entire tutorial.",
-    "Given a tutorial, retrieve all missing, but relevant {TYPE} information.",
+    "Given a tutorial with the highlighted segment, retrieve top-{n} missing, but relevant {info_type} information for the segment.",
+    "Given a tutorial, retrieve top-{n} missing, but relevant {info_type} information for the entire tutorial.",
+    "Given a tutorial, retrieve all missing, but relevant {info_type} information.",
 ]
 
 DATASETS = [

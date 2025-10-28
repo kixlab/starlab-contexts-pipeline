@@ -9,22 +9,11 @@ import os
 import pickle
 import numpy as np
 
-from helpers.bert import bert_embedding, tfidf_embedding, mccs
+from helpers import perform_embedding
+from helpers.bert import mccs
 from prompts.rag import get_rag_response_full_tutorial, get_rag_response_tutorial_segment
 
 EMBEDDINGS_PATH = "./static/results/rag/"
-
-def perform_embedding(embedding_method, texts):
-    """
-    Embed the texts using the appropriate embedding method.
-    """
-    if embedding_method == "tfidf":
-        return tfidf_embedding(texts)
-    elif embedding_method == "bert":
-        return bert_embedding(texts)
-    else:
-        ### TODO: implement OpenAI embeddings
-        raise ValueError(f"Invalid embedding method: {embedding_method}")
 
 def encode_dataset(embedding_method, task, dataset):
     """
@@ -81,7 +70,7 @@ def perform_retrieval(embedding_method, task, dataset, tutorial, query, segment,
         documents = documents[:k]
     return documents
 
-def respond_to_query_rag(embedding_method, task, dataset, tutorial, query, segment, k, doc_score_threshold):
+def respond_to_query_rag(embedding_method, task, dataset, tutorial, segment, query, k, doc_score_threshold):
     documents = perform_retrieval(embedding_method, task, dataset, tutorial, query, segment, k)
 
     filtered_documents = []
@@ -100,4 +89,4 @@ def respond_to_query_rag(embedding_method, task, dataset, tutorial, query, segme
     else:
         return get_rag_response_tutorial_segment(task, filtered_documents, tutorial, segment, query)
 
-generic_call_rag = lambda embedding_method, task, dataset, tutorial, query, segment, n, k, doc_score_threshold: respond_to_query_rag(embedding_method, task, dataset, tutorial, query, segment, k, doc_score_threshold)
+generic_call_rag = lambda embedding_method, task, dataset, tutorial, segment, query, info_type, n, k, doc_score_threshold: respond_to_query_rag(embedding_method, task, dataset, tutorial, segment, query, k, doc_score_threshold)
