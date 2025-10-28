@@ -1,47 +1,8 @@
 import numpy as np
-from sentence_transformers import SentenceTransformer
-from sklearn.feature_extraction.text import TfidfVectorizer
+
 from sklearn.cluster import AgglomerativeClustering
-from stop_words import get_stop_words
 
-
-### fine-tune the model
-model = SentenceTransformer("all-MiniLM-L6-v2")
-# model.fit(
-#     train_objectives=[(train_dataloader, train_loss)],
-#     epochs=1,
-#     warmup_steps=100,
-#     optimizer_params={'lr': 1e-4},
-# )
-
-en_stop_words = get_stop_words('en')
-
-def bert_embedding(texts):
-    if len(texts) == 0:
-        return np.array([])
-
-    for i in range(len(texts)):
-        if texts[i] == "":
-            texts[i] = " "
-    embeddings = model.encode(texts)
-    return embeddings
-
-def tfidf_embedding(texts):
-    if len(texts) == 0:
-        return np.array([])
-    vectorizer = TfidfVectorizer(
-        stop_words=en_stop_words,
-        max_features=100,
-        max_df=0.9,
-        # min_df=0.2,
-        smooth_idf=True,
-        norm='l2',
-        ngram_range=(1, 2),
-    )
-    embeddings = vectorizer.fit_transform(texts)
-    print("FEATURE_NAMES:")
-    print(vectorizer.get_feature_names_out())
-    return np.array(embeddings.toarray())
+from helpers import perform_embedding
 
 def find_most_similar(embeddings, query_embeddings):
     """
@@ -75,10 +36,7 @@ def clustering_custom(texts, similarity_threshold, embedding_method="bert"):
         return [0 for _ in range(len(texts))]
     
     labels = []
-    if embedding_method == "tfidf":
-        embeddings = tfidf_embedding(texts)
-    else:
-        embeddings = bert_embedding(texts)
+    embeddings = perform_embedding(embedding_method, texts)
 
     similarities = np.zeros((len(texts), len(texts)))
     for i in range(len(texts)):
@@ -108,10 +66,7 @@ def hierarchical_clustering(
     if len(texts) <= 1:
         return [0 for _ in range(len(texts))]
     
-    if embedding_method == "tfidf":
-        embeddings = tfidf_embedding(texts)
-    else:
-        embeddings = bert_embedding(texts)
+    embeddings = perform_embedding(embedding_method, texts)
 
     similarities = np.zeros((len(texts), len(texts)))
     for i in range(len(texts)):
@@ -160,10 +115,8 @@ def find_most_distant_pair(texts, embedding_method="bert"):
     if len(texts) <= 1:
         return None
     
-    if embedding_method == "tfidf":
-        embeddings = tfidf_embedding(texts)
-    else:
-        embeddings = bert_embedding(texts)
+    embeddings = perform_embedding(embedding_method, texts)
+    
     similarities = np.dot(embeddings, embeddings.T)
     np.fill_diagonal(similarities, -float("inf"))
     max_distance_pair = np.unravel_index(np.argmax(similarities), similarities.shape)

@@ -2,7 +2,8 @@ import numpy as np
 
 from helpers.video_scripts import process_video
 
-from helpers.bert import bert_embedding, find_most_similar
+from helpers.nlp import find_most_similar
+from helpers import perform_embedding
 
 class Video:
     video_link = ""
@@ -274,7 +275,7 @@ class Video:
         if len(self.sentence_embeddings) == 0:
             self.calculate_sentence_embeddings()
         content_ids = []
-        quotes_embeddings = bert_embedding(quotes)
+        quotes_embeddings = perform_embedding("bert", quotes)
 
         indexes, scores = find_most_similar(self.sentence_embeddings, quotes_embeddings)
         for idx in indexes:
@@ -292,7 +293,7 @@ class Video:
 
         if len(self.sentence_embeddings) == 0:
             self.calculate_sentence_embeddings()
-        query_embeddings = bert_embedding([alignment["alignment_description"]])
+        query_embeddings = perform_embedding("bert", [alignment["alignment_description"]])
         cur_subgoals = self.get_subgoals(alignment["subgoal_title"])
 
         seconds = self.subgoals[-1]["finish"]
@@ -327,7 +328,7 @@ class Video:
         Calculate the embeddings of the custom subgoals
         """
         texts = [sentence["text"] for sentence in self.sentences]
-        self.sentence_embeddings = bert_embedding(texts)
+        self.sentence_embeddings = perform_embedding("bert", texts)
 
     def get_most_similar_content_ids(self, texts):
         """
@@ -337,7 +338,7 @@ class Video:
             return []
         if len(self.sentence_embeddings) == 0:
             self.calculate_sentence_embeddings()
-        text_embeddings = bert_embedding(texts)
+        text_embeddings = perform_embedding("bert", texts)
 
         indexes, scores = find_most_similar(self.sentence_embeddings, text_embeddings)
 

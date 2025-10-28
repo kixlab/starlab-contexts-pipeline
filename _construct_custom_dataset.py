@@ -7,9 +7,7 @@ import numpy as np
 import webvtt
 import textwrap
 
-from helpers.bert import bert_embedding, tfidf_embedding
-
-from helpers import str_to_float
+from helpers import str_to_float, perform_embedding
 
 PATH = "./static/results/"
 
@@ -97,11 +95,11 @@ def load_yt_temporal_dataset(skip=0, until=10000000):
                 })
     return videos
 
-def get_videos_per_task(tasks, videos, _embedding=tfidf_embedding, threshold=SIMILARITY_THRESHOLD):
+def get_videos_per_task(tasks, videos, embedding_method="tfidf", threshold=SIMILARITY_THRESHOLD):
 
     video_features = [video["title"] for video in videos]
     task_features = [task["title"] for task in tasks]
-    all_embeddings = _embedding(video_features + task_features)
+    all_embeddings = perform_embedding(embedding_method, video_features + task_features)
     video_embeddings = all_embeddings[:len(videos)]
     task_embeddings = all_embeddings[len(videos):]
 
@@ -133,7 +131,7 @@ def get_videos_per_tasks(all_tasks):
     print("crawling videos per task")
 
     videos = load_yt_temporal_dataset()
-    videos_per_task = get_videos_per_task(all_tasks, videos, _embedding=bert_embedding, threshold=SIMILARITY_THRESHOLD)
+    videos_per_task = get_videos_per_task(all_tasks, videos, embedding_method="bert", threshold=SIMILARITY_THRESHOLD)
 
     videos_per_task_path = CUSTOM_DATASET_PATH + f"videos_per_task.json"
     with open(videos_per_task_path, "w") as f:

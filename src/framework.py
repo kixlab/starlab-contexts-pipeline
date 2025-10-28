@@ -130,7 +130,7 @@ def get_cell_to_units(context_schema, dataset, important_piece_types):
     return cell_to_units, len(relevant_units)
 
 
-from helpers.bert import bert_embedding, clustering_custom, find_most_distant_pair
+from helpers.nlp import clustering_custom, find_most_distant_pair
 from prompts.framework import form_information_units
 
 def build_information_units_v0(task, dataset, context_length, information_unit_similarity_threshold, dummy=""):
@@ -477,7 +477,7 @@ def process_videos_approach_1(task, dataset, important_piece_types, dummy):
     skip_pruning = True
     stopping_delta_threshold = 0.1
     include_cells = 10
-    information_unit_similarity_threshold=0.8
+    information_unit_similarity_threshold=0.9
     context_length = 5
 
     app1_dummy = "app1_" + dummy

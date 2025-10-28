@@ -10,7 +10,7 @@ import pickle
 import numpy as np
 
 from helpers import perform_embedding
-from helpers.bert import mccs
+from helpers.nlp import mccs
 from prompts.rag import get_rag_response_full_tutorial, get_rag_response_tutorial_segment
 
 EMBEDDINGS_PATH = "./static/results/rag/"
