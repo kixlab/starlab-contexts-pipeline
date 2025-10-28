@@ -4,12 +4,15 @@ import json
 
 from openai import OpenAI
 from uuid import uuid4
+import numpy as np
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')   
 
 client_openai = OpenAI(
     api_key=OPENAI_API_KEY,
 )
+
+EMBEDDING_MODEL_OPENAI = "text-embedding-3-large"
 
 SEED = 13774
 TEMPERATURE = 0
@@ -21,6 +24,23 @@ MAX_TOKENS = 4096
 MODEL_NAME_OPENAI = 'gpt-4o-mini-2024-07-18'
 
 REASONING_EFFORT = "low" ### "low", "medium", "high"
+
+from sentence_transformers import SentenceTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from stop_words import get_stop_words
+
+
+### fine-tune the model
+bert_model = SentenceTransformer("all-MiniLM-L6-v2")
+# model.fit(
+#     train_objectives=[(train_dataloader, train_loss)],
+#     epochs=1,
+#     warmup_steps=100,
+#     optimizer_params={'lr': 1e-4},
+# )
+
+en_stop_words = get_stop_words('en')
+
 
 
 def random_uid():
@@ -44,6 +64,40 @@ def transcribe_audio(audio_path, granularity=["segment"]):
         )
         response = response.to_dict()
         return response
+
+def get_openai_embedding(texts, model=EMBEDDING_MODEL_OPENAI):
+    response = client_openai.embeddings.create(
+        input=texts,
+        model=model,
+    )
+    return np.array([data.embedding for data in response.data])
+
+def bert_embedding(texts):
+    if len(texts) == 0:
+        return np.array([])
+
+    for i in range(len(texts)):
+        if texts[i] == "":
+            texts[i] = " "
+    embeddings = bert_model.encode(texts)
+    return embeddings
+
+def tfidf_embedding(texts):
+    if len(texts) == 0:
+        return np.array([])
+    vectorizer = TfidfVectorizer(
+        stop_words=en_stop_words,
+        max_features=100,
+        max_df=0.9,
+        # min_df=0.2,
+        smooth_idf=True,
+        norm='l2',
+        ngram_range=(1, 2),
+    )
+    embeddings = vectorizer.fit_transform(texts)
+    print("FEATURE_NAMES:")
+    print(vectorizer.get_feature_names_out())
+    return np.array(embeddings.toarray())
 
 
 def get_response_pydantic_openai(messages, response_format):
@@ -177,8 +231,6 @@ def segment_into_sentences(text):
     seg = pysbd.Segmenter(language="en", clean=False)
     return seg.segment(text)
 
-from helpers.bert import tfidf_embedding, bert_embedding
-
 def perform_embedding(embedding_method, texts):
     """
     Embed the texts using the appropriate embedding method.
@@ -187,6 +239,8 @@ def perform_embedding(embedding_method, texts):
         return tfidf_embedding(texts)
     elif embedding_method == "bert":
         return bert_embedding(texts)
+    elif embedding_method == "openai":
+        return get_openai_embedding(texts)
     else:
         ### TODO: implement OpenAI embeddings
         raise ValueError(f"Invalid embedding method: {embedding_method}")
