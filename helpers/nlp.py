@@ -111,15 +111,54 @@ def hierarchical_clustering(
 
     return clusters.tolist()
 
-def find_most_distant_pair(texts, embedding_method="bert"):
-    if len(texts) <= 1:
-        return None
+def find_most_distant_items(texts, count=2, embedding_method="bert", additional_labels=None):
+    """
+    Algorithm that finds the most semantically distant items.
+    Returns a list of indices of the most distant items.
+
+    Specifically, we want maximize the minimum pairwise distance between the items (i.e., minimize the maximum pairwise similarity).
+
+    If additional_labels are provided, the selected items should have different labels.
+    """
+    if len(texts) < 2:
+        return [i for i in range(len(texts))]
     
     embeddings = perform_embedding(embedding_method, texts)
     
     similarities = np.dot(embeddings, embeddings.T)
-    np.fill_diagonal(similarities, -float("inf"))
-    max_distance_pair = np.unravel_index(np.argmax(similarities), similarities.shape)
-    idx_1 = max_distance_pair[0]
-    idx_2 = max_distance_pair[1]
-    return idx_1, idx_2
+    np.fill_diagonal(similarities, float("inf"))
+    
+    # Greedy algorithm to maximize total pairwise distance (minimize pairwise similarities)
+
+    # Start with the pair that has the highest distance (lowest similarity)
+    has_label = {}
+    best_indices = []
+    similarities_copy = similarities.copy()
+    # similarities is cosine similarity, so we want minimal values
+    first_idx, second_idx = np.unravel_index(np.argmin(similarities_copy), similarities_copy.shape)
+    if additional_labels is not None:
+        if additional_labels[first_idx] != additional_labels[second_idx]:
+            best_indices = [first_idx, second_idx]
+        else:
+            best_indices = [first_idx]
+    else:
+        best_indices = [first_idx, second_idx]
+
+    for index in best_indices:
+        if additional_labels is not None:
+            has_label[additional_labels[index]] = True
+
+    while len(best_indices) < count:
+        # For each item not in best_indices, calculate the minimum similarity to items already selected
+        candidates = [i for i in range(len(texts)) if i not in best_indices and (additional_labels is None or additional_labels[i] not in has_label.keys())]
+        best_candidate = None
+        minimum_max_similarity = float("inf")
+        for c in candidates:
+            minimum_similarity = np.max([similarities[c][i] for i in best_indices])
+            if minimum_similarity < minimum_max_similarity:
+                minimum_max_similarity = minimum_similarity
+                best_candidate = c
+        best_indices.append(best_candidate)
+        if additional_labels is not None:
+            has_label[additional_labels[best_candidate]] = True
+    return best_indices

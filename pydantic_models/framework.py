@@ -17,13 +17,14 @@ class ClassificationSchema(BaseModel):
 ### information units
 class BaseInfoSchema(BaseModel):    
     content: str = Field(..., title="The text of the information piece.")
-    content_type: Literal["Greeting", "Overview", "Method", "Supplementary", "Explanation", "Description", "Conclusion", "Miscellaneous"] = Field(..., title="The type of the information piece: Greeting|Overview|Method|Supplementary|Explanation|Description|Conclusion|Miscellaneous")
+    type: Literal["Greeting", "Overview", "Method", "Supplementary", "Explanation", "Description", "Conclusion", "Miscellaneous"] = Field(..., title="The type of the information piece: Greeting|Overview|Method|Supplementary|Explanation|Description|Conclusion|Miscellaneous")
+    subtype: Literal["Opening", "Closing", "Goal", "Motivation", "Briefing", "Subgoal", "Instruction", "Tool", "Tip", "Warning", "Justification", "Effect", "Status", "Context", "Tool Specification", "Outcome", "Reflection", "Side Note", "Self-promotion", "Bridge", "Filler"] = Field(..., title="The subtype of the information piece: Opening|Closing|Goal|Motivation|Briefing|Subgoal|Instruction|Tool|Tip|Warning|Justification|Effect|Status|Context|Tool Specification|Outcome|Reflection|Side Note|Self-promotion|Bridge|Filler")
     start: float = Field(..., title="The start time of the information piece. `null` if no timing metadata exists.")
     end: float = Field(..., title="The end time of the information piece. `null` if no timing metadata exists.")
 
 
 class InformationPiecesSchema(BaseModel):
-    pieces: list[BaseInfoSchema] = Field(..., title="The list of information pieces classified into method, description, explanation, supplementary, or other.")
+    pieces: list[BaseInfoSchema] = Field(..., title="The list of information pieces.")
 
 
 
