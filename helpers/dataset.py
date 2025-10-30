@@ -489,7 +489,22 @@ def get_dataset(task):
     elif task in CUSTOM_TASKS:
         return preprocess_custom_dataset(task, "framework_raw")
 
+import tiktoken
+import numpy as np    
 
+def count_tokens(tasks):
+    for task in tasks:
+        tokens_per_tutorial = []
+        dataset = get_dataset(task)
+        for tutorial in dataset:
+            content = tutorial["content"]
+            encoding = tiktoken.encoding_for_model("gpt-4")
+            n_tokens = len(encoding.encode(content))
+            tokens_per_tutorial.append(n_tokens)
+    
+        print(task)
+        print(np.average(tokens_per_tutorial))
+        print(np.sum(tokens_per_tutorial))
 
 """
 <type>
