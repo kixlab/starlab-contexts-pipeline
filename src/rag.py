@@ -48,7 +48,7 @@ def encode_query(embedding_method, tutorial, query, segment):
         texts = ["Tutorial: " + tutorial["content"]]
         # texts = ["Tutorial: " + tutorial["content"] + "\n" + "Query: " + query]
     else:
-        texts = ["Tutorial segment: " + segment]
+        texts = ["Tutorial segment: " + segment["content"]]
         # texts = ["Tutorial: " + tutorial["content"] + "\n" + "Segment: " + segment + "\n" + "Query: " + query]
     embeddings = perform_embedding(embedding_method, texts)
     return embeddings
@@ -91,13 +91,13 @@ def rerank_documents(dataset, document_idxs, metadata, tutorial, query):
         })
     return tutorials
 
-def respond_to_query_rag(task, tutorials, tutorial, segment, query):
+def respond_to_query_rag(task, tutorials, tutorial, segment, query, gen_model):
     if segment is None:
-        return get_rag_response_full_tutorial(task, tutorials, tutorial, query)
+        return get_rag_response_full_tutorial(task, tutorials, tutorial, query, gen_model)
     else:
-        return get_rag_response_tutorial_segment(task, tutorials, tutorial, segment, query)
+        return get_rag_response_tutorial_segment(task, tutorials, tutorial, segment, query, gen_model)
 
-def run_rag(embedding_method, task, dataset, tests, k, doc_score_threshold):
+def run_rag(task, dataset, tests, embedding_method, gen_model, k, doc_score_threshold):
     doc_embeddings, metadata = encode_dataset(embedding_method, task, dataset)
 
     responses = []
@@ -113,8 +113,8 @@ def run_rag(embedding_method, task, dataset, tests, k, doc_score_threshold):
 
         document_idxs = perform_retrieval(embedding_method, doc_embeddings, tutorial, query, segment, k + 1, doc_score_threshold)
         tutorials = rerank_documents(dataset, document_idxs, metadata, tutorial, query)
-        response = respond_to_query_rag(task, tutorials, tutorial, segment, query)
+        response = respond_to_query_rag(task, tutorials, tutorial, segment, query, gen_model)
         responses.append(response)
     return responses
 
-generic_call_rag = lambda embedding_method, task, dataset, tests, k, doc_score_threshold: run_rag(embedding_method, task, dataset, tests, k, doc_score_threshold)
+generic_call_rag = lambda task, version, dataset, tests, embedding_method, gen_model, k, doc_score_threshold: run_rag(task, dataset, tests, embedding_method, gen_model, k, doc_score_threshold)

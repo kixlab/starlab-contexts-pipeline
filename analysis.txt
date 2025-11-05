@@ -1,0 +1,127 @@
+Tasks:  9
+Task: how_to_make_a_milkshake_without_ice_cream_full_run_1
+Total units: 777
+Total pieces: 811
+Total relevant units: 623
+Total relevant pieces: 646
+Total tutorials: 32
+Unit relevance ratio: 0.8018018018018018
+Piece relevance ratio: 0.7965474722564735
+Total & Average & Std tokens per tutorial: 10042, 313.8125, 202.0241998963243
+Total & Average & Std relevant tokens per tutorial: 8106, 253.3125, 178.9901249894809
+Total facets: 40
+Total labels: 220
+Average labels per facet: 5.5
+
+Task: how_to_make_scrambled_eggs_in_a_microwave_full_run_1
+Total units: 1931
+Total pieces: 1989
+Total relevant units: 1610
+Total relevant pieces: 1653
+Total tutorials: 59
+Unit relevance ratio: 0.833764888658726
+Piece relevance ratio: 0.8310708898944194
+Total & Average & Std tokens per tutorial: 26276, 445.35593220338984, 189.5806042707334
+Total & Average & Std relevant tokens per tutorial: 22168, 375.728813559322, 179.69209357067632
+Total facets: 29
+Total labels: 207
+Average labels per facet: 7.137931034482759
+
+Task: how_to_grow_hydrangea_from_cuttings_full_run_1
+Total units: 677
+Total pieces: 688
+Total relevant units: 569
+Total relevant pieces: 571
+Total tutorials: 21
+Unit relevance ratio: 0.8404726735598228
+Piece relevance ratio: 0.8299418604651163
+Total & Average & Std tokens per tutorial: 10703, 509.6666666666667, 240.59357813804974
+Total & Average & Std relevant tokens per tutorial: 9154, 435.9047619047619, 211.26217175684695
+Total facets: 40
+Total labels: 301
+Average labels per facet: 7.525
+
+Task: how_to_clean_bathroom_tile_full_run_1
+Total units: 1099
+Total pieces: 1133
+Total relevant units: 904
+Total relevant pieces: 927
+Total tutorials: 38
+Unit relevance ratio: 0.8225659690627843
+Piece relevance ratio: 0.8181818181818182
+Total & Average & Std tokens per tutorial: 14884, 391.6842105263158, 203.2064163490645
+Total & Average & Std relevant tokens per tutorial: 12421, 326.86842105263156, 191.70758586048257
+Total facets: 34
+Total labels: 213
+Average labels per facet: 6.264705882352941
+
+Task: how_to_polish_stainless_steel_full_run_1
+Total units: 821
+Total pieces: 836
+Total relevant units: 703
+Total relevant pieces: 711
+Total tutorials: 20
+Unit relevance ratio: 0.856272838002436
+Piece relevance ratio: 0.8504784688995215
+Total & Average & Std tokens per tutorial: 12482, 624.1, 278.16522068727426
+Total & Average & Std relevant tokens per tutorial: 10832, 541.6, 254.03334426803104
+Total facets: 33
+Total labels: 249
+Average labels per facet: 7.545454545454546
+
+Task: how_to_get_rid_of_a_wasp's_nest_full_run_1
+Total units: 1750
+Total pieces: 1768
+Total relevant units: 1504
+Total relevant pieces: 1521
+Total tutorials: 55
+Unit relevance ratio: 0.8594285714285714
+Piece relevance ratio: 0.8602941176470589
+Total & Average & Std tokens per tutorial: 26512, 482.03636363636366, 275.16718644465544
+Total & Average & Std relevant tokens per tutorial: 23127, 420.4909090909091, 254.47913811457548
+Total facets: 50
+Total labels: 342
+Average labels per facet: 6.84
+
+Task: how_to_plant_a_living_christmas_tree_full_run_1
+Total units: 1742
+Total pieces: 1748
+Total relevant units: 1555
+Total relevant pieces: 1557
+Total tutorials: 40
+Unit relevance ratio: 0.8926521239954076
+Piece relevance ratio: 0.8907322654462243
+Total & Average & Std tokens per tutorial: 26221, 655.525, 331.1600056996617
+Total & Average & Std relevant tokens per tutorial: 23746, 593.65, 312.80757263851524
+Total facets: 60
+Total labels: 515
+Average labels per facet: 8.583333333333334
+
+Task: how_to_wrap_your_hands_for_boxing_full_run_1
+Total units: 889
+Total pieces: 912
+Total relevant units: 762
+Total relevant pieces: 782
+Total tutorials: 24
+Unit relevance ratio: 0.8571428571428571
+Piece relevance ratio: 0.8574561403508771
+Total & Average & Std tokens per tutorial: 13998, 583.25, 291.2369095770658
+Total & Average & Std relevant tokens per tutorial: 12215, 508.9583333333333, 256.0599667992289
+Total facets: 37
+Total labels: 292
+Average labels per facet: 7.891891891891892
+
+Task: how_to_make_a_paper_hat_full_run_1
+Total units: 1036
+Total pieces: 1070
+Total relevant units: 874
+Total relevant pieces: 903
+Total tutorials: 31
+Unit relevance ratio: 0.8436293436293436
+Piece relevance ratio: 0.8439252336448598
+Total & Average & Std tokens per tutorial: 13511, 435.83870967741933, 248.05606764421074
+Total & Average & Std relevant tokens per tutorial: 11672, 376.51612903225805, 241.1132608932242
+Total facets: 63
+Total labels: 422
+Average labels per facet: 6.698412698412699
+

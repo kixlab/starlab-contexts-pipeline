@@ -314,7 +314,7 @@ def transcript_to_str(transcript, with_timestamps=True):
             transcript_strs.append(subtitle['text'])
     return "\n".join(transcript_strs)
 
-def extract_pieces_from_transcript(task, transcript):
+def extract_pieces_from_transcript(task, transcript, extraction_model):
 
     transcript_str = transcript_to_str(transcript)
 
@@ -329,7 +329,7 @@ def extract_pieces_from_transcript(task, transcript):
         },
     ]
 
-    response = get_response_pydantic(messages, InformationPiecesSchema)
+    response = get_response_pydantic(messages, InformationPiecesSchema, model=extraction_model)
 
     pieces = response["pieces"]
     return pieces
@@ -447,6 +447,41 @@ def form_codebook(task, transcript, facet):
         label["label"] = label["label"].strip().lower()
     return vocabulary
 
+USER_PROMPT_TRY_ADDING_NA_LABEL = """
+You are given a list of segment labels. Ensure that there is a clear `NA` label by either updating an existing label or proposing a new one.
+
+### INPUTS
+{vocabulary}
+
+### PROCEDURE
+1. Analyze the labels and determine if any one of the labels can be used to label the case where no segment label applies (i.e., `NA`). If no label can be used, propose a new `NA` label.
+2. In either case, make sure that the `NA` label is clear, easy, and has the exact label "na".
+"""
+### Reasoning: explicitly adding the "na" label is necessary to avoid inconsistent labeling of `does not apply` cases (i.e., when some cases are labeled as `does not apply` (i.e, ""), some are labeled as "unspecified" (i.e, unspecified is discovered as part of the vocabulary).
+def try_adding_na_label(task, vocabulary):
+    iterations = 0
+    while iterations < 10:
+        vocabulary_str = vocabulary_to_str(vocabulary)
+        messages = [
+            {
+                "role": "system",
+                "content": SYSTEM_PROMPT_ANALYSIS.format(task=task),
+            },
+            {
+                "role": "user",
+                "content": USER_PROMPT_TRY_ADDING_NA_LABEL.format(vocabulary=vocabulary_str),
+            },
+        ]
+        response = get_response_pydantic(messages, VocabularySchema)
+        vocabulary = response["vocabulary"]
+        for label in vocabulary:
+            del label["id"]
+            label["label"] = label["label"].strip().lower()
+        ### check if there is a label that is exactly "NA"
+        for label in vocabulary:
+            if label["label"] == "na":
+                return vocabulary
+    raise ValueError("No exact \"na\" label was added to the vocabulary after 10 iterations.")
 
 USER_PROMPT_LABEL_TRANSCRIPT_PIECES = """
 You are performing temporal segmentation of a tutorial based on {facet_plural} (i.e., {definition}).
@@ -459,7 +494,7 @@ You are performing temporal segmentation of a tutorial based on {facet_plural} (
 
 ### GOAL
 For each piece, assign exactly one segment label from the provided labels.
-If no segment label clearly apply, assign the empty string "".
+If no segment label clearly apply, assign the "na" label.
 
 ### MATCHING RULES
 - Choose only from the provided segment labels; output the segment label exactly as given.
@@ -469,8 +504,8 @@ If no segment label clearly apply, assign the empty string "".
 ### OUTPUT
 Return a list of labeled pieces. Each piece should have the following fields:
 - piece_id: id of the piece
-- label_id: id of the segment label or ""
-- label: segment label or ""
+- label_id: id of the segment label
+- label: segment label or "na"
 
 ### NOTES
 - Preserve the original order of pieces.
@@ -513,7 +548,6 @@ def label_transcript_pieces(task, pieces, facet):
             print("STRONG WARNING: Multiple labels found for the same piece ID.", cur_piece_id)
         clean_label = labeled_piece["label"].strip().lower()
         if '[' in clean_label and ']' in clean_label:
-            ### remove the id from the label
             clean_label = clean_label.split(']')[1].strip().lower()
         piece_to_label[cur_piece_id] = clean_label
 
@@ -579,7 +613,7 @@ def segmentation_candidates_gen_to_struct(gen_candidates):
         segment_labels = []
         for label in candidate["segment_labels"]:
             segment_labels.append({
-                "label": label["label"].strip().lower(),
+                "label": label["label"],
                 "definition": label["definition"],
                 "examples": [],
             })

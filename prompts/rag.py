@@ -27,7 +27,7 @@ def tutorials_to_str(tutorials):
         text += TUTORIAL_FORMAT.format(idx=idx+1, title=tutorial['title'], content=tutorial['content']) + "\n"
     return text
 
-def get_rag_response_full_tutorial(task, tutorials, tutorial, query):
+def get_rag_response_full_tutorial(task, tutorials, tutorial, query, gen_model):
     
     library_str = tutorials_to_str(tutorials)
     context_tutorial_str = tutorial["content"]
@@ -43,7 +43,7 @@ def get_rag_response_full_tutorial(task, tutorials, tutorial, query):
             "content": USER_PROMPT_FULL_TUTORIAL.format(task=task, library=library_str, context_tutorial=context_tutorial_str, query=query),
         },
     ]
-    response = get_response_pydantic(messages, InformationListSchema)
+    response = get_response_pydantic(messages, InformationListSchema, model=gen_model)
     return response["information_list"]
 
 ### e.g., query: "Given a tutorial with the highlighted segment, retrieve top-{N} missing, but relevant explanations for the segment"
@@ -64,9 +64,10 @@ You are given a context tutorial and its highlighted segment. Please answer the 
 </highlighted_segment>
 """
 
-def get_rag_response_tutorial_segment(task, tutorials, tutorial, segment, query):
+def get_rag_response_tutorial_segment(task, tutorials, tutorial, segment, query, gen_model):
     
     library_str = tutorials_to_str(tutorials)
+    highlighted_segment_str = segment["content"]
     context_tutorial_str = tutorial["content"]
 
     messages = [
@@ -77,8 +78,8 @@ def get_rag_response_tutorial_segment(task, tutorials, tutorial, segment, query)
         },
         {
             "role": "user",
-            "content": USER_PROMPT_TUTORIAL_SEGMENT.format(task=task, library=library_str, context_tutorial=context_tutorial_str, highlighted_segment=segment, query=query),
+            "content": USER_PROMPT_TUTORIAL_SEGMENT.format(task=task, library=library_str, context_tutorial=context_tutorial_str, highlighted_segment=highlighted_segment_str, query=query),
         },
     ]
-    response = get_response_pydantic(messages, InformationListSchema)
+    response = get_response_pydantic(messages, InformationListSchema, model=gen_model)
     return response["information_list"]

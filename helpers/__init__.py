@@ -1,3 +1,4 @@
+import tiktoken
 import os
 import base64
 import json
@@ -17,13 +18,17 @@ EMBEDDING_MODEL_OPENAI = "text-embedding-3-large"
 SEED = 13774
 TEMPERATURE = 0
 MAX_TOKENS = 4096
-MODEL_NAME_OPENAI = 'gpt-5-mini-2025-08-07' #reasoning
+# MODEL_NAME_OPENAI = 'gpt-5-mini-2025-08-07' #reasoning
 # MODEL_NAME_OPENAI = 'gpt-4.1-2025-04-14'
-# MODEL_NAME_OPENAI = 'gpt-4.1-mini-2025-04-14'
+MODEL_NAME_OPENAI = 'gpt-4.1-mini-2025-04-14'
 # MODEL_NAME_OPENAI = 'gpt-4.1-nano-2025-04-14'
 # MODEL_NAME_OPENAI = 'gpt-4o-mini-2024-07-18'
 
 REASONING_EFFORT = "low" ### "low", "medium", "high"
+
+PER_TEXT_TOKEN_LIMIT = 2048
+PER_ARRAY_TOKEN_LIMIT = 300000
+TOTAL_ARRAY_LENGTH = 2048
 
 from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -43,6 +48,11 @@ en_stop_words = get_stop_words('en')
 
 def random_uid():
     return str(uuid4())
+
+def count_tokens(text, model="gpt-4"):
+    encoding = tiktoken.encoding_for_model(model)
+    n_tokens = len(encoding.encode(text))
+    return n_tokens
 
 def encode_image(image_path):
     with open(image_path, "rb") as image:
@@ -64,11 +74,30 @@ def transcribe_audio(audio_path, granularity=["segment"]):
         return response
 
 def get_openai_embedding(texts, model=EMBEDDING_MODEL_OPENAI):
-    response = client_openai.embeddings.create(
-        input=texts,
-        model=model,
-    )
-    return np.array([data.embedding for data in response.data])
+    chunks = [[]]
+    total_length = 0
+    for text in texts:
+        if text == "":
+            text = " "
+        text = text.replace("\n", " ")
+        cur_tokens = count_tokens(text, model=model)
+        if cur_tokens > PER_TEXT_TOKEN_LIMIT:
+            raise ValueError(f"Text is too long: {text}")
+        if total_length + cur_tokens > PER_ARRAY_TOKEN_LIMIT or len(chunks[-1]) + 1 > TOTAL_ARRAY_LENGTH:
+            chunks.append([])
+            total_length = 0
+        chunks[-1].append(text)
+        total_length += cur_tokens
+    result = []
+    for chunk in chunks:
+        if len(chunk) == 0:
+            continue
+        response = client_openai.embeddings.create(
+            input=chunk,
+            model=model,
+        )
+        result.extend([data.embedding for data in response.data])
+    return np.array(result)
 
 def bert_embedding(texts):
     if len(texts) == 0:
@@ -93,17 +122,18 @@ def tfidf_embedding(texts):
         ngram_range=(1, 2),
     )
     embeddings = vectorizer.fit_transform(texts)
-    print("FEATURE_NAMES:")
-    print(vectorizer.get_feature_names_out())
     return np.array(embeddings.toarray())
 
 
-def get_response_pydantic_openai(messages, response_format):
+def get_response_pydantic_openai(messages, response_format, model=None):
+    if model is None:
+        model = MODEL_NAME_OPENAI
+    print("MODEL: ", model)
     print("MESSAGES:", messages_to_str(messages))
 
-    if 'gpt-5' in MODEL_NAME_OPENAI:
+    if 'gpt-5' in model:
         completion = client_openai.chat.completions.parse(
-            model=MODEL_NAME_OPENAI,
+            model=model,
             messages=messages,
             seed=SEED,
             response_format=response_format,
@@ -111,7 +141,7 @@ def get_response_pydantic_openai(messages, response_format):
         )
     else:
         completion = client_openai.chat.completions.parse(
-            model=MODEL_NAME_OPENAI,
+            model=model,
             messages=messages,
             seed=SEED,
             temperature=TEMPERATURE,
@@ -128,13 +158,15 @@ def get_response_pydantic_openai(messages, response_format):
     print("RESPONSE:", json.dumps(json_response, indent=2))
     return json_response
 
-def get_response(messages, response_format="json_object", retries=1):
+def get_response(messages, response_format="json_object", retries=1, model=None):
+    if model is None:
+        model = MODEL_NAME_OPENAI
     generated_text = ""
     finish_reason = ""
     usages = []
     while True:
         response = client_openai.chat.completions.create(
-            model=MODEL_NAME_OPENAI,
+            model=model,
             messages=messages,
             seed=SEED,
             temperature=TEMPERATURE,
@@ -170,25 +202,25 @@ def get_response(messages, response_format="json_object", retries=1):
     return generated_text
     
 
-def get_response_pydantic_with_message(messages, response_format):
-    print("MESSAGES:", json.dumps(messages, indent=2))
-    completion = client_openai.beta.chat.completions.parse(
-        model=MODEL_NAME_OPENAI,
-        messages=messages,
-        seed=SEED,
-        temperature=TEMPERATURE,
-        response_format=response_format,
-    )
+# def get_response_pydantic_with_message(messages, response_format):
+#     print("MESSAGES:", json.dumps(messages, indent=2))
+#     completion = client_openai.beta.chat.completions.parse(
+#         model=MODEL_NAME_OPENAI,
+#         messages=messages,
+#         seed=SEED,
+#         temperature=TEMPERATURE,
+#         response_format=response_format,
+#     )
 
-    response = completion.choices[0].message
-    if (response.refusal):
-        print("REFUSED: ", response.refusal)
-        return None, response.choices[0].message.content
+#     response = completion.choices[0].message
+#     if (response.refusal):
+#         print("REFUSED: ", response.refusal)
+#         return None, response.choices[0].message.content
     
-    json_response = response.parsed.dict()
+#     json_response = response.parsed.dict()
 
-    print("RESPONSE:", json.dumps(json_response, indent=2))
-    return json_response, completion.choices[0].message.content
+#     print("RESPONSE:", json.dumps(json_response, indent=2))
+#     return json_response, completion.choices[0].message.content
 
 def extend_contents(contents, include_images=False, include_ids=False):
     extended_contents = []
@@ -240,7 +272,6 @@ def perform_embedding(embedding_method, texts):
     elif embedding_method == "openai":
         return get_openai_embedding(texts)
     else:
-        ### TODO: implement OpenAI embeddings
         raise ValueError(f"Invalid embedding method: {embedding_method}")
 
 
@@ -270,10 +301,12 @@ client_anthropic = AnthropicBedrock(
     aws_region=ANTHROPIC_REGION,
 )
 
-def get_response_anthropic(messages):
+def get_response_anthropic(messages, model=None):
+    if model is None:
+        model = MODEL_NAME_ANTHROPIC
     messages, system_prompt = split_system_prompt(messages)
     response = client_anthropic.messages.create(
-        model=MODEL_NAME_ANTHROPIC,
+        model=model,
         max_tokens=MAX_TOKENS,
         system=system_prompt,
         messages=messages,
@@ -288,10 +321,12 @@ client_anthropic_async = AsyncAnthropicBedrock(
     aws_region=ANTHROPIC_REGION,
 )
 
-async def get_response_anthropic_async(messages):
+async def get_response_anthropic_async(messages, model=None):
+    if model is None:
+        model = MODEL_NAME_ANTHROPIC
     messages, system_prompt = split_system_prompt(messages)
     response = await client_anthropic_async.messages.create(
-        model=MODEL_NAME_ANTHROPIC,
+        model=model,
         max_tokens=MAX_TOKENS,
         system=system_prompt,
         messages=messages,
@@ -308,7 +343,7 @@ Please format the final output in the JSON format specified within the <format> 
 """
 
 
-def get_response_pydantic_anthropic(messages, response_format):
+def get_response_pydantic_anthropic(messages, response_format, model=None):
     format_schema = response_format.model_json_schema()
     messages += [
         {
@@ -316,10 +351,10 @@ def get_response_pydantic_anthropic(messages, response_format):
             "content": FORMATTING_PROMPT.format(format=format_schema)
         }
     ]
-    
+    print("MODEL: ", model)
     print("MESSAGES:", messages_to_str(messages))
     
-    response = get_response_anthropic(messages)
+    response = get_response_anthropic(messages, model)
     print("RAW RESPONSE:", response)
     try:
         json_text = response.split("<response>")[1].split("</response>")[0]
@@ -349,8 +384,8 @@ def get_response_anthropic_with_tries(messages, response_format, tries=3):
 # RESPONSE_FUNC = get_response_anthropic_with_tries
 RESPONSE_FUNC = get_response_pydantic_openai
 
-def get_response_pydantic(messages, response_format):
+def get_response_pydantic(messages, response_format, model=None):
 
-    json_response = RESPONSE_FUNC(messages, response_format)
+    json_response = RESPONSE_FUNC(messages, response_format, model)
     
     return json_response

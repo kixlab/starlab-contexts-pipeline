@@ -32,7 +32,9 @@ from eval.llm_judge import relevance_absolute_evaluation
 
 from pydantic_models.evaluation import MetricScale
 
-def sample_test_dataset(tasks, sample_per_task, sample_segment_per_tutorial, query, n):
+from helpers.video_scripts import get_transcript_segment
+
+def sample_test_dataset(tasks, sample_per_task, query, n):
     test_dataset = []
     for task in tasks:
         dataset = get_dataset(task)
@@ -42,13 +44,20 @@ def sample_test_dataset(tasks, sample_per_task, sample_segment_per_tutorial, que
             info_type_description = IMPORTANT_TYPE_DESCRIPTIONS_FINE[info_type]
             info_type_description = info_type_description.strip()
             cur_query = query
-            cur_query = cur_query.format(n=n, info_type=info_type)
-            cur_query = cur_query + f"\nFollowing are examples of {info_type} information: \n{info_type_description}" ### add definition for the kind of information to retrieve
+            cur_query = cur_query.format(n=n, info_type=info_type, info_type_description=info_type_description)
 
             cur_segment = None
-            if sample_segment_per_tutorial > 0:
-                cur_segment = f"TODO: sample {sample_segment_per_tutorial} segments per tutorial" ### let's do left;right timestamps?
-            
+            if query == QUERIES[2] or query == QUERIES[3]:
+                ## TODO: ensure that the `segments` attribute is present for crosstask dataset.
+                selected_segment = random.choice(tutorial["segments"])
+                cur_segment = {
+                    "label": selected_segment["label"],
+                    "content": get_transcript_segment(tutorial["transcript"], selected_segment["start"], selected_segment["end"], include_intersecting=True),
+                    "start": selected_segment["start"],
+                    "end": selected_segment["end"],
+                }
+                cur_query = cur_query.format(segment=cur_segment["label"])
+
             test_dataset.append({
                 "task": task,
                 "tutorial": tutorial,
@@ -66,8 +75,13 @@ def construct_test_dataset(dataset_config):
     if os.path.exists(test_dataset_path):
         with open(test_dataset_path, "r") as f:
             return json.load(f)
+    ### run sanity checks
+    if dataset_config.query == QUERIES[2] and dataset_config.query == QUERIES[3]:
+        for task in dataset_config.tasks:
+            if task not in CROSS_TASK_TASKS:
+                raise ValueError(f"Segment sampling is only supported for cross-task tasks. {task} is not a cross-task task.")
 
-    test_dataset = sample_test_dataset(dataset_config.tasks, dataset_config.sample_per_task, dataset_config.sample_segment_per_tutorial, dataset_config.query, dataset_config.n)
+    test_dataset = sample_test_dataset(dataset_config.tasks, dataset_config.sample_per_task, dataset_config.query, dataset_config.n)
     with open(test_dataset_path, "w") as f:
         json.dump(test_dataset, f, indent=4)
     return test_dataset
@@ -99,6 +113,8 @@ def run_method(method_config, test_dataset):
     embedding_method = method_config.embedding_method
     k = method_config.k
     doc_score_threshold = method_config.doc_score_threshold
+    version = method_config.version
+    gen_model = method_config.gen_model
     responses = []
 
     ### group tests by task & restore the initial order
@@ -111,7 +127,9 @@ def run_method(method_config, test_dataset):
     for task in tests_per_task.keys():
         dataset = get_dataset(task)
         cur_tests = [test for _, test in tests_per_task[task]]
-        task_responses = method_func(embedding_method, task, dataset, cur_tests, k, doc_score_threshold)
+        task_responses = method_func(task, version, dataset, cur_tests, embedding_method, gen_model, k, doc_score_threshold)
+        if task_responses == None:
+            continue
         initial_idxs = [initial_idx for initial_idx, _ in tests_per_task[task]]
         for idx, response in zip(initial_idxs, task_responses):
             responses[idx] = response
@@ -134,7 +152,6 @@ def run_absolute_eval(dataset_config, method_config, eval_config):
 
     print("Running method...")
     responses = run_method(method_config, test_dataset)
-    
 
     print("Running eval...")
     eval_func = eval_config.func
@@ -176,7 +193,7 @@ def run_comparative_eval(dataset_config, method_config_A, method_config_B, eval_
 
     print("Running eval...")
     eval_func = eval_config["func"]
-    evaluation_results = eval_func(responses_A, responses_B, test_dataset)
+    evaluation_results = eval_func(responses_A, responses_B, test_dataset, eval_config.metric)
     
     results = {
         "evaluation_type": "comparative",
@@ -194,13 +211,11 @@ def run_comparative_eval(dataset_config, method_config_A, method_config_B, eval_
 
     return results
 
-def main():
-    dataset_config = DATASETS[0] ### test_q0_n5
-    ## dataset_config = DATASETS[1] ### cross-task_q0_n5
-    ## dataset_config = DATASETS[2] ### custom_q0_n5
+def main(dataset_idx, method_idx, eval_idx):
+    dataset_config = DATASETS[dataset_idx]
 
-    method_config = METHODS[2]
-    eval_config = EVALS[0]
+    method_config = METHODS[method_idx]
+    eval_config = EVALS[eval_idx]
     
     results = run_absolute_eval(dataset_config, method_config, eval_config)
     print(json.dumps(results, indent=4))
@@ -208,9 +223,10 @@ def main():
 TECH_EVAL_PATH = "./static/results/tech_eval/"
 
 QUERIES = [
-    "Given a tutorial with the highlighted segment, retrieve top-{n} missing, but relevant {info_type} information for the segment.",
-    "Given a tutorial, retrieve top-{n} missing, but relevant {info_type} information for the entire tutorial.",
-    "Given a tutorial, retrieve all missing, but relevant {info_type} information.",
+    "Given a tutorial, retrieve top-{n} missing, but relevant `{info_type}` information for the entire tutorial.\nFollowing are examples of `{info_type}` information: \n{info_type_description}",
+    "Given a tutorial, retrieve all missing, but relevant `{info_type}` information.\nFollowing are examples of `{info_type}` information: \n{info_type_description}",
+    "Given a tutorial and a highlighted segment, retrieve top-{n} missing, but relevant `{info_type}` information for the highlighted segment.\nFollowing are examples of `{info_type}` information: \n{info_type_description}",
+    "Given a tutorial, retrieve top-{n} missing, but relevant `{info_type}` information about the `{segment}`.\nFollowing are examples of `{info_type}` information: \n{info_type_description}",
 ]
 
 DATASETS = [
@@ -218,86 +234,99 @@ DATASETS = [
         label="test_q1_n2",
         tasks=[MUFFIN_TASK],
         sample_per_task=2,
-        query=QUERIES[1],
-        sample_segment_per_tutorial=0, ### specify if query_idx = 0
+        query=QUERIES[0],
         n=5,
     ),
     DatasetConfig(
-        label="cross-task_q0_n5",
-        tasks=CROSS_TASK_TASKS,
-        sample_per_task=5,
+        label="custom_test_10_q1_n5",
+        tasks=[CUSTOM_TASKS[4]],
+        sample_per_task=10,
         query=QUERIES[0],
-        sample_segment_per_tutorial=1,
         n=5,
     ),
     DatasetConfig(
-        label="custom_q0_n5",
-        tasks=CUSTOM_TASKS[:4], ### TODO: actually sample 4 tasks
-        sample_per_task=5,
+        label="custom_10_q1_n5",
+        tasks=CUSTOM_TASKS,
+        sample_per_task=10,
         query=QUERIES[0],
-        sample_segment_per_tutorial=1,
         n=5,
     ),
 ]
 
 METHODS = [
     MethodConfig(
-        label="RAG-bert-10-0.7",
+        label="RAG-openai-10-0.7",
         embedding_method="openai",
         k=8,
         doc_score_threshold=0.7,
         func=generic_call_rag,
+        version=None,
+        gen_model="gpt-4.1-mini-2025-04-14",
     ),
     MethodConfig(
-        label="vanilla-bert",
+        label="vanilla-openai",
         embedding_method="openai",
         k=None,
         doc_score_threshold=None,
         func=generic_call_rag,
+        version=None,
+        gen_model="gpt-4.1-mini-2025-04-14",
     ),
     MethodConfig(
-        label="context-similarity-bert",
-        embedding_method="bert",
+        label="context-similarity-openai",
+        embedding_method="openai",
         k=None,
         doc_score_threshold=None,
         func=generic_call_context_similarity,
+        version="full_run_1",
+        gen_model="gpt-4.1-mini-2025-04-14",
     ),
     MethodConfig(
-        label="shortest-path-bert",
-        embedding_method="bert",
+        label="shortest-path-openai",
+        embedding_method="openai",
         k=None,
         doc_score_threshold=None,
         func=generic_call_shortest_path,
+        version="full_run_1",
+        gen_model="gpt-4.1-mini-2025-04-14",
     ),
 ]
 
 EVALS = [
     EvalConfig(
-        label="relevance-absolute-evaluation-3",
+        label="relevance-absolute-evaluation-gpt-5-3",
         func=relevance_absolute_evaluation,
         metric=MetricScale.LIKERT_3,
+        judge_model="gpt-5-mini-2025-08-07",
     ),
     EvalConfig(
-        label="relevance-absolute-evaluation-binary",
+        label="relevance-absolute-evaluation-gpt-5-binary",
         func=relevance_absolute_evaluation,
         metric=MetricScale.BINARY,
+        judge_model="gpt-5-mini-2025-08-07",
     ),
     EvalConfig(
-        label="faithfulness-absolute-evaluation",
+        label="faithfulness-absolute-evaluation-gpt-5",
         func=None,
         metric=None,
+        judge_model="gpt-5-mini-2025-08-07",
     ),
     EvalConfig(
-        label="relevance-comparative-evaluation",
+        label="relevance-comparative-evaluation-gpt-5",
         func=None,
         metric=MetricScale.COMPARISON,
+        judge_model="gpt-5-mini-2025-08-07",
     ),
     EvalConfig(
-        label="comprehensiveness-comparative-evaluation",
+        label="comprehensiveness-comparative-evaluation-gpt-5",
         func=None,
         metric=MetricScale.COMPARISON,
+        judge_model="gpt-5-mini-2025-08-07",
     ),
 ]
 
 if __name__ == "__main__":
-    main()
+    dataset_idx = 1
+    method_idx = 2
+    eval_idx = 0
+    main(dataset_idx, method_idx, eval_idx)

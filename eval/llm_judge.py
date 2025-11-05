@@ -54,7 +54,7 @@ RELEVANCE_CRITERIA_LIKERT_5 = """
 COMPREHENSIVENESS_CRITERIA_COMPARISON = """
 """
 
-def relevance_absolute_evaluation(responses, test_dataset, metric):
+def relevance_absolute_evaluation(responses, test_dataset, metric, judge_model):
     criteria = ""
     if metric == MetricScale.LIKERT_3:
         criteria = RELEVANCE_CRITERIA_LIKERT_3
@@ -67,10 +67,13 @@ def relevance_absolute_evaluation(responses, test_dataset, metric):
     
     results = []
     for response, test_case in zip(responses, test_dataset):
+        if response == None:
+            results.append(None)
+            continue
         if test_case["segment"] is not None:
-            result = eval_relevance_absolute_tutorial_segment(test_case["task"], test_case["tutorial"], test_case["query"], test_case["segment"], response, metric, criteria)
+            result = eval_relevance_absolute_tutorial_segment(test_case["task"], test_case["tutorial"], test_case["query"], test_case["segment"], response, metric, criteria, judge_model)
         else:
-            result = eval_relevance_absolute_full_tutorial(test_case["task"], test_case["tutorial"], test_case["query"], response, metric, criteria)
+            result = eval_relevance_absolute_full_tutorial(test_case["task"], test_case["tutorial"], test_case["query"], response, metric, criteria, judge_model)
         results.append(result)
     print("Aggregated results:")
     print(json.dumps(aggregate_results(results, metric), indent=4))
@@ -105,30 +108,55 @@ def aggregate_results_comparison(results):
     b_win = 0
     a_win_confidence = 0
     b_win_confidence = 0
+    available_results = 0
     for result in results:
+        if result == None:
+            continue
+        total_reavailable_resultssults += 1
         if "decision" in result and result["decision"] == "A":
             a_win += 1
             a_win_confidence += result["confidence"]
         else:
             b_win += 1
             b_win_confidence += result["confidence"]
+    
+    a_win_rate = -1
+    a_win_confidence = -1
+    b_win_rate = -1
+    b_win_confidence = -1
+    if available_results > 0:
+        a_win_rate = a_win / available_results
+        a_win_confidence = a_win_confidence / a_win
+        b_win_rate = b_win / available_results
+        b_win_confidence = b_win_confidence / b_win
     return {
-        "a_win_rate": a_win / len(results),
-        "a_win_confidence": a_win_confidence / a_win,
-        "b_win_rate": b_win / len(results),
-        "b_win_confidence": b_win_confidence / b_win,
+        "a_win_rate": a_win_rate,
+        "a_win_confidence": a_win_confidence,
+        "b_win_rate": b_win_rate,
+        "b_win_confidence": b_win_confidence,
+        "none_results": len(results) - available_results,
     }
 
 def aggregate_results_absolute(results):
-    average_score = 0
-    average_confidence = 0
+    total_score = 0
+    total_confidence = 0
+    available_results = 0
     for result in results:
+        if result == None:
+            continue
+        available_results += 1
         if "decision" in result and result["decision"] == "yes":
-            average_score += 1
+            total_score += 1
         if "rating" in result:
-            average_score += result["rating"]
-        average_confidence += result["confidence"]
+            total_score += result["rating"]
+        total_confidence += result["confidence"]
+    average_score = -1
+    average_confidence = -1
+    if available_results > 0:
+        average_score = total_score / available_results
+        average_confidence = total_confidence / available_results
     return {
-        "average_score": average_score / len(results),
-        "average_confidence": average_confidence / len(results),
+        "average_score": average_score,
+        "average_confidence": average_confidence,
+        "none_results": len(results) - available_results,
     }

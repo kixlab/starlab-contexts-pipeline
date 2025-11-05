@@ -6,7 +6,7 @@ from helpers import get_response_pydantic
 from pydantic_models.evaluation import MetricScale
 from pydantic_models.evaluation import Likert7EvaluationResponse, Likert5EvaluationResponse, BinaryEvaluationResponse, ComparisonEvaluationResponse, Likert3EvaluationResponse
 
-def get_response_for_metric(messages, metric):
+def get_response_for_metric(messages, metric, judge_model):
     if metric == MetricScale.LIKERT_7:
         response_format = Likert7EvaluationResponse
     elif metric == MetricScale.LIKERT_5:
@@ -19,7 +19,7 @@ def get_response_for_metric(messages, metric):
         response_format = ComparisonEvaluationResponse
     else:
         raise ValueError(f"Unsupported metric: {metric}")
-    response = get_response_pydantic(messages, response_format)
+    response = get_response_pydantic(messages, response_format, model=judge_model)
     return {
         **response,
         "confidence": response["confidence"] / 10,
@@ -78,7 +78,7 @@ def eval_relevance_absolute_full_tutorial(task, tutorial, query, response, metri
         },
     ]
 
-    response = get_response_for_metric(messages, metric)
+    response = get_response_for_metric(messages, metric, judge_model)
     return response
 
 USER_PROMPT_EVAL_TUTORIAL_SEGMENT = """
@@ -104,10 +104,11 @@ Evaluate the response based on the following criteria:
 {criteria}
 """
 
-def eval_relevance_absolute_tutorial_segment(task, tutorial, query, segment, response, metric, criteria):
+def eval_relevance_absolute_tutorial_segment(task, tutorial, query, segment, response, metric, criteria, judge_model):
     if metric == MetricScale.COMPARISON:
         raise ValueError("Comparison metrics are not supported for absolute evaluation.")
     context_tutorial_str = tutorial_to_str(tutorial)
+    highlighted_segment_str = segment["content"]
     response_str = response_to_str(response)
 
     messages = [
@@ -117,25 +118,25 @@ def eval_relevance_absolute_tutorial_segment(task, tutorial, query, segment, res
         },
         {
             "role": "user",
-            "content": USER_PROMPT_EVAL_TUTORIAL_SEGMENT.format(query=query, context_tutorial=context_tutorial_str, highlighted_segment=segment, response=response_str, criteria=criteria),
+            "content": USER_PROMPT_EVAL_TUTORIAL_SEGMENT.format(query=query, context_tutorial=context_tutorial_str, highlighted_segment=highlighted_segment_str, response=response_str, criteria=criteria),
         },
     ]
 
-    response = get_response_for_metric(messages, metric)
+    response = get_response_for_metric(messages, metric, judge_model)
     return response
 
-def eval_relevance_comparison_full_tutorial(metric, criteria):
+def eval_relevance_comparison_full_tutorial(metric, criteria, judge_model):
     if metric != MetricScale.COMPARISON:
         raise ValueError("Metric must be comparison for comparison evaluation.")
     ### random shuffle the order of the responses
 
-def eval_relevance_comparison_tutorial_segment(metric, criteria):
+def eval_relevance_comparison_tutorial_segment(metric, criteria, judge_model):
     if metric != MetricScale.COMPARISON:
         raise ValueError("Metric must be comparison for comparison evaluation.")
     pass
 
-def eval_comprehensiveness_comparison_full_tutorial(metric, criteria):
+def eval_comprehensiveness_comparison_full_tutorial(metric, criteria, judge_model):
     pass
 
-def eval_comprehensiveness_comparison_tutorial_segment(metric, criteria):
+def eval_comprehensiveness_comparison_tutorial_segment(metric, criteria, judge_model):
     pass
