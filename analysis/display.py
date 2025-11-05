@@ -3,6 +3,7 @@ from collections import defaultdict
 import numpy as np
 
 from helpers import count_tokens
+from helpers.cim_scripts import get_cell_to_units, calc_discriminativeness, calc_explained_norm
 
 def show_task_stats(task, result, relevant_types):
     dataset = result["labeled_dataset"]
@@ -41,12 +42,12 @@ def show_task_stats(task, result, relevant_types):
     print(f"Total tutorials: {count_tutorials}")
     unit_relevance_ratio = -1
     if count_units > 0:
-        unit_relevance_ratio = count_relevant_units / (count_units)
+        unit_relevance_ratio = round(count_relevant_units / (count_units), 2)
     print(f"Unit relevance ratio: {unit_relevance_ratio}")
 
     piece_relevance_ratio = -1
     if count_pieces > 0:
-        piece_relevance_ratio = count_relevant_pieces / (count_pieces)
+        piece_relevance_ratio = round(count_relevant_pieces / (count_pieces), 2)
     print(f"Piece relevance ratio: {piece_relevance_ratio}")
     
     print(f"Total & Average & Std tokens per tutorial: {np.sum(tokens_per_tutorial)}, {np.average(tokens_per_tutorial)}, {np.std(tokens_per_tutorial)}")
@@ -55,10 +56,19 @@ def show_task_stats(task, result, relevant_types):
     facets = result["facet_candidates"]
     count_facets = len(facets)
     count_labels = sum([len(facet["vocabulary"]) for facet in facets])
+    avg_labels_per_facet = -1
+    if count_facets > 0:
+        avg_labels_per_facet = round(count_labels / count_facets, 2)
     print(f"Total facets: {count_facets}")
     print(f"Total labels: {count_labels}")
-    print(f"Average labels per facet: {count_labels / count_facets}")
+    print(f"Average labels per facet: {avg_labels_per_facet}")
 
+    print("--------------------------------")
+    cell_to_units, relevant_units_count = get_cell_to_units(facets, dataset, relevant_types)
+    cur_d = calc_discriminativeness(cell_to_units, relevant_units_count)
+    explained_norm = calc_explained_norm(cell_to_units, relevant_units_count)
+    print("Discriminativeness: ", cur_d)
+    print("Explained norm: ", explained_norm)
     print()
 
 

@@ -1,17 +1,20 @@
-Tasks:  9
+Tasks:  18
 Task: how_to_make_a_milkshake_without_ice_cream_full_run_1
 Total units: 777
 Total pieces: 811
 Total relevant units: 623
 Total relevant pieces: 646
 Total tutorials: 32
-Unit relevance ratio: 0.8018018018018018
-Piece relevance ratio: 0.7965474722564735
+Unit relevance ratio: 0.8
+Piece relevance ratio: 0.8
 Total & Average & Std tokens per tutorial: 10042, 313.8125, 202.0241998963243
 Total & Average & Std relevant tokens per tutorial: 8106, 253.3125, 178.9901249894809
 Total facets: 40
 Total labels: 220
 Average labels per facet: 5.5
+--------------------------------
+Discriminativeness:  0.044943820224719086
+Explained norm:  0.9951585271500645
 
 Task: how_to_make_scrambled_eggs_in_a_microwave_full_run_1
 Total units: 1931
@@ -19,13 +22,16 @@ Total pieces: 1989
 Total relevant units: 1610
 Total relevant pieces: 1653
 Total tutorials: 59
-Unit relevance ratio: 0.833764888658726
-Piece relevance ratio: 0.8310708898944194
+Unit relevance ratio: 0.83
+Piece relevance ratio: 0.83
 Total & Average & Std tokens per tutorial: 26276, 445.35593220338984, 189.5806042707334
 Total & Average & Std relevant tokens per tutorial: 22168, 375.728813559322, 179.69209357067632
 Total facets: 29
 Total labels: 207
-Average labels per facet: 7.137931034482759
+Average labels per facet: 7.14
+--------------------------------
+Discriminativeness:  0.083089712739638
+Explained norm:  0.9922002326185901
 
 Task: how_to_grow_hydrangea_from_cuttings_full_run_1
 Total units: 677
@@ -33,13 +39,16 @@ Total pieces: 688
 Total relevant units: 569
 Total relevant pieces: 571
 Total tutorials: 21
-Unit relevance ratio: 0.8404726735598228
-Piece relevance ratio: 0.8299418604651163
+Unit relevance ratio: 0.84
+Piece relevance ratio: 0.83
 Total & Average & Std tokens per tutorial: 10703, 509.6666666666667, 240.59357813804974
 Total & Average & Std relevant tokens per tutorial: 9154, 435.9047619047619, 211.26217175684695
 Total facets: 40
 Total labels: 301
-Average labels per facet: 7.525
+Average labels per facet: 7.53
+--------------------------------
+Discriminativeness:  0.07998202988458163
+Explained norm:  0.99126097676562
 
 Task: how_to_clean_bathroom_tile_full_run_1
 Total units: 1099
@@ -47,13 +56,16 @@ Total pieces: 1133
 Total relevant units: 904
 Total relevant pieces: 927
 Total tutorials: 38
-Unit relevance ratio: 0.8225659690627843
-Piece relevance ratio: 0.8181818181818182
+Unit relevance ratio: 0.82
+Piece relevance ratio: 0.82
 Total & Average & Std tokens per tutorial: 14884, 391.6842105263158, 203.2064163490645
 Total & Average & Std relevant tokens per tutorial: 12421, 326.86842105263156, 191.70758586048257
 Total facets: 34
 Total labels: 213
-Average labels per facet: 6.264705882352941
+Average labels per facet: 6.26
+--------------------------------
+Discriminativeness:  0.09847295354939596
+Explained norm:  0.9899723870688832
 
 Task: how_to_polish_stainless_steel_full_run_1
 Total units: 821
@@ -61,13 +73,16 @@ Total pieces: 836
 Total relevant units: 703
 Total relevant pieces: 711
 Total tutorials: 20
-Unit relevance ratio: 0.856272838002436
-Piece relevance ratio: 0.8504784688995215
+Unit relevance ratio: 0.86
+Piece relevance ratio: 0.85
 Total & Average & Std tokens per tutorial: 12482, 624.1, 278.16522068727426
 Total & Average & Std relevant tokens per tutorial: 10832, 541.6, 254.03334426803104
 Total facets: 33
 Total labels: 249
-Average labels per facet: 7.545454545454546
+Average labels per facet: 7.55
+--------------------------------
+Discriminativeness:  0.09318602418823176
+Explained norm:  0.9901467409021841
 
 Task: how_to_get_rid_of_a_wasp's_nest_full_run_1
 Total units: 1750
@@ -75,13 +90,16 @@ Total pieces: 1768
 Total relevant units: 1504
 Total relevant pieces: 1521
 Total tutorials: 55
-Unit relevance ratio: 0.8594285714285714
-Piece relevance ratio: 0.8602941176470589
+Unit relevance ratio: 0.86
+Piece relevance ratio: 0.86
 Total & Average & Std tokens per tutorial: 26512, 482.03636363636366, 275.16718644465544
 Total & Average & Std relevant tokens per tutorial: 23127, 420.4909090909091, 254.47913811457548
 Total facets: 50
 Total labels: 342
 Average labels per facet: 6.84
+--------------------------------
+Discriminativeness:  0.08495640791942638
+Explained norm:  0.991950761027899
 
 Task: how_to_plant_a_living_christmas_tree_full_run_1
 Total units: 1742
@@ -89,13 +107,16 @@ Total pieces: 1748
 Total relevant units: 1555
 Total relevant pieces: 1557
 Total tutorials: 40
-Unit relevance ratio: 0.8926521239954076
-Piece relevance ratio: 0.8907322654462243
+Unit relevance ratio: 0.89
+Piece relevance ratio: 0.89
 Total & Average & Std tokens per tutorial: 26221, 655.525, 331.1600056996617
 Total & Average & Std relevant tokens per tutorial: 23746, 593.65, 312.80757263851524
 Total facets: 60
 Total labels: 515
-Average labels per facet: 8.583333333333334
+Average labels per facet: 8.58
+--------------------------------
+Discriminativeness:  0.09286406944945849
+Explained norm:  0.9912414687400158
 
 Task: how_to_wrap_your_hands_for_boxing_full_run_1
 Total units: 889
@@ -103,13 +124,16 @@ Total pieces: 912
 Total relevant units: 762
 Total relevant pieces: 782
 Total tutorials: 24
-Unit relevance ratio: 0.8571428571428571
-Piece relevance ratio: 0.8574561403508771
+Unit relevance ratio: 0.86
+Piece relevance ratio: 0.86
 Total & Average & Std tokens per tutorial: 13998, 583.25, 291.2369095770658
 Total & Average & Std relevant tokens per tutorial: 12215, 508.9583333333333, 256.0599667992289
 Total facets: 37
 Total labels: 292
-Average labels per facet: 7.891891891891892
+Average labels per facet: 7.89
+--------------------------------
+Discriminativeness:  0.08597083333901173
+Explained norm:  0.9910200541491313
 
 Task: how_to_make_a_paper_hat_full_run_1
 Total units: 1036
@@ -117,11 +141,167 @@ Total pieces: 1070
 Total relevant units: 874
 Total relevant pieces: 903
 Total tutorials: 31
-Unit relevance ratio: 0.8436293436293436
-Piece relevance ratio: 0.8439252336448598
+Unit relevance ratio: 0.84
+Piece relevance ratio: 0.84
 Total & Average & Std tokens per tutorial: 13511, 435.83870967741933, 248.05606764421074
 Total & Average & Std relevant tokens per tutorial: 11672, 376.51612903225805, 241.1132608932242
 Total facets: 63
 Total labels: 422
-Average labels per facet: 6.698412698412699
+Average labels per facet: 6.7
+--------------------------------
+Discriminativeness:  0.08410729405529403
+Explained norm:  0.9913925820298108
+
+Task: how_to_make_a_sushi_roll_full_run_2
+Total units: 6486
+Total pieces: 6808
+Total relevant units: 5628
+Total relevant pieces: 5848
+Total tutorials: 149
+Unit relevance ratio: 0.87
+Piece relevance ratio: 0.86
+Total & Average & Std tokens per tutorial: 96682, 648.8724832214765, 311.4941538786002
+Total & Average & Std relevant tokens per tutorial: 84470, 566.9127516778524, 288.593253928836
+Total facets: 0
+Total labels: 0
+Average labels per facet: -1
+--------------------------------
+Discriminativeness:  10.134023999793492
+Explained norm:  0.18657142005410896
+
+Task: how_to_make_caramel_apples_full_run_2
+Total units: 3319
+Total pieces: 3414
+Total relevant units: 2866
+Total relevant pieces: 2945
+Total tutorials: 75
+Unit relevance ratio: 0.86
+Piece relevance ratio: 0.86
+Total & Average & Std tokens per tutorial: 46543, 620.5733333333334, 283.79387699917385
+Total & Average & Std relevant tokens per tutorial: 40993, 546.5733333333334, 263.8759392003918
+Total facets: 5
+Total labels: 40
+Average labels per facet: 8.0
+--------------------------------
+Discriminativeness:  2.8891891784778023
+Explained norm:  0.7484341547903843
+
+Task: how_to_grill_steak_full_run_2
+Total units: 3665
+Total pieces: 3735
+Total relevant units: 3235
+Total relevant pieces: 3291
+Total tutorials: 83
+Unit relevance ratio: 0.88
+Piece relevance ratio: 0.88
+Total & Average & Std tokens per tutorial: 56088, 675.7590361445783, 247.75675937487247
+Total & Average & Std relevant tokens per tutorial: 50128, 603.9518072289156, 238.0872019864696
+Total facets: 0
+Total labels: 0
+Average labels per facet: -1
+--------------------------------
+Discriminativeness:  9.05437260613123
+Explained norm:  0.2234372159685232
+
+Task: how_to_grow_a_pumpkin_full_run_2
+Total units: 2099
+Total pieces: 2122
+Total relevant units: 1800
+Total relevant pieces: 1820
+Total tutorials: 48
+Unit relevance ratio: 0.86
+Piece relevance ratio: 0.86
+Total & Average & Std tokens per tutorial: 31272, 651.5, 294.3439031699711
+Total & Average & Std relevant tokens per tutorial: 27237, 567.4375, 271.9350340805992
+Total facets: 3
+Total labels: 34
+Average labels per facet: 11.33
+--------------------------------
+Discriminativeness:  3.1097304568298636
+Explained norm:  0.7124289458200255
+
+Task: how_to_clean_a_glass_top_stove_full_run_2
+Total units: 2577
+Total pieces: 2629
+Total relevant units: 2185
+Total relevant pieces: 2218
+Total tutorials: 74
+Unit relevance ratio: 0.85
+Piece relevance ratio: 0.84
+Total & Average & Std tokens per tutorial: 39745, 537.0945945945946, 273.31934440290837
+Total & Average & Std relevant tokens per tutorial: 34166, 461.7027027027027, 241.2409768501494
+Total facets: 6
+Total labels: 53
+Average labels per facet: 8.83
+--------------------------------
+Discriminativeness:  1.5243054874894855
+Explained norm:  0.8625936976912504
+
+Task: change_a_tire_full_run_3
+Total units: 3178
+Total pieces: 4190
+Total relevant units: 2880
+Total relevant pieces: 3795
+Total tutorials: 119
+Unit relevance ratio: 0.91
+Piece relevance ratio: 0.91
+Total & Average & Std tokens per tutorial: 69274, 582.1344537815127, 226.33116676284564
+Total & Average & Std relevant tokens per tutorial: 62875, 528.3613445378152, 209.93483306971083
+Total facets: 0
+Total labels: 0
+Average labels per facet: -1
+--------------------------------
+Discriminativeness:  9.483036449427425
+Explained norm:  0.17480354387264455
+
+Task: build_simple_floating_shelves_full_run_3
+Total units: 6011
+Total pieces: 6408
+Total relevant units: 4856
+Total relevant pieces: 5122
+Total tutorials: 172
+Unit relevance ratio: 0.81
+Piece relevance ratio: 0.8
+Total & Average & Std tokens per tutorial: 108515, 630.9011627906976, 313.18320034029944
+Total & Average & Std relevant tokens per tutorial: 88364, 513.7441860465116, 266.5981073419145
+Total facets: 0
+Total labels: 0
+Average labels per facet: -1
+--------------------------------
+Discriminativeness:  10.04893215691417
+Explained norm:  0.179381086508195
+
+Task: make_french_toast_full_run_3
+Total units: 7915
+Total pieces: 8828
+Total relevant units: 6457
+Total relevant pieces: 7182
+Total tutorials: 270
+Unit relevance ratio: 0.82
+Piece relevance ratio: 0.81
+Total & Average & Std tokens per tutorial: 127716, 473.02222222222224, 216.0972334875846
+Total & Average & Std relevant tokens per tutorial: 104109, 385.5888888888889, 182.38968626082175
+Total facets: 0
+Total labels: 0
+Average labels per facet: -1
+--------------------------------
+Discriminativeness:  10.500677045971397
+Explained norm:  0.17034298596847908
+
+Task: make_irish_coffee_full_run_3
+Total units: 3860
+Total pieces: 4356
+Total relevant units: 2837
+Total relevant pieces: 3160
+Total tutorials: 203
+Unit relevance ratio: 0.73
+Piece relevance ratio: 0.73
+Total & Average & Std tokens per tutorial: 62747, 309.09852216748766, 186.88375288240564
+Total & Average & Std relevant tokens per tutorial: 45605, 224.6551724137931, 155.87429983834227
+Total facets: 3
+Total labels: 28
+Average labels per facet: 9.33
+--------------------------------
+Discriminativeness:  4.273370439211283
+Explained norm:  0.6274355368462029
 

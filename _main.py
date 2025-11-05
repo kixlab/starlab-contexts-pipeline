@@ -1,5 +1,4 @@
 import json
-import sys
 import os
 import traceback
 from src.framework_split import construct_cim_split
@@ -11,8 +10,6 @@ from src.cim_methods import context_similarity_retrieval
 from helpers.dataset import get_dataset
 
 from helpers.cim_scripts import FRAMEWORK_PATH
-
-from multiprocessing import Pool
 
 import multiprocessing as mp
 from contextlib import redirect_stdout, redirect_stderr
@@ -125,7 +122,7 @@ def main():
 if __name__ == "__main__":
     mp.set_start_method("spawn", force=True)
     # run_framework_custom_tasks("full_run_2")
-    run_framework_big_custom_tasks("full_run_2")
+    # run_framework_big_custom_tasks("full_run_2")
     # run_framework({"task": BIG_CUSTOM_TASKS[0], "version": "full_run_2"})
-    # run_framework_cross_tasks("full_run_3")
+    run_framework_cross_tasks("full_run_3")
     # run_framework({"task": CROSS_TASK_TASKS[0], "version": "full_run_3"})

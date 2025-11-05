@@ -9,7 +9,17 @@ from analysis.display import show_task_stats
 
 from analysis import ANALYSIS_PATH
 
-def plot_results(results, piece_types, output_folder, classify=True):
+def plot_results(results, piece_types, classify=True):
+    args = sys.argv[1:]
+    folder = "noname_frontiers"
+    if len(args) > 0 and len(args[0]) > 3:
+        folder = args[0]
+
+    output_folder = os.path.join(ANALYSIS_PATH, folder)
+    
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    
     elbow_d = None
     y_axis = "discriminativeness"
     ### classify the facet candidates into common vs unique to the task
@@ -21,11 +31,7 @@ def plot_results(results, piece_types, output_folder, classify=True):
     plot_frontiers_facets(results, piece_types, elbow_d, y_axis, output_folder)
     plot_frontiers_labels(results, piece_types, elbow_d, y_axis, output_folder)
 
-def main(folder):
-
-    output_folder = os.path.join(ANALYSIS_PATH, folder)
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
+def main():
 
     piece_types = ["Method - Subgoal", "Method - Instruction", "Method - Tool",
         "Supplementary - Tip", "Supplementary - Warning",
@@ -57,15 +63,11 @@ def main(folder):
     dummies = dummies_full_run_1 + dummies_full_run_2 + dummies_full_run_3
 
     results = get_available_results(tasks, dummies)
-    # plot_results(results, piece_types, output_folder, classify=True)
+    # plot_results(results, piece_types, classify=True)
 
     print("Tasks: ", len(results))
     for task, result in results.items():
         show_task_stats(task, result, piece_types)
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
-    folder = "all_frontier"
-    if len(args) > 0:
-        folder = args[0]
-    main(folder)
+    main()

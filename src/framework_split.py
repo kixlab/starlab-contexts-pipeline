@@ -169,7 +169,7 @@ def process_videos_split(task, dataset, piece_types, version):
     target_d = 0.1
 
     labeled_dataset = None
-    facet_candidates = None
+    facet_candidates = []
 
     results = load_results(task, version)
     if results is not None:
