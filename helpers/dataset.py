@@ -17,7 +17,7 @@ Build (sim.) Floating Shelves		5 steps / 173 videos
 """
 CROSS_TASK_TASKS = [
     "Change a Tire",
-    "Build (sim.) Floating Shelves",
+    "Build Simple Floating Shelves",
     "Make French Toast",
     "Make Irish Coffee",
 ]
@@ -47,6 +47,14 @@ CUSTOM_TASKS = [
 
     # Arts and Entertainment
     "How to Make a Paper Hat",
+]
+
+BIG_CUSTOM_TASKS = [
+    "How to Make a Sushi Roll",
+    "How to Make Caramel Apples",
+    "How to Grill Steak",
+    "How to Grow a Pumpkin",
+    "How to Clean a Glass Top Stove",
 ]
 
 SUBGOAL_DESCRIPTION = """
@@ -228,8 +236,8 @@ def get_muffin_articles():
             })
     return articles
 
-def get_dataset_muffins(task, dummy=""):
-    dataset_filepath = f"{DATASETS_PATH}{task.replace(' ', '_').lower()}_{dummy}.json"
+def get_dataset_muffins(task, version=""):
+    dataset_filepath = f"{DATASETS_PATH}{task.replace(' ', '_').lower()}_{version}.json"
     if os.path.exists(dataset_filepath):
         with open(dataset_filepath) as f:
             dataset = json.load(f)
@@ -382,16 +390,22 @@ def get_dataset_cross_task(task):
                         "start": subtitle['start'],
                         "end": subtitle['finish'],
                     })
+                
+                segments = []
+                for annotation in video["annotations"]:
+                    segments.append({
+                        "label": annotation["step"],
+                        "start": annotation["start"],
+                        "end": annotation["end"],
+                    })
                 dataset.append({
                     "id": video["video_id"],
                     "url": video["video_url"],
                     "title": task,
-                    "original_title": video["task"],
+                    "original_title": _task["task_name"],
                     "content": content,
                     "transcript": transcript,
-                    "steps": [],
-                    "ipo": [],
-                    "processed_ipos": [],
+                    "segments": segments,
                 })
 
     ### check if content is enough
@@ -404,8 +418,8 @@ def get_dataset_cross_task(task):
 
     return dataset
 
-def preprocess_cross_task(task, dummy=""):
-    dataset_filepath = f"{DATASETS_PATH}{task.replace(' ', '_').lower()}_{dummy}.json"
+def preprocess_cross_task(task, version=""):
+    dataset_filepath = f"{DATASETS_PATH}{task.replace(' ', '_').lower()}_{version}.json"
     if os.path.exists(dataset_filepath):
         with open(dataset_filepath) as f:
             dataset = json.load(f)
@@ -419,8 +433,8 @@ def preprocess_cross_task(task, dummy=""):
         json.dump(dataset, f, indent=4)
     return dataset
 
-def preprocess_custom_dataset(task, dummy=""):
-    dataset_filepath = f"{DATASETS_PATH}{task.replace(' ', '_').lower()}_{dummy}.json"
+def preprocess_custom_dataset(task, version=""):
+    dataset_filepath = f"{DATASETS_PATH}{task.replace(' ', '_').lower()}_{version}.json"
     if os.path.exists(dataset_filepath):
         with open(dataset_filepath) as f:
             dataset = json.load(f)
@@ -488,23 +502,6 @@ def get_dataset(task):
         return preprocess_cross_task(task, "framework_raw")
     elif task in CUSTOM_TASKS:
         return preprocess_custom_dataset(task, "framework_raw")
-
-import tiktoken
-import numpy as np    
-
-def count_tokens(tasks):
-    for task in tasks:
-        tokens_per_tutorial = []
-        dataset = get_dataset(task)
-        for tutorial in dataset:
-            content = tutorial["content"]
-            encoding = tiktoken.encoding_for_model("gpt-4")
-            n_tokens = len(encoding.encode(content))
-            tokens_per_tutorial.append(n_tokens)
-    
-        print(task)
-        print(np.average(tokens_per_tutorial))
-        print(np.sum(tokens_per_tutorial))
 
 """
 <type>

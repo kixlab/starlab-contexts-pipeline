@@ -57,7 +57,6 @@ def clustering_custom(texts, similarity_threshold, embedding_method="bert"):
             if similarities[i][j] >= similarity_threshold:
                 visited[j] = True
                 labels[j] = labels[i]
-
     return labels
 
 def hierarchical_clustering(
@@ -140,6 +139,7 @@ def find_most_distant_items(texts, count=2, embedding_method="bert", additional_
         if additional_labels[first_idx] != additional_labels[second_idx]:
             best_indices = [first_idx, second_idx]
         else:
+            print("WARNING: First and second indices have the same label", texts[first_idx], texts[second_idx])
             best_indices = [first_idx]
     else:
         best_indices = [first_idx, second_idx]
@@ -154,10 +154,12 @@ def find_most_distant_items(texts, count=2, embedding_method="bert", additional_
         best_candidate = None
         minimum_max_similarity = float("inf")
         for c in candidates:
-            minimum_similarity = np.max([similarities[c][i] for i in best_indices])
-            if minimum_similarity < minimum_max_similarity:
-                minimum_max_similarity = minimum_similarity
+            max_similarity = np.max([similarities[c][i] for i in best_indices])
+            if max_similarity < minimum_max_similarity:
+                minimum_max_similarity = max_similarity
                 best_candidate = c
+        if best_candidate is None:
+            break
         best_indices.append(best_candidate)
         if additional_labels is not None:
             has_label[additional_labels[best_candidate]] = True
