@@ -1,4 +1,4 @@
-from helpers.cim_scripts import build_information_units_v0
+from helpers.cim_scripts import build_information_units
 from helpers.cim_scripts import calc_discriminativeness, calc_explained_norm, get_cell_to_units, calc_compactness
 from helpers.cim_scripts import update_facet_candidates, update_facet_labels, update_labeled_dataset
 
@@ -134,7 +134,7 @@ def compute_frontier_knapsack(labeled_dataset, piece_types, facet_candidates, ma
 
     return smoothed_result
 
-def get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_types, include_cells, embedding_method, pieces_at_once, vocabulary_iterations, target_d):
+def get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_types, include_cells, embedding_method, pieces_at_once, vocabulary_iterations, target_d, generation_model):
     ### Run a single iteration of facet candidate mining
     cell_to_units, relevant_units_count = get_cell_to_units(facet_candidates, labeled_dataset, piece_types)
     cur_d = calc_discriminativeness(cell_to_units, relevant_units_count)
@@ -142,9 +142,9 @@ def get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_type
     display_sparsity(cell_to_units)
     if cur_d < target_d:
         return []
-    new_facet_candidates = update_facet_candidates(task, cell_to_units, include_cells, embedding_method, pieces_at_once)
-    new_facet_candidates = update_facet_labels(task, labeled_dataset, new_facet_candidates, vocabulary_iterations)
-    labeled_dataset = update_labeled_dataset(task, labeled_dataset, new_facet_candidates)
+    new_facet_candidates = update_facet_candidates(task, cell_to_units, include_cells, embedding_method, pieces_at_once, generation_model)
+    new_facet_candidates = update_facet_labels(task, labeled_dataset, new_facet_candidates, vocabulary_iterations, generation_model)
+    labeled_dataset = update_labeled_dataset(task, labeled_dataset, new_facet_candidates, generation_model)
     print(f"Found {len(new_facet_candidates)} new facet candidates")
     return new_facet_candidates
 
@@ -157,16 +157,18 @@ def process_videos_split(task, dataset, piece_types, version):
     pruning_threshold = 1
     max_macro_pruning_len = 2
 
-    stopping_delta_threshold = 0.1
     include_cells = 10
     embedding_method = "openai"
     extraction_model = "gpt-5-mini-2025-08-07"
+    generation_model = "gpt-4.1-mini-2025-04-14"
     pieces_at_once = 5
     vocabulary_iterations = len(dataset)
     ### Reasoning: 0.9 --> We set a higher similarity threshold to capture most of the information diversity in the dataset and remove the noise due to phrasing differences.
     information_unit_similarity_threshold=0.9
     context_length = 30 ### in seconds
-    target_d = 0.1
+    target_d = 0.8 
+    ### Reasoning --> Achieving a low discriminative score is important to ensure that the context schema organizes the knowledge in a fine-grained manner.
+    min_d = 0.1
 
     labeled_dataset = None
     facet_candidates = []
@@ -178,129 +180,42 @@ def process_videos_split(task, dataset, piece_types, version):
 
     if labeled_dataset is None:
         ### build the `information units`
-        labeled_dataset = build_information_units_v0(task, dataset, context_length, information_unit_similarity_threshold, embedding_method, extraction_model)
+        labeled_dataset = build_information_units(task, dataset, context_length, information_unit_similarity_threshold, embedding_method, extraction_model)
         save_results(task, version, {
             "context_schema": [],
-            "remaining_facet_candidates": [],
             "facet_candidates": [],
             "labeled_dataset": labeled_dataset,
         })
 
     ### mine all facet candidates
     while True:
-        new_facet_candidates = get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_types, include_cells, embedding_method, pieces_at_once, vocabulary_iterations, target_d)
+        new_facet_candidates = get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_types, include_cells, embedding_method, pieces_at_once, vocabulary_iterations, min_d, generation_model)
         if len(new_facet_candidates) == 0:
             break
         facet_candidates.extend(new_facet_candidates)
         save_results(task, version, {
             "context_schema": [],
-            "remaining_facet_candidates": [],
             "facet_candidates": facet_candidates,
             "labeled_dataset": labeled_dataset,
         })
 
-    # ### Greedy Algorithm for constructing the schema:
+    ### TODO: adjust the frontier based on IRR noise...
+    frontier = compute_frontier_knapsack(labeled_dataset, piece_types, facet_candidates, max_label_count=None, over_values=True)
     context_schema = []
-    remaining_facet_candidates = facet_candidates[:]
-
-    # iteration_insights = []
-    # iterations = 0
-
-    # cell_to_units, relevant_units_count = get_cell_to_units(context_schema, labeled_dataset, piece_types)
-    # base_d = calc_discriminativeness(cell_to_units, relevant_units_count)
-    # base_c = calc_compactness(context_schema, len(piece_types))
-
-    # while iterations < max_iterations:
-    #     iterations += 1
-    #     ### run pruning every `pruning_interval` iterations
-    #     if pruning_interval != -1 and iterations % pruning_interval == 0:
-    #         original_length = len(context_schema)
-    #         while len(context_schema) > 1 and len(context_schema) > original_length - max_macro_pruning_len:
-    #             new_context_schema, removed_facet = macro_pruning(
-    #                 context_schema, labeled_dataset, piece_types, pruning_threshold
-    #             )
-    #             if len(new_context_schema) < len(context_schema):
-    #                 context_schema = new_context_schema
-    #                 if removed_facet is not None:
-    #                     remaining_facet_candidates.append(removed_facet)
-    #                 continue
-    #             else:
-    #                 break   
-    #         iteration_insights.append({
-    #             "type": "macro_pruning",
-    #             "iteration": iterations,
-    #             "original_length": original_length,
-    #             "new_length": len(context_schema),
-    #             "removed_facet": (None if removed_facet is None else removed_facet["title"]),
-    #         })
-
-    #     cell_to_units, relevant_units_count = get_cell_to_units(context_schema, labeled_dataset, piece_types)
-        
-    #     if len(remaining_facet_candidates) == 0:
-    #         print("WARNING: No facet candidates left")
-    #         break    
-
-    #     prev_d = calc_discriminativeness(cell_to_units, relevant_units_count)
-    #     prev_c = calc_compactness(context_schema, len(piece_types))
-    #     o_biggest = -float("inf")
-    #     best_c = base_c
-    #     best_d = base_d
-    #     best_facet_toadd = None
-    #     for i, facet_candidate in enumerate(remaining_facet_candidates):
-    #         ### get the labeling by the context schema
-    #         candidate_context_schema = context_schema + [facet_candidate]
-    #         candidate_cell_to_units, candidate_relevant_units_count = get_cell_to_units(candidate_context_schema, labeled_dataset, piece_types)
-    #         ### calculate the discriminative and compactness
-    #         d = calc_discriminativeness(candidate_cell_to_units, candidate_relevant_units_count)
-    #         c = calc_compactness(candidate_context_schema, len(piece_types))
-    #         o = relative_improvement(prev_d, prev_c, d, c)
-    #         iteration_insights.append({
-    #             "type": "relative_improvement",
-    #             "facet_title": facet_candidate["title"],
-    #             "iteration": iterations,
-    #             "prev_d": prev_d,
-    #             "prev_c": prev_c,
-    #             "d": d,
-    #             "c": c,
-    #             "improvement": o,
-    #             "absolute_improvement": relative_improvement(base_d, base_c, d, c),
-    #         })
-    #         if o > o_biggest:
-    #             o_biggest = o
-    #             best_d = d
-    #             best_c = c
-    #             best_facet_toadd = i
-
-    #     iteration_insights.append({
-    #         "type": "add_facet",
-    #         "iteration": iterations,
-    #         "prev_d": prev_d,
-    #         "prev_c": prev_c,
-    #         "best_d": best_d,
-    #         "best_c": best_c,
-    #         "improvement": o_biggest,
-    #         "best_facet_toadd": best_facet_toadd,
-    #         "best_facet": (None if best_facet_toadd is None else remaining_facet_candidates[best_facet_toadd]["title"]),
-    #     })
-    #     if o_biggest < stopping_delta_threshold:
-    #         print("WARNING: Adding a facet didn't improve the objective `significantly`", o_biggest, stopping_delta_threshold)
-    #         break
-
-    #     if best_facet_toadd is None:
-    #         print("WARNING: No best facet found / Seem to have converged")
-    #         break
-    #     context_schema.append(remaining_facet_candidates[best_facet_toadd])
-    #     remaining_facet_candidates = remaining_facet_candidates[:best_facet_toadd] + remaining_facet_candidates[best_facet_toadd+1:]
-
-    # print("Completed in {} iterations".format(iterations))
-
-
-    # for insight in iteration_insights:
-    #     print(json.dumps(insight, indent=4))
-    
+    found = False
+    for item in frontier:
+        if item["discriminativeness"] < target_d:
+            for candidate in facet_candidates:
+                if candidate["id"] in item["facets"]:
+                    context_schema.append(candidate)
+            found = True
+            break
+    if found:
+        print(f"Found a schema with {len(context_schema)} facets that have discriminativeness score lower than {target_d}")
+    else:
+        print(f"No schema found with discriminativeness score lower than {target_d}")
     save_results(task, version, {
         "context_schema": context_schema,
-        "remaining_facet_candidates": remaining_facet_candidates,
         "facet_candidates": facet_candidates,
         "labeled_dataset": labeled_dataset,
     })

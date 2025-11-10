@@ -96,10 +96,12 @@ from helpers import random_uid
 from helpers.nlp import clustering_custom, find_most_distant_items
 from helpers.video_scripts import get_transcript_segment
 
-from prompts.framework import extract_pieces_from_transcript
-from prompts.framework import form_codebook, label_transcript_pieces
-from prompts.framework import form_segmentation_facet_candidates, combine_segmentation_facet_candidates
-from prompts.framework import try_adding_na_label
+from prompts.label import label_transcript_pieces_request, label_transcript_pieces_response, extract_pieces_from_transcript_request, extract_pieces_from_transcript_response
+from prompts.codebook import form_codebook_request, form_codebook_response, combine_codebooks_request, combine_codebooks_response, try_adding_na_label_request, try_adding_na_label_response
+
+from prompts.segmentation_facet import form_segmentation_facet_candidates_request, form_segmentation_facet_candidates_response, combine_segmentation_facet_candidates_request, combine_segmentation_facet_candidates_response
+
+from prompts.framework_batch import batch_run_lm_calls
 
 FRAMEWORK_PATH = "./static/results/framework/"
 
@@ -235,13 +237,25 @@ def extract_pieces(task, dataset, context_length, extraction_model):
         with open(pieces_path) as f:
             return json.load(f)
     
-    for video_idx, video in enumerate(dataset):
+
+    request_args = []
+    req_idx_to_source = []
+    for idx, video in enumerate(dataset):
         ### forming the information units (conceptually should be easily redefinable)
-        pieces = extract_pieces_from_transcript(task, video['transcript'], extraction_model)
-        video['pieces'] = []
+        request_args.append({
+            "task": task,
+            "transcript": video['transcript'],
+            "extraction_model": extraction_model,
+        })
+        req_idx_to_source.append(idx)
+
+    batch_results = batch_run_lm_calls(request_args, extract_pieces_from_transcript_request, extract_pieces_from_transcript_response)
+
+    for idx, pieces in zip(req_idx_to_source, batch_results):
+        dataset[idx]['pieces'] = []
         for i, piece in enumerate(pieces):
-            video['pieces'].append({
-                "piece_id": f"piece_{video_idx}_{i}",
+            dataset[idx]['pieces'].append({
+                "piece_id": f"piece_{idx}_{i}",
                 **piece,
                 "content_type": piece["type"] + " - " + piece["subtype"],
                 # "type": piece["type"],
@@ -261,7 +275,22 @@ def extract_pieces(task, dataset, context_length, extraction_model):
     
     return dataset
 
-def build_information_units_v0(task, dataset, context_length, information_unit_similarity_threshold, embedding_method, extraction_model):
+def form_information_units(dataset, information_unit_similarity_threshold, embedding_method):
+    ### Reasoning: We re-cluster the information units (only assign new unit ids). This may change the shape of the dataset.
+    all_pieces = []
+    for video in dataset:
+        for piece in video['pieces']:
+            all_pieces.append(piece)
+
+    #### cluster similar pieces in `all_pieces`
+    unit_labels = clustering_custom([piece["content"] for piece in all_pieces], information_unit_similarity_threshold, embedding_method=embedding_method)
+    for i, piece in enumerate(all_pieces):
+        cur_unit_id = f"unit_{unit_labels[i]}"
+        piece["unit_id"] = cur_unit_id
+    
+    return dataset
+
+def build_information_units(task, dataset, context_length, information_unit_similarity_threshold, embedding_method, extraction_model):
     
     taskname = task.replace(" ", "_").lower()
     parent_path = os.path.join(FRAMEWORK_PATH, f'{taskname}')
@@ -279,27 +308,7 @@ def build_information_units_v0(task, dataset, context_length, information_unit_s
     dataset = extract_pieces(task, dataset, context_length, extraction_model)
 
     ### Reasoning: We cluster all information pieces at once, even the ones that may have different types. This is because we are interested in what different roles the same information pieces may play in different contexts.
-    all_pieces = []
-    for video in dataset:
-        for piece in video['pieces']:
-            all_pieces.append(piece)
-
-    #### cluster similar pieces in `all_pieces`
-    information_units = {}
-
-    unit_labels = clustering_custom([piece["content"] for piece in all_pieces], information_unit_similarity_threshold, embedding_method=embedding_method)
-    for i, piece in enumerate(all_pieces):
-        cur_unit_id = f"unit_{unit_labels[i]}"
-        piece["unit_id"] = cur_unit_id
-        if cur_unit_id not in information_units:
-            ### first piece is the representative of the cluster (IU)
-            information_units[cur_unit_id] = {
-                "content": piece["content"],
-                "content_type": piece["content_type"],
-                "instances": [piece["piece_id"]],
-            }
-        else:
-            information_units[cur_unit_id]["instances"].append(piece["piece_id"])
+    dataset = form_information_units(dataset, information_unit_similarity_threshold, embedding_method)
 
     # Save clustered result specific to the similarity threshold
     with open(clustered_path, "w") as f:
@@ -307,7 +316,7 @@ def build_information_units_v0(task, dataset, context_length, information_unit_s
 
     return dataset
 
-def update_facet_candidates(task, cell_to_units, include_cells, embedding_method, pieces_at_once):
+def update_facet_candidates(task, cell_to_units, include_cells, embedding_method, pieces_at_once, generation_model):
     """
     Update the facet candidates and the labeled dataset.
     """
@@ -339,15 +348,35 @@ def update_facet_candidates(task, cell_to_units, include_cells, embedding_method
 
     new_facet_candidates = []
 
-    for chosen_pieces in chosen_sets_of_pieces:
-        # print(json.dumps(chosen_pieces, indent=4))
-        retrieved_candidates = form_segmentation_facet_candidates(task, chosen_pieces)
-        for candidate in retrieved_candidates:
-            new_facet_candidates.append(candidate)
+    request_args = []
+    req_idx_to_source = []
 
-    if len(chosen_sets_of_pieces) > 1:
+    for i, chosen_pieces in enumerate(chosen_sets_of_pieces):
+        request_args.append({
+            "task": task,
+            "pieces": chosen_pieces,
+            "generation_model": generation_model,
+        })
+        req_idx_to_source.append(i)
+
+    batch_results = batch_run_lm_calls(request_args, form_segmentation_facet_candidates_request, form_segmentation_facet_candidates_response)
+
+    for i, retrieved_candidates in zip(req_idx_to_source, batch_results):
+        new_facet_candidates.extend(retrieved_candidates)
+
+    if len(chosen_sets_of_pieces) > 1 and len(new_facet_candidates) > 1:
         ### i.e., there are potentially overlapping candidates
-        new_facet_candidates = combine_segmentation_facet_candidates(task, new_facet_candidates)
+        request_args = []
+        request_args.append({
+            "task": task,
+            "candidates": new_facet_candidates,
+            "generation_model": generation_model,
+        })
+        req_idx_to_source = [0]
+        
+        batch_results = batch_run_lm_calls(request_args, combine_segmentation_facet_candidates_request, combine_segmentation_facet_candidates_response)
+
+        new_facet_candidates = batch_results[0]
 
     ### assign unique ids
     for facet in new_facet_candidates:
@@ -355,9 +384,9 @@ def update_facet_candidates(task, cell_to_units, include_cells, embedding_method
 
     return new_facet_candidates
 
-def update_facet_labels(task, labeled_dataset, facet_candidates, vocabulary_iterations):
+def update_facet_labels(task, labeled_dataset, facet_candidates, vocabulary_iterations, generation_model):
     """
-    similar to VideoMix --> iteratively build the codebook
+    Extract the vocabulary from each tutorial and merge.
     """
 
     if len(labeled_dataset) < vocabulary_iterations:
@@ -365,35 +394,115 @@ def update_facet_labels(task, labeled_dataset, facet_candidates, vocabulary_iter
     else:
         selected_indices = random.sample(range(len(labeled_dataset)), vocabulary_iterations)
 
+    ### extract the vocabulary for each facet
+    request_args = []
+    req_idx_to_source = []
+    for fi, facet in enumerate(facet_candidates):
+        for vi, video in enumerate([labeled_dataset[i] for i in selected_indices]):
+            if len(video["pieces"]) == 0:
+                continue
+            request_args.append({
+                "task": task,
+                "transcript": video["transcript"],
+                "facet": facet,
+                "generation_model": generation_model,
+            })
+            req_idx_to_source.append(fi)
+    
+    batch_results = batch_run_lm_calls(request_args, form_codebook_request, form_codebook_response)
+
+    vocabularies_per_facet = defaultdict(list)
+    for fi, vocabulary in zip(req_idx_to_source, batch_results):
+        key = facet_candidates[fi]["id"]
+        vocabularies_per_facet[key].append(vocabulary)
+
+    #### TODO: remove later
+    for key, vocabularies in vocabularies_per_facet.items():
+        print(f"LOG: Vocabulary for facet {key}:")
+        print([len(vocabulary) for vocabulary in vocabularies])
+
+    ### combine the vocabularies for each facet
+    request_args = []
+    req_idx_to_source = []
+    for fi, facet in enumerate(facet_candidates):
+        key = facet["id"]
+        if len(vocabularies_per_facet[key]) == 0:
+            continue
+        request_args.append({
+            "task": task,
+            "facet": facet,
+            "vocabularies": vocabularies_per_facet[key],
+            "generation_model": generation_model,
+        })
+        req_idx_to_source.append(fi)
+
+    batch_results = batch_run_lm_calls(request_args, combine_codebooks_request, combine_codebooks_response)
+
+    for fi, new_facet in zip(req_idx_to_source, batch_results):
+        facet_candidates[fi] = {
+            **facet_candidates[fi],
+            **new_facet,
+        }
+
+    #### TODO: remove later
     for facet in facet_candidates:
-        ### iteratively build the vocabulary
-        for video in [labeled_dataset[i] for i in selected_indices]:
-            vocabulary = form_codebook(task, video["transcript"], facet)
-            facet["vocabulary"] = vocabulary
-        facet["vocabulary"] = try_adding_na_label(task, facet["vocabulary"])
+        print(f"LOG: Facet {facet['id']}:")
+        print(facet["id"], len(facet["vocabulary"]))
+        print()
+
+    ### try adding na label for each facet
+    request_args = []
+    req_idx_to_source = []
+    for fi, facet in enumerate(facet_candidates):
+        request_args.append({
+            "task": task,
+            "vocabulary": facet["vocabulary"],
+            "generation_model": generation_model,
+        })
+        req_idx_to_source.append(fi)
+
+    batch_results = batch_run_lm_calls(request_args, try_adding_na_label_request, try_adding_na_label_response)
+
+    for fi, vocabulary in zip(req_idx_to_source, batch_results):
+        facet_candidates[fi]["vocabulary"] = vocabulary
     return facet_candidates
 
-def update_labeled_dataset(task, labeled_dataset, facet_candidates):
+def update_labeled_dataset(task, labeled_dataset, facet_candidates, generation_model):
     """
     label the dataset based on the codebooks
     TODO: label multiple times per video
     TODO: may need to update `facet_candidates` if we see same facet again
     """
+
+    request_args = []
+    req_idx_to_source = []
     ### label according to candidates
-    for facet in facet_candidates:
+    for fi, facet in enumerate(facet_candidates):
         key = facet["id"]
-        for video in labeled_dataset:
+        if len(facet["vocabulary"]) == 0:
+            continue
+        for vi, video in enumerate(labeled_dataset):
             if len(video["pieces"]) == 0:
                 continue
-            
-            labeled_pieces = label_transcript_pieces(task, video["pieces"], facet)
+            request_args.append({
+                "task": task,
+                "pieces": video["pieces"],
+                "facet": facet,
+                "generation_model": generation_model,
+            })
+            req_idx_to_source.append((fi, vi))
+    
+    batch_results = batch_run_lm_calls(request_args, label_transcript_pieces_request, label_transcript_pieces_response)
 
-            if len(labeled_pieces) != len(video["pieces"]):
-                print(f"STRONG WARNING: {len(labeled_pieces)} != {len(video['pieces'])}")
-            for piece_idx, piece in enumerate(video["pieces"]):
-                if key not in piece["labels"]:
-                    piece["labels"][key] = []
-                else:
-                    print(f"STRONG WARNING: found the same facet again {facet['title']}, {key}")
-                piece["labels"][key].append(labeled_pieces[piece_idx])
+    for (fi, vi), labeled_pieces in zip(req_idx_to_source, batch_results):
+        key = facet_candidates[fi]["id"]
+        if len(labeled_pieces) != len(labeled_dataset[vi]['pieces']):
+            raise ValueError(f"{len(labeled_pieces)} != {len(labeled_dataset[vi]['pieces'])}")
+        for piece_idx, piece in enumerate(labeled_dataset[vi]["pieces"]):
+            if key not in piece["labels"]:
+                piece["labels"][key] = []
+            else:
+                raise ValueError(f"Found the same facet again: {facet_candidates[fi]['title']} ({key})")
+            piece["labels"][key].append(labeled_pieces[piece_idx])
+    
     return labeled_dataset
