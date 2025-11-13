@@ -13,6 +13,8 @@ Surrounding context (tutorial excerpt): ```{context}```"""
 PIECE_FORMAT = """[{idx}] `{content}`"""
 TRANSCRIPT_FORMAT = """[{start} - {end}] {text}"""
 
+TUTORIAL_FORMAT = """[{idx}] {title}\n{content}"""
+
 def vocabulary_to_str(vocabulary):
     if len(vocabulary) == 0:
         return "No labels are available."
@@ -92,3 +94,18 @@ def segmentation_candidates_gen_to_struct(gen_candidates):
             "vocabulary": segment_labels,
         })
     return struct_candidates
+
+def tutorials_to_str(tutorials):
+    tutorials_strs = []
+    for idx, tutorial in enumerate(tutorials):
+        tutorials_strs.append(TUTORIAL_FORMAT.format(idx=f"T{idx+1}", title=tutorial['title'], content=tutorial['content']))
+    return "\n".join(tutorials_strs)
+
+def tutorial_to_str(tutorial):
+    return TUTORIAL_FORMAT.format(idx=f"T{1}", title=tutorial['title'], content=tutorial['content'])
+
+def response_to_str(response):
+    pieces_strs = []
+    for idx, piece in enumerate(response):
+        pieces_strs.append(SEPARATE_PIECE_FORMAT.format(idx=idx+1, content=piece['content'], context=piece['raw_context']))
+    return "\n".join(pieces_strs)

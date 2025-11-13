@@ -93,13 +93,14 @@ def get_response_pydantic_openai(messages, response_format, model=None):
         "model": model,
         "seed": SEED,
         "messages": messages,
-        "temperature": TEMPERATURE,
         "max_completion_tokens": MAX_TOKENS,
         "response_format": response_format_dict,
     }
     variable_args = {}
     if "gpt-5" in model:
         variable_args["reasoning_effort"] = REASONING_EFFORT
+    else:
+        variable_args["temperature"] = TEMPERATURE
     
     print("requesting openai...")
 

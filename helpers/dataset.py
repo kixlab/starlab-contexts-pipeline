@@ -51,9 +51,8 @@ CUSTOM_TASKS = [
 
 BIG_CUSTOM_TASKS = [
     "How to Make a Sushi Roll",
-    "How to Make Caramel Apples",
     "How to Grill Steak",
-    "How to Grow a Pumpkin",
+    "How to Make Caramel Apples",
     "How to Clean a Glass Top Stove",
 ]
 
