@@ -145,7 +145,6 @@ def get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_type
     new_facet_candidates = update_facet_candidates(task, cell_to_units, include_cells, embedding_method, pieces_at_once, generation_model)
     new_facet_candidates = update_facet_labels(task, labeled_dataset, new_facet_candidates, vocabulary_iterations, generation_model)
     labeled_dataset = update_labeled_dataset(task, labeled_dataset, new_facet_candidates, generation_model)
-    print(f"Found {len(new_facet_candidates)} new facet candidates")
     return new_facet_candidates
 
 def process_videos_split(task, dataset, piece_types, version):
@@ -157,7 +156,7 @@ def process_videos_split(task, dataset, piece_types, version):
     pruning_threshold = 1
     max_macro_pruning_len = 2
 
-    include_cells = 10
+    include_cells = 1
     embedding_method = "openai"
     extraction_model = "gpt-5-mini-2025-08-07"
     generation_model = "gpt-4.1-mini-2025-04-14"

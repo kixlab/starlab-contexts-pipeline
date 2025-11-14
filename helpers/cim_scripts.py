@@ -321,7 +321,7 @@ def update_facet_candidates(task, cell_to_units, include_cells, embedding_method
     Update the facet candidates and the labeled dataset.
     """
 
-    chosen_sets_of_pieces = []
+    chosen_sets = defaultdict(list)
     for cell_id in cell_to_units.keys():
         if len(cell_to_units[cell_id]) <= 1:
             continue
@@ -337,21 +337,24 @@ def update_facet_candidates(task, cell_to_units, include_cells, embedding_method
 
         if len(chosen_pieces) < 2:
             continue
-        chosen_sets_of_pieces.append(chosen_pieces)
+        chosen_sets[cell_id].append(chosen_pieces)
 
-    chosen_sets_of_pieces = sorted(chosen_sets_of_pieces, key=lambda x: len(x), reverse=True)
-
-    if include_cells == 0 or len(chosen_sets_of_pieces) == 0:
+    if include_cells == 0 or len(chosen_sets) == 0:
         print("LOG: No new candidates will be added")
+        return []
+
+    chosen_sets = sorted(chosen_sets.items(), key=lambda x: len(x[1]), reverse=True)
     
-    chosen_sets_of_pieces = chosen_sets_of_pieces[:include_cells]
+    chosen_sets = chosen_sets[:include_cells]
+
+    print(f"Selected {len(chosen_sets)} cell-piece sets: {[(cell_id, len(chosen_pieces)) for cell_id, chosen_pieces in chosen_sets]}")
 
     new_facet_candidates = []
 
     request_args = []
     req_idx_to_source = []
 
-    for i, chosen_pieces in enumerate(chosen_sets_of_pieces):
+    for i, (cell_id, chosen_pieces) in enumerate(chosen_sets):
         request_args.append({
             "task": task,
             "pieces": chosen_pieces,
@@ -364,7 +367,7 @@ def update_facet_candidates(task, cell_to_units, include_cells, embedding_method
     for i, retrieved_candidates in zip(req_idx_to_source, batch_results):
         new_facet_candidates.extend(retrieved_candidates)
 
-    if len(chosen_sets_of_pieces) > 1 and len(new_facet_candidates) > 1:
+    if len(chosen_sets) > 1 and len(new_facet_candidates) > 1:
         ### i.e., there are potentially overlapping candidates
         request_args = []
         request_args.append({
@@ -381,6 +384,8 @@ def update_facet_candidates(task, cell_to_units, include_cells, embedding_method
     ### assign unique ids
     for facet in new_facet_candidates:
         facet["id"] = f"F{random_uid()}"
+
+    print(f"Found {len(new_facet_candidates)} new facet candidates: {[(candidate['title'], candidate['id']) for candidate in new_facet_candidates]}")
 
     return new_facet_candidates
 

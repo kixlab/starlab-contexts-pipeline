@@ -18,18 +18,18 @@ Given information pieces from several tutorial videos, identify a set of task co
 
 ### REQUIREMENTS
 - Each proposed aspect should be a distinct temporal segmentation of the tutorial-style transcript that segments the transcript into meaningful segments. Its segmentation guidelines should ensure that the segmentation is non-overlapping, covers the entire transcript, and each segment must be labeled with only one segment label (i.e., no multi-label classification).
-- It should be possible to find a unique signature for each piece of information (i.e., the combination of aspects uniquely discriminates each piece of information from others).
+- It should be possible to find a unique signature for each given piece of information (i.e., the combination of aspects uniquely discriminates each piece of information from others).
 - The aspects should be orthogonal (i.e., do not overlap semantically).
 - Keep aspect titles short, but interpretable without additional context.
 - Keep example segment labels short, but interpretable without additional context.
 
 ### PROCEDURE
-1. Identify at least one aspect of a task context that would assign DIFFERENT segment labels to the pieces.
-    - Classify them into one of the possible types of aspects: "when", "why", 
-    - Briefly justify the choice and the type of aspect.
+1. Identify at least one aspect of a task context that would assign DIFFERENT segment labels to the given pieces of information.
+    - Classify each aspect into one of the possible types of aspects: "when", "why", "where", "what", "how".
+    - Briefly justify how the aspect would assign different segment labels to the given pieces of information and the choice of the type of aspect.
     - Provide a detailed definition of the aspect.
     - Provide guidelines that explain how to segment a tutorial-style transcript according to this aspect.
-    - Provide a few examples of "segment labels".
+    - Provide a few examples of "segment labels" (e.g., label for each given piece of information)
 2. If there are multiple aspects, ensure that they are orthogonal (i.e., do not overlap semantically) and that the combination of aspects uniquely discriminates each piece of information from others (i.e., each piece of information receives a unique combination of segment labels across the aspects).
 
 ### INPUTS
