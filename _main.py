@@ -80,7 +80,7 @@ if __name__ == "__main__":
     # run_framework(MUFFIN_TASK, "full_run_0")
     
     # run_framework_small_custom_tasks("full_run_0")
-    run_framework(BIG_CUSTOM_TASKS[0], "full_run_6")
+    run_framework(BIG_CUSTOM_TASKS[0], "full_run_8")
     # run_framework_big_custom_tasks("full_run_5")
     # run_framework({"task": BIG_CUSTOM_TASKS[0], "version": "full_run_2"})
     # run_framework_cross_tasks("full_run_4")

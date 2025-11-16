@@ -56,10 +56,10 @@ class LabeledPiecesSchema(BaseModel):
     labeled_pieces: list[LabeledPieceSchema] = Field(..., title="The list of pieces with corresponding segment labels.")
 
 ### facet candidates
-class FacetValueSchema(BaseModel):
-    model_config = ConfigDict(extra='forbid')
-    label: str = Field(..., title="An example segment label. Less than 2-3 words.")
-    definition: str = Field(..., title="The definition of the example segment label.")
+# class FacetValueSchema(BaseModel):
+#     model_config = ConfigDict(extra='forbid')
+#     label: str = Field(..., title="An example segment label. Less than 2-3 words.")
+#     definition: str = Field(..., title="The definition of the example segment label.")
 
 class CandidateSegmentationFacetSchema(BaseModel):
     model_config = ConfigDict(extra='forbid')
@@ -71,7 +71,9 @@ class CandidateSegmentationFacetSchema(BaseModel):
     justification: str = Field(..., title="A brief justification of the choice of the aspect and the type of segmentation")
     definition: str = Field(..., title="The definition of the aspect (i.e., segmentation): what the aspect is about, what it means, etc.")
     guidelines: list[str] = Field(..., title="The guidelines for the LLM to temporally segment the tutorial-style transcript along this aspect.")
-    segment_labels: list[FacetValueSchema] = Field(..., title="The list of example segment labels.")
+    segment_labels: list[LabelSchema] = Field(..., title="The full canonical vocabulary for temporal segmentation along this aspect.")
+    segmentations: list[LabeledPiecesSchema] = Field(..., title="The list of segmentations of the provided tutorials along this aspect with the corresponding segment labels.")
+
 
 class CandidateSegmentationFacetsSchema(BaseModel):
     model_config = ConfigDict(extra='forbid')
