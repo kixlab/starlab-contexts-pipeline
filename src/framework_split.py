@@ -1,6 +1,7 @@
 from helpers.cim_scripts import build_information_units
 from helpers.cim_scripts import calc_discriminativeness, calc_explained_norm, get_cell_to_units, calc_compactness
 from helpers.cim_scripts import update_facet_candidates, update_facet_labels, update_labeled_dataset
+from helpers.cim_scripts import update_facet_candidates_v2
 
 from helpers.cim_scripts import FRAMEWORK_PATH
 
@@ -142,14 +143,15 @@ def get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_type
     display_sparsity(cell_to_units)
     if cur_d < target_d:
         return []
-    new_facet_candidates = update_facet_candidates(task, cell_to_units, include_cells, embedding_method, pieces_at_once, generation_model)
+    # new_facet_candidates = update_facet_candidates(task, cell_to_units, include_cells, embedding_method, pieces_at_once, generation_model)
+    new_facet_candidates = update_facet_candidates_v2(task, labeled_dataset, cell_to_units,include_cells, embedding_method, pieces_at_once, generation_model)
     new_facet_candidates = update_facet_labels(task, labeled_dataset, new_facet_candidates, vocabulary_iterations, generation_model)
     labeled_dataset = update_labeled_dataset(task, labeled_dataset, new_facet_candidates, generation_model)
     return new_facet_candidates
 
 def process_videos_split(task, dataset, piece_types, version):
     ### constants
-    max_iterations = 100
+    max_iterations = 5
     
     ## pruning
     pruning_interval = -1 ## -1 means no pruning
@@ -187,10 +189,13 @@ def process_videos_split(task, dataset, piece_types, version):
         })
 
     ### mine all facet candidates
-    while True:
+    tries_if_empty = 0
+    while tries_if_empty < max_iterations:
         new_facet_candidates = get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_types, include_cells, embedding_method, pieces_at_once, vocabulary_iterations, min_d, generation_model)
         if len(new_facet_candidates) == 0:
-            break
+            tries_if_empty += 1
+            continue
+        tries_if_empty = 0
         facet_candidates.extend(new_facet_candidates)
         save_results(task, version, {
             "context_schema": [],

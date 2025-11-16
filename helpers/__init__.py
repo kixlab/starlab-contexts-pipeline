@@ -103,6 +103,7 @@ def get_response_pydantic_openai(messages, response_format, model=None):
         variable_args["temperature"] = TEMPERATURE
     
     print("requesting openai...")
+    # print(json.dumps(messages, indent=4))
 
     response_raw = client_openai.chat.completions.with_raw_response.create(
         **basic_args,
@@ -114,6 +115,7 @@ def get_response_pydantic_openai(messages, response_format, model=None):
     
     completion = response_raw.parse()
     response = completion.choices[0].message.content
+    # print(response)
     try:
         return json.loads(response)
     except json.JSONDecodeError:

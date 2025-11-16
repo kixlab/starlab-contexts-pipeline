@@ -8,6 +8,8 @@ from helpers import process_api_requests
 def batch_run_lm_calls(request_args, func_request, func_response):
     batch_id = random_uid()
     print(f"Batch ID for {func_request.__name__}: {batch_id}")
+    if len(request_args) == 0:
+        return []
     req_ids = []
     for request_arg in request_args:
         api_args = func_request(**request_arg)
