@@ -14,26 +14,26 @@ POSSIBLE_TYPES_OF_ASPECTS = """### POSSIBLE TYPES OF ASPECTS:
 | How | Method / Tool used | Manual / Automated | Using different approaches or tools |"""
 
 USER_PROMPT_FORM_SEGMENTATION_FACET_CANDIDATES = """
-Given information pieces from several tutorial videos, identify a set of task context aspects (i.e., different kinds of temporal segmentations) that would assign DIFFERENT segment labels to the pieces. Follow the requirements and the procedure below.
+Given information pieces from several tutorial videos, identify a set of task context aspects (i.e., temporal segmentation axes) that would assign DIFFERENT segment labels to the pieces. Follow the requirements and the procedure below.
 
 ### REQUIREMENTS
-- Each proposed aspect should be a distinct temporal segmentation of the tutorial-style transcript that segments the transcript into meaningful segments. Its segmentation guidelines should ensure that the segmentation is non-overlapping, covers the entire transcript, and each segment must be labeled with only one segment label (i.e., no multi-label classification).
-- It should be possible to find a unique signature for each given piece of information (i.e., the combination of aspects uniquely discriminates each piece of information from others).
+- Each proposed aspect should be a distinct temporal segmentation axis of the tutorial-style transcript that segments the transcript into meaningful segments. Its segmentation guidelines should ensure that the segmentation is non-overlapping, covers the entire transcript, and each segment must be labeled with only one segment label (i.e., no multi-label classification).
+- It should be possible to find a unique signature for each given piece of information (i.e., the combination of aspects uniquely determines which piece of information is relevant).
 - The aspects should be orthogonal (i.e., do not overlap semantically).
-- Keep aspect titles short, but interpretable without additional context.
-- Keep example segment labels short, but interpretable without additional context.
+- Keep aspect titles short (2-3 words), but interpretable without additional context.
+- Provide the vocabulary (i.e., segment labels) that can be used to segment the provided pieces of information.
 
 ### PROCEDURE
-1. Identify at least one aspect of a task context that would assign DIFFERENT segment labels to the given pieces of information.
+1. Identify aspects of a task context that would assign DIFFERENT signatures (i.e., combination of segment labels) to the given pieces of information.
     - Classify each aspect into one of the possible types of aspects: "when", "why", "where", "what", "how".
-    - Briefly justify how the aspect would assign different segment labels to the given pieces of information and the choice of the type of aspect.
+    - Briefly justify how the aspect would improve the discrimination of the given pieces of information from others and the choice of the type of aspect.
     - Provide a detailed definition of the aspect.
     - Provide guidelines that explain how to segment a tutorial-style transcript according to this aspect.
-    - Provide a few examples of "segment labels" (e.g., label for each given piece of information)
+    - Provide a vocabulary (i.e., segment labels) that can be used to segment the provided pieces of information.
 2. If there are multiple aspects, ensure that they are orthogonal (i.e., do not overlap semantically) and that the combination of aspects uniquely discriminates each piece of information from others (i.e., each piece of information receives a unique combination of segment labels across the aspects).
 
 ### INPUTS
-- Information pieces with their respective context extracted from potentially different tutorial videos about the task:
+- Pieces of information with their respective context extracted from potentially different tutorial videos about the task:
 {pieces}
 
 ### OUTPUT
@@ -66,22 +66,22 @@ def form_segmentation_facet_candidates_response(response, **kwargs):
 
 
 USER_PROMPT_COMBINE_SEGMENTATION_FACET_CANDIDATES = """
-Given a list of aspects of a task context (i.e., each is different kind of temporal segmentation) combine them into a smaller, orthogonal, and comprehensive set of aspects. Follow the procedure below.
+Given a list of task context aspects (i.e., temporal segmentation axes) combine them into a smaller, orthogonal, and comprehensive set of aspects. Follow the procedure below.
 
 ### PROCEDURE
 Repeat until exit condition is met:
-1. Check for segmentation similarity (i.e., the segmentation wrt one aspect is similar to the segmentation wrt another aspect):
+1. Check for aspect similarity (i.e., the segmentation along one temporal segmentation axis is similar to the segmentation along another temporal segmentation axis):
     - Combine aspects that are similar into a single aspect.
 2. Check for orthogonality (i.e., the segmentation wrt one aspect does not determine the segmentation wrt another aspect):
     - Redefine or replace non-orthogonal pairs with independent aspects of a task context.
-3. Check for single-slot (i.e., the segmentation title and labels are short and easily interpretable):
-    - Rephrase aspects of a task context so that segmentation title and labels fit in max. 3 words, but are easily interpretable.
-4. Check for coverage (i.e., the new set preserves all the meaning of the original aspects of a task context):
-    - Ensure the new set preserves all the meaning of the original aspects of a task context.
-exit) The aspect set is smallest (i.e., aspects cannot be combined anymore), orthogonal, single-slot, and covers all the initial aspects.
+3. Check for single-slot (i.e., the aspect title and segment labels are short and easily interpretable):
+    - Rephrase the titles and labels so that aspect titles and segment labels fit in max. 3 words, but are easily interpretable.
+4. Check for coverage (i.e., the new set preserves all the meaning of the original task context aspects):
+    - Ensure the new set preserves all the meaning of the original task context aspects.
+exit) The aspect set is smallest (i.e., aspects cannot be combined anymore), orthogonal, single-slot, and covers all the initial task context aspects.
 
 ### INPUTS
-- Aspects of a task context (e.g., "[F1] ..."):
+- Task context aspects (i.e., temporal segmentation axes) (e.g., "[F1] ..."):
 {candidates}
 
 ### OUTPUT

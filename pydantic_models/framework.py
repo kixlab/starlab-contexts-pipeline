@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, ConfigDict
-from typing import Literal
+from typing import Literal, Sequence, Type
 
 ### information units
 class BaseInfoSchema(BaseModel):    
@@ -45,15 +45,75 @@ class SegmentationFacetSchema(BaseModel):
     segment_labels: list[LabelSchema] = Field(..., title="The list of segment labels used for temporal segmentation along this aspect.")
 
 ### labeled pieces
-class LabeledPieceSchema(BaseModel):
-    model_config = ConfigDict(extra='forbid')
-    piece_id: int = Field(..., title="The provided id of the piece.")
-    label_id: str = Field(..., title="The id of the segment label.")
-    label: str = Field(..., title="The segment label (without the id).")
+def _deduplicate_preserving_order(values: Sequence[str]) -> tuple[str, ...]:
+    """Return a tuple of unique strings in their original order."""
+    return tuple(dict.fromkeys(values))
 
-class LabeledPiecesSchema(BaseModel):
-    model_config = ConfigDict(extra='forbid')
-    labeled_pieces: list[LabeledPieceSchema] = Field(..., title="The list of pieces with corresponding segment labels.")
+
+def _literal_from_choices(choices: Sequence[str]):
+    """Build a Literal that only allows the provided string choices."""
+    deduped = _deduplicate_preserving_order(choices)
+    if not deduped:
+        raise ValueError("label choices must contain at least one item")
+    return Literal.__getitem__(deduped)
+
+
+def _schema_name(base: str, token_source: Sequence[str] | int) -> str:
+    token = abs(hash(tuple(token_source if isinstance(token_source, Sequence) else (token_source, ))))
+    return f"{base}_{token}"
+
+
+def create_labeled_piece_schema(label_choices: Sequence[str]) -> Type[BaseModel]:
+    """
+    Dynamically create a LabeledPieceSchema whose `label` field is restricted to
+    the provided label_choices.
+    """
+    label_literal = _literal_from_choices(label_choices)
+    annotations = {
+        "piece_id": int,
+        "label_id": int,
+        "label": label_literal,
+    }
+    namespace = {
+        "__annotations__": annotations,
+        "model_config": ConfigDict(extra='forbid'),
+        "piece_id": Field(..., title="The provided id of the piece."),
+        "label_id": Field(..., title="The id of the segment label."),
+        "label": Field(..., title="The segment label."),
+        "__module__": __name__,
+    }
+    class_name = _schema_name("LabeledPieceSchema", label_choices)
+    return type(class_name, (BaseModel,), namespace)
+
+
+def create_labeled_pieces_schema(
+    *, label_choices: Sequence[str], min_length: int
+) -> Type[BaseModel]:
+    """
+    Dynamically create a LabeledPiecesSchema requiring at least `min_length`
+    labeled pieces, each of which uses the provided label choices.
+    """
+    if min_length < 0:
+        raise ValueError("min_length must be >= 0")
+    labeled_piece_schema = create_labeled_piece_schema(label_choices)
+    annotations = {
+        "labeled_pieces": list[labeled_piece_schema],
+    }
+    namespace = {
+        "__annotations__": annotations,
+        "model_config": ConfigDict(extra='forbid'),
+        "labeled_pieces": Field(
+            ...,
+            min_length=min_length,
+            max_length=min_length,
+            title="The list of pieces with corresponding segment labels.",
+        ),
+        "__module__": __name__,
+    }
+    class_name = _schema_name(
+        "LabeledPiecesSchema", (*label_choices, min_length)
+    )
+    return type(class_name, (BaseModel,), namespace)
 
 ### facet candidates
 # class FacetValueSchema(BaseModel):
@@ -72,7 +132,7 @@ class CandidateSegmentationFacetSchema(BaseModel):
     definition: str = Field(..., title="The definition of the aspect (i.e., segmentation): what the aspect is about, what it means, etc.")
     guidelines: list[str] = Field(..., title="The guidelines for the LLM to temporally segment the tutorial-style transcript along this aspect.")
     segment_labels: list[LabelSchema] = Field(..., title="The full canonical vocabulary for temporal segmentation along this aspect.")
-    segmentations: list[LabeledPiecesSchema] = Field(..., title="The list of segmentations of the provided tutorials along this aspect with the corresponding segment labels.")
+    # segmentations: list[LabeledPiecesSchema] = Field(..., title="The list of segmentations of the provided tutorials along this aspect with the corresponding segment labels.")
 
 
 class CandidateSegmentationFacetsSchema(BaseModel):

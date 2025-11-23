@@ -1,6 +1,6 @@
 from pydantic_models.framework import InformationPiecesSchema
 
-from pydantic_models.framework import LabeledPiecesSchema
+from pydantic_models.framework import create_labeled_pieces_schema
 
 from prompts import transcript_to_str, pieces_to_str, vocabulary_to_str, guidelines_to_str
 
@@ -280,25 +280,38 @@ def label_transcript_pieces_request(task, pieces, facet, generation_model, **kwa
             "content": USER_PROMPT_LABEL_TRANSCRIPT_PIECES.format(pieces=pieces_str, facet_plural=facet_plural, definition=definition, vocabulary=vocabulary_str, guidelines=guidelines_str),
         },
     ]
+    label_choices = [label["label"] for label in facet["vocabulary"]]
+    response_format = create_labeled_pieces_schema(
+        label_choices=label_choices,
+        min_length=len(pieces),
+    )
+
     return {
         "messages": messages,
-        "response_format": LabeledPiecesSchema,
+        "response_format": response_format,
         "model": generation_model,
     }
 
-def label_transcript_pieces_response(pieces, response, **kwargs):
+def label_transcript_pieces_response(facet, pieces, response, **kwargs):
+    possible_labels = set([label["label"].strip().lower() for label in facet["vocabulary"]])
     labeled_pieces = response["labeled_pieces"]
     piece_to_label = {}
     for labeled_piece in labeled_pieces:
         idx = int(labeled_piece["piece_id"]) - 1
+        if idx < 0 or idx >= len(pieces):
+            print(f"WARNING: Invalid piece ID: {labeled_piece['piece_id']}")
+            continue
         cur_piece_id = pieces[idx]["piece_id"]
         if cur_piece_id in piece_to_label:
             ### Reasoning: A particular segmentation may suggest multiple labels for the same piece, but we enforce only one label per piece to simplify the labeling process (disallowing multi-label classification). For consistency, we assign the first suggested label and ignore the rest. If the labels beyond the first are important for discriminating the piece (to reach the desired level of discriminativeness), the pipeline is designed to be able to accommodate this by proposing additional segmentation dimension (i.e., aspects of task context).
             print(f"WARNING: Multiple labels found for the same piece: {cur_piece_id}")
             continue
         clean_label = labeled_piece["label"].strip().lower()
-        if '[' in clean_label and ']' in clean_label:
-            clean_label = clean_label.split(']')[1].strip().lower()
+        # if '[' in clean_label and ']' in clean_label:
+        #     clean_label = clean_label.split(']')[1].strip().lower()
+        if clean_label not in possible_labels:
+            print(f"WARNING: Invalid label found for the piece: {cur_piece_id} {clean_label}")
+            continue
         piece_to_label[cur_piece_id] = clean_label
 
     formatted_pieces = []

@@ -340,8 +340,9 @@ def library_cross_task():
                 with open(annotation_path) as f:
                     reader = csv.reader(f)
                     for row in reader:
+                        cur_step = task["steps"][int(row[0]) - 1]
                         video["annotations"].append({
-                            "step": float(row[0]),
+                            "step": cur_step,
                             "start": float(row[1]),
                             "end": float(row[2]),
                         })
@@ -356,7 +357,7 @@ def library_cross_task():
                 cur_step = None
                 for annotation in video["annotations"]:
                     if subtitle["start"] >= annotation["start"] and subtitle["finish"] <= annotation["end"]:
-                        cur_step = task["steps"][int(annotation["step"]) - 1]
+                        cur_step = annotation["step"]
                         break
                 annotated_subtitles.append({
                     **subtitle,
@@ -369,6 +370,8 @@ def library_cross_task():
     ### save library as json
     with open(library_path, "w") as f:
         json.dump(library, f, indent=4)
+    
+    return library
 
 
 def get_dataset_cross_task(task):

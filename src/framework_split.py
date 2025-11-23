@@ -143,8 +143,8 @@ def get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_type
     display_sparsity(cell_to_units)
     if cur_d < target_d:
         return []
-    # new_facet_candidates = update_facet_candidates(task, cell_to_units, include_cells, embedding_method, pieces_at_once, generation_model)
-    new_facet_candidates = update_facet_candidates_v2(task, labeled_dataset, cell_to_units,include_cells, embedding_method, pieces_at_once, generation_model)
+    new_facet_candidates = update_facet_candidates(task, cell_to_units, include_cells, embedding_method, pieces_at_once, generation_model)
+    # new_facet_candidates = update_facet_candidates_v2(task, labeled_dataset, cell_to_units,include_cells, embedding_method, pieces_at_once, generation_model)
     new_facet_candidates = update_facet_labels(task, labeled_dataset, new_facet_candidates, vocabulary_iterations, generation_model)
     labeled_dataset = update_labeled_dataset(task, labeled_dataset, new_facet_candidates, generation_model)
     return new_facet_candidates
@@ -158,11 +158,12 @@ def process_videos_split(task, dataset, piece_types, version):
     pruning_threshold = 1
     max_macro_pruning_len = 2
 
-    include_cells = 1
+    include_cells = 5
     embedding_method = "openai"
     extraction_model = "gpt-5-mini-2025-08-07"
-    generation_model = "gpt-4.1-mini-2025-04-14"
-    pieces_at_once = 5
+    # generation_model = "gpt-4.1-mini-2025-04-14"
+    generation_model = "gpt-5-mini-2025-08-07"
+    pieces_at_once = 10
     vocabulary_iterations = len(dataset)
     ### Reasoning: 0.9 --> We set a higher similarity threshold to capture most of the information diversity in the dataset and remove the noise due to phrasing differences.
     information_unit_similarity_threshold=0.9

@@ -21,8 +21,7 @@ def vocabulary_to_str(vocabulary):
 
     labels_strs = []
     for label_idx, label in enumerate(vocabulary):
-        label_id = f"S{label_idx + 1}"
-        labels_strs.append(LABEL_FORMAT.format(label_id=label_id, label=label["label"].strip().lower(), definition=label["definition"]))
+        labels_strs.append(LABEL_FORMAT.format(label_id=(label_idx + 1), label=label["label"].strip().lower(), definition=label["definition"]))
     return "\n".join(labels_strs)
 
 def guidelines_to_str(guidelines):

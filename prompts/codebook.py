@@ -56,10 +56,14 @@ SYSTEM_PROMPT_COMBINE_CODEBOOKS = """
 You are fine-tuning the segmentation definition, guidelines, and vocabulary for temporal segmentation of a tutorial on {task}."""
 
 USER_PROMPT_COMBINE_CODEBOOKS = """
-Given different variations of the segmentation vocabulary (i.e., segment labels) for temporal segmentation of a tutorial-style transcript based on {facet_plural}, synthesize a unified, comprehensive segmentation (i.e., its definition, guidelines, and vocabulary) that combines them all, but preserves the nuances of each variant. Remember that, the segmentation is defined as a distinct temporal segmentation of the tutorial-style transcript that segments the transcript into meaningful segments. Its segmentation guidelines should ensure that the segmentation is non-overlapping, covers the entire transcript, and each segment must be labeled with only one segment label (i.e., no multi-label classification). Follow the procedure below.
+Given different variations of the segmentation vocabulary (i.e., segment labels) for temporal segmentation of a tutorial-style transcript based on {facet_plural}, synthesize a unified, comprehensive segmentation (i.e., its definition, guidelines, and vocabulary) that combines them all, but preserves the nuances of each variant as much as possible. Remember that, the segmentation is defined as a temporal segmentation axis of the tutorial-style transcript that segments the transcript into meaningful segments. Its segmentation guidelines should ensure that the segmentation is non-overlapping, covers the entire transcript, and each segment must be labeled with only one segment label (i.e., no multi-label classification). Follow the procedure below.
 
 ### PROCEDURE
-1. Synthesize a single set of vocabulary that combines all the variants. Combine similar labels, but try to preserve the nuances. The final set of labels (i.e., the vocabulary) should cover all the labels in all the variants.
+1. Synthesize a single set of vocabulary that combines all the variants. Combine similar labels, but try to preserve the nuances as much as possible. The final set of labels (i.e., the vocabulary) should cover all the labels in all the variants, but have no redundant labels.
+    - If a label is similar to another label, combine them into a single label.
+    - If a label is a more general version of another label, remove the more general label and keep the more specific label.
+    - Ensure that the vocabulary is comprehensive (i.e., it covers all the labels in all the variants).
+    - Ensure that no label is repeated in the final vocabulary.
 2. Fine-tune the segmentation definition to exactly to fit the new vocabulary.
 3. Fine-tune the segmentation guidelines to exactly to fit the new vocabulary.
 
