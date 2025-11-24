@@ -21,61 +21,60 @@ year = {2024},
 
 import json
 import os
+import numpy as np
 
 from prompts.evaluation import (
-    eval_relevance_absolute_request,
-    eval_relevance_absolute_response,
+    eval_joint_absolute_request,
+    eval_apiece_absolute_request,
+    eval_absolute_response,
 )
 
 from pydantic_models.evaluation import MetricScale
+from pydantic_models.evaluation import Likert3EvaluationResponse, Likert5EvaluationResponse, BinaryEvaluationResponse
+
 
 from prompts.framework_batch import batch_run_lm_calls
 
-RELEVANCE_CRITERIA_LIKERT_3 = """
-Imagine that you are learning about the task based on the given current tutorial and received an additinal list of information. Evaluate the additional information based on the following criteria:
-- 3: Highly relevant and helpful information — crucial for learning and completing the task.
-- 2: Relevant, but not helpful — contributes somewhat to learning and completing the task but is not essential.
-- 1: Not relevant or already present in the current tutorial — not useful for learning and completing the task.
+from prompts.metrics_criteria import (
+    RELEVANCE_CRITERIA_LIKERT_3,
+    RELEVANCE_CRITERIA_LIKERT_5,
+    RELEVANCE_CRITERIA_BINARY,
+)
 
-Give a score between 1 and 3.
-"""
+def _apiece_absolute_evaluation(eval_responses, test_dataset, criteria, max_rating, response_format, judge_model):
+    request_args = []
+    req_idx_to_source = []
+    for i, (eval_response, test_case) in enumerate(zip(eval_responses, test_dataset)):
+        if eval_response is None or len(eval_response) == 0:
+            continue
+        task = test_case["task"]
+        tutorial = test_case["tutorial"]
+        segment = test_case["segment"]
+        info_type = test_case["info_type"]
+        for eval_response_i in eval_response:
+            request_args.append({
+                "task": task,
+                "tutorial": tutorial,
+                "segment": segment,
+                "info_type": info_type,
+                "eval_response": eval_response_i,
+                "response_format": response_format,
+                "criteria": criteria,
+                "judge_model": judge_model,
+                "max_rating": max_rating,
+            })
+            req_idx_to_source.append(i)
 
-RELEVANCE_CRITERIA_LIKERT_5 = """
-Imagine that you are learning about the task based on the given current tutorial and received an additinal list of information. Evaluate the additional information based on the following criteria:
-- 5: Extremely relevant and highly helpful information — crucial for learning and completing the task.
-- 4: Highly relevant and helpful information — significantly supports learning and completing the task.
-- 3: Relevant but moderately helpful information — contributes somewhat to learning and completing the task but is not essential.
-- 2: Marginally relevant — information is related but not useful for learning and completing the task.
-- 1: Not relevant or already present in the current tutorial — not useful for learning and completing the task.
+    batch_results = batch_run_lm_calls(request_args, eval_apiece_absolute_request, eval_absolute_response)
 
-Give a score between 1 and 5.
-"""
+    results = []
+    for i in range(len(test_dataset)):
+        results.append([])
+    for result, test_idx in zip(batch_results, req_idx_to_source):
+        results[test_idx].append(result)
+    return results
 
-RELEVANCE_CRITERIA_BINARY = """
-Identify if the information in the response are relevant to the query or not:
-yes: The information in the response are relevant to the query and is missing from the context tutorial.
-no: The information in the response are not relevant to the query or is present in the context tutorial.
-
-Assume that you are trying to learn based on the given context tutorial. If the information in the response is relevant to the query and is missing from the context tutorial, then say yes, otherwise say no.
-"""
-
-RELEVANCE_CRITERIA_COMPARISON = """
-"""
-
-COMPREHENSIVENESS_CRITERIA_COMPARISON = """
-"""
-
-def relevance_absolute_evaluation(eval_responses, test_dataset, metric, judge_model):
-    criteria = ""
-    if metric == MetricScale.LIKERT_3:
-        criteria = RELEVANCE_CRITERIA_LIKERT_3
-    elif metric == MetricScale.LIKERT_5:
-        criteria = RELEVANCE_CRITERIA_LIKERT_5
-    elif metric == MetricScale.BINARY:
-        criteria = RELEVANCE_CRITERIA_BINARY
-    else:
-        raise ValueError(f"Unsupported metric: {metric}")
-    
+def _joint_absolute_evaluation(eval_responses, test_dataset, criteria, max_rating, response_format, judge_model):
     request_args = []
     req_idx_to_source = []
     for i, (eval_response, test_case) in enumerate(zip(eval_responses, test_dataset)):
@@ -92,110 +91,102 @@ def relevance_absolute_evaluation(eval_responses, test_dataset, metric, judge_mo
             "segment": segment,
             "query": query,
             "eval_response": eval_response,
-            "metric": metric,
+            "response_format": response_format,
             "criteria": criteria,
             "judge_model": judge_model,
+            "max_rating": max_rating,
         })
         req_idx_to_source.append(i)
 
+    batch_results = batch_run_lm_calls(request_args, eval_joint_absolute_request, eval_absolute_response)
 
-    batch_results = batch_run_lm_calls(request_args, eval_relevance_absolute_request, eval_relevance_absolute_response)
-
-    results = [None] * len(test_dataset)
+    results = []
+    for i in range(len(test_dataset)):
+        results.append([])
     for result, test_idx in zip(batch_results, req_idx_to_source):
-        results[test_idx] = result
-
-    print("Aggregated results:")
-    print(json.dumps(aggregate_results(results, metric), indent=4))
-    print("-"*20)
+        results[test_idx].append(result)
     return results
 
-def faithfulness_absolute_evaluation(eval_responses, test_dataset, metric, judge_model):
-    ### likely different approach (cosine similarity with the source texts?)
-    pass
-
-def relevance_comparative_evaluation(eval_responses_A, eval_responses_B, test_dataset, metric, judge_model):
-    pass
-
-def comprehensiveness_comparative_evaluation(eval_responses_A, eval_responses_B, test_dataset, metric, judge_model):
-    pass
-
-
-def aggregate_results(results, metric):
-    ### return average decision/rating and average confidence
-    aggregated_result = None
-    if metric == MetricScale.COMPARISON:
-        aggregated_result = aggregate_results_comparison(results)
+def relevance_absolute_evaluation(eval_responses, test_dataset, metric, joint, judge_model):
+    criteria = ""
+    max_rating = 0
+    response_format = None
+    if metric == MetricScale.LIKERT_3:
+        criteria = RELEVANCE_CRITERIA_LIKERT_3
+        max_rating = 3
+        response_format = Likert3EvaluationResponse
+    elif metric == MetricScale.LIKERT_5:
+        criteria = RELEVANCE_CRITERIA_LIKERT_5
+        max_rating = 5
+        response_format = Likert5EvaluationResponse
+    elif metric == MetricScale.BINARY:
+        criteria = RELEVANCE_CRITERIA_BINARY
+        max_rating = 2
+        response_format = BinaryEvaluationResponse
     else:
-        aggregated_result = aggregate_results_absolute(results)
-    return {
-        **aggregated_result,
-        "metric": metric,
-    }
+        raise ValueError(f"Unsupported metric: {metric}")
 
-def aggregate_results_comparison(results):
-    a_win = 0
-    b_win = 0
-    a_win_confidence = 0
-    b_win_confidence = 0
-    available_results = 0
-    for result in results:
-        if result == None:
-            continue
-        total_reavailable_resultssults += 1
-        if "decision" in result and result["decision"] == "A":
-            a_win += 1
-            a_win_confidence += result["confidence"]
-        else:
-            b_win += 1
-            b_win_confidence += result["confidence"]
-    
-    a_win_rate = -1
-    a_win_confidence = -1
-    b_win_rate = -1
-    b_win_confidence = -1
-    if available_results > 0:
-        a_win_rate = a_win / available_results
-        a_win_confidence = a_win_confidence / a_win
-        b_win_rate = b_win / available_results
-        b_win_confidence = b_win_confidence / b_win
-    return {
-        "a_win_rate": a_win_rate,
-        "a_win_confidence": a_win_confidence,
-        "b_win_rate": b_win_rate,
-        "b_win_confidence": b_win_confidence,
-        "none_results": len(results) - available_results,
-    }
+    if joint:
+        return _joint_absolute_evaluation(eval_responses, test_dataset, criteria, max_rating, response_format, judge_model)
+    else:
+        return _apiece_absolute_evaluation(eval_responses, test_dataset, criteria, max_rating, response_format, judge_model)
 
-def aggregate_results_absolute(results):
-    total_score = 0
-    total_confidence = 0
-    available_results = 0
-    for result in results:
-        if result == None:
-            continue
-        available_results += 1
-        if "decision" in result and result["decision"] == "yes":
-            total_score += 1
-        if "rating" in result:
-            total_score += result["rating"]
-        total_confidence += result["confidence"]
-    average_score = -1
-    average_confidence = -1
-    if len(results) > 0:
-        average_score = total_score / len(results)
-        average_confidence = total_confidence / len(results)
-    return {
-        "average_score": average_score,
-        "average_confidence": average_confidence,
-        "none_results": len(results) - available_results,
-    }
 
-def get_scores_absolute(results):
+def get_absolute_scores_average(results):
     scores = []
     for result in results:
-        if result is None:
-            scores.append(1.0) ## minimum score
+        if len(result) == 0:
+            scores.append(0.0) ## minimum score
         else:
-            scores.append(result["rating"])
+            scores.append(np.mean([r["rating"] for r in result]))
+    return scores
+
+def get_absolute_scores_precision(results, k):
+    scores = []
+    for result in results:
+        if len(result) == 0:
+            scores.append(0.0) ## minimum score
+        else:
+            relevant_count = 0
+            for i in range(k):
+                if i >= len(result):
+                    break
+                if result[i]["rating"] > 0.5-1e-6:
+                    relevant_count += 1
+            scores.append(relevant_count / k)
+    return scores
+
+def get_absolute_scores_ap(results, k):
+    scores = []
+    for result in results:
+        if len(result) == 0:
+            scores.append(0.0) ## minimum score
+        else:
+            average_precision = 0
+            relevant_count = 0
+            for i in range(k):
+                if i >= len(result):
+                    break
+                if result[i]["rating"] > 0.5-1e-6:
+                    relevant_count += 1
+                    average_precision += relevant_count / (i + 1)
+            scores.append(average_precision / k)
+    return scores
+
+def get_absolute_scores_ndcg(results, k):
+    ideal_dcg = 0
+    for i in range(k):
+        ideal_dcg += 1 / np.log2(i + 2)
+
+    scores = []
+    for result in results:
+        if len(result) == 0:
+            scores.append(0.0) ## minimum score
+        else:
+            dcg = 0
+            for i in range(k):
+                if i >= len(result):
+                    break
+                dcg += result[i]["rating"] / np.log2(i + 2)
+            scores.append(dcg / ideal_dcg)
     return scores

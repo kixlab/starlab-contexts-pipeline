@@ -73,21 +73,24 @@ class EvalConfig():
     label: str
     func: callable
     metric: MetricScale
+    joint: bool
     judge_model: Optional[str]
     
-    def __init__(self, label, func, metric, judge_model):
+    def __init__(self, label, func, metric, joint, judge_model):
         self.label = label
         self.func = func
         self.metric = metric
+        self.joint = joint
         self.judge_model = judge_model
     
     def __str__(self):
-        return f"EvalConfig(label={self.label}, func={self.func.__name__}, metric={self.metric}, judge_model={self.judge_model})"
+        return f"EvalConfig(label={self.label}, func={self.func.__name__}, metric={self.metric}, joint={self.joint}, judge_model={self.judge_model})"
 
     def to_dict(self):
         return {
             "label": self.label,
             "func": "function",
             "metric": self.metric,
+            "joint": self.joint,
             "judge_model": self.judge_model,
         }
