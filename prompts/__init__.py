@@ -11,9 +11,12 @@ LABEL_FORMAT = """[{label_id}] `{label}` -- {definition}"""
 SEPARATE_PIECE_FORMAT = """Information {idx}: {content}
 Surrounding context (tutorial excerpt): ```{context}```"""
 PIECE_FORMAT = """[{idx}] `{content}`"""
+
 TRANSCRIPT_FORMAT = """[{start} - {end}] {text}"""
 
-TUTORIAL_FORMAT = """[{idx}] {title}\n{content}"""
+TUTORIAL_FORMAT = """{title}\n```{content}```"""
+TUTORIAL_PIECE_FORMAT = """[{id}] `{content}` (Type: {type})"""
+
 
 def vocabulary_to_str(vocabulary):
     if len(vocabulary) == 0:
@@ -94,14 +97,22 @@ def segmentation_candidates_gen_to_struct(gen_candidates):
         })
     return struct_candidates
 
+def tutorial_pieces_to_str(pieces):
+    pieces_strs = []
+    for piece in pieces:
+        pieces_strs.append(TUTORIAL_PIECE_FORMAT.format(id=piece['piece_id'], content=piece['content'], type=piece['content_type']))
+    return "\n".join(pieces_strs)
+
 def tutorials_to_str(tutorials):
     tutorials_strs = []
-    for idx, tutorial in enumerate(tutorials):
-        tutorials_strs.append(TUTORIAL_FORMAT.format(idx=f"T{idx+1}", title=tutorial['title'], content=tutorial['content']))
-    return "\n".join(tutorials_strs)
+    for tutorial in tutorials:
+        content = tutorial_pieces_to_str(tutorial['pieces'])
+        tutorials_strs.append(TUTORIAL_FORMAT.format(title=tutorial['title'], content=content))
+    return "\n\n".join(tutorials_strs)
 
 def tutorial_to_str(tutorial):
-    return TUTORIAL_FORMAT.format(idx=f"T{1}", title=tutorial['title'], content=tutorial['content'])
+    content = tutorial_pieces_to_str(tutorial['pieces'])
+    return TUTORIAL_FORMAT.format(title=tutorial['title'], content=content)
 
 def response_to_str(response):
     pieces_strs = []

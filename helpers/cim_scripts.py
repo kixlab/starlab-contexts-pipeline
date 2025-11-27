@@ -223,7 +223,7 @@ def get_cell_to_units(context_schema, dataset, piece_types):
     
     return cell_to_units, len(relevant_units)
 
-def extract_pieces(task, dataset, context_length, extraction_model):
+def extract_pieces(task, dataset=None, context_length=None, extraction_model=None):
     taskname = task.replace(" ", "_").lower()
     parent_path = os.path.join(FRAMEWORK_PATH, f'{taskname}')
     if not os.path.exists(parent_path):
@@ -237,6 +237,12 @@ def extract_pieces(task, dataset, context_length, extraction_model):
         with open(pieces_path) as f:
             return json.load(f)
     
+    if dataset is None:
+        raise ValueError("Dataset is required for extracting pieces")
+    if context_length is None:
+        raise ValueError("Context length is required for extracting pieces")
+    if extraction_model is None:
+        raise ValueError("Extraction model is required for extracting pieces")
 
     request_args = []
     req_idx_to_source = []
