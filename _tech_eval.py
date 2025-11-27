@@ -25,7 +25,7 @@ from scipy.stats import wilcoxon
 
 from helpers.dataset import IMPORTANT_TYPES_FINE, IMPORTANT_TYPE_DESCRIPTIONS_FINE
 
-from eval import DATASETS, METHODS, EVALS, TECH_EVAL_PATH
+from eval import DATASETS, METHODS, EVALS, TECH_EVAL_PATH, RESPONSE_ITEMS_CAP
 
 from eval.llm_judge import (get_scores_average, 
                             get_scores_info_type,
@@ -40,17 +40,14 @@ from helpers.video_scripts import get_transcript_segment
 
 from helpers.cim_scripts import extract_pieces
 
-def sample_test_dataset(tasks, sample_per_task, query, n):
+def sample_test_dataset(tasks, sample_per_task, query):
     test_dataset = []
     for task in tasks:
         dataset = extract_pieces(task)
         sampled_tutorials = random.sample(dataset, sample_per_task)
         for tutorial in sampled_tutorials:
             info_type = random.choice(IMPORTANT_TYPES_FINE)
-            info_type_description = IMPORTANT_TYPE_DESCRIPTIONS_FINE[info_type]
-            info_type_description = info_type_description.strip()
-            cur_query = query
-            cur_query = cur_query.format(n=n, info_type=info_type, info_type_description=info_type_description)
+            cur_query = query.format(info_type=info_type, info_type_description=IMPORTANT_TYPE_DESCRIPTIONS_FINE[info_type].strip())
 
             cur_segment = None
             if "segment" in cur_query:
@@ -59,7 +56,7 @@ def sample_test_dataset(tasks, sample_per_task, query, n):
                 selected_segment = random.choice(tutorial["segments"])
                 cur_segment = {
                     "label": selected_segment["label"],
-                    "content": get_transcript_segment(tutorial["transcript"], selected_segment["start"], selected_segment["end"], include_intersecting=True),
+                    "content": get_transcript_segment(tutorial["pieces"], selected_segment["start"], selected_segment["end"], include_intersecting=True),
                     "start": selected_segment["start"],
                     "end": selected_segment["end"],
                 }
@@ -70,7 +67,6 @@ def sample_test_dataset(tasks, sample_per_task, query, n):
                 "segment": cur_segment,
                 "query": cur_query,
                 "info_type": info_type,
-                "n": n,
             })
 
     return test_dataset
@@ -82,7 +78,11 @@ def construct_test_dataset(dataset_config):
         with open(test_dataset_path, "r") as f:
             return json.load(f)
 
-    test_dataset = sample_test_dataset(dataset_config.tasks, dataset_config.sample_per_task, dataset_config.query, dataset_config.n)
+    tasks = dataset_config.tasks
+    sample_per_task = dataset_config.sample_per_task
+    query = dataset_config.query
+
+    test_dataset = sample_test_dataset(tasks, sample_per_task, query)
     with open(test_dataset_path, "w") as f:
         json.dump(test_dataset, f, indent=4)
     return test_dataset
@@ -96,16 +96,19 @@ def test_dataset_statistics(test_dataset):
                 "count": 0,
                 "tasks": [],
                 "segments": [],
+                "info_types": [],
             }
         stats_per_query[query]["count"] += 1
         stats_per_query[query]["tasks"].append(test["task"])
         stats_per_query[query]["segments"].append(test["segment"])
+        stats_per_query[query]["info_types"].append(test["info_type"])
     print("Size: ", len(test_dataset))
     for query, stats in stats_per_query.items():
         print("-"*20)
         print(query)
         print(f"count: {stats['count']}")
         print(f"tasks: {stats['tasks']}")
+        print(f"info_types: {stats['info_types']}")
         print(f"segments: {stats['segments']}")
         print("-"*20)
 
@@ -121,9 +124,10 @@ def run_method(method_config, dataset_config):
 
     method_func = method_config.func
     embedding_method = method_config.embedding_method
-    k = method_config.k
+    doc_k = method_config.doc_k
     doc_score_threshold = method_config.doc_score_threshold
     version = method_config.version
+    response_score_threshold = method_config.response_score_threshold
     gen_model = method_config.gen_model
     responses = []
 
@@ -139,7 +143,14 @@ def run_method(method_config, dataset_config):
     for task in tests_per_task.keys():
         dataset = extract_pieces(task)
         cur_tests = [test for _, test in tests_per_task[task]]
-        task_responses = method_func(task, version, dataset, cur_tests, embedding_method, gen_model, k, doc_score_threshold)
+        task_responses = method_func(task, dataset, cur_tests, {
+            "embedding_method": embedding_method,
+            "doc_k": doc_k,
+            "doc_score_threshold": doc_score_threshold,
+            "response_score_threshold": response_score_threshold,
+            "gen_model": gen_model,
+            "version": version,
+        })
         if task_responses == None:
             continue
         initial_idxs = [initial_idx for initial_idx, _ in tests_per_task[task]]
@@ -171,13 +182,20 @@ def run_absolute_eval(dataset_config, method_config, eval_config):
     if eval_responses is None or len(eval_responses) != len(test_dataset):
         raise ValueError(f"Could not properly run method {method_config.label} for {dataset_config.label}")
 
+    print("Response lengths: ", [len(eval_response_i) for eval_response_i in eval_responses])
+    for i in range(len(eval_responses)):
+        eval_responses[i] = eval_responses[i][:RESPONSE_ITEMS_CAP]
 
     print("Running eval...")
     eval_func = eval_config.func
     eval_metric = eval_config.metric
-    eval_joint = eval_config.joint
     eval_judge_model = eval_config.judge_model
-    results = eval_func(eval_responses, test_dataset, eval_metric, eval_joint, eval_judge_model)
+    eval_n = eval_config.n
+    results = eval_func(eval_responses, test_dataset, {
+        "metric": eval_metric,
+        "judge_model": eval_judge_model,
+        "n": eval_n,
+    })
     
     results = {
         "evaluation_type": "absolute",
@@ -217,18 +235,30 @@ def run_comparative_eval(dataset_config, method_config_A, method_config_B, eval_
     if eval_responses_A is None or len(eval_responses_A) != len(test_dataset):
         raise ValueError(f"Could not properly run method {method_config_A.label} for {dataset_config.label}")
 
+    print("Response lengths A: ", [len(eval_response_i) for eval_response_i in eval_responses_A])
+    for i in range(len(eval_responses_A)):
+        eval_responses_A[i] = eval_responses_A[i][:RESPONSE_ITEMS_CAP]
+
     print("Running method B...")
     eval_responses_B = run_method(method_config_B, dataset_config)
 
     if eval_responses_B is None or len(eval_responses_B) != len(test_dataset):
         raise ValueError(f"Could not properly run method {method_config_B.label} for {dataset_config.label}")
+    
+    print("Response lengths B: ", [len(eval_response_i) for eval_response_i in eval_responses_B])
+    for i in range(len(eval_responses_B)):
+        eval_responses_B[i] = eval_responses_B[i][:RESPONSE_ITEMS_CAP]
 
     print("Running eval...")
     eval_func = eval_config.func
     eval_metric = eval_config.metric
-    eval_joint = eval_config.joint
     eval_judge_model = eval_config.judge_model
-    results = eval_func(eval_responses_A, eval_responses_B, test_dataset, eval_metric, eval_joint, eval_judge_model)
+    eval_n = eval_config.n
+    results = eval_func(eval_responses_A, eval_responses_B, test_dataset, {
+        "metric": eval_metric,
+        "judge_model": eval_judge_model,
+        "n": eval_n,
+    })
     
     results = {
         "evaluation_type": "comparative",
@@ -424,68 +454,9 @@ def output_results(combined_results, score_types):
     output_representative_examples(combined_results, range(200))
 
 def main():
-    dataset_keys = [
-        # "test_full-top-n_10_n5",
-        # "test_segment-top-n_10_n5",
-        
-        "custom_full-top-n_50_n5",
-        
-        # "cross_full-top-n_10_n5",
-        # "cross_segment-top-n_10_n5",
-    ]
-    method_keys = [
-        "ours_similarity_openai_vlatest",
-        # "ours_distance_openai_vlatest",
-
-        "RAG_openai_k2_gpt-5-mini",
-        "RAG_openai_k4_gpt-5-mini", ### best wrt MAP & precision among RAG
-        "RAG_openai_k8_gpt-5-mini",
-        "RAG_openai_k16_gpt-5-mini",
-        # "RAG_openai_k32_gpt-5-mini",
-
-        "RAG_openai_k2_gpt-4-1-mini",
-        "RAG_openai_k4_gpt-4-1-mini",
-        "RAG_openai_k8_gpt-4-1-mini",  ### best info-type and precision among RAG-gpt-4-1
-        "RAG_openai_k16_gpt-4-1-mini", ### best MAP among RAG-gpt-4-1
-        # "RAG_openai_k32_gpt-4-1-mini", ### best MAP & precision among RAG-gpt-4-1
-        
-        # "vanilla_gpt-4-1-mini",
-    ]
-    
-    abs_eval_keys = [
-        "relevance_apiece_absolute_gpt-5-mini_binary",
-        # "relevance_apiece_absolute_gpt-5-mini_3",
-        # "relevance_apiece_absolute_gpt-5-mini_5",
-        # "relevance_joint_absolute_gpt-5-mini_5",
-    ]
-    abs_combinations = list(itertools.product(dataset_keys, method_keys, abs_eval_keys))
-    
-    ### compares the first method with all other methods
-    comp_eval_keys = [
-        "relevance_joint_comparative_gpt-5-mini_comparison"
-    ]
-    comp_combinations = list(itertools.product(dataset_keys, [(method_keys[0], other_method_key) for other_method_key in method_keys[1:]], comp_eval_keys))
-
-    abs_combined_results = defaultdict(lambda: defaultdict(list))
-    comp_combined_results = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-    for combination in abs_combinations:
-        dataset_key, method_key, eval_key = combination
-        dataset_config = DATASETS[dataset_key]
-        method_config = METHODS[method_key]
-        eval_config = EVALS[eval_key]
-        cur_results = run_absolute_eval(dataset_config, method_config, eval_config)
-        abs_combined_results[method_key][f"{dataset_key}_{eval_key}"] = cur_results
-    
-    for combination in comp_combinations:
-        dataset_key, (method_key_A, method_key_B), eval_key = combination
-        dataset_config = DATASETS[dataset_key]
-        method_config_A = METHODS[method_key_A]
-        method_config_B = METHODS[method_key_B]
-        eval_config = EVALS[eval_key]
-        cur_results = run_comparative_eval(dataset_config, method_config_A, method_config_B, eval_config)
-        comp_combined_results[f"{method_key_A}_{method_key_B}"][f"{dataset_key}_{eval_key}"] = cur_results
 
     n = 5
+
     score_types_apiece = {
         "info_type": lambda x, y, z: get_scores_info_type(y, z, n),
         "precision": lambda x, y, z: get_scores_average(x, default_score=0.0),
@@ -499,9 +470,73 @@ def main():
         "win-rate": lambda x, y, z: get_scores_average(x, default_score=0.5), ### essentially win-rate of method A over method B
     }
 
+    dataset_keys = [
+        # "test_full_10",
+        # "test_segment_10",
+        
+        "custom_full_50",
+        # "cross_full_50",
+        
+        # "cross_segment_50",
+    ]
+    method_keys = [
+        "ours_similarity_openai_t05_vlatest",
+        # "ours_distance_openai_t05_vlatest",
+
+        "RAG_tfidf_k2_gpt-5-mini",
+        "RAG_tfidf_k4_gpt-5-mini", ### best wrt MAP & precision among RAG
+        "RAG_tfidf_k8_gpt-5-mini",
+        "RAG_tfidf_k16_gpt-5-mini",
+        # "RAG_tfidf_k32_gpt-5-mini",
+
+        "RAG_tfidf_k2_gpt-4-1-mini",
+        "RAG_tfidf_k4_gpt-4-1-mini",
+        "RAG_tfidf_k8_gpt-4-1-mini",  ### best info-type and precision among RAG-gpt-4-1
+        "RAG_tfidf_k16_gpt-4-1-mini", ### best MAP among RAG-gpt-4-1
+        # "RAG_tfidf_k32_gpt-4-1-mini", ### best MAP & precision among RAG-gpt-4-1
+        
+        # "vanilla_tfidf_gpt-4-1-mini",
+        # "vanilla_tfidf_gpt-5-mini",
+    ]
+    
+    abs_eval_keys = [
+        "relevance_absolute_gpt-5-mini_binary_n",
+        # "relevance_absolute_gpt-5-mini_likert-3_n",
+        # "relevance_absolute_gpt-5-mini_likert-5_n",
+        # "relevance_absolute_gpt-5-mini_likert-5_n5",
+    ]
+    abs_combinations = list(itertools.product(dataset_keys, method_keys, abs_eval_keys))
+    
+    ### compares the first method with all other methods
+    comp_eval_keys = [
+        "relevance_comparative_gpt-5-mini_comparison_n5"
+    ]
+    comp_combinations = list(itertools.product(dataset_keys, [(method_keys[0], other_method_key) for other_method_key in method_keys[1:]], comp_eval_keys))
+
+    abs_combined_results = defaultdict(lambda: defaultdict(list))
+    comp_combined_results = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+    for combination in abs_combinations:
+        dataset_key, method_key, eval_key = combination
+        dataset_config = DATASETS[dataset_key]
+        method_config = METHODS[method_key]
+        eval_config = EVALS[eval_key]
+        cur_results = run_absolute_eval(dataset_config, method_config, eval_config)
+        abs_combined_results[method_key][f"{dataset_key}_{eval_key}"] = cur_results
+    
+
     print("Abs Evaluation Results:")
     output_results(abs_combined_results, score_types_apiece)
     print("-"*100)
+
+    
+    for combination in comp_combinations:
+        dataset_key, (method_key_A, method_key_B), eval_key = combination
+        dataset_config = DATASETS[dataset_key]
+        method_config_A = METHODS[method_key_A]
+        method_config_B = METHODS[method_key_B]
+        eval_config = EVALS[eval_key]
+        cur_results = run_comparative_eval(dataset_config, method_config_A, method_config_B, eval_config)
+        comp_combined_results[f"{method_key_A}_{method_key_B}"][f"{dataset_key}_{eval_key}"] = cur_results
     
     print("Comp Evaluation Results:")
     output_results(comp_combined_results, score_types_joint)

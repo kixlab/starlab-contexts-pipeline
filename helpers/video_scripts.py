@@ -220,7 +220,7 @@ def get_transcript_segment(transcript, start, end, include_intersecting=False):
     for segment in transcript:
         if include_intersecting:
             if max(segment["start"], start) <= min(segment["end"], end):
-                segment_str += segment["text"] + " "
+                segment_str += segment["text"] + "\n"
         elif segment["start"] >= start and segment["end"] <= end:
-            segment_str += segment["text"] + " "
+            segment_str += segment["text"] + "\n"
     return segment_str.strip()

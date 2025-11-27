@@ -13,6 +13,8 @@ from helpers import perform_embedding
 from src.framework_split import construct_cim_split, construct_cim_split_conservative
 from src.framework_iter import construct_cim_iter
 
+from queue import Queue
+
 def normalize_context_values(cim, facet_keys):
     for tutorial in cim:
         ### TODO: assign the last label for now, but adjust later
@@ -129,19 +131,15 @@ def get_missing_contexts(labeled_tutorial, segment, info_type, facet_keys):
     
     return context_bucket_map
 
-def select_top_n_candidates(candidates, n):
+def select_candidates(candidates, score_threshold):
     candidates = sorted(candidates, key=lambda x: x["score"], reverse=True)
-    score_threshold = 0.5
-    if n is None:
-        n = len(candidates)
-
-
     response = []
 
-    for c in candidates[:n]:
-        if c["score"] < score_threshold:
+    for c in candidates:
+        if score_threshold is not None and c["score"] < score_threshold:
             break
         response.append({
+            "score": c["score"],
             "significance": c["significance"],
             "content": c["content"], 
             "raw_context": c["raw_context"],
@@ -155,13 +153,14 @@ def select_top_n_candidates(candidates, n):
     else:
         print (f"Found {len(response)} candidates with score >= {score_threshold}", f"The worst score is {candidates[len(response)-1]['score']:.4f}")
 
-    response = sorted(response, key=lambda x: x["significance"], reverse=True)
+    response = sorted(response, key=lambda x: x["score"], reverse=True)
     for c in response:
         del c["significance"]
+        del c["score"]
     return response
 
 
-def context_similarity_retrieval(cim, facet_value_embeddings, tutorial, segment, info_type, n):
+def context_similarity_retrieval(cim, facet_value_embeddings, tutorial, segment, info_type, score_threshold):
     facet_keys = set(facet_value_embeddings.keys())
     labeled_tutorial = next(t for t in cim if t["url"] == tutorial["url"])
 
@@ -212,10 +211,10 @@ def context_similarity_retrieval(cim, facet_value_embeddings, tutorial, segment,
             "content_type": top_unit["content_type"],
         })
         
-    return select_top_n_candidates(candidates, n)
+    return select_candidates(candidates, score_threshold)
 
 
-def shortest_path_retrieval(cim, facet_value_embeddings, tutorial, segment, info_type, n):
+def shortest_path_retrieval(cim, facet_value_embeddings, tutorial, segment, info_type, score_threshold):
     ### segment can be None and n can be None
     facet_keys = set(facet_value_embeddings.keys())
     labeled_tutorial = next(t for t in cim if t["url"] == tutorial["url"])
@@ -238,21 +237,22 @@ def shortest_path_retrieval(cim, facet_value_embeddings, tutorial, segment, info
     for target_context_signature in context_bucket_map.keys():
         ### bfs
         min_distances[target_context_signature].append((0, 1e9)) ### (distance, min_weight on the path)
-        queue = deque([(target_context_signature, 0, 1e9)])
+        queue = Queue()
+        queue.put((target_context_signature, 0, 1e9))
         visited = set([target_context_signature])
         while queue:
-            v, distance, min_weight = queue.popleft()
+            v, distance, min_weight = queue.get()
             if min_weight < min_distances[v][-1][1]:
                 continue
             for u, weight in graph[v].items():
                 cur_min_weight = min(min_weight, weight)
                 if u not in visited:
                     visited.add(u)
-                    queue.append((u, distance + 1, cur_min_weight))
+                    queue.put((u, distance + 1, cur_min_weight))
                     min_distances[u].append((distance + 1, cur_min_weight))
                 elif min_distances[u][-1][0] == distance + 1 and min_distances[u][-1][1] < cur_min_weight:
                     min_distances[u][-1] = (distance + 1, cur_min_weight)
-                    queue.append((u, distance + 1, cur_min_weight))
+                    queue.put((u, distance + 1, cur_min_weight))
     
     candidates = []
     for t in cim:
@@ -276,9 +276,13 @@ def shortest_path_retrieval(cim, facet_value_embeddings, tutorial, segment, info
                 "source_doc_idx": t["url"],
                 "significance": max_min_weight,
             })
-    return select_top_n_candidates(candidates, n)
+    return select_candidates(candidates, score_threshold)
 
-def run_cim_method(task, version, dataset, tests, embedding_method, func):
+def run_cim_method(task, dataset, tests, func, config):
+    embedding_method = config["embedding_method"]
+    version = config["version"]
+    score_threshold = config["response_score_threshold"]
+
     construction_results = None
     if version is None:
         ### use the latest version (e.g., `full_run_X`)
@@ -310,12 +314,11 @@ def run_cim_method(task, version, dataset, tests, embedding_method, func):
         tutorial = test["tutorial"]
         segment = test["segment"]
         info_type = test["info_type"]
-        n = test["n"]
 
-        response = func(cim, facet_value_embeddings, tutorial, segment, info_type, n)
+        response = func(cim, facet_value_embeddings, tutorial, segment, info_type, score_threshold)
         responses.append(response)
     return responses
 
-generic_call_context_similarity = lambda task, version, dataset, tests, embedding_method, gen_model, k, doc_score_threshold: run_cim_method(task, version,dataset, tests, embedding_method, context_similarity_retrieval)
+generic_call_context_similarity = lambda task, dataset, tests, config: run_cim_method(task, dataset, tests, context_similarity_retrieval, config)
 
-generic_call_shortest_path = lambda task, version, dataset, tests, embedding_method, gen_model, k, doc_score_threshold: run_cim_method(task, version, dataset, tests, embedding_method, shortest_path_retrieval)
+generic_call_shortest_path = lambda task, dataset, tests, config: run_cim_method(task, dataset, tests, shortest_path_retrieval, config)

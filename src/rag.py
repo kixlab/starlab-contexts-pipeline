@@ -1,13 +1,11 @@
 """
 RAG baseline for evaluating information retrieval performance.
 
-- Includes a generic function that (1) can encode the knowledge base (i.e., a corpus of tutorial videos) into a vector database, and (2) encode the query (which is likely the target tutorial + query) into a vector. Uses TF-IDF or Sentence-BERT or OpenAI embeddings in `./helpers/`.
-
-- Includes a function that can perform RAG retrieval on the vector database using the query vector and respond to the query.
+- RAG retrieval using TF-IDF embeddings
+- TODO: Reranking with BERT (https://github.com/nyu-dl/dl4marco-bert)
 """
 import os
 import pickle
-import numpy as np
 
 from helpers import perform_embedding
 from helpers.nlp import mccs
@@ -16,12 +14,11 @@ from prompts.framework_batch import batch_run_lm_calls
 
 EMBEDDINGS_PATH = "./static/results/rag/"
 
-def encode_dataset(task, dataset):
+def encode_dataset(task, dataset, embedding_method):
     """
     Encode the dataset into a vector database.
     chunks similar to query size
     """
-    embedding_method = "tfidf"
     embeddings_path = EMBEDDINGS_PATH + f"{task}_{embedding_method}_dataset_embeddings.pkl"
     if os.path.exists(embeddings_path):
         result = pickle.load(open(embeddings_path, "rb"))
@@ -55,7 +52,7 @@ def encode_dataset(task, dataset):
 #     embeddings = perform_embedding(embedding_method, texts)
 #     return embeddings
 
-def perform_retrieval(dataset_embeddings, metadata, query_tutorial, k, doc_score_threshold):
+def perform_retrieval(dataset_embeddings, metadata, query_tutorial, doc_k, doc_score_threshold):
     """
     ### Find most similar based on tfidf
     """
@@ -68,7 +65,7 @@ def perform_retrieval(dataset_embeddings, metadata, query_tutorial, k, doc_score
     if len(query_tutorial_embeddings) == 0:
         raise ValueError(f"Query tutorial not found in dataset: {query_tutorial['url']}")
     
-    document_idxs, scores = mccs(dataset_embeddings, query_tutorial_embeddings, top_k=k)
+    document_idxs, scores = mccs(dataset_embeddings, query_tutorial_embeddings, top_k=doc_k)
     document_idxs = document_idxs.flatten()
     scores = scores.flatten()
     
@@ -99,8 +96,15 @@ def rerank_documents(dataset, document_idxs, metadata, tutorial, query):
         })
     return tutorials
 
-def run_rag(task, dataset, tests, gen_model, k, doc_score_threshold):
-    doc_embeddings, metadata = encode_dataset(task, dataset)
+def run_rag(task, dataset, tests, config):
+    gen_model = config["gen_model"]
+    doc_k = config["doc_k"]
+    doc_score_threshold = config["doc_score_threshold"]
+    embedding_method = config["embedding_method"]
+    doc_embeddings, metadata = encode_dataset(task, dataset, embedding_method)
+
+    if doc_k is None or doc_k > len(doc_embeddings):
+        doc_k = len(doc_embeddings)-1
 
     request_args = []
     for test in tests:
@@ -110,11 +114,11 @@ def run_rag(task, dataset, tests, gen_model, k, doc_score_threshold):
         segment = test["segment"]
         query = test["query"]
 
-        if k is None or k > len(doc_embeddings):
-            k = len(doc_embeddings)-1
-
-        document_idxs = perform_retrieval(doc_embeddings, metadata, tutorial, k + 1, doc_score_threshold)
+        document_idxs = perform_retrieval(doc_embeddings, metadata, tutorial, doc_k + 1, doc_score_threshold)
         tutorials = rerank_documents(dataset, document_idxs, metadata, tutorial, query)
+        tutorials = tutorials[:doc_k]
+        if len(tutorials) < doc_k:
+            print(f"WARNING: Not enough tutorials retrieved for {tutorial['url']}")
 
         request_args.append({
             "task": task,
@@ -132,4 +136,4 @@ def run_rag(task, dataset, tests, gen_model, k, doc_score_threshold):
         responses.append(result)
     return responses
 
-generic_call_rag = lambda task, version, dataset, tests, embedding_method, gen_model, k, doc_score_threshold: run_rag(task, dataset, tests, gen_model, k, doc_score_threshold)
+generic_call_rag = lambda task, dataset, tests, config: run_rag(task, dataset, tests, config)

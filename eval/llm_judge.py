@@ -24,10 +24,9 @@ import os
 import numpy as np
 
 from prompts.evaluation import (
-    eval_joint_absolute_request,
-    eval_apiece_absolute_request,
+    eval_absolute_request,
     eval_absolute_response,
-    eval_joint_comparative_request,
+    eval_comparative_request,
     eval_comparative_response,
 )
 
@@ -44,89 +43,11 @@ from prompts.metrics_criteria import (
     RELEVANCE_CRITERIA_COMPARISON,
 )
 
-def _apiece_absolute_evaluation(eval_responses, test_dataset, criteria, max_rating, response_format, judge_model):
-    request_args = []
-    req_idx_to_source = []
-    for i, (eval_response, test_case) in enumerate(zip(eval_responses, test_dataset)):
-        if eval_response is None or len(eval_response) == 0:
-            continue
-        task = test_case["task"]
-        tutorial = test_case["tutorial"]
-        segment = test_case["segment"]
-        info_type = test_case["info_type"]
-        
-        ### filter out eval_response that is not of the same info_type
-        eval_response = [eval_response_i for eval_response_i in eval_response if eval_response_i["content_type"] == info_type]
-        if len(eval_response) == 0:
-            continue
-        
-        for eval_response_i in eval_response:
-            request_args.append({
-                "task": task,
-                "tutorial": tutorial,
-                "segment": segment,
-                "info_type": info_type,
-                "eval_response": eval_response_i,
-                "response_format": response_format,
-                "criteria": criteria,
-                "judge_model": judge_model,
-                "max_rating": max_rating,
-            })
-            req_idx_to_source.append(i)
+def relevance_absolute_evaluation(eval_responses, test_dataset, config):
+    metric = config["metric"]
+    judge_model = config["judge_model"]
+    n = config["n"]
 
-    batch_results = batch_run_lm_calls(request_args, eval_apiece_absolute_request, eval_absolute_response)
-
-    results = []
-    for i in range(len(test_dataset)):
-        results.append([])
-    for result, test_idx in zip(batch_results, req_idx_to_source):
-        if result is None:
-            continue
-        results[test_idx].append(result)
-    return results
-
-def _joint_absolute_evaluation(eval_responses, test_dataset, criteria, max_rating, response_format, judge_model):
-    request_args = []
-    req_idx_to_source = []
-    for i, (eval_response, test_case) in enumerate(zip(eval_responses, test_dataset)):
-        if eval_response is None or len(eval_response) == 0:
-            continue
-        task = test_case["task"]
-        tutorial = test_case["tutorial"]
-        segment = test_case["segment"]
-        query = test_case["query"]
-        info_type = test_case["info_type"]
-
-        ### filter out eval_response that is not of the same info_type
-        eval_response = [eval_response_i for eval_response_i in eval_response if eval_response_i["content_type"] == info_type]
-        if len(eval_response) == 0:
-            continue
-
-        request_args.append({
-            "task": task,
-            "tutorial": tutorial,
-            "segment": segment,
-            "query": query,
-            "eval_response": eval_response,
-            "response_format": response_format,
-            "criteria": criteria,
-            "judge_model": judge_model,
-            "max_rating": max_rating,
-        })
-        req_idx_to_source.append(i)
-
-    batch_results = batch_run_lm_calls(request_args, eval_joint_absolute_request, eval_absolute_response)
-
-    results = []
-    for i in range(len(test_dataset)):
-        results.append([])
-    for result, test_idx in zip(batch_results, req_idx_to_source):
-        if result is None:
-            continue
-        results[test_idx].append(result)
-    return results
-
-def relevance_absolute_evaluation(eval_responses, test_dataset, metric, joint, judge_model):
     criteria = ""
     max_rating = 0
     response_format = None
@@ -145,13 +66,78 @@ def relevance_absolute_evaluation(eval_responses, test_dataset, metric, joint, j
     else:
         raise ValueError(f"Unsupported metric: {metric}")
 
-    if joint:
-        return _joint_absolute_evaluation(eval_responses, test_dataset, criteria, max_rating, response_format, judge_model)
+    request_args = []
+    req_idx_to_source = []
+    for i, (eval_response, test_case) in enumerate(zip(eval_responses, test_dataset)):
+        if eval_response is None or len(eval_response) == 0:
+            continue
+        task = test_case["task"]
+        tutorial = test_case["tutorial"]
+        segment = test_case["segment"]
+        query = test_case["query"]
+        
+        # info_type = test_case["info_type"]
+        # ### filter out eval_response that is not of the same info_type
+        # eval_response = [eval_response_i for eval_response_i in eval_response if eval_response_i["content_type"] == info_type]
+        # if len(eval_response) == 0:
+        #     continue
+
+        if n is None:
+            for eval_response_i in eval_response:
+                request_args.append({
+                    "task": task,
+                    "tutorial": tutorial,
+                    "segment": segment,
+                    "query": query,
+                    "eval_response": [eval_response_i],
+                    "response_format": response_format,
+                    "criteria": criteria,
+                    "judge_model": judge_model,
+                    "max_rating": max_rating,
+                })
+                req_idx_to_source.append(i)
+        else:
+            eval_response = eval_response[:n]
+            request_args.append({
+                "task": task,
+                "tutorial": tutorial,
+                "segment": segment,
+                "query": query,
+                "eval_response": eval_response,
+                "response_format": response_format,
+                "criteria": criteria,
+                "judge_model": judge_model,
+                "max_rating": max_rating,
+            })
+            req_idx_to_source.append(i)
+
+
+    batch_results = batch_run_lm_calls(request_args, eval_absolute_request, eval_absolute_response)
+
+    results = []
+    for i in range(len(test_dataset)):
+        results.append([])
+    for result, test_idx in zip(batch_results, req_idx_to_source):
+        if result is None:
+            continue
+        results[test_idx].append(result)
+    return results
+
+def relevance_comparative_evaluation(eval_responses_A, eval_responses_B, test_dataset, config):
+    metric = config["metric"]
+    judge_model = config["judge_model"]
+    n = config["n"]
+
+    criteria = ""
+    max_rating = 0
+    response_format = None
+    if metric == MetricScale.COMPARISON:
+        criteria = RELEVANCE_CRITERIA_COMPARISON
+        max_rating = 3
+        response_format = ComparisonEvaluationResponse
     else:
-        return _apiece_absolute_evaluation(eval_responses, test_dataset, criteria, max_rating, response_format, judge_model)
+        raise ValueError(f"Unsupported metric: {metric}")
 
-
-def _joint_comparative_evaluation(eval_responses_A, eval_responses_B, test_dataset, criteria, max_rating, response_format, judge_model):
     request_args = []
     req_idx_to_source = []
     for i, (eval_response_A, eval_response_B, test_case) in enumerate(zip(eval_responses_A, eval_responses_B, test_dataset)):
@@ -159,11 +145,17 @@ def _joint_comparative_evaluation(eval_responses_A, eval_responses_B, test_datas
         tutorial = test_case["tutorial"]
         segment = test_case["segment"]
         query = test_case["query"]
-        info_type = test_case["info_type"]
 
-        ### filter out eval_response that is not of the same info_type
-        eval_response_A = [eval_response_i for eval_response_i in eval_response_A if eval_response_i["content_type"] == info_type]
-        eval_response_B = [eval_response_i for eval_response_i in eval_response_B if eval_response_i["content_type"] == info_type]
+        if n is not None:
+            eval_response_A = eval_response_A[:n]
+            eval_response_B = eval_response_B[:n]
+
+        # info_type = test_case["info_type"]
+        # ### filter out eval_response_A and eval_response_B that is not of the same info_type
+        # eval_response_A = [eval_response_i for eval_response_i in eval_response_A if eval_response_i["content_type"] == info_type]
+        # eval_response_B = [eval_response_i for eval_response_i in eval_response_B if eval_response_i["content_type"] == info_type]
+
+        print("Comparing eval_response_A and eval_response_B:", len(eval_response_A), len(eval_response_B))
 
         request_args.append({
             "task": task,
@@ -179,7 +171,7 @@ def _joint_comparative_evaluation(eval_responses_A, eval_responses_B, test_datas
         })
         req_idx_to_source.append(i)
 
-    batch_results = batch_run_lm_calls(request_args, eval_joint_comparative_request, eval_comparative_response)
+    batch_results = batch_run_lm_calls(request_args, eval_comparative_request, eval_comparative_response)
 
     results = []
     for i in range(len(test_dataset)):
@@ -189,23 +181,6 @@ def _joint_comparative_evaluation(eval_responses_A, eval_responses_B, test_datas
             continue
         results[test_idx].append(result)
     return results
-
-
-def relevance_comparative_evaluation(eval_responses_A, eval_responses_B, test_dataset, metric, joint, judge_model):
-    criteria = ""
-    max_rating = 0
-    response_format = None
-    if metric == MetricScale.COMPARISON:
-        criteria = RELEVANCE_CRITERIA_COMPARISON
-        max_rating = 3
-        response_format = ComparisonEvaluationResponse
-    else:
-        raise ValueError(f"Unsupported metric: {metric}")
-
-    if joint:
-        return _joint_comparative_evaluation(eval_responses_A, eval_responses_B, test_dataset, criteria, max_rating, response_format, judge_model)
-    else:
-        raise ValueError(f"Unsupported apiece evaluation yet.")
 
 def get_scores_info_type(responses, test_dataset, k):
     scores = []

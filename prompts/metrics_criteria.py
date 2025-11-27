@@ -1,32 +1,32 @@
 RELEVANCE_CRITERIA_LIKERT_3 = """
-- 3: Highly relevant and helpful information — crucial for learning and completing the task.
-- 2: Relevant, but not helpful — contributes somewhat to learning and completing the task but is not essential.
-- 1: Not relevant or already present in the current tutorial — not useful for learning and completing the task.
+- 3: Highly relevant to the query.
+- 2: Relevant to the query.
+- 1: Not relevant to the query.
 
 Give a score between 1 and 3.
 """
 
 RELEVANCE_CRITERIA_LIKERT_5 = """
-- 5: Extremely relevant and highly helpful information — crucial for learning and completing the task.
-- 4: Highly relevant and helpful information — significantly supports learning and completing the task.
-- 3: Relevant but moderately helpful information — contributes somewhat to learning and completing the task but is not essential.
-- 2: Marginally relevant — information is related but not useful for learning and completing the task.
-- 1: Not relevant or already present in the current tutorial — not useful for learning and completing the task.
+- 5: Extremely relevant to the query.
+- 4: Highly relevant to the query.
+- 3: Relevant to the query.
+- 2: Somewhat relevant to the query.
+- 1: Not relevant to the query.
 
 Give a score between 1 and 5.
 """
 
 RELEVANCE_CRITERIA_BINARY = """
-- yes: The information is relevant to the query, useful for learning and completing the task, and is missing from the current tutorial.
-- no: The information is not relevant to the query, not useful for learning and completing the task, or is present in the current tutorial.
+- yes: The information is relevant to the query.
+- no: The information is not relevant to the query.
 
 Give a binary decision between yes and no.
 """
 
 RELEVANCE_CRITERIA_COMPARISON = """
-- A: The information in group A is (1) more relevant to the query, (2) more useful for learning and completing the task, and (3) is missing from the current tutorial than the information from group B.
-- B: The information in group B is (1) more relevant to the query, (2) more useful for learning and completing the task, and (3) is missing from the current tutorial than the information from group A.
-- tie: The information in group A and group B are equally relevant to the query and are missing from the current tutorial.
+- A: The response from method A is more relevant to the query than the response from method B.
+- B: The response from method B is more relevant to the query than the response from method A.
+- tie: The response from method A and method B are equally relevant to the query.
 
 Give a decision between A, B, or tie.
 """
