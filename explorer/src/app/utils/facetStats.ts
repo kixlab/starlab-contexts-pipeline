@@ -9,6 +9,8 @@ export type FacetImpactStats = {
   conditionalEntropyBits: number; // H(Information | context) in bits
 };
 
+export type DiscriminativenessTarget = "unit" | "piece" | "type";
+
 export function facetToLabelKey(facet: Facet) {
   return facet.id || `context_${facet.title.trim().toLowerCase().replace(/\s+/g, "_")}`;
 }
@@ -83,12 +85,15 @@ function entropyBitsFromCounts(counts: readonly number[]) {
  * Computes:
  * - Relative/theoretical context totals under current selection filters
  * - Total values across facets (sum of vocab sizes)
- * - Discriminativeness as conditional entropy H(Information | context)
+ * - Discriminativeness as conditional entropy H(target | context)
  *
  * Definitions:
  * - context: joint assignment of values across ALL provided facets (each piece contributes one context key).
- * - Information: the `content_type` label (restricted to enabled `infoTypes`).
- * - Conditioning distribution p(context): weighted by number of pieces in each context (after filtering).
+ * - target:
+ *   - "type": the `content_type` label (restricted to enabled `infoTypes`).
+ *   - "piece": the `piece_id` label (i.e., which exact information piece it is).
+ *   - "unit": the `unit_id` label (i.e., which information unit it is).
+ * - Conditioning distribution p(context): treated as uniform over observed contexts (each context equally likely).
  */
 export function computeFacetImpactStats({
   facets,
@@ -96,12 +101,14 @@ export function computeFacetImpactStats({
   allPieces,
   selectedType,
   infoTypes,
+  target = "type",
 }: {
   facets: readonly Facet[];
   selectedFacets: SelectedFacets;
   allPieces: DatasetVideo["pieces"];
   selectedType: string;
   infoTypes: readonly string[];
+  target?: DiscriminativenessTarget;
 }): FacetImpactStats {
   const totalValues = facets.reduce((acc, f) => acc + (f.vocabulary?.length || 0), 0);
 
@@ -112,9 +119,9 @@ export function computeFacetImpactStats({
     return acc * (isFixed ? 1 : Math.max(1, len));
   }, 1);
 
-  // contextKey -> totalPiecesInContext, and counts by type
+  // contextKey -> totalPiecesInContext, and counts by target label
   const contextTotals = new Map<string, number>();
-  const contextTypeCounts = new Map<string, Map<string, number>>();
+  const contextTargetCounts = new Map<string, Map<string, number>>();
 
   for (const p of allPieces) {
     if (!pieceMatchesAllSelectedFacets(p, selectedFacets)) continue;
@@ -123,28 +130,35 @@ export function computeFacetImpactStats({
     const ctx = buildContextKey(p, facets);
     contextTotals.set(ctx, (contextTotals.get(ctx) || 0) + 1);
 
-    const byType = contextTypeCounts.get(ctx) || new Map<string, number>();
-    byType.set(p.content_type, (byType.get(p.content_type) || 0) + 1);
-    contextTypeCounts.set(ctx, byType);
+    const label =
+      target === "unit"
+        ? p.unit_id
+        : target === "piece"
+          ? p.piece_id
+          : p.content_type;
+    const byLabel = contextTargetCounts.get(ctx) || new Map<string, number>();
+    byLabel.set(label, (byLabel.get(label) || 0) + 1);
+    contextTargetCounts.set(ctx, byLabel);
   }
 
   const relativeTotal = contextTotals.size;
 
-  // H(Info | Context) = sum_c p(c) H(Info | c)
-  let totalPieces = 0;
-  for (const n of contextTotals.values()) totalPieces += n;
-  if (totalPieces <= 0) {
+  // H(target | Context) = (1/|C|) * sum_c H(target | c)   (uniform over contexts)
+  if (relativeTotal <= 0) {
     return { relativeTotal, theoreticalTotal, totalValues, conditionalEntropyBits: 0 };
   }
 
   let conditionalEntropyBits = 0;
-  for (const [ctx, nCtx] of contextTotals.entries()) {
-    const pCtx = nCtx / totalPieces;
-    const byType = contextTypeCounts.get(ctx) || new Map<string, number>();
-    const counts = infoTypes.map((t) => byType.get(t) || 0);
+  for (const [ctx] of contextTotals.entries()) {
+    const byLabel = contextTargetCounts.get(ctx) || new Map<string, number>();
+    const counts =
+      target === "piece" || target === "unit"
+        ? Array.from(byLabel.values())
+        : infoTypes.map((t) => byLabel.get(t) || 0);
     const hCtx = entropyBitsFromCounts(counts);
-    conditionalEntropyBits += pCtx * hCtx;
+    conditionalEntropyBits += hCtx;
   }
+  conditionalEntropyBits = conditionalEntropyBits / relativeTotal;
 
   return {
     relativeTotal,
