@@ -233,7 +233,7 @@ def perform_embedding(embedding_method, texts):
     elif embedding_method == "bert":
         return bert_embedding(texts)
     elif embedding_method == "openai":
-        return get_openai_embedding(texts) ### TODO: reimplement to use batching if over the limit, but for now just direct call
+        return get_openai_embedding(texts)
     else:
         raise ValueError(f"Invalid embedding method: {embedding_method}")
 
