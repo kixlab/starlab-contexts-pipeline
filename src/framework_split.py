@@ -150,11 +150,6 @@ def get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_type
 def process_videos_split(task, dataset, piece_types, embedding_method, extraction_model, generation_model, version):
     ### constants
     max_iterations = 5
-    
-    ## pruning
-    pruning_interval = -1 ## -1 means no pruning
-    pruning_threshold = 1
-    max_macro_pruning_len = 2
 
     include_cells = 5
     pieces_at_once = 10
