@@ -1,11 +1,13 @@
-from helpers.cim_scripts import build_information_units_v0
+from helpers.cim_scripts import build_information_units
 from helpers.cim_scripts import calc_discriminativeness, calc_explained_norm, get_cell_to_units, calc_compactness
 from helpers.cim_scripts import update_facet_candidates, update_facet_labels, update_labeled_dataset
+from helpers.cim_scripts import update_facet_candidates_v2
 
 from helpers.cim_scripts import FRAMEWORK_PATH
 
 import json
 import os
+from collections import defaultdict
 
 from helpers.dataset import IMPORTANT_TYPES_FINE
 
@@ -29,6 +31,17 @@ def save_results(task, version, results):
     results_path = get_results_path(task, version)
     with open(results_path, "w") as f:
         json.dump(results, f, indent=4)
+
+def display_sparsity(cell_to_units, display_size=1):
+    cell_sizes = defaultdict(int)
+    for cell, units in cell_to_units.items():
+        cell_sizes[len(units)] += 1
+        # if len(units) == display_size:
+        #     print(cell)
+
+    cell_sizes = sorted(cell_sizes.items(), key=lambda x: x[0])
+    for size, count in cell_sizes:
+        print(f"{size} unit size: {count} cells")
 
 def compute_frontier_knapsack(labeled_dataset, piece_types, facet_candidates, max_label_count=None, over_values=True):
     """
@@ -122,26 +135,41 @@ def compute_frontier_knapsack(labeled_dataset, piece_types, facet_candidates, ma
 
     return smoothed_result
 
-def get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_types, include_cells, embedding_method, generation_model, pieces_at_once, vocabulary_iterations, target_d):
+def get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_types, include_cells, embedding_method, pieces_at_once, vocabulary_iterations, target_d, generation_model):
     ### Run a single iteration of facet candidate mining
     cell_to_units, relevant_units_count = get_cell_to_units(facet_candidates, labeled_dataset, piece_types)
     cur_d = calc_discriminativeness(cell_to_units, relevant_units_count)
+    print(f"Discriminativeness: {cur_d}")
+    display_sparsity(cell_to_units)
     if cur_d < target_d:
         return []
-    new_facet_candidates = update_facet_candidates(task, cell_to_units, include_cells, pieces_at_once, embedding_method, generation_model)
+    new_facet_candidates = update_facet_candidates(task, facet_candidates, cell_to_units, include_cells, embedding_method, pieces_at_once, generation_model)
     new_facet_candidates = update_facet_labels(task, labeled_dataset, new_facet_candidates, vocabulary_iterations, generation_model)
     labeled_dataset = update_labeled_dataset(task, labeled_dataset, new_facet_candidates, generation_model)
-    print(f"Found {len(new_facet_candidates)} new facet candidates")
     return new_facet_candidates
 
-def process_videos_split(task, dataset, piece_types, embedding_method, extraction_model, generation_model, target_d, version):
-    include_cells = 10
-    pieces_at_once = 5
+def process_videos_split(task, dataset, piece_types, version):
+    ### constants
+    max_iterations = 5
+    
+    ## pruning
+    pruning_interval = -1 ## -1 means no pruning
+    pruning_threshold = 1
+    max_macro_pruning_len = 2
+
+    include_cells = 5
+    embedding_method = "openai"
+    extraction_model = "gpt-5-mini-2025-08-07"
+    # generation_model = "gpt-4.1-mini-2025-04-14"
+    generation_model = "gpt-5-mini-2025-08-07"
+    pieces_at_once = 10
     vocabulary_iterations = len(dataset)
     ### Reasoning: 0.9 --> We set a higher similarity threshold to capture most of the information diversity in the dataset and remove the noise due to phrasing differences.
     information_unit_similarity_threshold=0.9
     context_length = 30 ### in seconds
-    min_d = 0.1 ### Reasoning: 0.1 --> We push discriminative score lower to find more facet candidates.
+    target_d = 0.8 
+    ### Reasoning --> Achieving a low discriminative score is important to ensure that the context schema organizes the knowledge in a fine-grained manner.
+    min_d = 0.1
 
     labeled_dataset = None
     facet_candidates = []
@@ -153,7 +181,7 @@ def process_videos_split(task, dataset, piece_types, embedding_method, extractio
 
     if labeled_dataset is None:
         ### build the `information units`
-        labeled_dataset = build_information_units_v0(task, dataset, context_length, information_unit_similarity_threshold, embedding_method, extraction_model)
+        labeled_dataset = build_information_units(task, dataset, context_length, information_unit_similarity_threshold, embedding_method, extraction_model)
         save_results(task, version, {
             "context_schema": [],
             "facet_candidates": [],
@@ -161,10 +189,13 @@ def process_videos_split(task, dataset, piece_types, embedding_method, extractio
         })
 
     ### mine all facet candidates
-    while True:
-        new_facet_candidates = get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_types, include_cells, embedding_method, generation_model, pieces_at_once, vocabulary_iterations, min_d)
+    tries_if_empty = 0
+    while tries_if_empty < max_iterations:
+        new_facet_candidates = get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_types, include_cells, embedding_method, pieces_at_once, vocabulary_iterations, min_d, generation_model)
         if len(new_facet_candidates) == 0:
-            break
+            tries_if_empty += 1
+            continue
+        tries_if_empty = 0
         facet_candidates.extend(new_facet_candidates)
         save_results(task, version, {
             "context_schema": [],
@@ -172,25 +203,37 @@ def process_videos_split(task, dataset, piece_types, embedding_method, extractio
             "labeled_dataset": labeled_dataset,
         })
 
+    ### TODO: adjust the frontier based on IRR noise...
     frontier = compute_frontier_knapsack(labeled_dataset, piece_types, facet_candidates, max_label_count=None, over_values=True)
     context_schema = []
+    found = False
     for item in frontier:
         if item["discriminativeness"] < target_d:
             for candidate in facet_candidates:
                 if candidate["id"] in item["facets"]:
                     context_schema.append(candidate)
+            found = True
             break
-
+    if found:
+        print(f"Found a schema with {len(context_schema)} facets that have discriminativeness score lower than {target_d}")
+    else:
+        print(f"No schema found with discriminativeness score lower than {target_d}")
     save_results(task, version, {
         "context_schema": context_schema,
         "facet_candidates": facet_candidates,
         "labeled_dataset": labeled_dataset,
     })
 
-    return context_schema, labeled_dataset
+    return results
 
-def construct_cim_split(task, dataset, embedding_method, extraction_model, generation_model, target_d, version):
+def construct_cim_split(task, dataset, version):
     piece_types = IMPORTANT_TYPES_FINE
-    target_d = 0.8 ### Reasoning: 0.8 --> Achieving a low discriminative score is important to ensure that the context schema organizes the knowledge in a fine-grained manner.
-    schema, dataset = process_videos_split(task, dataset, piece_types, embedding_method, extraction_model, generation_model, target_d, version)
-    return schema, dataset
+    results = process_videos_split(task, dataset, piece_types, version)
+    return results
+
+
+def construct_cim_split_conservative(task, version):
+    results = load_results(task, version)
+    if results is not None:
+        return results
+    return None
