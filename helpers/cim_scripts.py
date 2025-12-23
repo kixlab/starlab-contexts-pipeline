@@ -103,7 +103,7 @@ from prompts.segmentation_facet import form_segmentation_facet_candidates_reques
 from prompts.segmentation_facet_v2 import form_segmentation_facet_candidates_request_v2, form_segmentation_facet_candidates_response_v2
 from prompts.framework_batch import batch_run_lm_calls
 
-FRAMEWORK_PATH = "./static/results/framework/"
+FRAMEWORK_PATH = "./static/results/"
 
 def calc_explained_norm(cell_to_units, relevant_units_count, base=2):
 
