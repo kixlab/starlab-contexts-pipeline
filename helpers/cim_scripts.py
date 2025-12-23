@@ -263,7 +263,8 @@ def extract_pieces(task, dataset=None, context_length=None, extraction_model=Non
             dataset[idx]['pieces'].append({
                 "piece_id": f"piece_{idx}_{i}",
                 **piece,
-                "content_type": piece["type"] + " - " + piece["subtype"],
+                "content_type": piece["content_type"].strip(),
+                # "content_type": piece["type"] + " - " + piece["subtype"],
                 # "type": piece["type"],
                 # "subtype": piece["subtype"],
                 "labels": {},
