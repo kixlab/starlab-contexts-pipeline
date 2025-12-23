@@ -170,6 +170,12 @@ The output format includes:
 
 The context schema organizes knowledge into facets (dimensions of variation) with associated vocabularies (labels) that can be used to partition and structure instructional content.
 
+## LLM batching results
+
+- Framework prompts are dispatched in batches (see `prompts/framework_batch.py`), which writes JSONL request logs to `static/results/lm-batches/{batch_id}_llm_requests.jsonl`.
+- Responses are streamed to `static/results/lm-batches/{batch_id}_llm_responses.jsonl` by `helpers.process_api_requests`, which rate-limits and retries automatically.
+- Every run prints the `batch_id`; use it to inspect or rerun `process_api_requests(batch_id)` if a batch was interrupted.
+
 ## What is CIM?
 We introduce Context-Information Maps (CIM) to automatically organize scattered task knowledge across a large corpus of tutorial videos about the same task. By transforming static tutorials into a unified bipartite graph that links specific "contexts" (applicability conditions such as tools, ingredients, or goals) with atomic "information units" (specific instructions, tips, or explanations), the system explicitly aligns diverse knowledge pieces from different sources according to when/where they are relevant (i.e., task contexts). CIM enables applications such as the automatic augmentation of tutorials with missing information, navigation between alternative methods across different sources, and the analytical detection of knowledge gaps or saturation points within a corpus of tutorials for the task.
 
