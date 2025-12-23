@@ -33,7 +33,7 @@ def save_results(task, version, results):
 
 def display_sparsity(cell_to_units, display_size=1):
     cell_sizes = defaultdict(int)
-    for cell, units in cell_to_units.items():
+    for _, units in cell_to_units.items():
         cell_sizes[len(units)] += 1
         # if len(units) == display_size:
         #     print(cell)
@@ -138,8 +138,6 @@ def get_new_facet_candidates(task, facet_candidates, labeled_dataset, piece_type
     ### Run a single iteration of facet candidate mining
     cell_to_units, relevant_units_count = get_cell_to_units(facet_candidates, labeled_dataset, piece_types)
     cur_d = calc_discriminativeness(cell_to_units, relevant_units_count)
-    print(f"Discriminativeness: {cur_d}")
-    display_sparsity(cell_to_units)
     if cur_d < target_d:
         return []
     new_facet_candidates = update_facet_candidates(task, facet_candidates, cell_to_units, include_cells, embedding_method, pieces_at_once, generation_model)
