@@ -9,5 +9,5 @@ scikit-learn==1.4.1.post1
 stop-words==2018.7.23
 pysbd==0.3.4
 
-# Data validation
+# Data validation for OpenAI
 pydantic==2.11.9
