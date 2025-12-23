@@ -243,12 +243,6 @@ def str_to_float(str_time):
 def float_to_str(float_time):
     return str(int(float_time // 3600)) + ":" + str(int((float_time % 3600) // 60)) + ":" + str(int(float_time % 60))
 
-import pysbd
-
-def segment_into_sentences(text):
-    seg = pysbd.Segmenter(language="en", clean=False)
-    return seg.segment(text)
-
 # ============== Batch/Parallel LLM utilities (JSONL) ==============
 MAX_REQUESTS_PER_MINUTE = 30000 * 0.5 ## 30k requests per minute
 MAX_TOKENS_PER_MINUTE = 150000000 * 0.5 ## 150M tokens per minute
