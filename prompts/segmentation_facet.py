@@ -3,15 +3,15 @@ from prompts import separate_pieces_to_str, segmentation_candidates_gen_to_struc
 
 SYSTEM_PROMPT_DESCRIBE_CONTEXTS = """You are a helpful assistant who can analyze and describe the contexts where knowledge applies or does not apply for task {task}."""
 
-### TODO: try w/o types of aspects
-POSSIBLE_TYPES_OF_ASPECTS = """### POSSIBLE TYPES OF ASPECTS:
-| Type | Example Titles | Example Labels | Example Distinction |
-|------|----------------|----------------|----------------------|
-| When | Stage of process | Setup / Execution | Different steps in time |
-| Why | Purpose / Subgoal | Collect Data / Analyze Data | Different goals or intentions |
-| Where | Environment | Field / Lab | Different physical or digital settings |
-| What | Object of focus | Hardware / Software | Working on different components |
-| How | Method / Tool used | Manual / Automated | Using different approaches or tools |"""
+# ### TODO: try w/o types of aspects
+# POSSIBLE_TYPES_OF_ASPECTS = """### POSSIBLE TYPES OF ASPECTS:
+# | Type | Example Titles | Example Labels | Example Distinction |
+# |------|----------------|----------------|----------------------|
+# | When | Stage of process | Setup / Execution | Different steps in time |
+# | Why | Purpose / Subgoal | Collect Data / Analyze Data | Different goals or intentions |
+# | Where | Environment | Field / Lab | Different physical or digital settings |
+# | What | Object of focus | Hardware / Software | Working on different components |
+# | How | Method / Tool used | Manual / Automated | Using different approaches or tools |"""
 
 USER_PROMPT_FORM_SEGMENTATION_FACET_CANDIDATES = """
 Given information pieces from several tutorial videos, identify a set of task context aspects (i.e., temporal segmentation axes) that would assign DIFFERENT segment labels to the pieces. You are also given the previous set of task context aspects under which the pieces were assigned the exactly the same signature (i.e., combination of segment labels).
