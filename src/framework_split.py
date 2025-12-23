@@ -1,7 +1,6 @@
 from helpers.cim_scripts import build_information_units
 from helpers.cim_scripts import calc_discriminativeness, calc_explained_norm, get_cell_to_units, calc_compactness
 from helpers.cim_scripts import update_facet_candidates, update_facet_labels, update_labeled_dataset
-from helpers.cim_scripts import update_facet_candidates_v2
 
 from helpers.cim_scripts import FRAMEWORK_PATH
 
