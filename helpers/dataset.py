@@ -2,7 +2,6 @@ import json
 import os
 
 DATASETS_PATH = "./static/datasets/"
-MIN_VIDEOS = 20
 
 CROSS_TASK_TASKS = [
     "Change a Tire",
