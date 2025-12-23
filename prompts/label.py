@@ -4,32 +4,6 @@ from pydantic_models.framework import create_labeled_pieces_schema
 
 from prompts import transcript_to_str, pieces_to_str, vocabulary_to_str, guidelines_to_str
 
-TAXONOMY = {
-    "opening": "Starting remarks and instructor/channel introductions",
-    "closing": "Parting remarks and wrap-up",
-    "goal": "Main purpose of the video and its descriptions",
-    "motivation": "Reasons or background information on why the video was created",
-    "briefing": "Rundown of how the goal will be achieved",
-    "subgoal": "Objective of a subsection",
-    "instruction": "Actions that the instructor performs to complete the task",
-    "tool": "Introduction of the materials, ingredients, and equipment to be used",
-    "tip": "Additional instructions or information that makes instructions easier, faster, or more efficient",
-    "warning": "Actions that should be avoided",
-    "justification": "Reasons why the instruction was performed",
-    "effect": "Consequences of the instruction",
-    "status": "Descriptions of the current state of the target object",
-    "context": "Descriptions of the method or the setting",
-    "tool specification": "Descriptions of the tools and equipment",
-    "outcome": "Descriptions of the final results of the procedure",
-    "reflection": "Summary, evaluation, and suggestions for the future about the overall procedure",
-    "side note": "Personal stories, jokes, user engagement, and advertisements",
-    "self-promotion": "Promotion of the instructor of the channel (i.e. likes, subscription, notification, or donations)",
-    "bridge": "Meaningless phrases or expressions that connect different sections",
-    "filler": "Conventional filler words",
-    "other": "None of the specfied categories",
-}
-
-
 SYSTEM_PROMPT_EXTRACT_PIECES_FROM_TRANSCRIPT = """
 You are a helpful assistant who can understand and analyze knowledge about {task} from tutorial videos."""
 
