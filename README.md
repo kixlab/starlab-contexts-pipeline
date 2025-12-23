@@ -171,6 +171,9 @@ The output format includes:
 
 The context schema organizes knowledge into facets (dimensions of variation) with associated vocabularies (labels) that can be used to partition and structure instructional content.
 
+## What is CIM?
+We introduce Context-Information Maps (CIM) to automatically organize scattered task knowledge across a large corpus of tutorial videos about the same task. By transforming static tutorials into a unified bipartite graph that links specific "contexts" (applicability conditions such as tools, ingredients, or goals) with atomic "information units" (specific instructions, tips, or explanations), the system explicitly aligns diverse knowledge pieces from different sources according to when/where they are relevant (i.e., task contexts). CIM enables applications such as the automatic augmentation of tutorials with missing information, navigation between alternative methods across different sources, and the analytical detection of knowledge gaps or saturation points within a corpus of tutorials for the task.
+
 ## Notes
 
 - The system uses OpenAI embeddings (`text-embedding-3-large`) and language models (`gpt-4.1-mini-2025-04-14`) for extraction and processing
