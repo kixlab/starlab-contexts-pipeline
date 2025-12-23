@@ -225,14 +225,7 @@ def process_videos_split(task, dataset, piece_types, version):
 
     return results
 
-def construct_cim_split(task, dataset, version):
+def construct_cim_split(task, dataset, embedding_method, extraction_model, generation_model, version):
     piece_types = IMPORTANT_TYPES_FINE
-    results = process_videos_split(task, dataset, piece_types, version)
+    results = process_videos_split(task, dataset, piece_types, embedding_method, extraction_model, generation_model, version)
     return results
-
-
-def construct_cim_split_conservative(task, version):
-    results = load_results(task, version)
-    if results is not None:
-        return results
-    return None
