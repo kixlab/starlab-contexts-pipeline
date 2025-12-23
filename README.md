@@ -4,7 +4,7 @@ This repository contains the pipeline for constructing Context Information Model
 
 ## Repository Structure
 
-- [`_main.py`](_main.py): Main entry point for constructing CIM frameworks
+- [`main.py`](main.py): Main entry point for constructing CIM frameworks
 - [`src`](src/): Core framework construction logic
   - [`framework_split.py`](src/framework_split.py): Main pipeline for processing videos and building CIM schemas
 - [`helpers`](helpers/): Helper scripts and utilities
@@ -112,22 +112,22 @@ Run the pipeline to construct a CIM framework for a specific task:
 #                       LLM used for facet mining and labeling (default: gpt-4.1-mini-2025-04-14)
 # -v VERSION, --version VERSION
 #                       Optionally specify the version of the CIM (default: full_run_1)
-python _main.py -t <task> [-e <embedding_method>] [-x <extraction_model>] [-g <generation_model>] [-v <version>]
+python main.py -t <task> [-e <embedding_method>] [-x <extraction_model>] [-g <generation_model>] [-v <version>]
 ```
 
 Examples:
 ```bash
 # Minimal (uses defaults: openai embeddings, gpt-4.1-mini-2025-04-14 models)
-python _main.py -t "How to Make a Paper Hat"
+python main.py -t "How to Make a Paper Hat"
 
 # Specify version label for results directory
-python _main.py -t "How to Make a Paper Hat" -v "full_run_1"
+python main.py -t "How to Make a Paper Hat" -v "full_run_1"
 
 # Use local BERT embeddings instead of OpenAI embeddings
-python _main.py -t "How to Make a Paper Hat" -e bert
+python main.py -t "How to Make a Paper Hat" -e bert
 
 # Override LLMs used for extraction/generation
-python _main.py -t "How to Make a Paper Hat" -x gpt-4.1-mini-2025-04-14 -g gpt-4.1-mini-2025-04-14
+python main.py -t "How to Make a Paper Hat" -x gpt-4.1-mini-2025-04-14 -g gpt-4.1-mini-2025-04-14
 ```
 
 The pipeline will:
