@@ -22,7 +22,9 @@ def parse_args(args):
 
 def construct_cim(task, embedding_method, extraction_model, generation_model, version):
     dataset = get_dataset(task)
-    schema, dataset = construct_cim_split(task, dataset, embedding_method, extraction_model, generation_model, version)
+    results = construct_cim_split(task, dataset, embedding_method, extraction_model, generation_model, version)
+    schema = results["context_schema"]
+    dataset = results["labeled_dataset"]
     return schema, dataset
 
 def main(task, embedding_method, extraction_model, generation_model, version):
