@@ -252,10 +252,6 @@ BATCH_PATH = "./static/results/lm-batches/"
 DEFAULT_CALL_FUNCTION = get_response_pydantic_openai
 # DEFAULT_CALL_FUNCTION = get_response_pydantic_anthropic
 
-### TODO: deprecate this
-def get_response_pydantic(messages, response_format, model=None):
-    return DEFAULT_CALL_FUNCTION(messages, response_format, model=model)
-
 def _ensure_parent_dir(path):
     parent = os.path.dirname(path)
     if parent and not os.path.exists(parent):
