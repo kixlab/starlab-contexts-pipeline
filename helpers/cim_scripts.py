@@ -14,7 +14,7 @@ from prompts.label import label_transcript_pieces_request, label_transcript_piec
 from prompts.codebook import form_codebook_request, form_codebook_response, combine_codebooks_request, combine_codebooks_response, try_adding_na_label_request, try_adding_na_label_response
 
 from prompts.segmentation_facet import form_segmentation_facet_candidates_request, form_segmentation_facet_candidates_response, combine_segmentation_facet_candidates_request, combine_segmentation_facet_candidates_response
-from prompts.segmentation_facet_v2 import form_segmentation_facet_candidates_request_v2, form_segmentation_facet_candidates_response_v2
+
 from prompts.framework_batch import batch_run_lm_calls
 
 FRAMEWORK_PATH = "./static/results/"
@@ -318,93 +318,6 @@ def update_facet_candidates(task, old_facet_candidates, cell_to_units, include_c
         batch_results = batch_run_lm_calls(request_args, combine_segmentation_facet_candidates_request, combine_segmentation_facet_candidates_response)
 
         new_facet_candidates = batch_results[0]
-
-    ### assign unique ids
-    for facet in new_facet_candidates:
-        facet["id"] = f"F{random_uid()}"
-
-    print(f"Found {len(new_facet_candidates)} new facet candidates: {[(candidate['title'], candidate['id']) for candidate in new_facet_candidates]}")
-
-    return new_facet_candidates
-
-def update_facet_candidates_v2(task, labeled_dataset, cell_to_units, include_cells, embedding_method, pieces_at_once, generation_model):
-    """
-    Update the facet candidates V2
-    """
-    ### choose top-2 tutorials that have the most pieces in the same cell.
-    if include_cells == 0: 
-        return []
-
-    tutorials = []
-    target_piece_ids = []
-    target_cell_id = None
-    for cell_id, units in cell_to_units.items():
-        unit_ids = list(units.keys())
-        if (len(unit_ids) < 2):
-            # can only breakdown if there are at least 2 units in the cell
-            continue
-        tutorial_unit_piece = defaultdict(dict)
-        for tutorial in labeled_dataset:
-            tutorial_id = tutorial["url"]
-            for piece in tutorial["pieces"]:
-                if piece["unit_id"] not in unit_ids:
-                    continue
-                if piece["unit_id"] not in tutorial_unit_piece[tutorial_id]:
-                    tutorial_unit_piece[tutorial_id][piece["unit_id"]] = piece["piece_id"]
-        ### try finding only one
-        cur_tutorials = []
-        cur_target_piece_ids = []
-        for tutorial in labeled_dataset:
-            tutorial_id = tutorial["url"]
-            if len(tutorial_unit_piece[tutorial_id].keys()) > len(cur_target_piece_ids):
-                cur_target_piece_ids = list(tutorial_unit_piece[tutorial_id].values())
-                cur_tutorials = [tutorial]
-        if len(cur_target_piece_ids) == 1:
-            ### try finding two that cover the most units
-            for tutorial1 in labeled_dataset:
-                tutorial1_id = tutorial1["url"]
-                for tutorial2 in labeled_dataset:
-                    tutorial2_id = tutorial2["url"]
-                    if tutorial1_id == tutorial2_id:
-                        continue
-                    combined_unit_ids = set(tutorial_unit_piece[tutorial1_id].keys()) | set(tutorial_unit_piece[tutorial2_id].keys())
-                    if len(combined_unit_ids) > len(cur_target_piece_ids):
-                        temp_target_piece_ids = []
-                        for unit_id in combined_unit_ids:
-                            if unit_id in tutorial_unit_piece[tutorial1_id]:
-                                temp_target_piece_ids.append(tutorial_unit_piece[tutorial1_id][unit_id])
-                            elif unit_id in tutorial_unit_piece[tutorial2_id]:
-                                temp_target_piece_ids.append(tutorial_unit_piece[tutorial2_id][unit_id])
-                        if len(temp_target_piece_ids) > len(cur_target_piece_ids):
-                            cur_target_piece_ids = temp_target_piece_ids
-                            cur_tutorials = [tutorial1, tutorial2]
-
-        if len(cur_target_piece_ids) == 1:
-            continue
-        if len(cur_target_piece_ids) > len(target_piece_ids):
-            target_piece_ids = cur_target_piece_ids
-            tutorials = cur_tutorials
-            target_cell_id = cell_id
-
-    if len(target_piece_ids) < 2:
-        # can only breakdown if we can cover at least 2 units
-        return []
-
-    print(f"Selected cell {target_cell_id} for breakdown: {len(target_piece_ids)} pieces: {target_piece_ids}")
-
-    new_facet_candidates = []
-    request_args = []
-
-    request_args.append({
-        "task": task,
-        "tutorials": tutorials,
-        "target_piece_ids": target_piece_ids,
-        "generation_model": generation_model,
-    })
-
-    batch_results = batch_run_lm_calls(request_args, form_segmentation_facet_candidates_request_v2, form_segmentation_facet_candidates_response_v2)
-
-    new_facet_candidates.extend(batch_results[0])
 
     ### assign unique ids
     for facet in new_facet_candidates:
