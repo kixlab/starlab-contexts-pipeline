@@ -153,12 +153,6 @@ EMBEDDING_MODEL_OPENAI = "text-embedding-3-large"
 en_stop_words = get_stop_words('en')
 ### fine-tune the model
 bert_model = SentenceTransformer("all-MiniLM-L6-v2")
-# model.fit(
-#     train_objectives=[(train_dataloader, train_loss)],
-#     epochs=1,
-#     warmup_steps=100,
-#     optimizer_params={'lr': 1e-4},
-# )
 
 def count_tokens(text, model="gpt-4"):
     encoding = tiktoken.encoding_for_model(model)
