@@ -31,17 +31,6 @@ def save_results(task, version, results):
     with open(results_path, "w") as f:
         json.dump(results, f, indent=4)
 
-def display_sparsity(cell_to_units, display_size=1):
-    cell_sizes = defaultdict(int)
-    for _, units in cell_to_units.items():
-        cell_sizes[len(units)] += 1
-        # if len(units) == display_size:
-        #     print(cell)
-
-    cell_sizes = sorted(cell_sizes.items(), key=lambda x: x[0])
-    for size, count in cell_sizes:
-        print(f"{size} unit size: {count} cells")
-
 def compute_frontier_knapsack(labeled_dataset, piece_types, facet_candidates, max_label_count=None, over_values=True):
     """
     Compute the Pareto frontier using a 0/1 knapsack DP over discrete compactness.
