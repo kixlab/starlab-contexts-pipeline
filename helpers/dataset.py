@@ -1,16 +1,9 @@
 import json
 import os
 
-
 DATASETS_PATH = "./static/datasets/"
 MIN_VIDEOS = 20
 
-"""
-Make French Toast			10 steps / 272 videos
-Make Irish Coffee			5 steps / 248 videos
-Change a Tire				11 steps / 119 videos
-Build (sim.) Floating Shelves		5 steps / 173 videos
-"""
 CROSS_TASK_TASKS = [
     "Change a Tire",
     "Build Simple Floating Shelves",
