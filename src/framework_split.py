@@ -214,7 +214,11 @@ def process_videos_split(task, dataset, piece_types, embedding_method, extractio
         "labeled_dataset": labeled_dataset,
     })
 
-    return results
+    return {
+        "context_schema": context_schema,
+        "facet_candidates": facet_candidates,
+        "labeled_dataset": labeled_dataset,
+    }
 
 def construct_cim_split(task, dataset, embedding_method, extraction_model, generation_model, version):
     piece_types = IMPORTANT_TYPES_FINE
