@@ -318,7 +318,6 @@ def llm_get_responses(batch_id):
             responses[request_json["request_id"]] = result
     return responses
 
-# ---------- simple token bucket ----------
 class TokenBucket:
     def __init__(self, max_per_minute: float):
         self.capacity = float(max_per_minute)
@@ -342,7 +341,6 @@ class TokenBucket:
                 wait_secs = needed / self.rate_per_sec if self.rate_per_sec > 0 else 0.05
             await asyncio.sleep(wait_secs)
 
-# ---------- status tracking ----------
 @dataclass
 class StatusTracker:
     num_tasks_started: int = 0
@@ -354,7 +352,6 @@ class StatusTracker:
     num_other_errors: int = 0
     time_of_last_rate_limit_error: float = 0.0
 
-# ---------- request envelope ----------
 @dataclass
 class APIRequest:
     task_id: int
@@ -364,7 +361,6 @@ class APIRequest:
     # add prompt token counting and sum(prompt_tokens + response_cap).
     token_consumption: int = field(default_factory=lambda: MAX_TOKENS)
 
-# ---------- error helpers ----------
 def _is_rate_limit_error(err: Exception) -> bool:
     msg = str(err).lower()
     return "rate limit" in msg or "429" in msg or "too many requests" in msg or "throttl" in msg
@@ -382,14 +378,12 @@ def _classify_error(err: Exception) -> str:
         return "retryable"
     return "fatal"
 
-# ---------- backoff with jitter ----------
 def _backoff_seconds(attempt_idx: int, base: float = 1.0, cap: float = 60.0) -> float:
     # attempt_idx starts at 1 for first retry
     expo = base * (2 ** (attempt_idx - 1))
     with_jitter = expo * (0.5 + random.random())  # 0.5x–1.5x jitter
     return min(with_jitter, cap)
 
-# ---------- main: process requests ----------
 async def process_api_requests(batch_id, max_concurrency=64, seconds_to_pause_after_limit_error=60.0):
     requests_path = llm_get_requests_path(batch_id)
     responses_path = llm_get_responses_path(batch_id)
