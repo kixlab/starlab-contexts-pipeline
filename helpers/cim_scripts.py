@@ -25,7 +25,6 @@ def calc_explained_norm(cell_to_units, relevant_units_count, base=2):
     d = calc_discriminativeness(cell_to_units, relevant_units_count, base)
     return (total-d) / total
 
-
 def calc_discriminativeness(cell_to_units, relevant_units_count, base=2):
     ### TODO: adjust by noise
 
@@ -55,13 +54,6 @@ def calc_discriminativeness(cell_to_units, relevant_units_count, base=2):
 
         p_c = float(n_c) / relevant_units_count
         check_entropy += p_c * math.log(p_c, base)
-    
-    # print("LOG: Entropy check: ")
-    # print(total_entropy)
-    # print(check_entropy)
-    # print(relevant_units_count)
-    # print(n_c_list)
-    # print()
 
     return total_entropy
 
