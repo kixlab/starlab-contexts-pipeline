@@ -45,13 +45,6 @@ CUSTOM_TASKS = [
     "How to Make a Paper Hat",
 ]
 
-BIG_CUSTOM_TASKS = [
-    "How to Make a Sushi Roll",
-    "How to Grill Steak",
-    "How to Make Caramel Apples",
-    "How to Clean a Glass Top Stove",
-]
-
 SUBGOAL_DESCRIPTION = """
 Subgoal: Objective of a subsection.
 Example: "Now for the intricate layer that will give me the final webbing look."
