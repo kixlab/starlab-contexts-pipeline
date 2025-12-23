@@ -1,7 +1,5 @@
 import numpy as np
-
 from sklearn.cluster import AgglomerativeClustering
-
 from helpers import perform_embedding
 
 def find_most_similar(embeddings, query_embeddings):
