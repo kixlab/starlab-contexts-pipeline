@@ -71,13 +71,6 @@ def calc_compactness(context_schema, initial_labels):
 
     return total_labels
 
-def relative_improvement(d1, c1, d2, c2):
-    compactness_weight = 0.001
-    ## TODO: adjust by noise
-    o1 = d1 + c1 * compactness_weight
-    o2 = d2 + c2 * compactness_weight
-    return o1-o2
-
 def get_cell_to_units(context_schema, dataset, piece_types):
     def get_label(piece, key):
         if key not in piece["labels"]:
