@@ -1,6 +1,7 @@
 import json
 import os
 
+
 DATASETS_PATH = "./static/datasets/"
 MIN_VIDEOS = 20
 
@@ -42,6 +43,13 @@ CUSTOM_TASKS = [
 
     # Arts and Entertainment
     "How to Make a Paper Hat",
+]
+
+BIG_CUSTOM_TASKS = [
+    "How to Make a Sushi Roll",
+    "How to Grill Steak",
+    "How to Make Caramel Apples",
+    "How to Clean a Glass Top Stove",
 ]
 
 SUBGOAL_DESCRIPTION = """
