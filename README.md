@@ -157,7 +157,6 @@ The output format includes:
                 {
                     "label": str,
                     "definition": str,
-                    "examples": [...]
                 },
                 ...
             ]
