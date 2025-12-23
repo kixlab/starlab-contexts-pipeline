@@ -78,32 +78,6 @@ def relative_improvement(d1, c1, d2, c2):
     o2 = d2 + c2 * compactness_weight
     return o1-o2
 
-def macro_pruning(context_schema, labeled_dataset, piece_types, threshold):
-    if len(context_schema) <= 1:
-        return context_schema
-    
-    cell_to_units, relevant_units_count = get_cell_to_units(context_schema, labeled_dataset, piece_types)
-    ### macroprune the context schema by removing the least discriminative facet
-    d_best = calc_discriminativeness(cell_to_units, relevant_units_count)
-    c_best = calc_compactness(context_schema, len(piece_types))
-    
-    o_smallest = float("inf")
-    facet_to_remove = None
-    for i, _ in enumerate(context_schema):
-        cur_context_schema = context_schema[:i] + context_schema[i+1:]
-        cur_cell_to_units, cur_relevant_units_count = get_cell_to_units(cur_context_schema, labeled_dataset, piece_types)
-        d = calc_discriminativeness(cur_cell_to_units, cur_relevant_units_count)
-        c = calc_compactness(cur_context_schema, len(piece_types))
-        
-        o = relative_improvement(d, c, d_best, c_best)
-        if o_smallest > o:
-            o_smallest = o
-            facet_to_remove = i
-    if facet_to_remove is None or o_smallest > threshold:
-        return context_schema, None
-    removed_facet = context_schema[facet_to_remove]
-    return context_schema[:facet_to_remove] + context_schema[facet_to_remove+1:], removed_facet
-
 def get_cell_to_units(context_schema, dataset, piece_types):
     def get_label(piece, key):
         if key not in piece["labels"]:
