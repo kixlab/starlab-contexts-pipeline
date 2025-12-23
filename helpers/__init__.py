@@ -87,7 +87,6 @@ ANTHROPIC_SECRET_KEY = os.getenv('ANTHROPIC_SECRET_KEY')
 
 ANTHROPIC_REGION = 'us-west-2'
 MODEL_NAME_ANTHROPIC = "us.anthropic.claude-3-5-haiku-20241022-v1:0" ### fastest 0.8$/4$
-# MODEL_NAME_ANTHROPIC = "us.anthropic.claude-3-7-sonnet-20250219-v1:0" ### slower, ### 3$/15$
 
 client_anthropic = AnthropicBedrock(
     aws_access_key=ANTHROPIC_ACCESS_KEY,
