@@ -18,10 +18,6 @@ class InformationPiecesSchema(BaseModel):
 
 ### segment labels
 
-# class LabelExampleSchema(BaseModel):
-#     content: str = Field(..., title="The content that would be labeled as the segment label.")
-#     context: str = Field(..., title="The context of the content. The context should include some text (around 10-20 words) surrounding the content as well as the content itself.")
-
 class LabelSchema(BaseModel):
     model_config = ConfigDict(extra='forbid')
     id: str = Field(..., title="The id of the segment label.")
