@@ -20,15 +20,6 @@ from stop_words import get_stop_words
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')   
 
-RATE_LIMIT_HEADERS_OPENAI = [
-    "x-ratelimit-limit-requests",
-    "x-ratelimit-limit-tokens",
-    "x-ratelimit-remaining-requests",
-    "x-ratelimit-remaining-tokens",
-    "x-ratelimit-reset-requests",
-    "x-ratelimit-reset-tokens",
-]
-
 SEED = 13774
 TEMPERATURE = 0
 MAX_TOKENS = 32700 ### response should be max 32k tokens
@@ -75,24 +66,20 @@ def get_response_pydantic_openai(messages, response_format, model=None):
     else:
         variable_args["temperature"] = TEMPERATURE
     
-    print("requesting openai...")
+    # print("requesting openai...")
     # print(json.dumps(messages, indent=4))
 
     response_raw = client_openai.chat.completions.with_raw_response.create(
         **basic_args,
         **variable_args,
     )
-
-    rate_limit_headers = {header: response_raw.headers.get(header) for header in RATE_LIMIT_HEADERS_OPENAI}
-    print(json.dumps(rate_limit_headers, indent=4))
     
     completion = response_raw.parse()
     response = completion.choices[0].message.content
-    # print(response)
+
     try:
         return json.loads(response)
     except json.JSONDecodeError:
-        print(f"refusal: {response}")
         raise Exception(f"refusal: {response}")
 
 ANTHROPIC_ACCESS_KEY = os.getenv('ANTHROPIC_ACCESS_KEY')
