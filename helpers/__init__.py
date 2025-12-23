@@ -43,29 +43,6 @@ client_openai = OpenAI(
 def random_uid():
     return str(uuid4())
 
-def encode_image(image_path):
-    with open(image_path, "rb") as image:
-        return base64.b64encode(image.read()).decode("utf-8")
-
-def extend_contents(contents, include_images=False, include_ids=False):
-    extended_contents = []
-    for index, content in enumerate(contents):
-        text = content["text"]
-        if include_ids:
-            text = f"{index}. {text}"
-        extended_contents.append({
-            "type": "text",
-            "text": text,
-        })
-        if include_images:
-            for frame_path in content["frame_paths"]:
-                frame_base64 = encode_image(frame_path)
-                extended_contents.append({
-                    "type": "image_url",
-                    "image_url": {"url": f"data:image/jpeg;base64,{frame_base64}"}
-                })
-    return extended_contents
-
 def get_response_pydantic_openai(messages, response_format, model=None):
     if model is None:
         model = MODEL_NAME_OPENAI
