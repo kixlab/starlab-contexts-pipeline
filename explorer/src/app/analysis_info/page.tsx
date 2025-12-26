@@ -8,12 +8,13 @@ import { UnitsList } from "@/app/components/UnitsList";
 import { DetailsPanel } from "@/app/components/DetailsPanel";
 import type { DatasetVideo, Facet } from "@/app/types";
 import { GRID_TEMPLATE } from "@/app/constants/ui";
-import { DEFAULT_DATASET_OPTION } from "@/app/constants/datasetConfig";
+import { getSelectedDataset } from "@/app/constants/datasetConfig";
 
 export default function Home() {
-  // Use default dataset directly from datasetConfig.ts
-  const [bundleUrl] = useState(DEFAULT_DATASET_OPTION.bundleUrl);
-  const [availableInfoTypes] = useState<string[]>([...DEFAULT_DATASET_OPTION.infoTypes]);
+  // Get dataset from localStorage or use default
+  const selectedDataset = getSelectedDataset();
+  const [bundleUrl] = useState(selectedDataset.bundleUrl);
+  const [availableInfoTypes] = useState<string[]>([...selectedDataset.infoTypes]);
   const [dataset, setDataset] = useState<DatasetVideo[]>([]);
   // Facets are now adjustable:
   // - `shownFacets` are the facets rendered in the FacetPanel / used for context computations
