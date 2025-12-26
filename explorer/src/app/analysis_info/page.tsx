@@ -7,40 +7,14 @@ import { StatsPanel } from "@/app/components/StatsPanel";
 import { UnitsList } from "@/app/components/UnitsList";
 import { DetailsPanel } from "@/app/components/DetailsPanel";
 import type { DatasetVideo, Facet } from "@/app/types";
-import { INFO_TYPES, GRID_TEMPLATE } from "@/app/constants/ui";
-
-// Helper to get config value from URL params, localStorage, or env
-function getConfigValue(key: string, defaultValue: string): string {
-  if (typeof window === "undefined") return defaultValue;
-  
-  const params = new URLSearchParams(window.location.search);
-  const urlValue = params.get(key);
-  if (urlValue) return urlValue;
-  
-  const storedValue = localStorage.getItem(`config_${key}`);
-  if (storedValue) return storedValue;
-  
-  const envKey = `NEXT_PUBLIC_${key.toUpperCase().replace(/_/g, "_")}`;
-  const envValue = process.env[envKey];
-  if (envValue) return envValue;
-  
-  return defaultValue;
-}
+import { GRID_TEMPLATE } from "@/app/constants/ui";
+import { DEFAULT_DATASET_OPTION } from "@/app/constants/datasetConfig";
 
 export default function Home() {
-  const [bundleUrl, setBundleUrl] = useState("/sushi.json");
-  const [availableInfoTypes, setAvailableInfoTypes] = useState<string[]>([...INFO_TYPES]);
+  // Use default dataset directly from datasetConfig.ts
+  const [bundleUrl] = useState(DEFAULT_DATASET_OPTION.bundleUrl);
+  const [availableInfoTypes] = useState<string[]>([...DEFAULT_DATASET_OPTION.infoTypes]);
   const [dataset, setDataset] = useState<DatasetVideo[]>([]);
-  
-  // Load configuration on mount
-  useEffect(() => {
-    setBundleUrl(getConfigValue("bundle_url", "/sushi.json"));
-    const rawInfoTypes = getConfigValue("info_types", "");
-    if (rawInfoTypes) {
-      const parsed = rawInfoTypes.split(",").map((s) => s.trim()).filter(Boolean);
-      if (parsed.length > 0) setAvailableInfoTypes(parsed);
-    }
-  }, []);
   // Facets are now adjustable:
   // - `shownFacets` are the facets rendered in the FacetPanel / used for context computations
   // - `facetCandidates` are the pool you can add from (bundle: `facet_candidates`)
@@ -50,7 +24,7 @@ export default function Home() {
   const [selectedType, setSelectedType] = useState<string>("All");
   // Information types are now adjustable:
   // - `selectedInfoTypes` drives filtering + coverage computations
-  // - `availableInfoTypes` remains backed by NEXT_PUBLIC_INFO_TYPES (constants/ui.ts)
+  // - `availableInfoTypes` comes from dataset configuration (datasetConfig.ts)
   const [selectedInfoTypes, setSelectedInfoTypes] = useState<string[]>(() => {
     // Start minimal: Method - Instruction only (if present); otherwise fall back to first available.
     if (availableInfoTypes.includes("Method - Instruction")) return ["Method - Instruction"];
@@ -61,9 +35,25 @@ export default function Home() {
   const [denomMode, setDenomMode] = useState<'relative' | 'theoretical'>('relative');
   const [hoverTip, setHoverTip] = useState<null | { x: number; y: number; title: string; text: string }>(null);
 
+  // Update selectedInfoTypes when availableInfoTypes changes (e.g., from config)
+  useEffect(() => {
+    // If current selection is invalid or availableInfoTypes is empty, reset selection
+    const isValid = selectedInfoTypes.every((t) => availableInfoTypes.includes(t));
+    if (!isValid || (availableInfoTypes.length === 0 && selectedInfoTypes.length > 0)) {
+      if (availableInfoTypes.includes("Method - Instruction")) {
+        setSelectedInfoTypes(["Method - Instruction"]);
+      } else if (availableInfoTypes.length > 0) {
+        setSelectedInfoTypes([availableInfoTypes[0]]);
+      } else {
+        setSelectedInfoTypes([]);
+      }
+    }
+  }, [availableInfoTypes]);
+
   useEffect(() => {
     const load = async () => {
       // Load bundled file with { context_schema, facet_candidates, labeled_dataset }
+      if (!bundleUrl) return;
       try {
         const bundle = await fetch(bundleUrl).then((r) => r.json());
         if (bundle && typeof bundle === "object" && (bundle.labeled_dataset || bundle.dataset)) {
