@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { FacetPanel } from "@/app/components/FacetPanel";
-import { StatsPanel } from "@/app/components/StatsPanel";
-import { UnitsList } from "@/app/components/UnitsList";
-import { DetailsPanel } from "@/app/components/DetailsPanel";
+import { FacetPanel } from "./components/FacetPanel";
+import { StatsPanel } from "./components/StatsPanel";
+import { UnitsList } from "./components/UnitsList";
+import { DetailsPanel } from "./components/DetailsPanel";
 import type { DatasetVideo, Facet } from "@/app/types";
 import { GRID_TEMPLATE } from "@/app/constants/ui";
 import { getSelectedDataset } from "@/app/constants/datasetConfig";
