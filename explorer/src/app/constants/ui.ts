@@ -33,6 +33,8 @@ export const UI_TERMINOLOGY: Record<string, string> = {
   
   // Facet Values - add mappings here as needed
   // Example: 'Do': 'Perform Action',
+  'na': 'N/A',
+  'none': 'None',
 };
 
 // Helper function to get terminology for a term (information type, facet name, or facet value)
