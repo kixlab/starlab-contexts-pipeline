@@ -10,7 +10,7 @@ export const INFORMATION_WINDOW_EXPANDED_LIMIT: number = 3;
 
 // Relevance threshold for showing information (0.0 to 1.0)
 // Only pieces with at least this percentage of matching facets will be shown
-export const INFORMATION_WINDOW_RELEVANCE_THRESHOLD: number = 0.8;
+export const INFORMATION_WINDOW_RELEVANCE_THRESHOLD: number = 0.7;
 
 // Terminology dictionary for custom terms (information types, facet names, facet values)
 // Maps original terms to display terms
