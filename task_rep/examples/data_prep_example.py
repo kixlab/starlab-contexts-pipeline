@@ -26,13 +26,13 @@ def example_build_dataset():
     # This will:
     # 1. Download videos to static/videos/{video_id}/
     # 2. Extract frames at 1 fps
-    # 3. Fetch transcripts (Whisper by default)
+    # 3. Fetch transcripts (OpenAI by default)
     # 4. Create static/datasets/sushi_v1.json
 
     output = build_dataset(
         task_id="sushi_v1",
         fps=1.0,
-        transcript_source="whisper"  # or "youtube-or-whisper"
+        transcript_source="openai"  # or "youtube-or-openai"
     )
 
     print(f"✓ Dataset built: {output}")

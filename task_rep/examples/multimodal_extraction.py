@@ -37,7 +37,7 @@ def prepare_dataset(task_id: str):
     output_path = build_dataset(
         task_id=task_id,
         fps=1.0,  # 1 frame per second
-        transcript_source="whisper",
+        transcript_source="openai",
     )
 
     return output_path
