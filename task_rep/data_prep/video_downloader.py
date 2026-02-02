@@ -15,38 +15,36 @@ from typing import List, Optional
 import cv2
 
 
-# Central video storage
-VIDEOS_DIR = Path("./static/videos/")
-
-
 @dataclass
-class FrameConfig:
+class VideoDownloadConfig:
     """Configuration for frame extraction."""
+    videos_dir: Path
 
     fps: float = 1.0  # Extract 1 frame per second
     max_dimension: int = 720  # Resize to max 720p
     format: str = "jpg"
     quality: int = 95  # JPEG quality
+    audio_format: str = "m4a"
+    audio_quality: int = 128  # Audio quality in kbps
 
 
 class VideoDownloader:
     """
-    Downloads YouTube videos and extracts frames.
+    Downloads YouTube videos, extracts audio, and extracts frames.
 
     All videos stored in a central location: static/videos/{video_id}/
     """
 
-    def __init__(self, config: Optional[FrameConfig] = None):
-        self.config = config or FrameConfig()
-        VIDEOS_DIR.mkdir(parents=True, exist_ok=True)
+    def __init__(self, config: VideoDownloadConfig):
+        self.config = config
 
     def get_video_dir(self, video_id: str) -> Path:
         """Get the directory for a video."""
-        return VIDEOS_DIR / video_id
+        return self.config.videos_dir / video_id
 
     def download_video(self, video_id: str, force: bool = False) -> bool:
         """
-        Download a YouTube video.
+        Download a YouTube video and audio separately.
 
         Args:
             video_id: YouTube video ID
@@ -57,16 +55,33 @@ class VideoDownloader:
         """
         video_dir = self.get_video_dir(video_id)
         video_path = video_dir / f"{video_id}.mp4"
-
-        # Check if already downloaded
-        if video_path.exists() and not force:
-            print(f"Video {video_id} already exists, skipping download")
-            return True
+        audio_path = video_dir / f"{video_id}.{self.config.audio_format}"
 
         video_dir.mkdir(parents=True, exist_ok=True)
 
         url = f"https://www.youtube.com/watch?v={video_id}"
 
+        video_success = True
+        audio_success = True
+
+        # Download video if needed
+        if not video_path.exists() or force:
+            print(f"  Downloading video...")
+            video_success = self._download_video_file(url, video_path, video_id)
+        else:
+            print(f"  Video already exists")
+
+        # Download audio if needed
+        if not audio_path.exists() or force:
+            print(f"  Downloading audio...")
+            audio_success = self._download_audio_file(url, audio_path, video_id)
+        else:
+            print(f"  Audio already exists")
+
+        return video_success and audio_success
+
+    def _download_video_file(self, url: str, video_path: Path, video_id: str) -> bool:
+        """Download video file only."""
         # Try multiple format selectors with fallbacks
         format_selectors = [
             "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]/best[height<=720]",
@@ -83,9 +98,7 @@ class VideoDownloader:
                 "-o", str(video_path),
             ]
 
-            # Add cookie support to handle bot detection
-            # Try to use browser cookies (chrome, firefox, etc.)
-            # This helps bypass "Sign in to confirm you're not a bot" errors
+            # Add cookie support
             if os.environ.get("YT_DLP_COOKIES_FROM_BROWSER"):
                 cmd.extend(["--cookies-from-browser", os.environ["YT_DLP_COOKIES_FROM_BROWSER"]])
             elif os.path.exists(os.path.expanduser("~/.config/yt-dlp/cookies.txt")):
@@ -101,28 +114,69 @@ class VideoDownloader:
                     timeout=300,
                 )
                 if result.returncode == 0:
-                    print(f"Downloaded video {video_id}")
                     return True
 
-                # If this wasn't the last format selector, try the next one
+                # Try next format selector
                 if i < len(format_selectors) - 1:
                     continue
                 else:
-                    # Last attempt failed, show error
-                    print(f"Failed to download {video_id}: {result.stderr}")
+                    print(f"    Failed to download video {video_id}: {result.stderr}")
                     return False
 
             except subprocess.TimeoutExpired:
-                print(f"Timeout downloading {video_id}")
+                print(f"    Timeout downloading video {video_id}")
                 return False
             except FileNotFoundError:
-                print(f"yt-dlp not found. Install with: pip install yt-dlp")
+                print(f"    yt-dlp not found. Install with: pip install yt-dlp")
                 return False
             except Exception as e:
-                print(f"Error downloading {video_id}: {e}")
+                print(f"    Error downloading video {video_id}: {e}")
                 return False
 
         return False
+
+    def _download_audio_file(self, url: str, audio_path: Path, video_id: str) -> bool:
+        """Download audio file only."""
+        cmd = [
+            "yt-dlp",
+            "-f", "bestaudio",
+            "--no-warnings",
+            "-x",  # Extract audio only
+            "--audio-format", self.config.audio_format,
+            "--audio-quality", str(self.config.audio_quality),
+            "-o", str(audio_path.with_suffix("")),  # yt-dlp will add the extension
+        ]
+
+        # Add cookie support
+        if os.environ.get("YT_DLP_COOKIES_FROM_BROWSER"):
+            cmd.extend(["--cookies-from-browser", os.environ["YT_DLP_COOKIES_FROM_BROWSER"]])
+        elif os.path.exists(os.path.expanduser("~/.config/yt-dlp/cookies.txt")):
+            cmd.extend(["--cookies", os.path.expanduser("~/.config/yt-dlp/cookies.txt")])
+
+        cmd.append(url)
+
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=300,
+            )
+            if result.returncode == 0:
+                return True
+            else:
+                print(f"    Failed to download audio {video_id}: {result.stderr}")
+                return False
+
+        except subprocess.TimeoutExpired:
+            print(f"    Timeout downloading audio {video_id}")
+            return False
+        except FileNotFoundError:
+            print(f"    yt-dlp not found. Install with: pip install yt-dlp")
+            return False
+        except Exception as e:
+            print(f"    Error downloading audio {video_id}: {e}")
+            return False
 
     def extract_frames(self, video_id: str, force: bool = False) -> List[dict]:
         """
@@ -256,6 +310,17 @@ class VideoDownloader:
 
         frame_files = sorted(frames_dir.glob(f"{video_id}_frame_*.{self.config.format}"))
         return self._build_frame_info(video_id, frame_files)
+    
+    def get_audio(self, video_id: str) -> Path:
+        """Get audio path."""
+        video_dir = self.get_video_dir(video_id)
+        audio_path = video_dir / f"{video_id}.{self.config.audio_format}"
+        return audio_path
+    
+    def has_audio(self, video_id: str) -> bool:
+        """Check if audio is extracted."""
+        audio_path = self.get_video_dir(video_id) / f"{video_id}.{self.config.audio_format}"
+        return audio_path.exists()
 
     def has_video(self, video_id: str) -> bool:
         """Check if video is downloaded."""

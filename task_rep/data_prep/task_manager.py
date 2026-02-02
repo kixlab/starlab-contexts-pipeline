@@ -17,10 +17,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-
-TASKS_FILE = Path("./static/tasks.json")
-
-
 @dataclass
 class Task:
     """A task definition."""
@@ -54,8 +50,8 @@ class Task:
 class TaskManager:
     """Manages tasks.json."""
 
-    def __init__(self, tasks_file: Optional[Path] = None):
-        self.tasks_file = tasks_file or TASKS_FILE
+    def __init__(self, tasks_file: Path):
+        self.tasks_file = tasks_file
         self.tasks_file.parent.mkdir(parents=True, exist_ok=True)
         self._load()
 

@@ -12,12 +12,10 @@ import subprocess
 from pathlib import Path
 from typing import Literal
 
-from .task_manager import TaskManager
-from .video_downloader import VideoDownloader, FrameConfig
+from .video_downloader import VideoDownloader, VideoDownloadConfig
+from .task_manager import Task
 
-
-DATASETS_DIR = Path("./static/datasets/")
-
+from .whisper import transcribe_audio
 
 def _make_youtube_url(video_id: str) -> str:
     """Construct YouTube URL from video ID."""
@@ -81,67 +79,10 @@ def _fetch_youtube_transcript(video_id: str) -> dict:
 
     return None
 
-
-def _transcribe_with_whisper(video_id: str, video_path: Path) -> dict:
-    """
-    Transcribe video using OpenAI Whisper API.
-
-    Returns dict with 'transcript' and 'content' fields.
-    """
-    try:
-        # Import here to avoid requiring openai for all operations
-        import os
-        from openai import OpenAI
-
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            print(f"    OPENAI_API_KEY not set, cannot use Whisper")
-            return {"transcript": [], "content": "", "transcript_source": "none"}
-
-        client = OpenAI(api_key=api_key)
-
-        print(f"    Transcribing with Whisper...")
-        with open(video_path, "rb") as audio_file:
-            response = client.audio.transcriptions.create(
-                model="whisper-1",
-                file=audio_file,
-                response_format="verbose_json",
-                timestamp_granularities=["segment"]
-            )
-
-        # Parse response
-        transcript = []
-        content = ""
-
-        if hasattr(response, 'segments'):
-            for segment in response.segments:
-                text = segment.get('text', '').strip()
-                if text:
-                    transcript.append({
-                        "text": text,
-                        "start": segment.get('start', 0.0),
-                        "end": segment.get('end', 0.0)
-                    })
-                    content += text + " "
-        elif hasattr(response, 'text'):
-            # Fallback if segments not available
-            content = response.text
-            transcript = [{"text": content, "start": 0.0, "end": 0.0}]
-
-        return {
-            "transcript": transcript,
-            "content": content.strip(),
-            "transcript_source": "whisper"
-        }
-
-    except Exception as e:
-        print(f"    Whisper transcription failed: {e}")
-        return {"transcript": [], "content": "", "transcript_source": "none"}
-
-
 def build_dataset(
-    task_id: str,
-    fps: float = 1.0,
+    task: Task,
+    base_dir: Path,
+    video_download_config: VideoDownloadConfig,
     transcript_source: Literal["whisper", "youtube-or-whisper"] = "whisper",
     force_download: bool = False,
     force_extract: bool = False,
@@ -179,13 +120,9 @@ def build_dataset(
         # Prefer YouTube transcripts
         build_dataset("sushi_v1", transcript_source="youtube-or-whisper")
     """
-    # Load task
-    manager = TaskManager()
-    task = manager.get_task(task_id)
 
-    # Setup paths
-    DATASETS_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = DATASETS_DIR / f"{task_id}.json"
+    output_path = base_dir / f"{task.id}.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Load existing dataset if it exists
     existing_dataset = {}
@@ -197,8 +134,7 @@ def build_dataset(
         print(f"Loaded {len(existing_dataset)} existing videos")
 
     # Initialize downloader
-    config = FrameConfig(fps=fps)
-    downloader = VideoDownloader(config)
+    downloader = VideoDownloader(video_download_config)
 
     # Process each video
     dataset = []
@@ -230,7 +166,6 @@ def build_dataset(
         video_failed = False
 
         # Process video/frames if needed
-        video_path = None
         if not has_frames:
             try:
                 skip_download = downloader.has_video(video_id) and not force_download
@@ -256,9 +191,6 @@ def build_dataset(
                     video_data["frames"] = frames
                     print(f"  ✓ {len(frames)} frames")
 
-                    # Get video path for potential Whisper transcription
-                    video_path = downloader.get_video_dir(video_id) / f"{video_id}.mp4"
-
             except Exception as e:
                 print(f"  ✗ Error processing video: {e}")
                 video_failed = True
@@ -268,6 +200,16 @@ def build_dataset(
             print(f"  Skipping video {video_id} (unavailable or failed to download)")
             skipped_videos.append(video_id)
             continue
+
+        audio_path = downloader.get_audio(video_id)
+        if not audio_path.exists():
+            print(f"  ✗ Failed to get audio")
+            video_failed = True
+            skipped_videos.append(video_id)
+            continue
+        else:
+            video_data["audio"] = audio_path
+            print(f"  ✓ Audio: {audio_path}")
 
         # Fetch transcript if needed
         if not has_transcript:
@@ -284,20 +226,8 @@ def build_dataset(
             # Fall back to Whisper if needed
             if not transcript_data or not transcript_data.get("transcript"):
                 if transcript_source == "whisper" or transcript_source == "youtube-or-whisper":
-                    # Ensure video is downloaded
-                    if video_path is None or not video_path.exists():
-                        video_path = downloader.get_video_dir(video_id) / f"{video_id}.mp4"
-                        if not video_path.exists():
-                            print(f"    Downloading video for Whisper...")
-                            try:
-                                success = downloader.download_video(video_id)
-                                if not success:
-                                    print(f"    ✗ Failed to download video")
-                            except Exception as e:
-                                print(f"    ✗ Could not download video: {e}")
-
-                    if video_path and video_path.exists():
-                        transcript_data = _transcribe_with_whisper(video_id, video_path)
+                    if audio_path.exists():
+                        transcript_data = transcribe_audio(audio_path)
                         if transcript_data.get("transcript"):
                             print(f"    ✓ Whisper transcript: {len(transcript_data['transcript'])} segments")
 
@@ -320,6 +250,7 @@ def build_dataset(
     print(f"  Total videos processed: {len(dataset)}/{len(task.video_ids)}")
     print(f"  With frames: {sum(1 for v in dataset if v.get('frames'))}")
     print(f"  With transcripts: {sum(1 for v in dataset if v.get('transcript'))}")
+    print(f"  With audio: {sum(1 for v in dataset if v.get('audio'))}")
 
     # Show transcript sources
     sources = {}

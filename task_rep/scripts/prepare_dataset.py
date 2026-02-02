@@ -23,15 +23,25 @@ Usage:
 """
 
 import argparse
+from pathlib import Path
+from data_prep import TaskManager, build_dataset, VideoDownloadConfig
 
-from data_prep import TaskManager, build_dataset
+TASKS_FILE = Path("./static/tasks.json")
 
+VIDEOS_DIR = Path("./static/videos/")
+
+DATASETS_DIR = Path("./static/datasets/")
 
 def cmd_build(args):
     """Build a dataset from task definition."""
+    manager = TaskManager(tasks_file=TASKS_FILE)
+    task = manager.get_task(args.task_id)
+    video_download_config = VideoDownloadConfig(videos_dir=VIDEOS_DIR)
+
     output_path = build_dataset(
-        task_id=args.task_id,
-        fps=args.fps,
+        task=task,
+        base_dir=DATASETS_DIR,
+        video_download_config=video_download_config,
         transcript_source=args.transcript_source,
         force_download=args.force_download or args.force_all,
         force_extract=args.force_extract or args.force_all,
@@ -42,7 +52,7 @@ def cmd_build(args):
 
 def cmd_build_all(args):
     """Build datasets for all tasks."""
-    manager = TaskManager()
+    manager = TaskManager(tasks_file=TASKS_FILE)
     tasks = manager.list_tasks()
 
     if not tasks:
@@ -62,9 +72,11 @@ def cmd_build_all(args):
         print(f"{'='*60}")
 
         try:
+            video_download_config = VideoDownloadConfig(videos_dir=VIDEOS_DIR)
             output_path = build_dataset(
-                task_id=task.id,
-                fps=args.fps,
+                task=task,
+                base_dir=DATASETS_DIR,
+                video_download_config=video_download_config,
                 transcript_source=args.transcript_source,
                 force_download=args.force_download or args.force_all,
                 force_extract=args.force_extract or args.force_all,
@@ -92,7 +104,7 @@ def cmd_build_all(args):
 
 def cmd_list(args):
     """List all tasks."""
-    manager = TaskManager()
+    manager = TaskManager(tasks_file=TASKS_FILE)
     tasks = manager.list_tasks()
 
     if not tasks:
@@ -118,7 +130,7 @@ def cmd_list(args):
 
 def cmd_info(args):
     """Show task information."""
-    manager = TaskManager()
+    manager = TaskManager(tasks_file=TASKS_FILE)
     task = manager.get_task(args.task_id)
 
     print(f"\nTask: {task.id}")
