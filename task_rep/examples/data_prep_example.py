@@ -72,8 +72,9 @@ def example_use_dataset():
                 messages=[{
                     "role": "user",
                     "content": MessageContent(
-                        text=f"Extract knowledge: {segment['text']}",
-                        image_paths=segment_frames
+                        content=[
+                            {"type": "text", "text": f"Extract knowledge: {segment['text']}"}
+                        ] + [{"type": "image_path", "path": p} for p in segment_frames]
                     )
                 }],
                 response_format=KnowledgeExtraction

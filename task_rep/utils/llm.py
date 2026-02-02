@@ -105,74 +105,96 @@ def encode_image_bytes(image_bytes: bytes) -> str:
 @dataclass
 class MessageContent:
     """
-    Flexible message content that can include text and/or images.
+    Flexible message content that supports true interleaving of text and images.
+
+    Content is specified as a list of blocks, where each block is a dict with uniform structure:
+    - Text: {"type": "text", "text": "..."}
+    - Image from path: {"type": "image_path", "path": "...", "detail": "auto"}
+    - Image from bytes: {"type": "image_bytes", "data": bytes, "detail": "auto"}
 
     Usage:
         # Text only
-        MessageContent(text="Describe this video")
+        MessageContent(content=[
+            {"type": "text", "text": "Describe this video"}
+        ])
 
-        # Text with images from paths
-        MessageContent(
-            text="What's happening in these frames?",
-            image_paths=["frame1.jpg", "frame2.jpg"]
-        )
+        # Text with images (non-interleaved)
+        MessageContent(content=[
+            {"type": "text", "text": "What's happening in these frames?"},
+            {"type": "image_path", "path": "frame1.jpg"},
+            {"type": "image_path", "path": "frame2.jpg"}
+        ])
 
-        # Text with image bytes
-        MessageContent(
-            text="Analyze this",
-            image_bytes=[img1_bytes, img2_bytes]
-        )
+        # True interleaving
+        MessageContent(content=[
+            {"type": "text", "text": "At 0-5s, the person says: 'First, take the flour'"},
+            {"type": "image_path", "path": "frame_002.jpg"},
+            {"type": "text", "text": "At 5-10s, they say: 'Mix it with water'"},
+            {"type": "image_path", "path": "frame_007.jpg"},
+        ])
+
+        # With image bytes
+        MessageContent(content=[
+            {"type": "text", "text": "Analyze this"},
+            {"type": "image_bytes", "data": img_bytes}
+        ])
     """
 
-    text: str
-    image_paths: Optional[List[str | Path]] = None
-    image_bytes: Optional[List[bytes]] = None
-    image_detail: Literal["auto", "low", "high"] = "auto"
+    content: List[Dict[str, Any]]
 
-    def to_openai_content(self) -> Union[str, List[Dict[str, Any]]]:
+    def to_openai_content(self) -> List[Dict[str, Any]]:
         """Convert to OpenAI API content format."""
-        if not self.image_paths and not self.image_bytes:
-            return self.text
+        # If only one text item, return as string (for API simplicity)
+        result: List[Dict[str, Any]] = []
 
-        content: List[Dict[str, Any]] = [{"type": "text", "text": self.text}]
+        for block in self.content:
+            block_type = block.get("type")
 
-        if self.image_paths:
-            for img_path in self.image_paths:
-                encoded = encode_image(img_path)
-                content.append(
+            if block_type == "text":
+                result.append({"type": "text", "text": block["text"]})
+
+            elif block_type == "image_path":
+                encoded = encode_image(block["path"])
+                detail = block.get("detail", "auto")
+                result.append(
                     {
                         "type": "image_url",
                         "image_url": {
                             "url": f"data:image/jpeg;base64,{encoded}",
-                            "detail": self.image_detail,
+                            "detail": detail,
                         },
                     }
                 )
 
-        if self.image_bytes:
-            for img_data in self.image_bytes:
-                encoded = encode_image_bytes(img_data)
-                content.append(
+            elif block_type == "image_bytes":
+                encoded = encode_image_bytes(block["data"])
+                detail = block.get("detail", "auto")
+                result.append(
                     {
                         "type": "image_url",
                         "image_url": {
                             "url": f"data:image/jpeg;base64,{encoded}",
-                            "detail": self.image_detail,
+                            "detail": detail,
                         },
                     }
                 )
 
-        return content
+        return result
 
     def to_anthropic_content(self) -> List[Dict[str, Any]]:
         """Convert to Anthropic API content format."""
-        content: List[Dict[str, Any]] = [{"type": "text", "text": self.text}]
+        result: List[Dict[str, Any]] = []
 
-        if self.image_paths:
-            for img_path in self.image_paths:
-                encoded = encode_image(img_path)
+        for block in self.content:
+            block_type = block.get("type")
+
+            if block_type == "text":
+                result.append({"type": "text", "text": block["text"]})
+
+            elif block_type == "image_path":
+                encoded = encode_image(block["path"])
                 # Detect media type from extension
-                suffix = Path(img_path).suffix.lower()
+                suffix = Path(block["path"]).suffix.lower()
                 media_type = {
                     ".jpg": "image/jpeg",
                     ".jpeg": "image/jpeg",
@@ -181,7 +203,7 @@ class MessageContent:
                     ".webp": "image/webp",
                 }.get(suffix, "image/jpeg")
 
-                content.append(
+                result.append(
                     {
                         "type": "image",
                         "source": {
@@ -192,10 +214,9 @@ class MessageContent:
                     }
                 )
 
-        if self.image_bytes:
-            for img_data in self.image_bytes:
-                encoded = encode_image_bytes(img_data)
-                content.append(
+            elif block_type == "image_bytes":
+                encoded = encode_image_bytes(block["data"])
+                result.append(
                     {
                         "type": "image",
                         "source": {
@@ -206,7 +227,7 @@ class MessageContent:
                     }
                 )
 
-        return content
+        return result
 
 
 # ============== API Wrappers ==============
@@ -346,8 +367,10 @@ class VLMClient:
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": MessageContent(
-                    text="What's in this image?",
-                    image_paths=["frame.jpg"]
+                    content=[
+                        {"type": "text", "text": "What's in this image?"},
+                        {"type": "image_path", "path": "frame.jpg"}
+                    ]
                 )}
             ],
             response_format=MyPydanticModel
@@ -500,7 +523,7 @@ def llm_get_response(batch_id: str, request_id: str) -> Dict[str, Any]:
 
 
 def llm_get_responses(batch_id: str) -> Dict[str, Dict[str, Any]]:
-    """Get all responses for a batch as a dict mapping request_id -> response."""
+    """Get all responses for a batch as a dict mapping request_id -> response data."""
     path = llm_get_responses_path(batch_id)
     responses = {}
     with open(path, "r", encoding="utf-8") as f:
@@ -512,7 +535,11 @@ def llm_get_responses(batch_id: str) -> Dict[str, Dict[str, Any]]:
             result = record[1]
             if "errors" in result:
                 raise ValueError(f"Request failed with errors: {result['errors']}")
-            responses[request_json["request_id"]] = result
+            # Return both options (from request) and response (from result)
+            responses[request_json["request_id"]] = {
+                "options": request_json.get("options", {}),
+                "response": result
+            }
     return responses
 
 

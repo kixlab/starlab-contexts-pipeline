@@ -119,8 +119,9 @@ def extract_knowledge_single(task: str, dataset_path: str, max_segments: int = 1
                         {
                             "role": "user",
                             "content": MessageContent(
-                                text=f"Extract knowledge from this tutorial segment:\n\nTranscript: {segment['text']}",
-                                image_paths=segment_frames,
+                                content=[
+                                    {"type": "text", "text": f"Extract knowledge from this tutorial segment:\n\nTranscript: {segment['text']}"}
+                                ] + [{"type": "image_path", "path": p} for p in segment_frames]
                             ),
                         },
                     ],
@@ -201,8 +202,9 @@ async def extract_knowledge_batch(
 
             # Build message with images
             message_content = MessageContent(
-                text=f"Extract knowledge from this tutorial segment:\n\nTranscript: {segment['text']}",
-                image_paths=segment_frames,
+                content=[
+                    {"type": "text", "text": f"Extract knowledge from this tutorial segment:\n\nTranscript: {segment['text']}"}
+                ] + [{"type": "image_path", "path": p} for p in segment_frames]
             )
 
             messages = [

@@ -9,20 +9,15 @@ This package defines:
 - Dataset preparation (tasks, videos, frames)
 """
 
-from .schema import (  # noqa: F401
-    KnowledgeBase,
-    KnowledgeItem,
-    KnowledgeItemType,
-    KnowledgeSource,
-    KnowledgeSubtype,
-    Video,
-    VideoFrame,
-    VideoTranscriptSegment,
-)
-
 from .pipeline import (  # noqa: F401
     ExtractionConfig,
     run_extraction,
+)
+
+from .knowledge_items import (  # noqa: F401
+    KnowledgeExtractor,
+    VLMKnowledgeExtractor,
+    construct_knowledge_base,
 )
 
 from .utils.llm import (  # noqa: F401
