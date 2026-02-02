@@ -208,7 +208,7 @@ def build_dataset(
             skipped_videos.append(video_id)
             continue
         else:
-            video_data["audio"] = audio_path
+            video_data["audio"] = str(audio_path)
             print(f"  ✓ Audio: {audio_path}")
 
         # Fetch transcript if needed
