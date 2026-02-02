@@ -1,23 +1,5 @@
-"""
-Task representation layer.
-
-This package defines:
-- Core domain models (videos, knowledge items, knowledge base)
-- Simple, testable extraction interfaces
-- A minimal pipeline to build a knowledge item dataset from a video corpus
-- VLM utilities for multimodal extraction
-- Dataset preparation (tasks, videos, frames)
-"""
-
-from .pipeline import (  # noqa: F401
-    ExtractionConfig,
-    run_extraction,
-)
-
 from .knowledge_items import (  # noqa: F401
-    KnowledgeExtractor,
     VLMKnowledgeExtractor,
-    construct_knowledge_base,
 )
 
 from .utils.llm import (  # noqa: F401
@@ -33,6 +15,6 @@ from .data_prep import (  # noqa: F401
     TaskManager,
     Task,
     VideoDownloader,
-    FrameConfig,
+    VideoDownloadConfig,
     build_dataset,
 )

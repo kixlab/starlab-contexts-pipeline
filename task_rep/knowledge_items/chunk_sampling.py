@@ -8,7 +8,7 @@ For TUTORIAL: max_frames = number of chunks across entire video
 from dataclasses import dataclass
 from enum import Enum
 from typing import List
-from task_rep.knowledge_items import VideoFrame
+from .schema import VideoFrame
 
 
 class ChunkSizes(str, Enum):

@@ -8,3 +8,7 @@ from .llm import (  # noqa: F401
     llm_get_responses,
     process_api_requests,
 )
+
+from .embeddings import (  # noqa: F401
+    get_embeddings,
+)

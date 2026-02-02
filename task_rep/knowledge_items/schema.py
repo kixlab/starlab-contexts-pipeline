@@ -89,6 +89,8 @@ class KnowledgeItem:
     # - For STEP items: str (induced step taxonomy value)
     # - For TUTORIAL items: None
     subtype: Optional[KnowledgeItemSubtype] = None
+    # Unit ID for clustering (assigned by clustering algorithm)
+    unit_id: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -99,6 +101,7 @@ class KnowledgeItem:
         if self.subtype is not None:
             # For AtomicType enums, use .value; for induced step taxonomy, use string as-is
             data["subtype"] = self.subtype.value if isinstance(self.subtype, AtomicType) else self.subtype
+        # unit_id is already serializable (str or None)
         return data
 
     @staticmethod
@@ -133,6 +136,7 @@ class KnowledgeItem:
             text=payload["text"],
             source=source,
             subtype=subtype,
+            unit_id=payload.get("unit_id"),
             metadata=dict(payload.get("metadata", {})),
         )
 

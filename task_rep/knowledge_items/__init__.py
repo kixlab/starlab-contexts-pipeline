@@ -1,8 +1,6 @@
 """Knowledge extraction modules."""
 
-from .vlm_extractor import VLMKnowledgeExtractor, aggregate_step_taxonomy  # noqa: F401
-
-
+from .vlm_extractor import VLMKnowledgeExtractor  # noqa: F401
 
 from .taxonomy import (  # noqa: F401
     AtomicType,
@@ -24,15 +22,7 @@ from .schema import (  # noqa: F401
     VideoTranscriptSegment,
 )
 
-from .clustering import (  # noqa: F401
-    ClusteringConfig,
-    cluster_knowledge_items,
-    cluster_knowledge_base,
-    get_cluster_representatives,
-    get_cluster_members,
-)
-
-from .chunk_sampling import (  # noqa: F001
+from .chunk_sampling import (  # noqa: F401
     ChunkConfig,
     ATOMIC_CHUNK_CONFIG,
     STEP_CHUNK_CONFIG,
@@ -40,7 +30,16 @@ from .chunk_sampling import (  # noqa: F001
     sample_frames,
 )
 
-from .dataset_io import (  # noqa: F401
+from .clustering import (  # noqa: F401
+    ClusterConfig,
+    cluster_knowledge_items,
+)
+
+from .io import (  # noqa: F401
     save_knowledge_items,
     load_knowledge_items,
+    get_extraction_cache_path,
+    get_clustering_cache_path,
 )
+
+from .interface import extract_and_cluster_knowledge_items  # noqa: F401
