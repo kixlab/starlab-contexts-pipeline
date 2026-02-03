@@ -11,7 +11,6 @@ Usage:
 """
 
 import argparse
-import json
 import sys
 from pathlib import Path
 from typing import Optional
@@ -19,55 +18,12 @@ from typing import Optional
 from task_rep.knowledge_items import (
     extract_and_cluster_knowledge_items,
     load_knowledge_items,
+    load_dataset,
     get_extraction_cache_path,
     get_clustering_cache_path,
     ClusterConfig,
     KnowledgeItemType,
-    Video,
-    VideoTranscriptSegment,
-    VideoFrame,
 )
-
-
-def load_dataset(dataset_path: Path) -> list[Video]:
-    """Load videos from dataset JSON."""
-    with open(dataset_path, "r", encoding="utf-8") as f:
-        raw = json.load(f)
-
-    videos = []
-    for entry in raw:
-        transcript_segments = [
-            VideoTranscriptSegment(
-                text=seg["text"],
-                start=float(seg["start"]),
-                end=float(seg["end"]),
-            )
-            for seg in entry.get("transcript", [])
-        ]
-
-        frames = []
-        if "frames" in entry:
-            frames = [
-                VideoFrame(
-                    path=f["path"],
-                    time=float(f["time"]),
-                    caption=f.get("caption"),
-                )
-                for f in entry["frames"]
-            ]
-
-        video = Video(
-            id=entry["id"],
-            url=entry["url"],
-            title=entry["title"],
-            original_title=entry.get("original_title", entry["title"]),
-            content=entry.get("content", "") or "",
-            transcript=transcript_segments,
-            frames=frames,
-        )
-        videos.append(video)
-
-    return videos
 
 
 def cmd_extract(args):
