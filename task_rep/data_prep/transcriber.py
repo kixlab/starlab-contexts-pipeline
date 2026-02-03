@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import List, Optional
 
 # Whisper API has a 25 MB file size limit, use 24 MB to be safe
-MAX_FILE_SIZE_MB = 10
+MAX_FILE_SIZE_MB = 24
 CHUNK_DURATION_SECONDS = 600  # 10 minutes per chunk
 MIN_CHUNK_DURATION_SECONDS = 60  # Minimum chunk duration
 
