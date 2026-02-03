@@ -42,9 +42,11 @@ def example_use_dataset():
     """Use the dataset for extraction."""
     import json
     from task_rep import VLMClient, MessageContent
-    from pydantic import BaseModel, Field
+    from pydantic import BaseModel, ConfigDict, Field
 
     class KnowledgeExtraction(BaseModel):
+        model_config = ConfigDict(extra='forbid')
+
         actions: list[str] = Field(description="Actions in segment")
         objects: list[str] = Field(description="Key objects")
 

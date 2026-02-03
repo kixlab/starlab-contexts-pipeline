@@ -10,33 +10,23 @@ from enum import Enum
 from typing import List
 from .schema import VideoFrame
 
-
-class ChunkSizes(str, Enum):
-    """Chunk sizes."""
-    
-    ALL = None  # Use all transcript segments (up to max)
-    EIGHT = 8  # Use 8 chunks
-    FOUR = 4  # Use 4 chunks
-    TWO = 2  # Use 2 chunks
-    ONE = 1  # Use 1 chunk
-
 @dataclass
 class ChunkConfig:
     """Configuration for chunks."""
-    size: ChunkSizes = ChunkSizes.ALL
+    size: int = 0 # 0 means use all transcript segments (up to max)
     frames_per_chunk: int = 1
 
 # Default configs for each granularity
 ATOMIC_CHUNK_CONFIG = ChunkConfig(
-    size=ChunkSizes.ALL,
+    size=0,
     frames_per_chunk=1,
 )
 STEP_CHUNK_CONFIG = ChunkConfig(
-    size=ChunkSizes.ALL,
+    size=0,
     frames_per_chunk=1,
 )
 TUTORIAL_CHUNK_CONFIG = ChunkConfig(
-    size=ChunkSizes.EIGHT,
+    size=8,
     frames_per_chunk=1,
 )
 

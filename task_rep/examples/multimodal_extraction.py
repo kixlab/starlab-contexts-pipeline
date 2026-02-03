@@ -10,7 +10,7 @@ This example demonstrates:
 import asyncio
 import json
 from pathlib import Path
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import List
 
 from task_rep import (
@@ -48,6 +48,7 @@ def prepare_dataset(task_id: str):
 
 class SegmentKnowledge(BaseModel):
     """Knowledge extracted from a video segment with visual context."""
+    model_config = ConfigDict(extra='forbid')
 
     actions: List[str] = Field(
         description="Actions being performed in this segment"

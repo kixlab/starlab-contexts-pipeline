@@ -46,40 +46,40 @@ class AtomicType(str, Enum):
 
 # Type descriptions for VLM classification
 TYPE_DESCRIPTIONS: Dict[AtomicType, str] = {
-    AtomicType.METHOD_SUBGOAL: """Subgoal: Objective of a subsection.
+    AtomicType.METHOD_SUBGOAL: """Objective of a subsection.
 Example: "Now for the intricate layer that will give me the final webbing look.""",
 
-    AtomicType.METHOD_INSTRUCTION: """Instruction: Actions that the instructor performs to complete the task.
+    AtomicType.METHOD_INSTRUCTION: """Actions that the instructor performs to complete the task.
 Example: "We're going to pour that into our silicone baking cups.""",
 
-    AtomicType.METHOD_TOOL: """Tool: Introduction of the materials, ingredients, and equipment to be used.
+    AtomicType.METHOD_TOOL: """Introduction of the materials, ingredients, and equipment to be used.
 Example: "I'm also going to use a pair of scissors, a glue stick, some fancy tape or some regular tape.""",
 
-    AtomicType.SUPPLEMENTARY_TIP: """Tip: Additional instructions or information that makes instructions easier, faster, or more efficient.
+    AtomicType.SUPPLEMENTARY_TIP: """Additional instructions or information that makes instructions easier, faster, or more efficient.
 Example: "I find that it's easier to do just a couple of layers at a time instead of all four layers at a time.""",
 
-    AtomicType.SUPPLEMENTARY_WARNING: """Warning: Actions that should be avoided.
+    AtomicType.SUPPLEMENTARY_WARNING: """Actions that should be avoided.
 Example: "I don't know but I would say avoid using bleach if you can.""",
 
-    AtomicType.EXPLANATION_JUSTIFICATION: """Justification: Reasons why the instruction was performed.
+    AtomicType.EXPLANATION_JUSTIFICATION: """Reasons why the instruction was performed.
 Example: "Because every time we wear our contact lenses, makeup and even dirt particles [...] might harm our eyes directly.""",
 
-    AtomicType.EXPLANATION_EFFECT: """Effect: Consequences of the instruction.
+    AtomicType.EXPLANATION_EFFECT: """Consequences of the instruction.
 Example: "And these will overhang a little to help hide the gap.""",
 
-    AtomicType.DESCRIPTION_STATUS: """Status: Descriptions of the current state of the target object.
+    AtomicType.DESCRIPTION_STATUS: """Descriptions of the current state of the target object.
 Example: "Something sticky and dirty all through the back seat.""",
 
-    AtomicType.DESCRIPTION_CONTEXT: """Context: Descriptions of the method or the setting.
+    AtomicType.DESCRIPTION_CONTEXT: """Descriptions of the method or the setting.
 Example: "[...] The process of putting on a tip by hand [...] takes a lot of patience but it can be done if you're in a pinch.""",
 
-    AtomicType.DESCRIPTION_TOOL_SPECIFICATION: """Tool Specification: Descriptions of the tools and equipment.
+    AtomicType.DESCRIPTION_TOOL_SPECIFICATION: """Descriptions of the tools and equipment.
 Example: "These are awesome beans, creamy texture, slightly nutty loaded with flavor.""",
 
-    AtomicType.CONCLUSION_OUTCOME: """Outcome: Descriptions of the final results of the procedure.
+    AtomicType.CONCLUSION_OUTCOME: """Descriptions of the final results of the procedure.
 Example: "And now we have a dinosaur taggy blanket that wrinkles, so a fun gift for any baby on your gift giving list.""",
 
-    AtomicType.CONCLUSION_REFLECTION: """Reflection: Summary, evaluation, and suggestions for the future about the overall procedure.
+    AtomicType.CONCLUSION_REFLECTION: """Summary, evaluation, and suggestions for the future about the overall procedure.
 Example: "However, I am still concerned about how safe rubbing alcohol actually is to use so maybe next time, I will give vodka a try.""",
 }
 

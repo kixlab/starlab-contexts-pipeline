@@ -16,7 +16,7 @@ import asyncio
 from dataclasses import dataclass
 from task_rep.knowledge_items.schema import VideoTranscriptSegment
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from uuid import uuid4
 
 from .schema import (
@@ -47,6 +47,8 @@ from task_rep.prompts import atomic_extraction, step_aggregation, step_extractio
 
 class AtomicInformation(BaseModel):
     """Single atomic piece of information with taxonomy classification."""
+    model_config = ConfigDict(extra='forbid')
+
     atomic_type: str = Field(description="Classification from taxonomy (e.g., 'Method - Instruction')")
     content: str = Field(description="Natural text content of this atomic information")
     start: float = Field(description="Start time of the atomic information in the video")
@@ -55,11 +57,15 @@ class AtomicInformation(BaseModel):
 
 class AtomicExtractionResult(BaseModel):
     """Result of extracting all atomic information from a video."""
+    model_config = ConfigDict(extra='forbid')
+
     items: List[AtomicInformation] = Field(description="All atomic information items found in the video")
 
 
 class StepInformation(BaseModel):
     """Information about a single step (used for both discovery and detailed extraction)."""
+    model_config = ConfigDict(extra='forbid')
+
     name: str = Field(description="Name of this step (e.g., 'Prepare rice')")
     content: str = Field(description="Natural text content describing this step")
     start: float = Field(description="Start time of the step in the video")
@@ -68,16 +74,22 @@ class StepInformation(BaseModel):
 
 class StepExtractionResult(BaseModel):
     """Result of step extraction from a video."""
+    model_config = ConfigDict(extra='forbid')
+
     steps: List[StepInformation] = Field(description="All steps found in the video")
 
 
 class StepTaxonomy(BaseModel):
     """Aggregated taxonomy of canonical step names across all videos."""
+    model_config = ConfigDict(extra='forbid')
+
     steps: List[str] = Field(description="List of canonical step names")
 
 
 class TutorialInformation(BaseModel):
     """High-level tutorial summary."""
+    model_config = ConfigDict(extra='forbid')
+
     content: str = Field(description="Natural text summary of the entire tutorial")
 
 
@@ -108,7 +120,7 @@ class VLMKnowledgeExtractor:
     max_concurrency: int = 32
 
     # Chunk sampling config
-    chunk_config: Optional[ChunkConfig] = None
+    chunk_config: ChunkConfig = ATOMIC_CHUNK_CONFIG
 
     def __post_init__(self):
         """Initialize chunk sampling configs and default model based on provider."""
@@ -156,7 +168,7 @@ class VLMKnowledgeExtractor:
         segment_groups = []
         
         # Determine how to group segments
-        if target_chunks is None:
+        if target_chunks == 0:
             # i.e., ATOMIC/STEP or TUTORIAL with number of chunks larger than number of segments
             target_chunks = len(video.transcript)
             # Use each segment as its own chunk
@@ -181,7 +193,7 @@ class VLMKnowledgeExtractor:
                 frames=video.frames,
                 start_time=group_start,
                 end_time=group_end,
-                max_frames=self.chunk_config.frames_per_chunk
+                max_frames=frames_per_group
             )
 
             if group_frames or group_text:
@@ -258,7 +270,7 @@ class VLMKnowledgeExtractor:
         """Enqueue request to extract atomic information from a video."""
         # Build taxonomy reference
         taxonomy_desc = "\n".join([
-            f"- {type_name.value}: {desc.split('Example:')[0].strip()}"
+            f"- {type_name.value}: {desc}"
             for type_name, desc in TYPE_DESCRIPTIONS.items()
         ])
         instruction = atomic_extraction.get_instruction(taxonomy_desc)
