@@ -36,7 +36,7 @@ def sample_frames(
     start_time: float,
     end_time: float,
     max_frames: int,
-) -> List[str]:
+) -> List[VideoFrame]:
     """
     Sample frames from a time range according to a chunk size.
     """

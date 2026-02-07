@@ -234,6 +234,9 @@ class MessageContent:
 
         return result
 
+    def to_content(self) -> List[Dict[str, Any]]:
+        """Convert to content format."""
+        return self.content
 
 # ============== API Wrappers ==============
 
@@ -483,7 +486,6 @@ def llm_enqueue_request(
     batch_id: str,
     messages: List[Dict[str, Any]],
     response_format: Any,
-    model: str,
     options: Optional[Dict[str, Any]] = None,
     request_id: Optional[str] = None,
 ) -> str:
@@ -509,7 +511,6 @@ def llm_enqueue_request(
 
     record = {
         "request_id": req_id,
-        "model": model,
         "messages": serializable_messages,
         "response_format": response_format_dict,
         "options": options or {},
@@ -721,9 +722,8 @@ def estimate_prompt_tokens_from_messages(
     return total
 
 
-def estimate_token_consumption(request_json: dict) -> int:
+def estimate_token_consumption(request_json: dict, model: str | None) -> int:
     """Estimate total token consumption for a request."""
-    model = request_json.get("model")
     messages = request_json.get("messages", [])
     prompt_tokens = estimate_prompt_tokens_from_messages(messages, model)
 
@@ -742,8 +742,9 @@ def estimate_token_consumption(request_json: dict) -> int:
 async def process_api_requests(
     batch_id: str,
     max_concurrency: int = 64,
-    seconds_to_pause_after_limit_error: float = 60.0,
     provider: Literal["openai", "anthropic"] = "openai",
+    model: Optional[str] = None,
+    seconds_to_pause_after_limit_error: float = 60.0,
 ):
     """
     Process all enqueued requests in parallel with rate limiting and retries.
@@ -785,7 +786,7 @@ async def process_api_requests(
                     task_id=task_id,
                     request_json=record,
                     attempts_left=MAX_ATTEMPTS,
-                    token_consumption=estimate_token_consumption(record),
+                    token_consumption=estimate_token_consumption(record, model),
                 )
                 task_id += 1
                 status.num_tasks_started += 1
@@ -814,7 +815,6 @@ async def process_api_requests(
 
                     def _call():
                         r = req.request_json
-                        model = r.get("model")
                         messages = r.get("messages")
                         response_format = r.get("response_format")
 
@@ -832,7 +832,7 @@ async def process_api_requests(
                                     content = msg_content.to_anthropic_content()
                             processed_messages.append({"role": msg["role"], "content": content})
 
-                        return call_function(processed_messages, response_format, model=model)
+                        return call_function(processed_messages, response_format, model)
 
                     result = await asyncio.to_thread(_call)
                     _append_jsonl(responses_path, [req.request_json, result])
@@ -881,3 +881,38 @@ async def process_api_requests(
         f"Failed={status.num_tasks_failed} "
         f"RateLimitErrors={status.num_rate_limit_errors}"
     )
+
+def batch_run_llm_calls(
+    batch_id: str, 
+    request_args, 
+    func_request, 
+    func_response,
+    max_concurrency: int,
+    provider: Literal["openai", "anthropic"],
+    model: Optional[str],
+):
+    print(f"Batch ID for {func_request.__name__}: {batch_id}")
+    if len(request_args) == 0:
+        return []
+    req_ids = []
+    for request_arg in request_args:
+        api_args = func_request(**request_arg)
+        req_id = llm_enqueue_request(batch_id, **api_args)
+        req_ids.append(req_id)
+
+    asyncio.run(process_api_requests(
+        batch_id,
+        max_concurrency=max_concurrency,
+        provider=provider,
+        model=model,
+    ))
+    batch_responses = llm_get_responses(batch_id)
+
+    batch_results = []
+    for request_arg, req_id in zip(request_args, req_ids):
+        if req_id not in batch_responses:
+            raise ValueError(f"Request ID not found: {req_id}")
+        response = batch_responses[req_id]
+        result = func_response(response=response, **request_arg)
+        batch_results.append(result)
+    return batch_results

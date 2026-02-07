@@ -5,6 +5,11 @@ from enum import Enum
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
 from .taxonomy import AtomicType, AtomicCategory
+from .chunk_sampling import (
+    sample_frames,
+)
+from task_rep.utils.llm import MessageContent
+from task_rep.utils.video import format_time
 
 
 class KnowledgeItemType(str, Enum):
@@ -48,6 +53,118 @@ class Video:
     content: str
     transcript: List[VideoTranscriptSegment]
     frames: List[VideoFrame]
+
+    def format_to_message_content(
+        self,
+        use_vision: bool,
+        frames_per_group: int,
+        target_chunks: int = 0,
+    ) -> MessageContent:
+        """Format contents for prompt."""
+        if use_vision and not self.frames:
+            raise ValueError("When vision is enabled, video must have frames")
+
+        if not self.transcript:
+            raise ValueError("Video must have transcript")
+
+        segment_groups = []
+        
+        # Determine how to group segments
+        if target_chunks == 0:
+            # i.e., ATOMIC/STEP or TUTORIAL with number of chunks larger than number of segments
+            target_chunks = len(self.transcript)
+            segment_groups = [[seg] for seg in self.transcript]
+        else:
+            # i.e., TUTORIAL
+            segment_groups = self._group_segments(self.transcript, target_chunks)
+
+        content = []
+
+        for group in segment_groups:
+            # Get time range for this group
+            group_start = group[0].start
+            group_end = group[-1].end
+
+            # Combine transcript text from all segments in group
+            group_text = " ".join(seg.text for seg in group)
+
+            # Sample frames within this group's time range
+            group_frames = sample_frames(
+                frames=self.frames,
+                start_time=group_start,
+                end_time=group_end,
+                max_frames=frames_per_group
+            )
+
+            if group_frames or group_text:
+                # Add temporal marker
+                content.append({
+                    "type": "text",
+                    "text": f"\n--- Time {format_time(group_start)}-{format_time(group_end)} ---\n"
+                })
+
+                if group_text:
+                    # Add group transcript
+                    content.append({"type": "text", "text": f"{group_text}\n"})
+
+                if group_frames:
+                    # Interleave frames with time markers
+                    for frame in group_frames:
+                        content.append({
+                            "type": "text",
+                            "text": f"[Visual frame at {format_time(frame.time)}]\n"
+                        })
+                        content.append({"type": "image_path", "path": frame.path})
+
+        return MessageContent(content=content)
+
+    def _group_segments(self, segments: List[VideoTranscriptSegment], target_chunks: int) -> List[List[VideoTranscriptSegment]]:
+        """
+        Group segments to achieve target number of chunks.
+
+        Merges adjacent segments to create approximately target_chunks groups,
+        maintaining natural segment boundaries.
+        """
+        if len(segments) <= target_chunks:
+            # Already have fewer segments than target - use each segment as its own group
+            return [[seg] for seg in segments]
+
+        # Calculate how many segments per group on average to achieve target_chunks
+        segments_per_group = len(segments) / target_chunks
+
+        groups = []
+        current_group = []
+        current_count = 0
+
+        for i, segment in enumerate(segments):
+            current_group.append(segment)
+            current_count += 1
+
+            # Check if we should start a new group
+            # Either we've accumulated enough segments, or we're at the last segment
+            is_last_segment = (i == len(segments) - 1)
+            has_enough_segments = current_count >= segments_per_group
+            remaining_segments = len(segments) - i - 1
+            remaining_groups = target_chunks - len(groups) - 1
+
+            # Start new group if we have enough segments and there are enough remaining
+            # to fill the rest of the groups
+            if (has_enough_segments and remaining_segments >= remaining_groups) or is_last_segment:
+                groups.append(current_group)
+                current_group = []
+                current_count = 0
+
+                # Stop if we've reached target chunks
+                if len(groups) >= target_chunks:
+                    break
+
+        return groups
+
+    def get_duration(self) -> float:
+        """Get the duration of the video."""
+        transcript_end = self.transcript[-1].end if self.transcript and len(self.transcript) > 0 else 0
+        frames_end = self.frames[-1].time if self.frames and len(self.frames) > 0 else 0
+        return max(transcript_end, frames_end)
 
 
 @dataclass
