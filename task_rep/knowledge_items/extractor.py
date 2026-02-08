@@ -12,9 +12,9 @@ Design principles:
 
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import List, Optional
-from uuid import uuid4
 
 from .schema import (
     KnowledgeItem,
@@ -30,11 +30,13 @@ from .chunk_sampling import (
     TUTORIAL_CHUNK_CONFIG,
 )
 from task_rep.utils.llm import batch_run_llm_calls
+from task_rep.utils.llm import random_uid
+from task_rep.utils.llm import MessageContent
 
-from task_rep.prompts.atomic_extraction import form_atomic_extraction_request, process_atomic_extraction_response
-from task_rep.prompts.step_aggregation import form_step_aggregation_request, process_step_aggregation_response
-from task_rep.prompts.step_extraction import form_step_extraction_request_discovery, process_step_extraction_response_discovery, form_step_extraction_request_extraction, process_step_extraction_response_extraction
-from task_rep.prompts.tutorial_summary import form_tutorial_summary_request, process_tutorial_summary_response
+from task_rep.prompts.ki_atomic_extraction import form_atomic_extraction_request, process_atomic_extraction_response
+from task_rep.prompts.ki_step_aggregation import form_step_aggregation_request, process_step_aggregation_response
+from task_rep.prompts.ki_step_extraction import form_step_extraction_request_discovery, process_step_extraction_response_discovery, form_step_extraction_request_extraction, process_step_extraction_response_extraction
+from task_rep.prompts.ki_tutorial_summary import form_tutorial_summary_request, process_tutorial_summary_response
 
 @dataclass
 class VLMKnowledgeExtractor:
@@ -87,7 +89,7 @@ class VLMKnowledgeExtractor:
 
     def _extract_atomic(self, videos: List[Video]) -> List[KnowledgeItem]:
         """Extract atomic information from videos."""
-        batch_id = f"atomic_extraction_{uuid4().hex[:8]}"
+        batch_id = f"atomic_extraction_{random_uid()}"
 
         request_args = []
 
@@ -106,7 +108,7 @@ class VLMKnowledgeExtractor:
             )
             request_args.append({
                 "task": self.task,
-                "video_content": video_content,
+                "tutorial_content": video_content,
                 "information_taxonomy": information_taxonomy,
             })
 
@@ -146,6 +148,7 @@ class VLMKnowledgeExtractor:
                     text=content,
                     source=KnowledgeSource(
                         video_id=video.id,
+                        source_type="video",
                         local_index=idx,
                         time_range=(start, end),
                         parent_id=None,
@@ -157,8 +160,11 @@ class VLMKnowledgeExtractor:
     def _extract_steps(self, videos: List[Video]) -> List[KnowledgeItem]:
         """Extract steps from videos with automatic two-phase discovery and extraction."""
 
+        if len(videos) == 0:
+            return []
+
         # Phase 1: Discovery
-        discovery_batch_id = f"step_discovery_{uuid4().hex[:8]}"
+        discovery_batch_id = f"step_discovery_{random_uid()}"
         request_args = []
         for video in videos:
             video_content = video.format_to_message_content(
@@ -168,7 +174,7 @@ class VLMKnowledgeExtractor:
             )
             request_args.append({
                 "task": self.task,
-                "video_content": video_content,
+                "tutorial_content": video_content,
             })
 
         batch_results = batch_run_llm_calls(
@@ -181,30 +187,39 @@ class VLMKnowledgeExtractor:
             model=self.model,
         )
 
-        discovered_steps = []
+        steps_by_video = {}
         for video, result in zip(videos, batch_results):
+            steps_by_video[video.id] = {
+                "title": video.title,
+                "steps": [],
+            }
             for idx in range(len(result)):
                 name = result[idx].get("name")
                 content = result[idx].get("content")
                 start = result[idx].get("start")
                 end = result[idx].get("end")
-                discovered_steps.append({
+
+                steps_by_video[video.id]["steps"].append({
                     "name": name,
                     "content": content,
-                    "start": start,
-                    "end": end,
-                    "video_id": video.id,
-                    "video_title": video.title
+                    "start": float(start),
+                    "end": float(end),
                 })
 
-        if not discovered_steps:
-            return []
-
         # Phase 2: Aggregate taxonomy (corpus-level, single request)
-        aggregate_batch_id = f"step_taxonomy_agg_{uuid4().hex[:8]}"
+        aggregate_batch_id = f"step_taxonomy_agg_{random_uid()}"
+
+        # Format steps grouped by video
+        steps_by_video_contents = []
+        
+        for video_idx, video_data in enumerate(steps_by_video.values()):
+            steps_by_video_contents.append({"type": "text", "text": f"\nVideo {video_idx + 1}: {video_data['title']}"})
+            for idx, step in enumerate(video_data["steps"]):
+                steps_by_video_contents.append({"type": "text", "text": f"{idx+1}. [{step.get('name')}] {step.get('content')}"})
+
         request_args = [{
             "task": self.task,
-            "discovered_steps": discovered_steps,
+            "steps_by_tutorial": MessageContent(content=steps_by_video_contents),
         }]
 
         batch_results = batch_run_llm_calls(
@@ -231,7 +246,7 @@ class VLMKnowledgeExtractor:
             return []
 
         # Phase 3: Extraction
-        extraction_batch_id = f"step_extraction_{uuid4().hex[:8]}"
+        extraction_batch_id = f"step_extraction_{random_uid()}"
         request_args = []
         for video in videos:
             video_content = video.format_to_message_content(
@@ -242,7 +257,7 @@ class VLMKnowledgeExtractor:
 
             request_args.append({
                 "task": self.task,
-                "video_content": video_content,
+                "tutorial_content": video_content,
                 "step_taxonomy": step_taxonomy,
             })
 
@@ -270,6 +285,7 @@ class VLMKnowledgeExtractor:
                     text=content,
                     source=KnowledgeSource(
                         video_id=video.id,
+                        source_type="video",
                         local_index=idx,
                         time_range=(start, end),
                         parent_id=None,
@@ -280,7 +296,7 @@ class VLMKnowledgeExtractor:
 
     def _extract_tutorial(self, videos: List[Video]) -> List[KnowledgeItem]:
         """Extract tutorial summaries from videos."""
-        batch_id = f"tutorial_extraction_{uuid4().hex[:8]}"
+        batch_id = f"tutorial_extraction_{random_uid()}"
 
         request_args = []
 
@@ -292,7 +308,7 @@ class VLMKnowledgeExtractor:
             )
             request_args.append({
                 "task": self.task,
-                "video_content": video_content,
+                "tutorial_content": video_content,
             })
 
         batch_results = batch_run_llm_calls(
@@ -307,22 +323,22 @@ class VLMKnowledgeExtractor:
 
         items = []
         for video, result in zip(videos, batch_results):
-            for idx in range(len(result)):
-                content = result[idx].get("content")
-                item_id = f"tutorial:{idx}:{video.id}"
-                items.append(KnowledgeItem(
-                    id=item_id,
-                    type=KnowledgeItemType.TUTORIAL,
-                    text=content,  # Store as natural text
-                    source=KnowledgeSource(
-                        video_id=video.id,
-                        source_type="video",
-                        local_index=idx,
-                        time_range=(0, video.get_duration()),
-                        parent_id=None,
-                    ),
-                    subtype=None,
-                ))
+            assert len(result) == 1, "Expected exactly one result for tutorial summary"
+            content = result[0].get("content")
+            item_id = f"tutorial:{video.id}"
+            items.append(KnowledgeItem(
+                id=item_id,
+                type=KnowledgeItemType.TUTORIAL,
+                text=content,
+                source=KnowledgeSource(
+                    video_id=video.id,
+                    source_type="video",
+                    local_index=0,
+                    time_range=(0, video.get_duration()),
+                    parent_id=None,
+                ),
+                subtype=None,
+            ))
         return items
 
     def extract_batch(self, videos: List[Video]) -> List[KnowledgeItem]:

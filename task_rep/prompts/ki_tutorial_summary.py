@@ -4,25 +4,22 @@ Prompts for tutorial-level summarization.
 Generates high-level summaries that capture the core procedural
 knowledge of an entire tutorial video.
 """
-from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, Dict, List
+
 from task_rep.utils.llm import MessageContent
-
-
-class TutorialInformation(BaseModel):
-    """High-level tutorial summary."""
-    model_config = ConfigDict(extra='forbid')
-
-    content: str = Field(description="Comprehensive summary of the entire tutorial")
-
+from task_rep.prompts.ki_pydantic import TutorialInformation
 
 SYSTEM_MESSAGE = """You are an expert at understanding and summarizing tutorial videos about the task: {task}. You excel at synthesizing information from both visual demonstrations and narration."""
 
-USER_MESSAGE = """You are given temporally aligned frames and transcript from a tutorial video. Generate a comprehensive summary of the video using both visual context from frames and detailed information from the transcript that captures the core knowledge for completing the task."""
+USER_MESSAGE = """You are given temporally aligned frames and transcript from a tutorial video. Generate a comprehensive summary of the video using both visual context from frames and detailed information from the transcript that captures the core knowledge for completing the task.
+
+Tutorial:
+{tutorials}
+"""
 
 def form_tutorial_summary_request(
     task: str,
-    video_content: MessageContent,
+    tutorial_content: MessageContent,
     **kwargs,
 ) -> Dict[str, Any]:
     """Form request to extract tutorial summary from a video."""
@@ -30,16 +27,17 @@ def form_tutorial_summary_request(
     messages = [
         {
             "role": "system",
-            "content": MessageContent(content=[
-                {"type": "text", "text": SYSTEM_MESSAGE.format(task=task)}
-            ])
+            "content": MessageContent.from_template(
+                SYSTEM_MESSAGE,
+                task=task
+            )
         },
         {
             "role": "user",
-            "content": MessageContent(content=[
-                {"type": "text", "text": USER_MESSAGE},
-                *video_content.to_content()
-            ])
+            "content": MessageContent.from_template(
+                USER_MESSAGE,
+                tutorial=tutorial_content
+            )
         }
     ]
 
@@ -51,7 +49,7 @@ def form_tutorial_summary_request(
 def process_tutorial_summary_response(
         response: Dict[str, Any],
         **kwargs,
-    ) -> List[Any]:
+    ) -> List[Dict[str, Any]]:
     """Process response from tutorial summary."""
 
     result = response.get("response", {})

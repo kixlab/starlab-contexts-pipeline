@@ -16,6 +16,7 @@ import base64
 import json
 import os
 import random
+import re
 import threading
 import time
 from dataclasses import dataclass, field
@@ -237,6 +238,57 @@ class MessageContent:
     def to_content(self) -> List[Dict[str, Any]]:
         """Convert to content format."""
         return self.content
+
+    @classmethod
+    def from_template(cls, template: str, **kwargs) -> "MessageContent":
+        """Build MessageContent from a template with mixed str and MessageContent values.
+
+        String values are substituted via str.format(). MessageContent values are
+        spliced in-place, so their blocks (text, images, ...) appear exactly where
+        the placeholder was in the template.
+
+        Usage:
+            MessageContent.from_template(
+                "Here is the video: {video}\\nNow answer: {question}",
+                video=video_mc,        # MessageContent — spliced in place
+                question="What tool?", # str — normal substitution
+            )
+        """
+        # Separate str vs MessageContent kwargs
+        str_kwargs: Dict[str, str] = {}
+        mc_kwargs: Dict[str, "MessageContent"] = {}
+        for k, v in kwargs.items():
+            if isinstance(v, MessageContent):
+                mc_kwargs[k] = v
+            else:
+                str_kwargs[k] = str(v)
+
+        if not mc_kwargs:
+            return cls(content=[{"type": "text", "text": template.format(**str_kwargs)}])
+
+        # Replace MC placeholders with null-byte markers before str.format()
+        markers: Dict[str, str] = {}
+        for key in mc_kwargs:
+            marker = f"\x00MC_{key}\x00"
+            markers[key] = marker
+            template = template.replace(f"{{{key}}}", marker)
+
+        # Format the remaining string placeholders
+        text = template.format(**str_kwargs)
+
+        # Split on markers (preserving them) and interleave
+        pattern = "(" + "|".join(re.escape(m) for m in markers.values()) + ")"
+        parts = re.split(pattern, text)
+        marker_to_key = {m: k for k, m in markers.items()}
+
+        content: List[Dict[str, Any]] = []
+        for part in parts:
+            if part in marker_to_key:
+                content.extend(mc_kwargs[marker_to_key[part]].to_content())
+            elif part:
+                content.append({"type": "text", "text": part})
+
+        return cls(content=content)
 
 # ============== API Wrappers ==============
 

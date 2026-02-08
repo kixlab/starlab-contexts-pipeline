@@ -2,15 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
 from enum import Enum
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Union
 
 from .taxonomy import AtomicType, AtomicCategory
-from .chunk_sampling import (
-    sample_frames,
-)
 from task_rep.utils.llm import MessageContent
 from task_rep.utils.video import format_time
-
 
 class KnowledgeItemType(str, Enum):
     """Types of knowledge items we can extract."""
@@ -89,8 +85,7 @@ class Video:
             group_text = " ".join(seg.text for seg in group)
 
             # Sample frames within this group's time range
-            group_frames = sample_frames(
-                frames=self.frames,
+            group_frames = self.sample_frames(
                 start_time=group_start,
                 end_time=group_end,
                 max_frames=frames_per_group
@@ -107,7 +102,7 @@ class Video:
                     # Add group transcript
                     content.append({"type": "text", "text": f"{group_text}\n"})
 
-                if group_frames:
+                if group_frames and use_vision:
                     # Interleave frames with time markers
                     for frame in group_frames:
                         content.append({
@@ -166,6 +161,33 @@ class Video:
         frames_end = self.frames[-1].time if self.frames and len(self.frames) > 0 else 0
         return max(transcript_end, frames_end)
 
+    def sample_frames(
+        self,
+        start_time: float,
+        end_time: float,
+        max_frames: int,
+    ) -> List[VideoFrame]:
+        """
+        Sample frames from a time range according to a chunk size.
+        """
+        if not self.frames or max_frames < 1:
+            return []
+
+        # Filter frames in time range
+        relevant_frames = [
+            f for f in self.frames
+            if start_time <= f.time <= end_time
+        ]
+
+        if not relevant_frames:
+            return []
+
+        # Sample evenly
+        step = len(relevant_frames) / max_frames
+        indices = [int(i * step) for i in range(max_frames)]
+
+        return [relevant_frames[i] for i in indices]
+
 
 @dataclass
 class KnowledgeSource:
@@ -209,6 +231,23 @@ class KnowledgeItem:
     # Unit ID for clustering (assigned by clustering algorithm)
     unit_id: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+    def format(self, with_type: bool = True) -> str:
+        prefix = f"[{self.id}]"
+        if with_type and self.subtype:
+            subtype_val = self.subtype.value if isinstance(self.subtype, AtomicType) else self.subtype
+            prefix += f" ({subtype_val})"
+        return prefix + " " + self.text
+
+    def __str__(self) -> str:
+        return self.format()
+
+    def format_to_message_content(self, with_type: bool = True) -> MessageContent:
+        """Format this item as MessageContent for prompt inclusion."""
+        return MessageContent(content=[
+            {"type": "text", "text": self.format(with_type)}
+        ])
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialize to a plain JSON-serializable dict."""

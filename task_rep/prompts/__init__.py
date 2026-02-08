@@ -10,10 +10,17 @@ from . import atomic_extraction
 from . import step_aggregation
 from . import step_extraction
 from . import tutorial_summary
+from . import facet_vocabulary
+from . import facet_labeling
 
 __all__ = [
     "atomic_extraction",
     "step_aggregation",
     "step_extraction",
     "tutorial_summary",
+    "facet_vocabulary",
+    "facet_labeling",
+    "knowledge_items_to_str",
+    "facets_to_str",
+    "facet_labels_to_str",
 ]
