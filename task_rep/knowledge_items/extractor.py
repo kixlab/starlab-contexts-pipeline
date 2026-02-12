@@ -210,16 +210,16 @@ class VLMKnowledgeExtractor:
         aggregate_batch_id = f"step_taxonomy_agg_{random_uid()}"
 
         # Format steps grouped by video
-        steps_by_video_contents = []
+        steps_by_video_content = []
         
         for video_idx, video_data in enumerate(steps_by_video.values()):
-            steps_by_video_contents.append({"type": "text", "text": f"\nVideo {video_idx + 1}: {video_data['title']}"})
+            steps_by_video_content.append({"type": "text", "text": f"\nVideo {video_idx + 1}: {video_data['title']}"})
             for idx, step in enumerate(video_data["steps"]):
-                steps_by_video_contents.append({"type": "text", "text": f"{idx+1}. [{step.get('name')}] {step.get('content')}"})
+                steps_by_video_content.append({"type": "text", "text": f"{idx+1}. [{step.get('name')}] {step.get('content')}"})
 
         request_args = [{
             "task": self.task,
-            "steps_by_tutorial": MessageContent(content=steps_by_video_contents),
+            "steps_by_tutorial": MessageContent(content=steps_by_video_content),
         }]
 
         batch_results = batch_run_llm_calls(
