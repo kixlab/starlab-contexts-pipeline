@@ -172,17 +172,6 @@ def cmd_status(args):
 
     print()
 
-    # Show missing IDs per task
-    any_missing = any(ids for ids in missing_by_task.values())
-    if any_missing:
-        print("Missing video IDs (not yet downloaded):")
-        for task_id, ids in missing_by_task.items():
-            if ids:
-                print(f"  {task_id} ({len(ids)}):")
-                for vid in ids:
-                    print(f"    - {vid}")
-        print()
-
 
 def cmd_list(args):
     """List all tasks."""
