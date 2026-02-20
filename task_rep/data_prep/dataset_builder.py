@@ -8,7 +8,9 @@ Reuses existing data by default.
 from __future__ import annotations
 
 import json
+import random
 import subprocess
+import time
 from pathlib import Path
 from typing import Literal
 
@@ -161,6 +163,12 @@ def build_dataset(
             print(f"  Reusing all existing data for {video_id}")
             dataset.append(video_data)
             continue
+
+        # Rate-limit: sleep between downloads to avoid YouTube bot detection
+        if i > 0:
+            delay = random.uniform(3, 7)
+            print(f"  Sleeping {delay:.1f}s to avoid rate limiting...")
+            time.sleep(delay)
 
         # Track if this video is completely unusable
         video_failed = False

@@ -20,7 +20,7 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from task_rep.knowledge_items.schema import KnowledgeBase
+from task_rep.knowledge_items.schema import KnowledgeBase, KnowledgeItemType
 
 from task_rep.facets.schema import Facet, AnnotationTable
 from task_rep.facets.discovery import VLMFacetExtractor
@@ -71,6 +71,12 @@ class DiscoveryConfig:
     provider: Optional[str] = None
     model: Optional[str] = None
     max_concurrency: int = 32
+
+    # Item type filter — when set, only items of this type are used for
+    # discovery, vocabulary building, labeling, and metric computation.
+    # Run the algorithm once per type to discover type-specific facets.
+    # Cache paths are automatically sub-scoped by type value.
+    item_type: Optional[KnowledgeItemType] = None
 
     # Caching — set both to enable per-iteration checkpointing
     base_dir: Optional[str] = None
@@ -126,6 +132,15 @@ class IterativeSchemaDiscovery:
         self._frontier: List[FrontierPoint] = []
         self._iteration: int = 0
 
+    @property
+    def _effective_task_id(self) -> Optional[str]:
+        """task_id sub-scoped by item_type when set (e.g. 'sushi_v1/atomic')."""
+        if not self.config.task_id:
+            return None
+        if self.config.item_type:
+            return f"{self.config.task_id}/{self.config.item_type.value}"
+        return self.config.task_id
+
     def run(self, knowledge_base: KnowledgeBase) -> DiscoveryResult:
         """
         Run the full iterative schema discovery algorithm.
@@ -133,10 +148,16 @@ class IterativeSchemaDiscovery:
         Args:
             knowledge_base: Pre-built knowledge base with unit_ids assigned.
                             Items without unit_id are skipped in metrics.
+                            If DiscoveryConfig.item_type is set, only items of
+                            that type are used; all others are ignored.
 
         Returns:
             DiscoveryResult with final facets, frontier, and annotations.
         """
+        if self.config.item_type is not None:
+            knowledge_base = knowledge_base.filter_types([self.config.item_type])
+            logger.info("Filtered knowledge base to type '%s': %d items.", self.config.item_type.value, len(knowledge_base))
+
         self._maybe_restore_cache(knowledge_base)
 
         self._frontier = compute_frontier(
@@ -262,25 +283,25 @@ class IterativeSchemaDiscovery:
     # ---- caching ----
 
     def _save_cache(self):
-        if not self.config.base_dir or not self.config.task_id:
+        if not self.config.base_dir or not self._effective_task_id:
             return
         save_facets(
             list(self._facets.values()),
-            get_facets_cache_path(self.config.base_dir, self.config.task_id, self._iteration),
+            get_facets_cache_path(self.config.base_dir, self._effective_task_id, self._iteration),
         )
         save_annotations(
             self._annotations,
-            get_annotations_cache_path(self.config.base_dir, self.config.task_id, self._iteration),
+            get_annotations_cache_path(self.config.base_dir, self._effective_task_id, self._iteration),
         )
         logger.info("Saved cache at iteration %d.", self._iteration)
 
     def _maybe_restore_cache(self, knowledge_base: KnowledgeBase):
-        if not self.config.base_dir or not self.config.task_id or not self.config.use_cache:
+        if not self.config.base_dir or not self._effective_task_id or not self.config.use_cache:
             return
         # Find latest iteration with both files present
         for i in range(self.config.max_iterations * 10, 0, -1):
-            fp = get_facets_cache_path(self.config.base_dir, self.config.task_id, i)
-            ap = get_annotations_cache_path(self.config.base_dir, self.config.task_id, i)
+            fp = get_facets_cache_path(self.config.base_dir, self._effective_task_id, i)
+            ap = get_annotations_cache_path(self.config.base_dir, self._effective_task_id, i)
             if fp.exists() and ap.exists():
                 cached = load_facets(fp)
                 self._facets = {f.id: f for f in cached}
