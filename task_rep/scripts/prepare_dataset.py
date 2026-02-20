@@ -23,6 +23,7 @@ Usage:
 """
 
 import argparse
+import json
 from pathlib import Path
 from data_prep import TaskManager, build_dataset, VideoDownloadConfig
 
@@ -102,6 +103,87 @@ def cmd_build_all(args):
             print(f"  - {task_id}: {error}")
 
 
+def cmd_status(args):
+    """Show download status for one or all tasks."""
+    manager = TaskManager(tasks_file=TASKS_FILE)
+
+    if hasattr(args, "task_id") and args.task_id:
+        tasks = [manager.get_task(args.task_id)]
+    else:
+        tasks = manager.list_tasks()
+
+    if not tasks:
+        print("No tasks defined yet.")
+        return
+
+    totals = {"expected": 0, "in_dataset": 0, "frames": 0, "audio": 0,
+              "transcript_yt": 0, "transcript_openai": 0, "transcript_none": 0}
+
+    print(f"\n{'='*72}")
+    print(f"{'Task':<24} {'Exp':>5} {'Ready':>6} {'Frames':>7} {'Audio':>6}  {'Transcript':^20}  {'Miss':>5}")
+    print(f"{'':24} {'':5} {'':6} {'':7} {'':6}  {'YT':>6} {'OAI':>6} {'none':>6}  {'':5}")
+    print(f"{'='*72}")
+
+    missing_by_task = {}
+
+    for task in tasks:
+        expected = len(task.video_ids)
+        dataset_path = DATASETS_DIR / f"{task.id}.json"
+
+        if not dataset_path.exists():
+            in_dataset = frames = audio = 0
+            transcript_yt = transcript_openai = transcript_none = 0
+            missing = task.video_ids[:]
+        else:
+            with open(dataset_path, "r", encoding="utf-8") as f:
+                dataset = json.load(f)
+            dataset_ids = {v["id"] for v in dataset}
+            in_dataset        = len(dataset)
+            frames            = sum(1 for v in dataset if v.get("frames"))
+            audio             = sum(1 for v in dataset if v.get("audio"))
+            transcript_yt     = sum(1 for v in dataset if v.get("transcript_source") == "youtube")
+            transcript_openai = sum(1 for v in dataset if v.get("transcript_source") == "openai")
+            transcript_none   = sum(1 for v in dataset if not v.get("transcript"))
+            missing           = [vid for vid in task.video_ids if vid not in dataset_ids]
+
+        missing_by_task[task.id] = missing
+
+        miss_str = str(len(missing)) if missing else "-"
+        frames_pct = f"{frames/expected*100:.0f}%" if expected else "0%"
+        print(f"  {task.id:<22} {expected:>5} {in_dataset:>6} {frames:>5}{frames_pct:>3} {audio:>6} "
+              f" {transcript_yt:>6} {transcript_openai:>6} {transcript_none:>6}  {miss_str:>5}")
+
+        totals["expected"]          += expected
+        totals["in_dataset"]        += in_dataset
+        totals["frames"]            += frames
+        totals["audio"]             += audio
+        totals["transcript_yt"]     += transcript_yt
+        totals["transcript_openai"] += transcript_openai
+        totals["transcript_none"]   += transcript_none
+
+    if len(tasks) > 1:
+        print(f"{'─'*72}")
+        total_missing = totals["expected"] - totals["frames"]
+        miss_str = str(total_missing) if total_missing else "-"
+        frames_pct = f"{totals['frames']/totals['expected']*100:.0f}%" if totals["expected"] else "0%"
+        print(f"  {'TOTAL':<22} {totals['expected']:>5} {totals['in_dataset']:>6} "
+              f"{totals['frames']:>5}{frames_pct:>3} {totals['audio']:>6} "
+              f" {totals['transcript_yt']:>6} {totals['transcript_openai']:>6} {totals['transcript_none']:>6}  {miss_str:>5}")
+
+    print()
+
+    # Show missing IDs per task
+    any_missing = any(ids for ids in missing_by_task.values())
+    if any_missing:
+        print("Missing video IDs (not yet downloaded):")
+        for task_id, ids in missing_by_task.items():
+            if ids:
+                print(f"  {task_id} ({len(ids)}):")
+                for vid in ids:
+                    print(f"    - {vid}")
+        print()
+
+
 def cmd_list(args):
     """List all tasks."""
     manager = TaskManager(tasks_file=TASKS_FILE)
@@ -178,6 +260,10 @@ def main():
     build_all_parser.add_argument("--force-transcripts", action="store_true", help="Re-fetch transcripts")
     build_all_parser.add_argument("--force-all", action="store_true", help="Force rebuild everything")
 
+    # Status command
+    status_parser = subparsers.add_parser("status", help="Show download/processing status")
+    status_parser.add_argument("task_id", nargs="?", help="Task ID (omit to show all tasks)")
+
     # List command
     list_parser = subparsers.add_parser("list", help="List all tasks")
 
@@ -191,6 +277,8 @@ def main():
         cmd_build(args)
     elif args.command == "build-all":
         cmd_build_all(args)
+    elif args.command == "status":
+        cmd_status(args)
     elif args.command == "list":
         cmd_list(args)
     elif args.command == "info":
