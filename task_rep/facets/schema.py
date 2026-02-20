@@ -153,7 +153,7 @@ class Facet:
         if len(self.guidelines) == 0:
             return "No guidelines are available."
         return "\n".join(["\t-" + GUIDELINE_STR_FORMAT.format(guideline=guideline) for guideline in self.guidelines])
-    
+
     def format_vocabulary(self) -> str:
         """Format the vocabulary for the facet."""
         if len(self.vocabulary) == 0:
@@ -241,13 +241,22 @@ class AnnotationTable:
         """Return {facet_id: label} for a single item."""
         return {k[1]: v for k, v in self._data.items() if k[0] == item_id}
 
-    def signature(self, item_id: str, facets: List[Facet]) -> str:
+    def signature(
+        self,
+        item_id: str,
+        facets: List[Facet],
+        subtype: Optional[str] = None,
+    ) -> str:
         """Compute the label signature for an item across the given facets.
 
-        Returns a string like '<difficulty:beginner><tool:pandas>'.
+        Returns a string like '<subtype:atomic><difficulty:beginner><tool:pandas>'.
+        The optional subtype prefix ensures items of different subtypes are
+        never grouped into the same cell, even if they share identical facet labels.
         Facets without a label for this item are omitted.
         """
         parts = []
+        if subtype is not None:
+            parts.append(f"<subtype:{subtype}>")
         for facet in facets:
             key = (item_id, facet.id)
             if key in self._data:

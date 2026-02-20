@@ -53,7 +53,7 @@ class VLMFacetExtractor:
             elif self.provider == "anthropic":
                 self.model = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
 
-    async def propose_facets(
+    def propose_facets(
         self,
         videos: Dict[str, List[KnowledgeItem]],
         target_item_ids: List[str],
@@ -102,7 +102,7 @@ class VLMFacetExtractor:
 
         request_args = [{
             "task": self.task,
-            "video_contents": video_contents,
+            "tutorial_contents": video_contents,
             "target_items": target_items_contents,
             "existing_facets": existing_facets_contents,
             "target_signature": target_signature,
@@ -140,7 +140,7 @@ class VLMFacetExtractor:
 
         return new_facets
 
-    async def revise_facets(
+    def revise_facets(
         self,
         existing_facets: List[Facet],
     ) -> List[Facet]:
