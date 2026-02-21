@@ -32,15 +32,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .algorithm import DiscoveryConfig, DiscoveryResult, ExtractionConfig, IterativeSchemaDiscovery, ModelConfig
-from .facets.io import load_annotations, save_annotations, save_facets
-from .knowledge_items import (
+from algorithm import DiscoveryConfig, DiscoveryResult, ExtractionConfig, IterativeSchemaDiscovery, ModelConfig
+from facets.io import load_annotations, save_annotations, save_facets
+from knowledge_items import (
     ClusterConfig,
     KnowledgeItemType,
     extract_and_cluster_knowledge_items,
     load_dataset,
 )
-from .optimization.metrics import count_unique_units
+from optimization.metrics import count_unique_units
 
 
 @dataclass

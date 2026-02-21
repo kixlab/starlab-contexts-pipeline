@@ -10,17 +10,17 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from ..knowledge_items.schema import KnowledgeItem
+from knowledge_items.schema import KnowledgeItem
 
-from ..utils.llm import random_uid
-from ..utils.llm import batch_run_llm_calls
-from ..utils.llm import MessageContent
+from utils.llm import random_uid
+from utils.llm import batch_run_llm_calls
+from utils.llm import MessageContent
 
-from ..prompts.fa_facet_discovery import (
+from prompts.fa_facet_discovery import (
     form_facet_discovery_request,
     process_facet_discovery_response,
 )
-from ..prompts.fa_facet_revision import (
+from prompts.fa_facet_revision import (
     form_facet_revision_request,
     process_facet_revision_response,
 )

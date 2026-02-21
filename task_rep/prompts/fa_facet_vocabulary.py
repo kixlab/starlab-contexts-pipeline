@@ -10,7 +10,7 @@ Two-phase process:
 
 from typing import Any, Dict, List
 
-from ..utils.llm import MessageContent
+from utils.llm import MessageContent
 
 from .fa_pydantic import (
     VocabularyProposalResult,

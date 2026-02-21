@@ -20,14 +20,14 @@ import logging
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-from .knowledge_items.schema import KnowledgeBase, KnowledgeItemType
-from .knowledge_items.clustering import ClusterConfig
+from knowledge_items.schema import KnowledgeBase, KnowledgeItemType
+from knowledge_items.clustering import ClusterConfig
 
-from .facets.schema import Facet, AnnotationTable
-from .facets.discovery import VLMFacetExtractor
-from .facets.vocabulary import VLMFacetVocabularyBuilder
-from .facets.label import VLMFacetLabeler
-from .facets.io import (
+from facets.schema import Facet, AnnotationTable
+from facets.discovery import VLMFacetExtractor
+from facets.vocabulary import VLMFacetVocabularyBuilder
+from facets.label import VLMFacetLabeler
+from facets.io import (
     get_facets_cache_path,
     get_annotations_cache_path,
     load_facets,
@@ -36,15 +36,15 @@ from .facets.io import (
     save_annotations,
 )
 
-from .optimization.metrics import compute_cells
-from .optimization.frontier import (
+from optimization.metrics import compute_cells
+from optimization.frontier import (
     FrontierPoint,
     clip_frontier,
     compute_frontier,
     is_pareto_improved,
     sample_schemas,
 )
-from .optimization.collision import find_colliding_cells, sample_target_items
+from optimization.collision import find_colliding_cells, sample_target_items
 
 logger = logging.getLogger(__name__)
 

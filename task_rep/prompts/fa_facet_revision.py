@@ -10,7 +10,7 @@ Revision can include:
 
 from typing import Any, Dict, List
 
-from ..utils.llm import MessageContent
+from utils.llm import MessageContent
 from .formatters import dict_mc_to_str
 
 from .fa_pydantic import FacetRevisionResult

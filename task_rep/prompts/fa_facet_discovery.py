@@ -10,7 +10,7 @@ Supports multiple discovery strategies:
 from enum import Enum
 from typing import Any, Dict, List
 
-from ..utils.llm import MessageContent
+from utils.llm import MessageContent
 
 from .fa_pydantic import FacetDiscoveryResult
 

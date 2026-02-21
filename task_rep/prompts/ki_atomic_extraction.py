@@ -7,7 +7,7 @@ classified into a taxonomy (e.g., methods, tips, context, explanations).
 
 from typing import List, Dict, Any
 
-from ..utils.llm import MessageContent
+from utils.llm import MessageContent
 from .formatters import taxonomy_to_str
 
 from .ki_pydantic import AtomicExtractionResult

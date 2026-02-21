@@ -12,13 +12,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
-from ..knowledge_items.schema import KnowledgeBase
+from knowledge_items.schema import KnowledgeBase
 
-from ..utils.llm import random_uid
-from ..utils.llm import batch_run_llm_calls
-from ..utils.llm import MessageContent
+from utils.llm import random_uid
+from utils.llm import batch_run_llm_calls
+from utils.llm import MessageContent
 
-from ..prompts.fa_facet_labeling import (
+from prompts.fa_facet_labeling import (
     form_labeling_request,
     process_labeling_response,
 )
