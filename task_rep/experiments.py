@@ -51,7 +51,7 @@ class DatasetConfig:
     """Key in static/tasks.json (e.g. 'sushi_roll_3')."""
 
     dataset_path: str
-    """Path to the built dataset JSON (e.g. 'task_rep/static/datasets/sushi_roll_3.json')."""
+    """Path to the built dataset JSON (e.g. './static/datasets/sushi_roll_3.json')."""
 
     max_videos: Optional[int] = None
     """Limit to first N videos. None = all videos in the file."""
@@ -367,7 +367,7 @@ register_experiment(ExperimentConfig(
     tags=["baseline", "sushi", "atomic"],
     dataset=DatasetConfig(
         task_id="sushi_roll_3",
-        dataset_path="task_rep/static/datasets/sushi_roll_3.json",
+        dataset_path="./static/datasets/sushi_roll_3.json",
     ),
     extraction=ExtractionConfig(
         granularity=KnowledgeItemType.ATOMIC,
@@ -376,7 +376,7 @@ register_experiment(ExperimentConfig(
     discovery=DiscoveryConfig(
         task="making a sushi roll",
         item_type=KnowledgeItemType.ATOMIC,
-        base_dir="task_rep/static/cache",
+        base_dir="./static/cache",
         task_id="sushi_roll_3",
     ),
 ))
@@ -387,7 +387,7 @@ register_experiment(ExperimentConfig(
     tags=["baseline", "sushi", "step"],
     dataset=DatasetConfig(
         task_id="sushi_roll_3",
-        dataset_path="task_rep/static/datasets/sushi_roll_3.json",
+        dataset_path="./static/datasets/sushi_roll_3.json",
     ),
     extraction=ExtractionConfig(
         granularity=KnowledgeItemType.STEP,
@@ -396,7 +396,7 @@ register_experiment(ExperimentConfig(
     discovery=DiscoveryConfig(
         task="making a sushi roll",
         item_type=KnowledgeItemType.STEP,
-        base_dir="task_rep/static/cache",
+        base_dir="./static/cache",
         task_id="sushi_roll_3",
     ),
 ))

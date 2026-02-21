@@ -184,7 +184,7 @@ class Video:
 
         # Sample evenly
         step = len(relevant_frames) / max_frames
-        indices = [int(i * step) for i in range(max_frames)]
+        indices = [int((i + 0.5) * step) for i in range(max_frames)]
 
         return [relevant_frames[i] for i in indices]
 
