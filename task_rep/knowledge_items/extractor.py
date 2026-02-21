@@ -63,8 +63,8 @@ class VLMKnowledgeExtractor:
     model: Optional[str] = None
     max_concurrency: int = 32
 
-    # Chunk sampling config
-    chunk_config: ChunkConfig = ATOMIC_CHUNK_CONFIG
+    # Chunk sampling config — defaults to the granularity-specific preset in __post_init__
+    chunk_config: Optional[ChunkConfig] = None
 
     def __post_init__(self):
         """Initialize chunk sampling configs and default model based on provider."""

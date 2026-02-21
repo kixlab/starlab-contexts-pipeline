@@ -35,6 +35,7 @@ from .clustering import (  # noqa: F401
 )
 
 from .io import (  # noqa: F401
+    DatasetConfig,
     save_knowledge_items,
     load_knowledge_items,
     load_dataset,
@@ -42,4 +43,4 @@ from .io import (  # noqa: F401
     get_clustering_cache_path,
 )
 
-from .interface import extract_and_cluster_knowledge_items  # noqa: F401
+from .interface import ExtractionConfig, extract_and_cluster_knowledge_items  # noqa: F401

@@ -12,7 +12,7 @@ Follows the same architectural pattern as VLMKnowledgeExtractor and VLMFacetExtr
 from __future__ import annotations
 
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Dict, List, Optional
 
 from ..knowledge_items.schema import KnowledgeBase
@@ -162,7 +162,6 @@ class VLMFacetVocabularyBuilder:
                 FacetLabel(label=lbl["label"], definition=lbl["definition"])
                 for lbl in result
             ]
-            facet.replace_vocabulary(updated_vocabulary)
-            updated_facets.append(facet)
+            updated_facets.append(replace(facet, vocabulary=updated_vocabulary))
 
         return updated_facets

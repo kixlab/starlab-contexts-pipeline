@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import asyncio
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional
 
@@ -10,6 +10,19 @@ from .extractor import VLMKnowledgeExtractor
 from .io import get_clustering_cache_path, get_extraction_cache_path
 from .io import load_knowledge_items, save_knowledge_items
 from .clustering import cluster_knowledge_items
+
+
+@dataclass
+class ExtractionConfig:
+    """Knowledge item extraction + clustering settings."""
+
+    granularity: KnowledgeItemType = KnowledgeItemType.ATOMIC
+    cluster_config: ClusterConfig = field(default_factory=ClusterConfig)
+    provider: Optional[str] = None
+    model: Optional[str] = None
+    max_concurrency: int = 32
+    base_dir: str = "task_rep/static/cache"
+    use_cache: bool = True
 
 
 def extract_and_cluster_knowledge_items(
@@ -57,7 +70,7 @@ def extract_and_cluster_knowledge_items(
             model=model,
             max_concurrency=max_concurrency,
         )
-        knowledge_items = asyncio.run(extractor.extract_batch(videos))
+        knowledge_items = extractor.extract_batch(videos)
 
         save_knowledge_items(items=knowledge_items, output_path=extraction_cache_path)
 
