@@ -4,7 +4,7 @@ Unit tests for the optimization module.
 Tests metrics, Pareto frontier, and collision detection with concrete,
 hand-verifiable examples.
 
-Run with: python -m pytest task_rep/tests/test_optimization.py -v
+Run with: python -m pytest tests/test_optimization.py -v
 """
 
 from __future__ import annotations
@@ -12,27 +12,27 @@ from __future__ import annotations
 import math
 import pytest
 
-from task_rep.knowledge_items.schema import (
+from knowledge_items.schema import (
     KnowledgeBase,
     KnowledgeItem,
     KnowledgeItemType,
     KnowledgeSource,
 )
-from task_rep.facets.schema import AnnotationTable, Facet, FacetLabel
-from task_rep.optimization.metrics import (
+from facets.schema import AnnotationTable, Facet, FacetLabel
+from optimization.metrics import (
     compute_cells,
     compute_compactness,
     compute_discriminativeness,
     count_unique_units,
 )
-from task_rep.optimization.frontier import (
+from optimization.frontier import (
     FrontierPoint,
     clip_frontier,
     compute_frontier,
     is_pareto_improved,
     sample_schemas,
 )
-from task_rep.optimization.collision import find_colliding_cells, sample_target_items
+from optimization.collision import find_colliding_cells, sample_target_items
 
 
 # ============= Helpers =============
@@ -267,7 +267,7 @@ class TestComputeCells:
 
     def test_subtype_prefix_separates_different_subtypes(self):
         """Items with different subtypes never share a cell even with identical labels."""
-        from task_rep.knowledge_items.taxonomy import AtomicType
+        from knowledge_items.taxonomy import AtomicType
         item_a = make_item("ia", unit_id="u1", subtype=AtomicType.METHOD_SUBGOAL)
         item_b = make_item("ib", unit_id="u2", subtype="step_type")
         kb = KnowledgeBase(items=[item_a, item_b])

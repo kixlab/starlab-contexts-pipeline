@@ -12,8 +12,8 @@ import random
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
-from task_rep.knowledge_items.schema import KnowledgeBase
-from task_rep.facets.schema import Facet, AnnotationTable
+from ..knowledge_items.schema import KnowledgeBase
+from ..facets.schema import Facet, AnnotationTable
 
 from .metrics import (
     compute_cells,

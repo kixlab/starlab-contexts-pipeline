@@ -10,8 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
-from task_rep.utils.llm import random_uid
-from task_rep.utils.llm import MessageContent
+from ..utils.llm import random_uid
+from ..utils.llm import MessageContent
 
 FACET_STR_FORMAT = """[F{id}] ({scope}) {title} (Plural: {title_plural}): {definition}
 **Guidelines for labeling items**:

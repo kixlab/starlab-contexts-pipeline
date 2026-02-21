@@ -7,10 +7,10 @@ step extraction based on a step taxonomy.
 
 from typing import Any, Dict, List
 
-from task_rep.utils.llm import MessageContent
-from task_rep.prompts.formatters import taxonomy_to_str
+from ..utils.llm import MessageContent
+from .formatters import taxonomy_to_str
 
-from task_rep.prompts.ki_pydantic import StepExtractionResult
+from .ki_pydantic import StepExtractionResult
 
 
 SYSTEM_MESSAGE_DISCOVERY = """You are an expert at analyzing tutorial videos and identifying procedural steps about the task: {task}. You excel at recognizing the high-level structure of tutorials, breaking down complex procedures into clear steps, and understanding both what is shown visually and what is explained in narration."""

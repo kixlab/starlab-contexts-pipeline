@@ -10,10 +10,10 @@ Revision can include:
 
 from typing import Any, Dict, List
 
-from task_rep.utils.llm import MessageContent
-from task_rep.prompts.formatters import dict_mc_to_str
+from ..utils.llm import MessageContent
+from .formatters import dict_mc_to_str
 
-from task_rep.prompts.fa_pydantic import FacetRevisionResult
+from .fa_pydantic import FacetRevisionResult
 
 SYSTEM_PROMPT = """You are a helpful assistant who can analyze and refine contextual factors for the task: {task}."""
 

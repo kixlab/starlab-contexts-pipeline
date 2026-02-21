@@ -7,10 +7,10 @@ classified into a taxonomy (e.g., methods, tips, context, explanations).
 
 from typing import List, Dict, Any
 
-from task_rep.utils.llm import MessageContent
-from task_rep.prompts.formatters import taxonomy_to_str
+from ..utils.llm import MessageContent
+from .formatters import taxonomy_to_str
 
-from task_rep.prompts.ki_pydantic import AtomicExtractionResult
+from .ki_pydantic import AtomicExtractionResult
 
 SYSTEM_MESSAGE = """You are an expert at analyzing tutorial videos and extracting atomic pieces of information about the task: {task}. You excel at identifying atomic information from both visual and audio content. You understand how to classify information using taxonomies and can accurately identify the start and end times of each piece of information."""
 

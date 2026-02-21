@@ -15,13 +15,13 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from task_rep.knowledge_items.schema import KnowledgeBase
+from ..knowledge_items.schema import KnowledgeBase
 
-from task_rep.utils.llm import random_uid
-from task_rep.utils.llm import batch_run_llm_calls
-from task_rep.utils.llm import MessageContent
+from ..utils.llm import random_uid
+from ..utils.llm import batch_run_llm_calls
+from ..utils.llm import MessageContent
 
-from task_rep.prompts.fa_facet_vocabulary import (
+from ..prompts.fa_facet_vocabulary import (
     form_vocabulary_proposal_request,
     process_vocabulary_proposal_response,
     form_vocabulary_consolidation_request,

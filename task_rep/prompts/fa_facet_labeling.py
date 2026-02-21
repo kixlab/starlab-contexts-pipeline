@@ -7,10 +7,10 @@ vocabulary to each knowledge item in that video.
 
 from typing import Any, Dict, List
 
-from task_rep.utils.llm import MessageContent
+from ..utils.llm import MessageContent
 
-from task_rep.prompts.fa_pydantic import Segmentation
-from task_rep.prompts.formatters import list_mc_to_str
+from .fa_pydantic import Segmentation
+from .formatters import list_mc_to_str
 
 
 LABELING_SYSTEM_PROMPT = """You are an expert at analyzing tutorial content and labeling knowledge items with contextual factors related to the task: {task}."""

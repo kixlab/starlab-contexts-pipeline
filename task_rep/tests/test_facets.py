@@ -1,12 +1,12 @@
 """
 Tests for facet discovery and data structures.
 
-Run with: python -m pytest task_rep/tests/test_facets.py -v
+Run with: python -m pytest tests/test_facets.py -v
 """
 
 import pytest
 
-from task_rep.facets import Facet, FacetLabel, VLMFacetExtractor
+from facets import Facet, FacetLabel, VLMFacetExtractor
 
 
 # ============= FacetLabel Tests =============
