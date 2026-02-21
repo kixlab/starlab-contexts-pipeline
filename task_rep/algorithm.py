@@ -20,13 +20,13 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from task_rep.knowledge_items.schema import KnowledgeBase, KnowledgeItemType
+from .knowledge_items.schema import KnowledgeBase, KnowledgeItemType
 
-from task_rep.facets.schema import Facet, AnnotationTable
-from task_rep.facets.discovery import VLMFacetExtractor
-from task_rep.facets.vocabulary import VLMFacetVocabularyBuilder
-from task_rep.facets.label import VLMFacetLabeler
-from task_rep.facets.io import (
+from .facets.schema import Facet, AnnotationTable
+from .facets.discovery import VLMFacetExtractor
+from .facets.vocabulary import VLMFacetVocabularyBuilder
+from .facets.label import VLMFacetLabeler
+from .facets.io import (
     get_facets_cache_path,
     get_annotations_cache_path,
     load_facets,
@@ -35,17 +35,31 @@ from task_rep.facets.io import (
     save_annotations,
 )
 
-from task_rep.optimization.metrics import compute_cells
-from task_rep.optimization.frontier import (
+from .optimization.metrics import compute_cells
+from .optimization.frontier import (
     FrontierPoint,
     clip_frontier,
     compute_frontier,
     is_pareto_improved,
     sample_schemas,
 )
-from task_rep.optimization.collision import find_colliding_cells, sample_target_items
+from .optimization.collision import find_colliding_cells, sample_target_items
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ModelConfig:
+    """Per-stage VLM provider + model override.
+
+    Both fields fall back to the parent DiscoveryConfig defaults when None.
+
+    Example — use gpt-4o only for facet discovery, mini everywhere else:
+        DiscoveryConfig(model="gpt-4o-mini", discovery_model=ModelConfig(model="gpt-4o"))
+    """
+
+    provider: Optional[str] = None
+    model: Optional[str] = None
 
 
 @dataclass
@@ -66,11 +80,17 @@ class DiscoveryConfig:
     max_cells_per_iteration: int = 1
     max_items_per_cell: int = 5
 
-    # VLM settings (shared across all components)
+    # VLM defaults — used by all stages unless a per-stage override is set below
     task: str = ""
     provider: Optional[str] = None
     model: Optional[str] = None
     max_concurrency: int = 32
+
+    # Per-stage model overrides.  Set only the fields you want to change;
+    # unset fields fall back to the global provider/model above.
+    discovery_model: Optional[ModelConfig] = None  # VLMFacetExtractor
+    vocab_model: Optional[ModelConfig] = None      # VLMFacetVocabularyBuilder
+    labeling_model: Optional[ModelConfig] = None   # VLMFacetLabeler
 
     # Item type filter — when set, only items of this type are used for
     # discovery, vocabulary building, labeling, and metric computation.
@@ -107,22 +127,28 @@ class IterativeSchemaDiscovery:
     def __init__(self, config: DiscoveryConfig):
         self.config = config
 
+        def _provider(override: Optional[ModelConfig]) -> Optional[str]:
+            return override.provider if (override and override.provider is not None) else config.provider
+
+        def _model(override: Optional[ModelConfig]) -> Optional[str]:
+            return override.model if (override and override.model is not None) else config.model
+
         self._extractor = VLMFacetExtractor(
             task=config.task,
-            provider=config.provider,
-            model=config.model,
+            provider=_provider(config.discovery_model),
+            model=_model(config.discovery_model),
             max_concurrency=config.max_concurrency,
         )
         self._vocab_builder = VLMFacetVocabularyBuilder(
             task=config.task,
-            provider=config.provider,
-            model=config.model,
+            provider=_provider(config.vocab_model),
+            model=_model(config.vocab_model),
             max_concurrency=config.max_concurrency,
         )
         self._labeler = VLMFacetLabeler(
             task=config.task,
-            provider=config.provider,
-            model=config.model,
+            provider=_provider(config.labeling_model),
+            model=_model(config.labeling_model),
             max_concurrency=config.max_concurrency,
         )
 
