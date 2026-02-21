@@ -30,47 +30,19 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from .algorithm import DiscoveryConfig, DiscoveryResult, IterativeSchemaDiscovery, ModelConfig
 from .facets.io import load_annotations, save_annotations, save_facets
-from .knowledge_items.clustering import ClusterConfig
-from .knowledge_items.interface import extract_and_cluster_knowledge_items
-from .knowledge_items.io import load_dataset
-from .knowledge_items.schema import KnowledgeItemType
+from .knowledge_items import (
+    ClusterConfig,
+    DatasetConfig,
+    ExtractionConfig,
+    KnowledgeItemType,
+    extract_and_cluster_knowledge_items,
+    load_dataset,
+)
 from .optimization.metrics import count_unique_units
-
-
-# ---------------------------------------------------------------------------
-# Config dataclasses
-# ---------------------------------------------------------------------------
-
-
-@dataclass
-class DatasetConfig:
-    """Which dataset to use and how many videos to include."""
-
-    task_id: str
-    """Key in static/tasks.json (e.g. 'sushi_roll_3')."""
-
-    dataset_path: str
-    """Path to the built dataset JSON (e.g. 'task_rep/static/datasets/sushi_roll_3.json')."""
-
-    max_videos: Optional[int] = None
-    """Limit to first N videos. None = all videos in the file."""
-
-
-@dataclass
-class ExtractionConfig:
-    """Knowledge item extraction + clustering settings."""
-
-    granularity: KnowledgeItemType = KnowledgeItemType.ATOMIC
-    cluster_config: ClusterConfig = field(default_factory=ClusterConfig)
-    provider: Optional[str] = None
-    model: Optional[str] = None
-    max_concurrency: int = 32
-    base_dir: str = "task_rep/static/cache"
-    use_cache: bool = True
 
 
 @dataclass
