@@ -8,26 +8,11 @@ from __future__ import annotations
 
 import json
 import os
-from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
 
 from .schema import KnowledgeItem, KnowledgeItemType, Video, VideoTranscriptSegment, VideoFrame
 from .clustering import ClusterConfig
-
-
-@dataclass
-class DatasetConfig:
-    """Which dataset to use and how many videos to include."""
-
-    task_id: str
-    """Key in static/tasks.json (e.g. 'sushi_roll_3')."""
-
-    dataset_path: str
-    """Path to the built dataset JSON (e.g. 'task_rep/static/datasets/sushi_roll_3.json')."""
-
-    max_videos: Optional[int] = None
-    """Limit to first N videos. None = all videos in the file."""
 
 
 def save_knowledge_items(

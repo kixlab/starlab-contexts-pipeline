@@ -17,10 +17,11 @@ The algorithm:
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 from .knowledge_items.schema import KnowledgeBase, KnowledgeItemType
+from .knowledge_items.clustering import ClusterConfig
 
 from .facets.schema import Facet, AnnotationTable
 from .facets.discovery import VLMFacetExtractor
@@ -46,6 +47,19 @@ from .optimization.frontier import (
 from .optimization.collision import find_colliding_cells, sample_target_items
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ExtractionConfig:
+    """Knowledge item extraction + clustering settings."""
+
+    granularity: KnowledgeItemType = KnowledgeItemType.ATOMIC
+    cluster_config: ClusterConfig = field(default_factory=ClusterConfig)
+    provider: Optional[str] = None
+    model: Optional[str] = None
+    max_concurrency: int = 32
+    base_dir: str = "task_rep/static/cache"
+    use_cache: bool = True
 
 
 @dataclass

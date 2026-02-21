@@ -30,19 +30,31 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
-from .algorithm import DiscoveryConfig, DiscoveryResult, IterativeSchemaDiscovery, ModelConfig
+from .algorithm import DiscoveryConfig, DiscoveryResult, ExtractionConfig, IterativeSchemaDiscovery, ModelConfig
 from .facets.io import load_annotations, save_annotations, save_facets
 from .knowledge_items import (
     ClusterConfig,
-    DatasetConfig,
-    ExtractionConfig,
     KnowledgeItemType,
     extract_and_cluster_knowledge_items,
     load_dataset,
 )
 from .optimization.metrics import count_unique_units
+
+
+@dataclass
+class DatasetConfig:
+    """Which dataset to use and how many videos to include."""
+
+    task_id: str
+    """Key in static/tasks.json (e.g. 'sushi_roll_3')."""
+
+    dataset_path: str
+    """Path to the built dataset JSON (e.g. 'task_rep/static/datasets/sushi_roll_3.json')."""
+
+    max_videos: Optional[int] = None
+    """Limit to first N videos. None = all videos in the file."""
 
 
 @dataclass
