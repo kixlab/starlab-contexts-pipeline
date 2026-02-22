@@ -25,7 +25,7 @@ Usage:
 import argparse
 import json
 from pathlib import Path
-from data_prep import TaskManager, build_dataset, VideoDownloadConfig
+from data_prep import TaskManager, build_dataset, VideoDownloader
 
 TASKS_FILE = Path("./static/tasks.json")
 
@@ -37,16 +37,21 @@ def cmd_build(args):
     """Build a dataset from task definition."""
     manager = TaskManager(tasks_file=TASKS_FILE)
     task = manager.get_task(args.task_id)
-    video_download_config = VideoDownloadConfig(videos_dir=VIDEOS_DIR)
+    fps = args.fps
+    transcript_source = args.transcript_source
+    force_download = args.force_download
+
+    downloader = VideoDownloader(
+        videos_dir=VIDEOS_DIR,
+    )
 
     output_path = build_dataset(
         task=task,
         base_dir=DATASETS_DIR,
-        video_download_config=video_download_config,
-        transcript_source=args.transcript_source,
-        force_download=args.force_download or args.force_all,
-        force_extract=args.force_extract or args.force_all,
-        force_transcripts=args.force_transcripts or args.force_all,
+        downloader=downloader,
+        fps=fps,
+        transcript_source=transcript_source,
+        force_download=force_download,
     )
     print(f"\n✓ Dataset ready: {output_path}")
 
@@ -64,6 +69,10 @@ def cmd_build_all(args):
     print(f"Building {len(tasks)} task(s)")
     print(f"{'='*60}")
 
+    transcript_source = args.transcript_source
+    force_download = args.force_download
+    fps = args.fps
+
     success_count = 0
     failed_tasks = []
 
@@ -73,17 +82,17 @@ def cmd_build_all(args):
         print(f"{'='*60}")
 
         try:
-            video_download_config = VideoDownloadConfig(videos_dir=VIDEOS_DIR)
+            downloader = VideoDownloader(videos_dir=VIDEOS_DIR)
+
             output_path = build_dataset(
                 task=task,
                 base_dir=DATASETS_DIR,
-                video_download_config=video_download_config,
-                transcript_source=args.transcript_source,
-                force_download=args.force_download or args.force_all,
-                force_extract=args.force_extract or args.force_all,
-                force_transcripts=args.force_transcripts or args.force_all,
+                downloader=downloader,
+                fps=fps,
+                transcript_source=transcript_source,
+                force_download=force_download,
             )
-            print(f"\n✓ Task {task.id} completed: {output_path}")
+            print(f"\n✓ Dataset ready: {output_path}")
             success_count += 1
         except Exception as e:
             print(f"\n✗ Task {task.id} failed: {e}")
@@ -116,12 +125,12 @@ def cmd_status(args):
         print("No tasks defined yet.")
         return
 
-    totals = {"expected": 0, "in_dataset": 0, "frames": 0, "audio": 0,
-              "transcript_yt": 0, "transcript_openai": 0, "transcript_none": 0}
+    totals = {"expected": 0, "in_dataset": 0, "frames": 0,
+              "transcript_yt": 0, "transcript_openai": 0}
 
     print(f"\n{'='*72}")
-    print(f"{'Task':<24} {'Exp':>5} {'Ready':>6} {'Frames':>7} {'Audio':>6}  {'Transcript':^20}  {'Miss':>5}")
-    print(f"{'':24} {'':5} {'':6} {'':7} {'':6}  {'YT':>6} {'OAI':>6} {'none':>6}  {'':5}")
+    print(f"{'Task':<24} {'Exp':>5} {'Ready':>6} {'Frames':>7}  {'Transcript':^20}  {'Miss':>5}")
+    print(f"{'':24} {'':5} {'':6} {'':7}  {'YT':>6} {'OAI':>6}  {'':5}")
     print(f"{'='*72}")
 
     missing_by_task = {}
@@ -131,8 +140,8 @@ def cmd_status(args):
         dataset_path = DATASETS_DIR / f"{task.id}.json"
 
         if not dataset_path.exists():
-            in_dataset = frames = audio = 0
-            transcript_yt = transcript_openai = transcript_none = 0
+            in_dataset = frames = 0
+            transcript_yt = transcript_openai = 0
             missing = task.video_ids[:]
         else:
             with open(dataset_path, "r", encoding="utf-8") as f:
@@ -140,35 +149,31 @@ def cmd_status(args):
             dataset_ids = {v["id"] for v in dataset}
             in_dataset        = len(dataset)
             frames            = sum(1 for v in dataset if v.get("frames"))
-            audio             = sum(1 for v in dataset if v.get("audio"))
             transcript_yt     = sum(1 for v in dataset if v.get("transcript_source") == "youtube")
             transcript_openai = sum(1 for v in dataset if v.get("transcript_source") == "openai")
-            transcript_none   = sum(1 for v in dataset if not v.get("transcript"))
             missing           = [vid for vid in task.video_ids if vid not in dataset_ids]
 
         missing_by_task[task.id] = missing
 
         miss_str = str(len(missing)) if missing else "-"
         frames_pct = f"{frames/expected*100:.0f}%" if expected else "0%"
-        print(f"  {task.id:<22} {expected:>5} {in_dataset:>6} {frames:>5}{frames_pct:>3} {audio:>6} "
-              f" {transcript_yt:>6} {transcript_openai:>6} {transcript_none:>6}  {miss_str:>5}")
+        print(f"  {task.id:<22} {expected:>5} {in_dataset:>6} {frames:>5}{frames_pct:>3} "
+              f" {transcript_yt:>6} {transcript_openai:>6}  {miss_str:>5}")
 
         totals["expected"]          += expected
         totals["in_dataset"]        += in_dataset
         totals["frames"]            += frames
-        totals["audio"]             += audio
         totals["transcript_yt"]     += transcript_yt
         totals["transcript_openai"] += transcript_openai
-        totals["transcript_none"]   += transcript_none
 
     if len(tasks) > 1:
         print(f"{'─'*72}")
-        total_missing = totals["expected"] - totals["frames"]
+        total_missing = totals["expected"] - totals["frames"] - totals["transcript_yt"] - totals["transcript_openai"]
         miss_str = str(total_missing) if total_missing else "-"
         frames_pct = f"{totals['frames']/totals['expected']*100:.0f}%" if totals["expected"] else "0%"
         print(f"  {'TOTAL':<22} {totals['expected']:>5} {totals['in_dataset']:>6} "
-              f"{totals['frames']:>5}{frames_pct:>3} {totals['audio']:>6} "
-              f" {totals['transcript_yt']:>6} {totals['transcript_openai']:>6} {totals['transcript_none']:>6}  {miss_str:>5}")
+              f"{totals['frames']:>5}{frames_pct:>3} "
+              f" {totals['transcript_yt']:>6} {totals['transcript_openai']:>6}  {miss_str:>5}")
 
     print()
 
@@ -226,28 +231,22 @@ def main():
     build_parser.add_argument("--fps", type=float, default=1.0, help="Frames per second (default: 1.0)")
     build_parser.add_argument(
         "--transcript-source",
-        choices=["openai", "youtube-or-openai"],
+        choices=["openai", "youtube"],
         default="openai",
-        help="Transcript source: 'openai' (default, most reliable) or 'youtube-or-openai' (prefer original)"
+        help="Transcript source: 'openai' (default, most reliable) or 'youtube' (prefer YouTube)"
     )
-    build_parser.add_argument("--force-download", action="store_true", help="Re-download videos")
-    build_parser.add_argument("--force-extract", action="store_true", help="Re-extract frames")
-    build_parser.add_argument("--force-transcripts", action="store_true", help="Re-fetch transcripts")
-    build_parser.add_argument("--force-all", action="store_true", help="Force rebuild everything")
+    build_parser.add_argument("--force-download", action="store_true", help="Re-do everything (download, extract frames, get transcript)")
 
     # Build all command
     build_all_parser = subparsers.add_parser("build-all", help="Build datasets for all tasks")
     build_all_parser.add_argument("--fps", type=float, default=1.0, help="Frames per second (default: 1.0)")
     build_all_parser.add_argument(
         "--transcript-source",
-        choices=["openai", "youtube-or-openai"],
+        choices=["openai", "youtube"],
         default="openai",
-        help="Transcript source: 'openai' (default, most reliable) or 'youtube-or-openai' (prefer original)"
+        help="Transcript source: 'openai' (default, most reliable) or 'youtube' (prefer YouTube)"
     )
-    build_all_parser.add_argument("--force-download", action="store_true", help="Re-download videos")
-    build_all_parser.add_argument("--force-extract", action="store_true", help="Re-extract frames")
-    build_all_parser.add_argument("--force-transcripts", action="store_true", help="Re-fetch transcripts")
-    build_all_parser.add_argument("--force-all", action="store_true", help="Force rebuild everything")
+    build_all_parser.add_argument("--force-download", action="store_true", help="Re-do everything (download, extract frames, get transcript)")
 
     # Status command
     status_parser = subparsers.add_parser("status", help="Show download/processing status")
