@@ -7,9 +7,8 @@ Handles saving and loading knowledge items with caching support.
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from .schema import KnowledgeItem, KnowledgeItemType, Video, VideoTranscriptSegment, VideoFrame
 from .clustering import ClusterConfig
@@ -144,6 +143,7 @@ def load_dataset(dataset_path: str | Path) -> List[Video]:
 
     videos = []
     for entry in raw:
+        metadata = entry.get("metadata", {})
         transcript_segments = [
             VideoTranscriptSegment(
                 text=seg["text"],
@@ -168,8 +168,7 @@ def load_dataset(dataset_path: str | Path) -> List[Video]:
             id=entry["id"],
             url=entry["url"],
             title=entry["title"],
-            original_title=entry.get("original_title", entry["title"]),
-            content=entry.get("content", "") or "",
+            metadata=metadata,
             transcript=transcript_segments,
             frames=frames,
         )

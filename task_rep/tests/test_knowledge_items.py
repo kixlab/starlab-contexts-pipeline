@@ -39,8 +39,6 @@ def mock_videos():
             id="video1",
             url="https://youtube.com/watch?v=1",
             title="How to Make Sushi",
-            original_title="Sushi Tutorial",
-            content="Learn to make sushi",
             transcript=[
                 VideoTranscriptSegment(text="First, prepare the rice", start=0.0, end=5.0),
                 VideoTranscriptSegment(text="Then, cut the fish", start=5.0, end=10.0),
@@ -56,8 +54,6 @@ def mock_videos():
             id="video2",
             url="https://youtube.com/watch?v=2",
             title="How to Make Sushi",
-            original_title="Sushi Making Guide",
-            content="Sushi making guide",
             transcript=[
                 VideoTranscriptSegment(text="Prepare your ingredients", start=0.0, end=5.0),
                 VideoTranscriptSegment(text="Season the rice properly", start=5.0, end=10.0),
@@ -203,8 +199,6 @@ def test_load_dataset(tmp_path):
             "id": "v1",
             "url": "https://youtube.com/watch?v=1",
             "title": "Test Video",
-            "original_title": "Test",
-            "content": "test content",
             "transcript": [
                 {"text": "Hello world", "start": 0.0, "end": 5.0},
             ],
@@ -285,7 +279,7 @@ def test_video_get_duration(mock_videos):
 def test_video_get_duration_no_transcript():
     """Test get_duration with frames but minimal transcript."""
     video = Video(
-        id="v1", url="", title="", original_title="", content="",
+        id="v1", url="", title="",
         transcript=[VideoTranscriptSegment(text="hi", start=0.0, end=2.0)],
         frames=[VideoFrame(path="/tmp/f.jpg", time=10.0)],
     )
@@ -316,7 +310,7 @@ def test_video_sample_frames(mock_videos):
 def test_video_sample_frames_no_frames():
     """Test sample_frames when video has no frames."""
     video = Video(
-        id="v1", url="", title="", original_title="", content="",
+        id="v1", url="", title="",
         transcript=[VideoTranscriptSegment(text="hi", start=0.0, end=5.0)],
         frames=[],
     )
@@ -336,7 +330,7 @@ def test_video_format_to_message_content_text_only(mock_videos):
 def test_video_format_to_message_content_no_transcript():
     """Test that format_to_message_content raises on empty transcript."""
     video = Video(
-        id="v1", url="", title="", original_title="", content="",
+        id="v1", url="", title="",
         transcript=[],
         frames=[VideoFrame(path="/tmp/f.jpg", time=1.0)],
     )
@@ -347,7 +341,7 @@ def test_video_format_to_message_content_no_transcript():
 def test_video_format_to_message_content_vision_no_frames():
     """Test that format_to_message_content raises when vision=True but no frames."""
     video = Video(
-        id="v1", url="", title="", original_title="", content="",
+        id="v1", url="", title="",
         transcript=[VideoTranscriptSegment(text="hi", start=0.0, end=5.0)],
         frames=[],
     )

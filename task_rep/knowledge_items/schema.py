@@ -45,10 +45,9 @@ class Video:
     id: str
     url: str
     title: str
-    original_title: str
-    content: str
     transcript: List[VideoTranscriptSegment]
     frames: List[VideoFrame]
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
     def format_to_message_content(
         self,
@@ -75,6 +74,11 @@ class Video:
             segment_groups = self._group_segments(self.transcript, target_chunks)
 
         content = []
+
+        content.append({
+            "type": "text",
+            "text": f"Title: {self.title}\n"
+        })
 
         for group in segment_groups:
             # Get time range for this group
@@ -157,9 +161,10 @@ class Video:
 
     def get_duration(self) -> float:
         """Get the duration of the video."""
-        transcript_end = self.transcript[-1].end if self.transcript and len(self.transcript) > 0 else 0
-        frames_end = self.frames[-1].time if self.frames and len(self.frames) > 0 else 0
-        return max(transcript_end, frames_end)
+        # transcript_end = self.transcript[-1].end if self.transcript and len(self.transcript) > 0 else 0
+        # frames_end = self.frames[-1].time if self.frames and len(self.frames) > 0 else 0
+        # return max(transcript_end, frames_end)
+        return self.metadata.get("duration", 0)
 
     def sample_frames(
         self,

@@ -14,7 +14,8 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import List, Optional
+from task_rep.knowledge_items.schema import Video
+from typing import Any, List, Optional
 
 from .schema import (
     KnowledgeItem,
@@ -123,7 +124,7 @@ class VLMKnowledgeExtractor:
         )
         
         items = []
-        for video, result in zip(videos, batch_results):
+        for video, result in zip[tuple[Video, Any]](videos, batch_results):
             for idx in range(len(result)):
                 atomic_type_str = result[idx].get("atomic_type")
                 content = result[idx].get("content")
