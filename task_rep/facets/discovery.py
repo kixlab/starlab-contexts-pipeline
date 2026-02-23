@@ -12,20 +12,24 @@ from typing import Dict, List, Optional
 
 from knowledge_items.schema import KnowledgeItem
 
-from utils.llm import random_uid
-from utils.llm import batch_run_llm_calls
-from utils.llm import MessageContent
+from utils import (
+    ModelConfig,
+    batch_run_llm_calls,
+    random_uid,
+    MessageContent,
+)
 
-from prompts.fa_facet_discovery import (
+from prompts import (
     form_facet_discovery_request,
     process_facet_discovery_response,
-)
-from prompts.fa_facet_revision import (
     form_facet_revision_request,
     process_facet_revision_response,
 )
 
-from .schema import Facet, FacetLabel
+from .schema import (
+    Facet,
+    FacetLabel,
+)
 
 
 @dataclass
@@ -37,27 +41,15 @@ class VLMFacetExtractor:
     - propose_facets: Discover new facets (single request)
     - revise_facets: Revise existing facets (single request)
     """
-
-    task: str = ""
-    provider: Optional[str] = None
-    model: Optional[str] = None
+    model_config: ModelConfig
     max_concurrency: int = 32
-
-    def __post_init__(self):
-        """Initialize default model based on provider."""
-        if self.provider is None:
-            self.provider = "openai"
-        if self.model is None:
-            if self.provider == "openai":
-                self.model = "gpt-4o-mini"
-            elif self.provider == "anthropic":
-                self.model = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
 
     def propose_facets(
         self,
+        task: str,
         videos: Dict[str, List[KnowledgeItem]],
         target_item_ids: List[str],
-        existing_facets: Optional[List[Facet]] = None,
+        facets: Optional[List[Facet]] = None,
         target_signature: Optional[str] = None,
     ) -> List[Facet]:
         """
@@ -72,8 +64,8 @@ class VLMFacetExtractor:
         Returns:
             List of newly proposed facets
         """
-        if existing_facets is None:
-            existing_facets = []
+        if facets is None:
+            facets = []
 
         if target_signature is None:
             target_signature = ""
@@ -83,7 +75,7 @@ class VLMFacetExtractor:
         request_args = []
 
         video_contents = {}
-        existing_facets_contents = {}
+        facets_contents = {}
         target_items_contents = {}
 
         for video_id, video_items in videos.items():
@@ -92,19 +84,19 @@ class VLMFacetExtractor:
                 item_content = item.format_to_message_content()
                 if item.id in target_item_ids:
                     target_items_contents[item.id] = item_content
-                video_content.append(item_content.to_content())
+                video_content.extend(item_content.to_content())
 
             video_contents[video_id] = MessageContent(content=video_content)
 
-        for facet in existing_facets:
+        for facet in facets:
             facet_content = facet.format_to_message_content()
-            existing_facets_contents[facet.id] = facet_content
+            facets_contents[facet.id] = facet_content
 
         request_args = [{
-            "task": self.task,
+            "task": task,
             "tutorial_contents": video_contents,
             "target_items": target_items_contents,
-            "existing_facets": existing_facets_contents,
+            "facets": facets_contents,
             "target_signature": target_signature,
         }]
 
@@ -114,8 +106,7 @@ class VLMFacetExtractor:
             form_facet_discovery_request,
             process_facet_discovery_response,
             max_concurrency=self.max_concurrency,
-            provider=self.provider,
-            model=self.model,
+            model_config=self.model_config,
         )
 
         new_facets = []
@@ -142,7 +133,8 @@ class VLMFacetExtractor:
 
     def revise_facets(
         self,
-        existing_facets: List[Facet],
+        task: str,
+        facets: List[Facet],
     ) -> List[Facet]:
         """
         Revise existing facets 
@@ -155,24 +147,24 @@ class VLMFacetExtractor:
         - Merge redundant facets
 
         Args:
-            existing_facets: Current facets to revise
+            facets: Current facets to revise
 
         Returns:
             List of revised facets
         """
-        if not existing_facets:
+        if not facets:
             return []
 
         batch_id = f"facet_revision_{random_uid()}"
 
         # Format existing facets
-        existing_facets_contents = {}
-        for facet in existing_facets:
-            existing_facets_contents[facet.id] = facet.format_to_message_content()
+        facets_contents = {}
+        for facet in facets:
+            facets_contents[facet.id] = facet.format_to_message_content()
 
         request_args = [{
-            "task": self.task,
-            "existing_facets": existing_facets_contents,
+            "task": task,
+            "facets": facets_contents,
         }]
 
         batch_results = batch_run_llm_calls(
@@ -181,8 +173,7 @@ class VLMFacetExtractor:
             form_facet_revision_request,
             process_facet_revision_response,
             max_concurrency=self.max_concurrency,
-            provider=self.provider,
-            model=self.model,
+            model_config=self.model_config,
         )
 
         new_facets = []

@@ -10,10 +10,9 @@ from pathlib import Path
 import pytest
 
 from knowledge_items import (
-    extract_and_cluster_knowledge_items,
     load_knowledge_items,
     save_knowledge_items,
-    load_dataset,
+    load_task_dataset,
     ClusterConfig,
     KnowledgeItemType,
     KnowledgeItem,
@@ -192,7 +191,7 @@ def test_load_knowledge_items_file_not_found(tmp_path):
         load_knowledge_items(tmp_path / "nonexistent.jsonl")
 
 
-def test_load_dataset(tmp_path):
+def test_load_task_dataset(tmp_path):
     """Test loading videos from a dataset JSON file."""
     dataset = [
         {
@@ -208,11 +207,11 @@ def test_load_dataset(tmp_path):
         },
     ]
 
-    dataset_path = tmp_path / "test_dataset.json"
-    with open(dataset_path, "w") as f:
+    path = tmp_path / "test_dataset.json"
+    with open(path, "w") as f:
         json.dump(dataset, f)
 
-    videos = load_dataset(dataset_path)
+    videos = load_task_dataset(path)
     assert len(videos) == 1
     assert videos[0].id == "v1"
     assert videos[0].title == "Test Video"
@@ -222,10 +221,10 @@ def test_load_dataset(tmp_path):
     assert videos[0].frames[0].time == 2.0
 
 
-def test_load_dataset_file_not_found(tmp_path):
+def test_load_task_dataset_file_not_found(tmp_path):
     """Test that loading nonexistent dataset raises FileNotFoundError."""
     with pytest.raises(FileNotFoundError):
-        load_dataset(tmp_path / "nonexistent.json")
+        load_task_dataset(tmp_path / "nonexistent.json")
 
 
 # ============= KnowledgeItem Formatting Tests =============
@@ -538,80 +537,6 @@ def test_cluster_config():
 
     assert "sim085" in suffix
     assert "textembedding" in suffix.lower()
-
-
-# ============= Integration Tests =============
-
-@pytest.mark.skipif(
-    not Path("static/datasets/sushi_roll_3.json").exists(),
-    reason="sushi_roll_3 dataset not available",
-)
-def test_extract_and_cluster_with_real_data():
-    """
-    Integration test with real sushi_roll_3 data.
-
-    Requires:
-    - Task sushi_roll_3 to be built: python -m task_rep.scripts.prepare_dataset build sushi_roll_3
-    - OPENAI_API_KEY set
-
-    This test:
-    1. Loads the sushi_roll_3 dataset using load_dataset()
-    2. Extracts atomic knowledge items
-    3. Clusters them
-    4. Verifies caching works
-    """
-    import os
-    import shutil
-
-    if not os.getenv("OPENAI_API_KEY"):
-        pytest.skip("OPENAI_API_KEY not set")
-
-    # Load dataset using the load_dataset utility
-    videos = load_dataset("static/datasets/sushi_roll_3.json")
-    assert len(videos) == 3, f"Expected 3 videos, got {len(videos)}"
-
-    # Extract and cluster
-    cluster_config = ClusterConfig(similarity_threshold=0.9)
-    cache_dir = Path("static/cache_test")
-
-    knowledge_base = extract_and_cluster_knowledge_items(
-        task_id="sushi_roll_3_test",
-        granularity=KnowledgeItemType.ATOMIC,
-        videos=videos,
-        base_dir=cache_dir,
-        cluster_config=cluster_config,
-        use_cache=True,
-    )
-
-    # Verify results
-    assert len(knowledge_base.items) > 0, "Should extract some knowledge items"
-
-    # Check clustering
-    unit_ids = [item.unit_id for item in knowledge_base.items if item.unit_id]
-    unique_units = len(set(unit_ids))
-    assert unique_units > 0, "Should have at least one cluster"
-    assert unique_units < len(knowledge_base.items), "Should cluster similar items"
-
-    # Verify types
-    for item in knowledge_base.items:
-        assert item.type == KnowledgeItemType.ATOMIC
-        assert isinstance(item.subtype, AtomicType) or item.subtype is None
-
-    # Test caching: run again and verify it loads from cache
-    knowledge_base2 = extract_and_cluster_knowledge_items(
-        task_id="sushi_roll_3_test",
-        granularity=KnowledgeItemType.ATOMIC,
-        videos=videos,
-        base_dir=cache_dir,
-        cluster_config=cluster_config,
-        use_cache=True,
-    )
-
-    assert len(knowledge_base2.items) == len(knowledge_base.items)
-
-    # Cleanup
-    if cache_dir.exists():
-        shutil.rmtree(cache_dir)
 
 
 if __name__ == "__main__":

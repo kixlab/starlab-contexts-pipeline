@@ -13,22 +13,28 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass, replace
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from knowledge_items.schema import KnowledgeBase
 
-from utils.llm import random_uid
-from utils.llm import batch_run_llm_calls
-from utils.llm import MessageContent
+from utils import (
+    ModelConfig,
+    batch_run_llm_calls,
+    random_uid,
+    MessageContent,
+)
 
-from prompts.fa_facet_vocabulary import (
+from prompts import (
     form_vocabulary_proposal_request,
     process_vocabulary_proposal_response,
     form_vocabulary_consolidation_request,
     process_vocabulary_consolidation_response,
 )
 
-from .schema import Facet, FacetLabel
+from .schema import (
+    Facet,
+    FacetLabel,
+)
 
 
 @dataclass
@@ -43,25 +49,12 @@ class VLMFacetVocabularyBuilder:
 
     build_vocabulary(facets, knowledge_base) -> List[Facet]
     """
-
-    task: str = ""
-    provider: Optional[str] = None
-    model: Optional[str] = None
+    model_config: ModelConfig
     max_concurrency: int = 32
-
-    def __post_init__(self):
-        """Initialize default model based on provider."""
-        if self.provider is None:
-            self.provider = "openai"
-
-        if self.model is None:
-            if self.provider == "openai":
-                self.model = "gpt-4o-mini"
-            elif self.provider == "anthropic":
-                self.model = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
 
     def build_vocabulary(
         self,
+        task: str,
         facets: List[Facet],
         knowledge_base: KnowledgeBase,
     ) -> List[Facet]:
@@ -97,7 +90,7 @@ class VLMFacetVocabularyBuilder:
             for video_id, video_content in video_contents.items():
                 request_keys.append((facet.id, video_id))
                 request_args.append({
-                    "task": self.task,
+                    "task": task,
                     "facet": facet_mc,
                     "video_items": video_content,
                 })
@@ -108,8 +101,7 @@ class VLMFacetVocabularyBuilder:
             form_vocabulary_proposal_request,
             process_vocabulary_proposal_response,
             max_concurrency=self.max_concurrency,
-            provider=self.provider,
-            model=self.model,
+            model_config=self.model_config,
         )
 
         # Re-group proposal results by facet
@@ -140,7 +132,7 @@ class VLMFacetVocabularyBuilder:
                     })
 
             request_args.append({
-                "task": self.task,
+                "task": task,
                 "facet": facet.format_to_message_content(),
                 "existing_vocabulary": facet.format_vocabulary(),
                 "proposals_by_video": MessageContent(content=proposals_by_video_content),
@@ -152,8 +144,7 @@ class VLMFacetVocabularyBuilder:
             form_vocabulary_consolidation_request,
             process_vocabulary_consolidation_response,
             max_concurrency=self.max_concurrency,
-            provider=self.provider,
-            model=self.model,
+            model_config=self.model_config,
         )
 
         updated_facets = []

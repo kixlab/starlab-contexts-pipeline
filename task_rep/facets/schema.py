@@ -10,8 +10,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
-from utils.llm import random_uid
-from utils.llm import MessageContent
+from utils import (
+    random_uid,
+    MessageContent,
+)
 
 FACET_STR_FORMAT = """[F{id}] ({scope}) {title} (Plural: {title_plural}): {definition}
 **Guidelines for labeling items**:
@@ -261,6 +263,12 @@ class AnnotationTable:
             key = (item_id, facet.id)
             if key in self._data:
                 parts.append(f"<{facet.title}:{self._data[key]}>")
+            else:
+                print(f"No label found for {key}")
+                for k, v in self._data.items():
+                    if k[0] == item_id and k[1] == facet.id:
+                        print("Found", k, v)
+                        break
         return "".join(parts)
 
     def item_ids(self) -> Set[str]:

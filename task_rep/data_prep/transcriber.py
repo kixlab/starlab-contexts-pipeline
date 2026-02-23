@@ -3,9 +3,8 @@ from __future__ import annotations
 import os
 import subprocess
 from openai import OpenAI
-
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 # Whisper API has a 25 MB file size limit, use 24 MB to be safe
 MAX_FILE_SIZE_MB = 24

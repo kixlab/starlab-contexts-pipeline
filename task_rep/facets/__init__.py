@@ -12,20 +12,17 @@ Public API:
 - VLMFacetLabeler: VLM-based item labeling
 """
 
-from .schema import Facet, FacetLabel, AnnotationTable
-from .discovery import VLMFacetExtractor
-from .vocabulary import VLMFacetVocabularyBuilder
-from .label import VLMFacetLabeler
-
-__all__ = [
-    # Data structures
-    "Facet",
-    "FacetLabel",
-    "AnnotationTable",
-    # Discovery
-    "VLMFacetExtractor",
-    # Vocabulary
-    "VLMFacetVocabularyBuilder",
-    # Labeling
-    "VLMFacetLabeler",
-]
+from .schema import (
+    Facet,
+    FacetLabel,
+    AnnotationTable,
+)
+from .discovery import (
+    VLMFacetExtractor,
+)
+from .vocabulary import (
+    VLMFacetVocabularyBuilder,
+)
+from .label import (
+    VLMFacetLabeler,
+)

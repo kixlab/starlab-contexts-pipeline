@@ -13,17 +13,21 @@ import time
 from pathlib import Path
 from typing import Literal
 
-from .video_downloader import VideoDownloader
-from .task_manager import Task
+from .video_downloader import (
+    VideoDownloader,
+)
+from .task_manager import (
+    Task,
+)
 
-def build_dataset(
+def build_task_dataset(
     task: Task,
-    base_dir: Path,
     downloader: VideoDownloader,
+    dataset_dir: str | Path,
     fps: float = 1.0,
     transcript_source: Literal["openai", "youtube"] = "openai",
     force_download: bool = False,
-) -> str:
+) -> Path:
     """
     Build a complete dataset from a task definition.
 
@@ -37,14 +41,13 @@ def build_dataset(
 
     Args:
         task: Task object from tasks.json
-        base_dir: Base directory to save the dataset
         downloader: VideoDownloader object
         fps: Frames per second to extract
         transcript_source: Which transcripts to use: "openai" or "youtube"
         force_download: Re-download videos even if they exist
     """
 
-    output_path = base_dir / f"{task.id}.json"
+    output_path: Path = task.get_dataset_path(dataset_dir)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Process each video
@@ -110,4 +113,4 @@ def build_dataset(
     if skipped_videos:
         print(f"\n⚠ Skipped {len(skipped_videos)} video(s) (unavailable or failed to download):")
 
-    return str(output_path)
+    return Path(output_path)

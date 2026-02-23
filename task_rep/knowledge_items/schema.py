@@ -369,3 +369,30 @@ class KnowledgeBase:
             if relevant:
                 relevant_items.append(item)
         return KnowledgeBase(items=relevant_items)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "items": [item.to_dict() for item in self.items],
+        }
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> KnowledgeBase:
+        return KnowledgeBase(items=[KnowledgeItem.from_dict(item) for item in data["items"]])
+
+    def __eq__(self, other: KnowledgeBase) -> bool:
+        ### check if the items at the same ids are the same
+        item_id_to_item = {item.id: item for item in self.items}
+        other_item_id_to_item = {item.id: item for item in other.items}
+        if len(item_id_to_item) != len(other_item_id_to_item):
+            return False
+        for item_id in item_id_to_item.keys():
+            if item_id not in other_item_id_to_item:
+                return False
+            
+        for item_id, item in item_id_to_item.items():
+            other_item = other_item_id_to_item[item_id]
+            item_dict = item.to_dict()
+            other_item_dict = other_item.to_dict()
+            if item_dict != other_item_dict:
+                return False
+        return True

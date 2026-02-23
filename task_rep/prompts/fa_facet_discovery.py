@@ -7,7 +7,7 @@ Supports multiple discovery strategies:
 - VIDEO_TRIPLETS: Find facets by discriminating among three videos (TODO)
 """
 
-from enum import Enum
+
 from typing import Any, Dict, List
 
 from utils.llm import MessageContent
@@ -75,7 +75,7 @@ def form_facet_discovery_request(
     task: str,
     tutorial_contents: Dict[str, MessageContent],
     target_items: Dict[str, MessageContent],
-    existing_facets: Dict[str, MessageContent],
+    facets: Dict[str, MessageContent],
     target_signature: str,
     **kwargs,
 ) -> Dict[str, Any]:
@@ -83,21 +83,21 @@ def form_facet_discovery_request(
 
     tutorial_contents_str = dict_mc_to_str(tutorial_contents)
     target_items_str = dict_mc_to_str(target_items)
-    existing_facets_str = dict_mc_to_str(existing_facets)
+    facets_str = dict_mc_to_str(facets)
 
     messages = [
         {
             "role": "system",
             "content": MessageContent.from_template(
-                SYSTEM_PROMPT,
+                template=SYSTEM_PROMPT,
                 task=task
             )
         },
         {
             "role": "user",
             "content": MessageContent.from_template(
-                USER_PROMPT_SINGLE_VIDEO,
-                previous_facets=existing_facets_str,
+                template=USER_PROMPT_SINGLE_VIDEO,
+                previous_facets=facets_str,
                 tutorials=tutorial_contents_str,
                 target_items=target_items_str,
                 signature=target_signature,
@@ -133,8 +133,10 @@ def process_facet_discovery_response(
         for item_id in target_item_ids:
             temp_annotations[item_id][c_id] = "na"
 
-        for segmentation_meta in candidate.get("segmentations", []):
-            for item_annotation in segmentation_meta.get("segmentation", []):
+        segmentations = candidate.get("segmentations", [])
+        for segmentation_meta in segmentations:
+            segmentation = segmentation_meta.get("segmentation", [])
+            for item_annotation in segmentation:
                 item_id = item_annotation.get("item_id")
                 label = item_annotation.get("label")
                 if item_id in temp_annotations:

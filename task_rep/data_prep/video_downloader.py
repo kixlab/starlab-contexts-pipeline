@@ -9,13 +9,12 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import cv2
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Literal
 
 from .transcriber import transcribe_audio
-
-import cv2
 
 def _add_cookie_support(cmd: List[str]) -> List[str]:
      # Add cookie support

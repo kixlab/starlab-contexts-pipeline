@@ -10,21 +10,25 @@ Follows the same architectural pattern as VLMFacetVocabularyBuilder.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 from knowledge_items.schema import KnowledgeBase
 
-from utils.llm import random_uid
-from utils.llm import batch_run_llm_calls
-from utils.llm import MessageContent
+from utils import (
+    ModelConfig,
+    batch_run_llm_calls,
+    random_uid,
+    MessageContent,
+)
 
-from prompts.fa_facet_labeling import (
+from prompts import (
     form_labeling_request,
     process_labeling_response,
 )
-
-from .schema import AnnotationTable, Facet
-
+from .schema import (
+    AnnotationTable,
+    Facet,
+)
 
 @dataclass
 class VLMFacetLabeler:
@@ -36,25 +40,12 @@ class VLMFacetLabeler:
 
     label_batch(facets, knowledge_base) -> AnnotationTable
     """
-
-    task: str = ""
-    provider: Optional[str] = None
-    model: Optional[str] = None
+    model_config: ModelConfig
     max_concurrency: int = 32
-
-    def __post_init__(self):
-        """Initialize default model based on provider."""
-        if self.provider is None:
-            self.provider = "openai"
-
-        if self.model is None:
-            if self.provider == "openai":
-                self.model = "gpt-4o-mini"
-            elif self.provider == "anthropic":
-                self.model = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
 
     def label_batch(
         self,
+        task: str,
         facets: List[Facet],
         knowledge_base: KnowledgeBase,
     ) -> AnnotationTable:
@@ -92,7 +83,7 @@ class VLMFacetLabeler:
             for video_id, video_content in video_contents.items():
                 request_keys.append((facet.id, video_id))
                 request_args.append({
-                    "task": self.task,
+                    "task": task,
                     "facet": facet_mc,
                     "video_items": video_content,
                 })
@@ -103,8 +94,7 @@ class VLMFacetLabeler:
             form_labeling_request,
             process_labeling_response,
             max_concurrency=self.max_concurrency,
-            provider=self.provider,
-            model=self.model,
+            model_config=self.model_config,
         )
 
         # Collect results into AnnotationTable

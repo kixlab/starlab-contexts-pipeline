@@ -26,15 +26,11 @@ class Task:
     video_ids: List[str]
     metadata: Dict[str, Any] = None
 
-    def __post_init__(self):
-        if self.metadata is None:
-            self.metadata = {}
-
     def to_dict(self) -> dict:
         return {
             "name": self.name,
             "video_ids": self.video_ids,
-            "metadata": self.metadata,
+            "metadata": self.metadata or {},
         }
 
     @staticmethod
@@ -46,12 +42,17 @@ class Task:
             metadata=data.get("metadata", {}),
         )
 
+    def get_dataset_path(self, dataset_dir: str | Path) -> Path:
+        return Path(dataset_dir) / f"{self.id}.json"
+
+    def get_cache_dir(self, cache_dir: str | Path, suffix: str = "") -> Path:
+        return Path(cache_dir) / f"{self.id}{f'_{suffix}' if suffix else ''}"
 
 class TaskManager:
     """Manages tasks.json."""
 
-    def __init__(self, tasks_file: Path):
-        self.tasks_file = tasks_file
+    def __init__(self, tasks_file: str | Path):
+        self.tasks_file = Path(tasks_file)
         self.tasks_file.parent.mkdir(parents=True, exist_ok=True)
         self._load()
 
@@ -91,9 +92,12 @@ class TaskManager:
             raise ValueError(f"Task '{task_id}' not found")
         return self.tasks[task_id]
 
-    def list_tasks(self) -> List[Task]:
+    def list_tasks(self, task_ids: Optional[List[str]] = None) -> List[Task]:
         """List all tasks."""
-        return list(self.tasks.values())
+        if task_ids is None:
+            return list(self.tasks.values())
+        else:
+            return [self.tasks[task_id] for task_id in task_ids]
 
     def update_task(self, task_id: str, **kwargs) -> Task:
         """Update a task."""

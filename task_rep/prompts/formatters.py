@@ -18,14 +18,13 @@ def dict_mc_to_str(dict_mc: Dict[str, MessageContent]) -> MessageContent:
     """Format dictionary of MessageContent as a string for prompts."""
     content = []
     for key, value in dict_mc.items():
-        content.extend([
-            {"type": "text", "text": f"- [{key}]"}, *value.to_content()
-        ])
+        content.append({"type": "text", "text": f"- [{key}]"})
+        content.extend(value.to_content())
     return MessageContent(content=content)
 
 def list_mc_to_str(list_mc: List[MessageContent]) -> MessageContent:
     """Format list of MessageContent as a string for prompts."""
     content = []
     for value in list_mc:
-        content.extend([*value.to_content()])
+        content.extend(value.to_content())
     return MessageContent(content=content)

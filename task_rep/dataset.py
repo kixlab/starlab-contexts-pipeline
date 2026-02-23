@@ -24,41 +24,37 @@ Usage:
 
 import argparse
 import json
-from pathlib import Path
-from data_prep import TaskManager, build_dataset, VideoDownloader
-
-TASKS_FILE = Path("./static/tasks.json")
-
-VIDEOS_DIR = Path("./static/videos/")
-
-DATASETS_DIR = Path("./static/datasets/")
+from config import Config
+from data_prep import (
+    TaskManager,
+    build_task_dataset,
+    VideoDownloader,
+)
 
 def cmd_build(args):
     """Build a dataset from task definition."""
-    manager = TaskManager(tasks_file=TASKS_FILE)
+    manager = TaskManager(tasks_file=Config.TASKS_FILE)
     task = manager.get_task(args.task_id)
     fps = args.fps
     transcript_source = args.transcript_source
     force_download = args.force_download
 
-    downloader = VideoDownloader(
-        videos_dir=VIDEOS_DIR,
-    )
+    downloader = VideoDownloader(videos_dir=Config.VIDEOS_DIR)
 
-    output_path = build_dataset(
+    output_path = build_task_dataset(
         task=task,
-        base_dir=DATASETS_DIR,
         downloader=downloader,
-        fps=fps,
-        transcript_source=transcript_source,
-        force_download=force_download,
+        dataset_dir = Config.TASK_DATASETS_DIR,
+        fps=fps, 
+        transcript_source=transcript_source, 
+        force_download=force_download
     )
     print(f"\n✓ Dataset ready: {output_path}")
 
 
 def cmd_build_all(args):
     """Build datasets for all tasks."""
-    manager = TaskManager(tasks_file=TASKS_FILE)
+    manager = TaskManager(tasks_file=Config.TASKS_FILE)
     tasks = manager.list_tasks()
 
     if not tasks:
@@ -82,12 +78,12 @@ def cmd_build_all(args):
         print(f"{'='*60}")
 
         try:
-            downloader = VideoDownloader(videos_dir=VIDEOS_DIR)
+            downloader = VideoDownloader(videos_dir=Config.VIDEOS_DIR)
 
-            output_path = build_dataset(
+            output_path = build_task_dataset(
                 task=task,
-                base_dir=DATASETS_DIR,
                 downloader=downloader,
+                dataset_dir=Config.TASK_DATASETS_DIR,
                 fps=fps,
                 transcript_source=transcript_source,
                 force_download=force_download,
@@ -114,7 +110,7 @@ def cmd_build_all(args):
 
 def cmd_status(args):
     """Show download status for one or all tasks."""
-    manager = TaskManager(tasks_file=TASKS_FILE)
+    manager = TaskManager(tasks_file=Config.TASKS_FILE)
 
     if hasattr(args, "task_id") and args.task_id:
         tasks = [manager.get_task(args.task_id)]
@@ -137,7 +133,7 @@ def cmd_status(args):
 
     for task in tasks:
         expected = len(task.video_ids)
-        dataset_path = DATASETS_DIR / f"{task.id}.json"
+        dataset_path = task.get_dataset_path(Config.TASK_DATASETS_DIR)
 
         if not dataset_path.exists():
             in_dataset = frames = 0
@@ -180,7 +176,7 @@ def cmd_status(args):
 
 def cmd_list(args):
     """List all tasks."""
-    manager = TaskManager(tasks_file=TASKS_FILE)
+    manager = TaskManager(tasks_file=Config.TASKS_FILE)
     tasks = manager.list_tasks()
 
     if not tasks:
@@ -206,7 +202,7 @@ def cmd_list(args):
 
 def cmd_info(args):
     """Show task information."""
-    manager = TaskManager(tasks_file=TASKS_FILE)
+    manager = TaskManager(tasks_file=Config.TASKS_FILE)
     task = manager.get_task(args.task_id)
 
     print(f"\nTask: {task.id}")

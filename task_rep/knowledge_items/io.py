@@ -16,7 +16,7 @@ from .clustering import ClusterConfig
 
 def save_knowledge_items(
     items: List[KnowledgeItem],
-    output_path: str | Path,
+    path: str | Path,
 ) -> None:
     """
     Save knowledge items to JSONL format.
@@ -25,35 +25,35 @@ def save_knowledge_items(
 
     Args:
         items: List of knowledge items to save
-        output_path: Path to output JSONL file
+        path: Path to output JSONL file
     """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(path, "w", encoding="utf-8") as f:
         for item in items:
             f.write(json.dumps(item.to_dict(), ensure_ascii=False) + "\n")
 
 
 def load_knowledge_items(
-    input_path: str | Path,
+    path: str | Path,
 ) -> List[KnowledgeItem]:
     """
     Load knowledge items from JSONL format.
 
     Args:
-        input_path: Path to input JSONL file
+        path: Path to input JSONL file
 
     Returns:
         List of knowledge items
     """
-    input_path = Path(input_path)
+    path = Path(path)
 
-    if not input_path.exists():
-        raise FileNotFoundError(f"Knowledge items file not found: {input_path}")
+    if not path.exists():
+        raise FileNotFoundError(f"Knowledge items file not found: {path}")
 
     items = []
-    with open(input_path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8") as f:
         for line in f:
             if line.strip():
                 data = json.loads(line)
@@ -63,35 +63,27 @@ def load_knowledge_items(
 
 
 def get_extraction_cache_path(
-    base_dir: str | Path,
-    task_id: str,
-    granularity: KnowledgeItemType,
+    cache_dir: str | Path,
+    item_type: KnowledgeItemType,
 ) -> Path:
     """
     Generate cache path for extracted knowledge items.
 
     Args:
-        base_dir: Base directory for cache files
-        task_id: Task identifier
-        granularity: Knowledge item type (ATOMIC, STEP, TUTORIAL)
+        cache_dir: Path to cache directory
+        item_type: Knowledge item type (ATOMIC, STEP, TUTORIAL)
 
     Returns:
         Path to cache file
-
-    Example:
-        >>> get_extraction_cache_path("cache", "sushi_v1", KnowledgeItemType.ATOMIC)
-        Path('cache/sushi_v1/extracted_atomic.jsonl')
     """
-    base_dir = Path(base_dir)
-    task_dir = base_dir / task_id
-    return task_dir / f"extracted_{granularity.value}.jsonl"
+    cache_dir = Path(cache_dir)
+    return cache_dir / f"extracted_{item_type.value}.jsonl"
 
 
 def get_clustering_cache_path(
-    base_dir: str | Path,
-    task_id: str,
-    granularity: KnowledgeItemType,
-    config: ClusterConfig,
+    cache_dir: str | Path,
+    item_type: KnowledgeItemType,
+    cluster_config: ClusterConfig,
 ) -> Path:
     """
     Generate cache path for clustered knowledge items.
@@ -99,46 +91,34 @@ def get_clustering_cache_path(
     Includes clustering config in filename for different thresholds.
 
     Args:
-        base_dir: Base directory for cache files
-        task_id: Task identifier
-        granularity: Knowledge item type
+        cache_dir: Path to cache directory
+        item_type: Knowledge item type
         config: Clustering configuration
 
     Returns:
         Path to cache file
-
-    Example:
-        >>> config = ClusterConfig(similarity_threshold=0.85)
-        >>> get_clustering_cache_path("cache", "sushi_v1", KnowledgeItemType.ATOMIC, config)
-        Path('cache/sushi_v1/clustered_atomic_sim85_textembedding3small.jsonl')
     """
-    base_dir = Path(base_dir)
-    task_dir = base_dir / task_id
-    suffix = config.cache_suffix()
-    return task_dir / f"clustered_{granularity.value}_{suffix}.jsonl"
+    cache_dir = Path(cache_dir)
+    cluster_suffix = cluster_config.cache_suffix()
+    return cache_dir / f"clustered_{item_type.value}_{cluster_suffix}.jsonl"
 
 
-def load_dataset(dataset_path: str | Path) -> List[Video]:
+def load_task_dataset(path: str | Path) -> List[Video]:
     """
     Load videos from dataset JSON file.
 
     Args:
-        dataset_path: Path to dataset JSON file (typically from data_prep)
+        path: Path to dataset JSON file
 
     Returns:
         List of Video objects with transcript segments and frames
-
-    Example:
-        >>> videos = load_dataset("static/datasets/sushi_roll_3.json")
-        >>> len(videos)
-        5
     """
-    dataset_path = Path(dataset_path)
+    path = Path(path)
 
-    if not dataset_path.exists():
-        raise FileNotFoundError(f"Dataset file not found: {dataset_path}")
+    if not path.exists():
+        raise FileNotFoundError(f"Dataset file not found: {path}")
 
-    with open(dataset_path, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8") as f:
         raw = json.load(f)
 
     videos = []
