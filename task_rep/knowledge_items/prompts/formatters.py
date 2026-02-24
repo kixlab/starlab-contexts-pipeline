@@ -9,7 +9,6 @@ from typing import Any, Dict, List, Optional
 
 from utils import (
     MessageContent,
-    format_time,
 )
 
 from knowledge_items.schema import KnowledgeItem, Video
@@ -48,7 +47,7 @@ def video_to_message_content(
         if group_text or group_frames:
             content.append({
                 "type": "text",
-                "text": f"\n--- Time {format_time(group_start)}-{format_time(group_end)} ---\n",
+                "text": f"\n--- Time {group_start}-{group_end} ---\n",
             })
             if group_text:
                 content.append({"type": "text", "text": f"{group_text}\n"})
@@ -56,7 +55,7 @@ def video_to_message_content(
                 for frame in group_frames:
                     content.append({
                         "type": "text",
-                        "text": f"[Visual frame at {format_time(frame.time)}]\n",
+                        "text": f"[Visual frame at {frame.time}]\n",
                     })
                     content.append({"type": "image_path", "path": frame.path})
 

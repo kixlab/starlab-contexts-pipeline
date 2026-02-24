@@ -170,12 +170,12 @@ class MessageContent:
 
     def to_dict(self) -> List[Dict[str, Any]]:
         """Convert to a JSON-serializable dictionary."""
-        return self.content
+        return { "content": self.content }
 
     @classmethod
     def from_dict(cls, data: List[Dict[str, Any]]) -> MessageContent:
         """Create MessageContent from a list of blocks."""
-        return cls(content=data)
+        return cls(content=data["content"])
 
     def to_openai_content(self) -> List[Dict[str, Any]]:
         """Convert to OpenAI API content format."""
