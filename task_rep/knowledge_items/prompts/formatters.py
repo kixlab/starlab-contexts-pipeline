@@ -1,0 +1,100 @@
+"""
+Formatting helpers for knowledge item prompts.
+
+Converts domain objects (Video, KnowledgeItem) into MessageContent
+for inclusion in LLM prompts.
+"""
+
+from typing import Any, Dict, List
+
+from utils import MessageContent
+from utils.video import format_time
+
+from knowledge_items.schema import KnowledgeItem, Video
+
+
+def video_to_message_content(
+    video: Video,
+    use_vision: bool,
+    frames_per_group: int,
+    target_chunks: int = 0,
+) -> MessageContent:
+    """Format a Video as MessageContent for prompt inclusion."""
+    if use_vision and not video.frames:
+        raise ValueError("When vision is enabled, video must have frames")
+    if not video.transcript:
+        raise ValueError("Video must have transcript")
+
+    if target_chunks == 0:
+        segment_groups = [[seg] for seg in video.transcript]
+    else:
+        segment_groups = video._group_segments(video.transcript, target_chunks)
+
+    content: List[Dict[str, Any]] = []
+    content.append({"type": "text", "text": f"Title: {video.title}\n"})
+
+    for group in segment_groups:
+        group_start = group[0].start
+        group_end = group[-1].end
+        group_text = " ".join(seg.text for seg in group)
+        group_frames = video.sample_frames(
+            start_time=group_start,
+            end_time=group_end,
+            max_frames=frames_per_group,
+        )
+
+        if group_text or group_frames:
+            content.append({
+                "type": "text",
+                "text": f"\n--- Time {format_time(group_start)}-{format_time(group_end)} ---\n",
+            })
+            if group_text:
+                content.append({"type": "text", "text": f"{group_text}\n"})
+            if group_frames and use_vision:
+                for frame in group_frames:
+                    content.append({
+                        "type": "text",
+                        "text": f"[Visual frame at {format_time(frame.time)}]\n",
+                    })
+                    content.append({"type": "image_path", "path": frame.path})
+
+    return MessageContent(content=content)
+
+
+def knowledge_item_to_message_content(
+    item: KnowledgeItem,
+    with_type: bool = True,
+) -> MessageContent:
+    """Format a KnowledgeItem as MessageContent for prompt inclusion."""
+    return MessageContent(content=[{"type": "text", "text": item.format(with_type)}])
+
+
+def taxonomy_to_message_content(taxonomy: List[Dict[str, Any]]) -> MessageContent:
+    """Format a taxonomy list as MessageContent for prompts."""
+    if not taxonomy:
+        return MessageContent(content=[{"type": "text", "text": "(No taxonomy provided)"}])
+    lines = [f"- [{item.get('name')}] {item.get('definition')}" for item in taxonomy]
+    return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
+
+
+def steps_by_video_to_message_content(
+    videos: List[Video],
+    steps_by_video: Dict[str, List["KnowledgeItem"]],
+) -> MessageContent:
+    """Format discovered steps grouped by video as MessageContent for prompt inclusion.
+
+    Args:
+        videos: Source videos (used to look up titles by ID).
+        steps_by_video: Mapping from video_id to the list of discovered step KnowledgeItems.
+    """
+    video_map = {v.id: v for v in videos}
+    content: List[Dict[str, Any]] = []
+    for video_idx, (video_id, steps) in enumerate(steps_by_video.items()):
+        title = video_map[video_id].title if video_id in video_map else video_id
+        content.append({"type": "text", "text": f"\nVideo {video_idx + 1}: {title}"})
+        for idx, step in enumerate(steps):
+            content.append({
+                "type": "text",
+                "text": f"{idx + 1}. [{step.subtype}] {step.text}",
+            })
+    return MessageContent(content=content)

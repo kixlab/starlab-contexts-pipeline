@@ -7,10 +7,14 @@ classified into a taxonomy (e.g., methods, tips, context, explanations).
 
 from typing import List, Dict, Any
 
-from utils.llm import MessageContent
-from .formatters import taxonomy_to_str
+from utils import MessageContent
 
+from .formatters import taxonomy_to_message_content, video_to_message_content
 from .ki_pydantic import AtomicExtractionResult
+
+from knowledge_items.schema import KnowledgeItem, KnowledgeItemType, KnowledgeSource, Video
+from knowledge_items.taxonomy import AtomicType
+
 
 SYSTEM_MESSAGE = """You are an expert at analyzing tutorial videos and extracting atomic pieces of information about the task: {task}. You excel at identifying atomic information from both visual and audio content. You understand how to classify information using taxonomies and can accurately identify the start and end times of each piece of information."""
 
@@ -39,58 +43,73 @@ INPUT:
 OUTPUT:
 Return a list of atomic information pieces, classified based on the taxonomy."""
 
+
 def form_atomic_extraction_request(
     task: str,
-    tutorial_content: MessageContent,
+    video: Video,
+    use_vision: bool,
+    frames_per_group: int,
+    target_chunks: int,
     information_taxonomy: List[Dict[str, Any]],
     **kwargs,
 ) -> Dict[str, Any]:
     """Form request to extract atomic information from a tutorial."""
-    information_taxonomy_str = taxonomy_to_str(information_taxonomy)
+    taxonomy_content = taxonomy_to_message_content(information_taxonomy)
+    tutorial_content = video_to_message_content(video, use_vision, frames_per_group, target_chunks)
     messages = [
         {
             "role": "system",
-            "content": MessageContent.from_template(
-                SYSTEM_MESSAGE,
-                task=task
-            )
+            "content": MessageContent.from_template(SYSTEM_MESSAGE, task=task),
         },
         {
             "role": "user",
             "content": MessageContent.from_template(
                 USER_MESSAGE,
-                taxonomy=information_taxonomy_str,
-                tutorial=tutorial_content
-            )
-        }
+                taxonomy=taxonomy_content,
+                tutorial=tutorial_content,
+            ),
+        },
     ]
     return {
         "messages": messages,
         "response_format": AtomicExtractionResult,
     }
 
+
 def process_atomic_extraction_response(
     response: Dict[str, Any],
+    video: Video,
     information_taxonomy: List[Dict[str, Any]],
     **kwargs,
-) -> List[Dict[str, Any]]:
-    """Process response from atomic extraction from a tutorial."""
+) -> List[KnowledgeItem]:
+    """Process response from atomic extraction, returning typed KnowledgeItems."""
     result = response.get("response", {})
     items = result.get("items", [])
-    atomic_items = []
 
-    valid_atomic_types = [info.get('name') for info in information_taxonomy]
-    for item in items:
-        atomic_type = item.get("atomic_type")
-        if atomic_type not in valid_atomic_types:
+    valid_atomic_types = {info.get('name') for info in information_taxonomy}
+    knowledge_items = []
+    for idx, item in enumerate(items):
+        atomic_type_str = item.get("atomic_type")
+        if atomic_type_str not in valid_atomic_types:
+            continue
+        try:
+            atomic_type = AtomicType(atomic_type_str)
+        except ValueError:
+            print(f"Invalid atomic type: {atomic_type_str}")
             continue
         content = item.get("content")
         start = item.get("start")
         end = item.get("end")
-        atomic_items.append({
-            "atomic_type": atomic_type,
-            "content": content,
-            "start": float(start),
-            "end": float(end),
-        })
-    return atomic_items
+        knowledge_items.append(KnowledgeItem(
+            id=f"atomic:{atomic_type_str}-{idx}:{video.id}",
+            type=KnowledgeItemType.ATOMIC,
+            text=content,
+            source=KnowledgeSource(
+                video_id=video.id,
+                source_type="video",
+                local_index=idx,
+                time_range=(start, end),
+            ),
+            subtype=atomic_type,
+        ))
+    return knowledge_items

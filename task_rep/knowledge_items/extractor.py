@@ -13,16 +13,15 @@ Design principles:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
+from typing import Dict, List
 
 from utils import (
     ModelConfig,
     batch_run_llm_calls,
     random_uid,
-    MessageContent,
 )
 
-from prompts import (
+from .prompts import (
     form_atomic_extraction_request,
     process_atomic_extraction_response,
     form_step_aggregation_request,
@@ -38,7 +37,6 @@ from prompts import (
 from .schema import (
     KnowledgeItem,
     KnowledgeItemType,
-    KnowledgeSource,
     Video,
 )
 from .taxonomy import AtomicType, TYPE_DESCRIPTIONS
@@ -71,30 +69,32 @@ class VLMKnowledgeExtractor:
     max_concurrency: int = 32
     chunk_config: ChunkConfig = FINE_CHUNK_CONFIG
 
+    def _base_video_args(self, video: Video) -> dict:
+        """Common video formatting args shared across all extraction types."""
+        return {
+            "video": video,
+            "use_vision": self.use_vision,
+            "frames_per_group": self.chunk_config.frames_per_chunk,
+            "target_chunks": self.chunk_config.size,
+        }
+
     def _extract_atomic(self, task: str, videos: List[Video]) -> List[KnowledgeItem]:
         """Extract atomic information from videos."""
         batch_id = f"atomic_extraction_{random_uid()}"
 
-        request_args = []
-
         information_taxonomy = [
-            {
-                "name": type_name.value,
-                "definition": desc,
-            } for type_name, desc in TYPE_DESCRIPTIONS.items()
+            {"name": type_name.value, "definition": desc}
+            for type_name, desc in TYPE_DESCRIPTIONS.items()
         ]
 
-        for video in videos:
-            video_content = video.format_to_message_content(
-                use_vision=self.use_vision,
-                frames_per_group=self.chunk_config.frames_per_chunk,
-                target_chunks=self.chunk_config.size,
-            )
-            request_args.append({
+        request_args = [
+            {
                 "task": task,
-                "tutorial_content": video_content,
+                **self._base_video_args(video),
                 "information_taxonomy": information_taxonomy,
-            })
+            }
+            for video in videos
+        ]
 
         batch_results = batch_run_llm_calls(
             batch_id,
@@ -104,61 +104,20 @@ class VLMKnowledgeExtractor:
             max_concurrency=self.max_concurrency,
             model_config=self.model_config,
         )
-        
-        items = []
-        for video, result in zip(videos, batch_results):
-            for idx in range(len(result)):
-                atomic_type_str = result[idx].get("atomic_type")
-                content = result[idx].get("content")
-                start = result[idx].get("start")
-                end = result[idx].get("end")
 
-                if not atomic_type_str or not content:
-                    continue
-                
-                # Convert to enum
-                try:
-                    atomic_type = AtomicType(atomic_type_str)
-                except ValueError:
-                    print(f"Invalid atomic type: {atomic_type_str}")
-                    continue
-
-                item_id = f"atomic:{atomic_type_str}-{idx}:{video.id}"
-
-                items.append(KnowledgeItem(
-                    id=item_id,
-                    type=KnowledgeItemType.ATOMIC,
-                    text=content,
-                    source=KnowledgeSource(
-                        video_id=video.id,
-                        source_type="video",
-                        local_index=idx,
-                        time_range=(start, end),
-                        parent_id=None,
-                    ),
-                    subtype=atomic_type,
-                ))
-        return items
+        return [item for result in batch_results for item in result]
 
     def _extract_steps(self, task: str, videos: List[Video]) -> List[KnowledgeItem]:
-        """Extract steps from videos with automatic two-phase discovery and extraction."""
-
-        if len(videos) == 0:
+        """Extract steps from videos with automatic three-phase discovery and extraction."""
+        if not videos:
             return []
 
-        # Phase 1: Discovery
+        # Phase 1: Discovery — identify raw steps per video
         discovery_batch_id = f"step_discovery_{random_uid()}"
-        request_args = []
-        for video in videos:
-            video_content = video.format_to_message_content(
-                use_vision=self.use_vision,
-                frames_per_group=self.chunk_config.frames_per_chunk,
-                target_chunks=self.chunk_config.size,
-            )
-            request_args.append({
-                "task": task,
-                "tutorial_content": video_content,
-            })
+        request_args = [
+            {"task": task, **self._base_video_args(video)}
+            for video in videos
+        ]
 
         batch_results = batch_run_llm_calls(
             discovery_batch_id,
@@ -169,39 +128,18 @@ class VLMKnowledgeExtractor:
             model_config=self.model_config,
         )
 
-        steps_by_video = {}
-        for video, result in zip(videos, batch_results):
-            steps_by_video[video.id] = {
-                "title": video.title,
-                "steps": [],
-            }
-            for idx in range(len(result)):
-                name = result[idx].get("name")
-                content = result[idx].get("content")
-                start = result[idx].get("start")
-                end = result[idx].get("end")
+        # Build steps_by_video: video_id -> List[KnowledgeItem] (temporary discovery items)
+        steps_by_video: Dict[str, List[KnowledgeItem]] = {
+            video.id: result
+            for video, result in zip(videos, batch_results)
+        }
 
-                steps_by_video[video.id]["steps"].append({
-                    "name": name,
-                    "content": content,
-                    "start": float(start),
-                    "end": float(end),
-                })
-
-        # Phase 2: Aggregate taxonomy (corpus-level, single request)
+        # Phase 2: Aggregate into canonical taxonomy (corpus-level, single request)
         aggregate_batch_id = f"step_taxonomy_agg_{random_uid()}"
-
-        # Format steps grouped by video
-        steps_by_video_content = []
-        
-        for video_idx, video_data in enumerate(steps_by_video.values()):
-            steps_by_video_content.append({"type": "text", "text": f"\nVideo {video_idx + 1}: {video_data['title']}"})
-            for idx, step in enumerate(video_data["steps"]):
-                steps_by_video_content.append({"type": "text", "text": f"{idx+1}. [{step.get('name')}] {step.get('content')}"})
-
         request_args = [{
             "task": task,
-            "steps_by_tutorial": MessageContent(content=steps_by_video_content),
+            "videos": videos,
+            "steps_by_video": steps_by_video,
         }]
 
         batch_results = batch_run_llm_calls(
@@ -213,34 +151,20 @@ class VLMKnowledgeExtractor:
             model_config=self.model_config,
         )
 
-        # batch_results[0] is the single corpus-level result
-        step_taxonomy = []
-        for item in batch_results[0]:
-            name = item.get("name")
-            definition = item.get("definition")
-            step_taxonomy.append({
-                "name": name,
-                "definition": definition,
-            })
-
+        step_taxonomy = batch_results[0]  # List[Dict[str, Any]]
         if not step_taxonomy:
             return []
 
-        # Phase 3: Extraction
+        # Phase 3: Extraction using canonical taxonomy
         extraction_batch_id = f"step_extraction_{random_uid()}"
-        request_args = []
-        for video in videos:
-            video_content = video.format_to_message_content(
-                use_vision=self.use_vision,
-                frames_per_group=self.chunk_config.frames_per_chunk,
-                target_chunks=self.chunk_config.size,
-            )
-
-            request_args.append({
+        request_args = [
+            {
                 "task": task,
-                "tutorial_content": video_content,
+                **self._base_video_args(video),
                 "step_taxonomy": step_taxonomy,
-            })
+            }
+            for video in videos
+        ]
 
         batch_results = batch_run_llm_calls(
             extraction_batch_id,
@@ -251,74 +175,27 @@ class VLMKnowledgeExtractor:
             model_config=self.model_config,
         )
 
-        items = []
-        for video, result in zip(videos, batch_results):
-            for idx in range(len(result)):
-                name = result[idx].get("name")
-                content = result[idx].get("content")
-                start = result[idx].get("start")
-                end = result[idx].get("end")
-                item_id = f"step:{name}-{idx}:{video.id}"
-                items.append(KnowledgeItem(
-                    id=item_id,
-                    type=KnowledgeItemType.STEP,
-                    text=content,
-                    source=KnowledgeSource(
-                        video_id=video.id,
-                        source_type="video",
-                        local_index=idx,
-                        time_range=(start, end),
-                        parent_id=None,
-                    ),
-                    subtype=name,
-                ))
-        return items
+        return [item for result in batch_results for item in result]
 
     def _extract_tutorial(self, task: str, videos: List[Video]) -> List[KnowledgeItem]:
         """Extract tutorial summaries from videos."""
         batch_id = f"tutorial_extraction_{random_uid()}"
 
-        request_args = []
-
-        for video in videos:
-            video_content = video.format_to_message_content(
-                use_vision=self.use_vision,
-                frames_per_group=self.chunk_config.frames_per_chunk,
-                target_chunks=self.chunk_config.size,
-            )
-            request_args.append({
-                "task": task,
-                "tutorial_content": video_content,
-            })
+        request_args = [
+            {"task": task, **self._base_video_args(video)}
+            for video in videos
+        ]
 
         batch_results = batch_run_llm_calls(
             batch_id,
-            request_args, 
+            request_args,
             form_tutorial_summary_request,
             process_tutorial_summary_response,
             max_concurrency=self.max_concurrency,
             model_config=self.model_config,
         )
 
-        items = []
-        for video, result in zip(videos, batch_results):
-            assert len(result) == 1, "Expected exactly one result for tutorial summary"
-            content = result[0].get("content")
-            item_id = f"tutorial:{video.id}"
-            items.append(KnowledgeItem(
-                id=item_id,
-                type=KnowledgeItemType.TUTORIAL,
-                text=content,
-                source=KnowledgeSource(
-                    video_id=video.id,
-                    source_type="video",
-                    local_index=0,
-                    time_range=(0, video.get_duration()),
-                    parent_id=None,
-                ),
-                subtype=None,
-            ))
-        return items
+        return [item for result in batch_results for item in result]
 
     def extract_batch(self, task: str, videos: List[Video], item_type: KnowledgeItemType) -> List[KnowledgeItem]:
         """

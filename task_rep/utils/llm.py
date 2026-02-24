@@ -168,14 +168,14 @@ class MessageContent:
 
     content: List[Dict[str, Any]]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> List[Dict[str, Any]]:
         """Convert to a JSON-serializable dictionary."""
-        return {"content": self.content}
+        return self.content
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> MessageContent:
-        """Create MessageContent from a dictionary."""
-        return cls(content=data["content"])
+    def from_dict(cls, data: List[Dict[str, Any]]) -> MessageContent:
+        """Create MessageContent from a list of blocks."""
+        return cls(content=data)
 
     def to_openai_content(self) -> List[Dict[str, Any]]:
         """Convert to OpenAI API content format."""
@@ -237,10 +237,6 @@ class MessageContent:
 
         return result
 
-    def to_content(self) -> List[Dict[str, Any]]:
-        """Convert to content format."""
-        return self.content
-
     @classmethod
     def from_template(cls, template: str, **kwargs) -> MessageContent:
         """Build MessageContent from a template with mixed str and MessageContent values.
@@ -286,7 +282,7 @@ class MessageContent:
         content: List[Dict[str, Any]] = []
         for part in parts:
             if part in marker_to_key:
-                content.extend(mc_kwargs[marker_to_key[part]].to_content())
+                content.extend(mc_kwargs[marker_to_key[part]].to_dict())
             elif part:
                 content.append({"type": "text", "text": part})
 

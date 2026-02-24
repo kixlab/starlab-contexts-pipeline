@@ -8,9 +8,11 @@ step extraction based on a step taxonomy.
 from typing import Any, Dict, List
 
 from utils.llm import MessageContent
-from .formatters import taxonomy_to_str
 
+from .formatters import taxonomy_to_message_content, video_to_message_content
 from .ki_pydantic import StepExtractionResult
+
+from knowledge_items.schema import KnowledgeItem, KnowledgeItemType, KnowledgeSource, Video
 
 
 SYSTEM_MESSAGE_DISCOVERY = """You are an expert at analyzing tutorial videos and identifying procedural steps about the task: {task}. You excel at recognizing the high-level structure of tutorials, breaking down complex procedures into clear steps, and understanding both what is shown visually and what is explained in narration."""
@@ -31,54 +33,69 @@ INPUT:
 {tutorial}
 """
 
+
 def form_step_extraction_request_discovery(
     task: str,
-    tutorial_content: MessageContent,
+    video: Video,
+    use_vision: bool,
+    frames_per_group: int,
+    target_chunks: int,
     **kwargs,
 ) -> Dict[str, Any]:
-    """Form request to extract steps from a tutorial."""
+    """Form request to discover steps from a tutorial."""
+    tutorial_content = video_to_message_content(video, use_vision, frames_per_group, target_chunks)
     messages = [
         {
             "role": "system",
-            "content": MessageContent.from_template(
-                SYSTEM_MESSAGE_DISCOVERY,
-                task=task
-            )
+            "content": MessageContent.from_template(SYSTEM_MESSAGE_DISCOVERY, task=task),
         },
         {
             "role": "user",
             "content": MessageContent.from_template(
                 USER_MESSAGE_DISCOVERY,
-                tutorial=tutorial_content
-            )
-        }
+                tutorial=tutorial_content,
+            ),
+        },
     ]
     return {
         "messages": messages,
         "response_format": StepExtractionResult,
     }
 
+
 def process_step_extraction_response_discovery(
     response: Dict[str, Any],
+    video: Video,
     **kwargs,
-) -> List[Dict[str, Any]]:
-    """Process response from step extraction discovery from a tutorial."""
+) -> List[KnowledgeItem]:
+    """Process step discovery response, returning temporary KnowledgeItems.
+
+    The subtype holds the raw discovered step name and is used downstream by
+    steps_by_video_to_message_content to format the aggregation prompt.
+    """
     result = response.get("response", {})
     steps = result.get("steps", [])
 
-    step_dicts = []
-    for step in steps:
-        name = step.get("name").strip().lower()
+    items = []
+    for idx, step in enumerate(steps):
+        name = step.get("name", "").strip().lower()
         content = step.get("content")
         start = step.get("start")
         end = step.get("end")
-        step_dicts.append({
-            "name": name,
-            "content": content,
-            "start": float(start),
-            "end": float(end),
-        })
-    return step_dicts
+        items.append(KnowledgeItem(
+            id=f"step_discovery:{name}-{idx}:{video.id}",
+            type=KnowledgeItemType.STEP,
+            text=content,
+            source=KnowledgeSource(
+                video_id=video.id,
+                source_type="video",
+                local_index=idx,
+                time_range=(float(start), float(end)),
+            ),
+            subtype=name,
+        ))
+    return items
+
 
 SYSTEM_MESSAGE_EXTRACTION = """You are an expert at extracting detailed procedural information from tutorial videos about the task: {task}. Given a taxonomy of steps, you can identify which steps appear in a video and provide comprehensive descriptions of how each step is performed, using both visual and verbal cues."""
 
@@ -100,61 +117,68 @@ INPUT:
 {tutorial}
 """
 
+
 def form_step_extraction_request_extraction(
     task: str,
-    tutorial_content: MessageContent,
+    video: Video,
+    use_vision: bool,
+    frames_per_group: int,
+    target_chunks: int,
     step_taxonomy: List[Dict[str, Any]],
     **kwargs,
 ) -> Dict[str, Any]:
-    """Form request to extract steps from a tutorial."""
-
-    step_taxonomy_text = taxonomy_to_str(step_taxonomy)
+    """Form request to extract steps from a tutorial using a canonical taxonomy."""
+    tutorial_content = video_to_message_content(video, use_vision, frames_per_group, target_chunks)
+    taxonomy_content = taxonomy_to_message_content(step_taxonomy)
     messages = [
         {
             "role": "system",
-            "content": MessageContent.from_template(
-                SYSTEM_MESSAGE_EXTRACTION,
-                task=task
-            )
+            "content": MessageContent.from_template(SYSTEM_MESSAGE_EXTRACTION, task=task),
         },
         {
             "role": "user",
             "content": MessageContent.from_template(
                 USER_MESSAGE_EXTRACTION,
-                step_taxonomy=step_taxonomy_text,
-                tutorial=tutorial_content
-            )
-        }
+                step_taxonomy=taxonomy_content,
+                tutorial=tutorial_content,
+            ),
+        },
     ]
     return {
         "messages": messages,
         "response_format": StepExtractionResult,
     }
 
+
 def process_step_extraction_response_extraction(
     response: Dict[str, Any],
+    video: Video,
     step_taxonomy: List[Dict[str, Any]],
     **kwargs,
-) -> List[Dict[str, Any]]:
-    """Process response from step extraction from a tutorial."""
+) -> List[KnowledgeItem]:
+    """Process step extraction response, returning typed KnowledgeItems."""
     result = response.get("response", {})
     steps = result.get("steps", [])
 
-    ### check if the step is in the step taxonomy
-    valid_step_names = [step.get('name') for step in step_taxonomy]
-    
-    step_dicts = []
-    for step in steps:
-        name = step.get("name").strip().lower()
+    valid_step_names = {step.get('name') for step in step_taxonomy}
+    items = []
+    for idx, step in enumerate(steps):
+        name = step.get("name", "").strip().lower()
         if name not in valid_step_names:
             continue
         content = step.get("content")
         start = step.get("start")
         end = step.get("end")
-        step_dicts.append({
-            "name": name,
-            "content": content,
-            "start": float(start),
-            "end": float(end),
-        })
-    return step_dicts
+        items.append(KnowledgeItem(
+            id=f"step:{name}-{idx}:{video.id}",
+            type=KnowledgeItemType.STEP,
+            text=content,
+            source=KnowledgeSource(
+                video_id=video.id,
+                source_type="video",
+                local_index=idx,
+                time_range=(float(start), float(end)),
+            ),
+            subtype=name,
+        ))
+    return items
