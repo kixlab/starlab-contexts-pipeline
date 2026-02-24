@@ -7,7 +7,7 @@ consistent taxonomy of step names and definitions.
 
 from typing import Any, Dict, List
 
-from utils.llm import MessageContent
+from utils import MessageContent
 
 from .formatters import steps_by_video_to_message_content
 from .ki_pydantic import StepTaxonomy

@@ -14,6 +14,7 @@ from .ki_pydantic import AtomicExtractionResult
 
 from knowledge_items.schema import KnowledgeItem, KnowledgeItemType, KnowledgeSource, Video
 from knowledge_items.taxonomy import AtomicType
+from knowledge_items.chunk_sampling import ChunkConfig
 
 
 SYSTEM_MESSAGE = """You are an expert at analyzing tutorial videos and extracting atomic pieces of information about the task: {task}. You excel at identifying atomic information from both visual and audio content. You understand how to classify information using taxonomies and can accurately identify the start and end times of each piece of information."""
@@ -48,14 +49,13 @@ def form_atomic_extraction_request(
     task: str,
     video: Video,
     use_vision: bool,
-    frames_per_group: int,
-    target_chunks: int,
+    chunk_config: ChunkConfig,
     information_taxonomy: List[Dict[str, Any]],
     **kwargs,
 ) -> Dict[str, Any]:
     """Form request to extract atomic information from a tutorial."""
     taxonomy_content = taxonomy_to_message_content(information_taxonomy)
-    tutorial_content = video_to_message_content(video, use_vision, frames_per_group, target_chunks)
+    tutorial_content = video_to_message_content(video, use_vision, chunk_config)
     messages = [
         {
             "role": "system",

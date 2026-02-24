@@ -74,8 +74,7 @@ class VLMKnowledgeExtractor:
         return {
             "video": video,
             "use_vision": self.use_vision,
-            "frames_per_group": self.chunk_config.frames_per_chunk,
-            "target_chunks": self.chunk_config.size,
+            "chunk_config": self.chunk_config,
         }
 
     def _extract_atomic(self, task: str, videos: List[Video]) -> List[KnowledgeItem]:

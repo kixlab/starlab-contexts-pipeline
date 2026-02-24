@@ -7,12 +7,13 @@ step extraction based on a step taxonomy.
 
 from typing import Any, Dict, List
 
-from utils.llm import MessageContent
+from utils import MessageContent
 
 from .formatters import taxonomy_to_message_content, video_to_message_content
 from .ki_pydantic import StepExtractionResult
 
 from knowledge_items.schema import KnowledgeItem, KnowledgeItemType, KnowledgeSource, Video
+from knowledge_items.chunk_sampling import ChunkConfig
 
 
 SYSTEM_MESSAGE_DISCOVERY = """You are an expert at analyzing tutorial videos and identifying procedural steps about the task: {task}. You excel at recognizing the high-level structure of tutorials, breaking down complex procedures into clear steps, and understanding both what is shown visually and what is explained in narration."""
@@ -38,12 +39,11 @@ def form_step_extraction_request_discovery(
     task: str,
     video: Video,
     use_vision: bool,
-    frames_per_group: int,
-    target_chunks: int,
+    chunk_config: ChunkConfig,
     **kwargs,
 ) -> Dict[str, Any]:
     """Form request to discover steps from a tutorial."""
-    tutorial_content = video_to_message_content(video, use_vision, frames_per_group, target_chunks)
+    tutorial_content = video_to_message_content(video, use_vision, chunk_config)
     messages = [
         {
             "role": "system",
@@ -122,13 +122,12 @@ def form_step_extraction_request_extraction(
     task: str,
     video: Video,
     use_vision: bool,
-    frames_per_group: int,
-    target_chunks: int,
+    chunk_config: ChunkConfig,
     step_taxonomy: List[Dict[str, Any]],
     **kwargs,
 ) -> Dict[str, Any]:
     """Form request to extract steps from a tutorial using a canonical taxonomy."""
-    tutorial_content = video_to_message_content(video, use_vision, frames_per_group, target_chunks)
+    tutorial_content = video_to_message_content(video, use_vision, chunk_config)
     taxonomy_content = taxonomy_to_message_content(step_taxonomy)
     messages = [
         {

@@ -5,19 +5,21 @@ Converts domain objects (Video, KnowledgeItem) into MessageContent
 for inclusion in LLM prompts.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
-from utils import MessageContent
-from utils.video import format_time
+from utils import (
+    MessageContent,
+    format_time,
+)
 
 from knowledge_items.schema import KnowledgeItem, Video
+from knowledge_items.chunk_sampling import ChunkConfig
 
 
 def video_to_message_content(
     video: Video,
     use_vision: bool,
-    frames_per_group: int,
-    target_chunks: int = 0,
+    chunk_config: ChunkConfig,
 ) -> MessageContent:
     """Format a Video as MessageContent for prompt inclusion."""
     if use_vision and not video.frames:
@@ -25,10 +27,10 @@ def video_to_message_content(
     if not video.transcript:
         raise ValueError("Video must have transcript")
 
-    if target_chunks == 0:
+    if chunk_config.size == 0:
         segment_groups = [[seg] for seg in video.transcript]
     else:
-        segment_groups = video._group_segments(video.transcript, target_chunks)
+        segment_groups = video._group_segments(video.transcript, chunk_config.size)
 
     content: List[Dict[str, Any]] = []
     content.append({"type": "text", "text": f"Title: {video.title}\n"})
@@ -40,7 +42,7 @@ def video_to_message_content(
         group_frames = video.sample_frames(
             start_time=group_start,
             end_time=group_end,
-            max_frames=frames_per_group,
+            max_frames=chunk_config.frames_per_chunk,
         )
 
         if group_text or group_frames:
@@ -61,12 +63,27 @@ def video_to_message_content(
     return MessageContent(content=content)
 
 
+def format_item(
+    item: KnowledgeItem,
+    display_id: Optional[str] = None,
+    with_type: bool = True,
+) -> str:
+    """Format a KnowledgeItem as text, using display_id instead of real item.id."""
+    did = display_id if display_id is not None else item.id
+    text = f"[{did}]"
+    if with_type and item.subtype:
+        subtype_val = item.subtype.value if hasattr(item.subtype, "value") else str(item.subtype)
+        text += f" ({subtype_val})"
+    return text + " " + item.text
+
+
 def knowledge_item_to_message_content(
     item: KnowledgeItem,
+    display_id: Optional[str] = None,
     with_type: bool = True,
 ) -> MessageContent:
     """Format a KnowledgeItem as MessageContent for prompt inclusion."""
-    return MessageContent(content=[{"type": "text", "text": item.format(with_type)}])
+    return MessageContent(content=[{"type": "text", "text": format_item(item, display_id, with_type)}])
 
 
 def taxonomy_to_message_content(taxonomy: List[Dict[str, Any]]) -> MessageContent:

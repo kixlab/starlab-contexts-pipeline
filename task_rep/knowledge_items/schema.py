@@ -5,7 +5,6 @@ from enum import Enum
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Union
 
 from .taxonomy import AtomicType, AtomicCategory
-from utils.llm import MessageContent
 
 class KnowledgeItemType(str, Enum):
     """Types of knowledge items we can extract."""
@@ -168,22 +167,6 @@ class KnowledgeItem:
     unit_id: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-
-    def format(self, with_type: bool = True) -> str:
-        prefix = f"[{self.id}]"
-        if with_type and self.subtype:
-            subtype_val = self.subtype.value if isinstance(self.subtype, AtomicType) else self.subtype
-            prefix += f" ({subtype_val})"
-        return prefix + " " + self.text
-
-    def __str__(self) -> str:
-        return self.format()
-
-    def format_to_message_content(self, with_type: bool = True) -> MessageContent:
-        """Format this item as MessageContent for prompt inclusion."""
-        return MessageContent(content=[
-            {"type": "text", "text": self.format(with_type)}
-        ])
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialize to a plain JSON-serializable dict."""

@@ -7,6 +7,7 @@ Run with: python -m pytest tests/test_facets.py -v
 import pytest
 
 from facets import Facet, FacetLabel, VLMFacetExtractor
+from facets.prompts.formatters import facet_label_to_message_content, facet_to_message_content
 
 
 # ============= FacetLabel Tests =============
@@ -61,9 +62,9 @@ def test_facet_label_str():
 
 
 def test_facet_label_format_to_message_content():
-    """Test FacetLabel.format_to_message_content()."""
+    """Test facet_label_to_message_content()."""
     label = FacetLabel(label="beginner", definition="For newcomers", id="l1")
-    mc = label.format_to_message_content()
+    mc = facet_label_to_message_content(label)
     assert len(mc.content) == 1
     assert mc.content[0]["type"] == "text"
     assert "beginner" in mc.content[0]["text"]
@@ -205,8 +206,8 @@ def test_facet_format_vocabulary(sample_facet):
 
 
 def test_facet_format_to_message_content(sample_facet):
-    """Test Facet.format_to_message_content()."""
-    mc = sample_facet.format_to_message_content()
+    """Test facet_to_message_content()."""
+    mc = facet_to_message_content(sample_facet)
     assert len(mc.content) == 1
     assert mc.content[0]["type"] == "text"
     assert "Difficulty Level" in mc.content[0]["text"]

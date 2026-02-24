@@ -7,12 +7,13 @@ knowledge of an entire tutorial video.
 
 from typing import Any, Dict, List
 
-from utils.llm import MessageContent
+from utils import MessageContent
 
 from .formatters import video_to_message_content
 from .ki_pydantic import TutorialInformation
 
 from knowledge_items.schema import KnowledgeItem, KnowledgeItemType, KnowledgeSource, Video
+from knowledge_items.chunk_sampling import ChunkConfig
 
 
 SYSTEM_MESSAGE = """You are an expert at understanding and summarizing tutorial videos about the task: {task}. You excel at synthesizing information from both visual demonstrations and narration."""
@@ -28,12 +29,11 @@ def form_tutorial_summary_request(
     task: str,
     video: Video,
     use_vision: bool,
-    frames_per_group: int,
-    target_chunks: int,
+    chunk_config: ChunkConfig,
     **kwargs,
 ) -> Dict[str, Any]:
     """Form request to summarize a tutorial video."""
-    tutorial_content = video_to_message_content(video, use_vision, frames_per_group, target_chunks)
+    tutorial_content = video_to_message_content(video, use_vision, chunk_config)
     messages = [
         {
             "role": "system",
