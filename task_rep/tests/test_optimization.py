@@ -407,11 +407,11 @@ class TestIsParetoImproved:
         new = [make_frontier_point(d=0.5, c=2)]
         assert is_pareto_improved(old, new) is False
 
-    def test_better_d_but_much_higher_c_no_improvement(self):
-        """New extends compactness far beyond old — not counted as improvement."""
+    def test_extension_clipped_by_min_d_no_improvement(self):
+        """Extension whose D falls below min_d is clipped out — not counted as improvement."""
         old = [make_frontier_point(d=0.5, c=2)]
         new = [make_frontier_point(d=0.3, c=10)]
-        assert is_pareto_improved(old, new) is False
+        assert is_pareto_improved(old, new, min_d=0.35) is False
 
     def test_improvement_at_one_point_among_many(self):
         """Improvement at any paired point is sufficient."""
@@ -424,6 +424,25 @@ class TestIsParetoImproved:
             make_frontier_point(d=0.3, c=3),  # better D at same C
         ]
         assert is_pareto_improved(old, new) is True
+
+    def test_new_extends_frontier_with_lower_d(self):
+        """New adds a higher-C point with lower D than old's minimum — real improvement."""
+        old = [make_frontier_point(d=4.611, c=0)]
+        new = [
+            make_frontier_point(d=4.611, c=0),
+            make_frontier_point(d=3.698, c=4),  # extends frontier, lower D
+        ]
+        assert is_pareto_improved(old, new) is True
+
+    def test_new_extends_frontier_same_d_no_improvement(self):
+        """New adds a higher-C point but D is no better than old's minimum — not an improvement."""
+        old = [make_frontier_point(d=0.5, c=2), make_frontier_point(d=0.3, c=4)]
+        new = [
+            make_frontier_point(d=0.5, c=2),
+            make_frontier_point(d=0.3, c=4),
+            make_frontier_point(d=0.3, c=8),  # extends, but D = old minimum
+        ]
+        assert is_pareto_improved(old, new) is False
 
 
 # ============= compute_frontier =============
@@ -557,7 +576,7 @@ class TestSampleSchemas:
 
 class TestSampleTargetItems:
     def test_no_collisions_returns_empty(self, three_unit_kb, f1, annotations_f1_f2):
-        result = sample_target_items(three_unit_kb, {})
+        result = sample_target_items(three_unit_kb, {"<Difficulty:a>": {"u1"}})
         assert result == []
 
     def test_returns_one_result_per_cell(self, three_unit_kb, f1, annotations_f1_f2):
