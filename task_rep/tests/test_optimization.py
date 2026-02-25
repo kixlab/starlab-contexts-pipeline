@@ -32,7 +32,7 @@ from optimization.frontier import (
     is_pareto_improved,
     sample_schemas,
 )
-from optimization.collision import find_colliding_cells, sample_target_items
+from optimization.collision import sample_target_items
 
 
 # ============= Helpers =============
@@ -91,6 +91,21 @@ def three_unit_kb():
         make_item("item3", unit_id="u3"),
     ])
 
+@pytest.fixture
+def three_unit_kb_with_clash():
+    """
+    Knowledge base with 3 units (u1, u2, u3), one item each.
+    item1 → unit u1
+    item2 → unit u2
+    item3 → unit u3
+    item4 → unit u3
+    """
+    return KnowledgeBase(items=[
+        make_item("item1", unit_id="u1"),
+        make_item("item2", unit_id="u2"),
+        make_item("item3", unit_id="u3"),
+        make_item("item4", unit_id="u3"),
+    ])
 
 @pytest.fixture
 def f1():
@@ -123,6 +138,22 @@ def annotations_f1_f2():
     ann[("item1", "f2")] = "x"
     ann[("item2", "f2")] = "y"
     ann[("item3", "f2")] = "z"
+    return ann
+
+@pytest.fixture
+def annotations_f1_f2_with_clash():
+    """
+    Annotation table for three_unit_kb_with_clash with f1 and f2:
+    """
+    ann = AnnotationTable()
+    ann[("item1", "f1")] = "a"
+    ann[("item2", "f1")] = "b"
+    ann[("item3", "f1")] = "b"
+    ann[("item4", "f1")] = "a"
+    ann[("item1", "f2")] = "x"
+    ann[("item2", "f2")] = "y"
+    ann[("item3", "f2")] = "z"
+    ann[("item4", "f2")] = "z"
     return ann
 
 
@@ -455,6 +486,32 @@ class TestComputeFrontier:
         assert 0 in compactnesses
         assert 2 in compactnesses
 
+    def test_known_frontier_values_with_clash(self, three_unit_kb_with_clash, f1, f2, annotations_f1_f2_with_clash):
+        """
+        Concrete verification (3 unique units: u1, u2, u3):
+
+          item1→u1: f1=a, f2=x
+          item2→u2: f1=b, f2=y
+          item3→u3: f1=b, f2=z
+          item4→u3: f1=a, f2=z  ← clash: u3 lands in two f1 cells
+
+          {} (C=0):      D = log2(3)  ≈ 1.585  (one cell with all 3 units)
+          {f1} (C=2):    D = 4/3      ≈ 1.333
+                          cell <Difficulty:a> → {u1,u3}, cell <Difficulty:b> → {u2,u3}
+                          D = (2/3)·log2(2) + (2/3)·log2(2) = 4/3
+          {f2} (C=3):    D = 0
+                          cell <Tool:x>→{u1}, <Tool:y>→{u2}, <Tool:z>→{u3}  (perfect)
+          {f1,f2} (C=5): D = 0 → dominated by {f2} → excluded from frontier
+        """
+        frontier = compute_frontier(three_unit_kb_with_clash, [f1, f2], annotations_f1_f2_with_clash)
+
+        by_c = {p.compactness: p for p in frontier}
+        assert set(by_c.keys()) == {0, 2, 3}
+
+        assert by_c[0].discriminativeness == pytest.approx(math.log(3, 2))
+        assert by_c[2].discriminativeness == pytest.approx(4 / 3)
+        assert by_c[3].discriminativeness == pytest.approx(0.0)
+
 
 # ============= sample_schemas =============
 
@@ -496,38 +553,11 @@ class TestSampleSchemas:
         assert facet_list[0].id == "f1"
 
 
-# ============= find_colliding_cells =============
-
-class TestFindCollidingCells:
-    def test_no_collisions(self):
-        cells = {"a": {"u1"}, "b": {"u2"}, "c": {"u3"}}
-        assert find_colliding_cells(cells) == {}
-
-    def test_all_collisions(self):
-        cells = {"a": {"u1", "u2"}, "b": {"u3", "u4"}}
-        result = find_colliding_cells(cells)
-        assert set(result.keys()) == {"a", "b"}
-
-    def test_mixed(self):
-        cells = {"a": {"u1", "u2"}, "b": {"u3"}}
-        result = find_colliding_cells(cells)
-        assert "a" in result
-        assert "b" not in result
-
-    def test_empty(self):
-        assert find_colliding_cells({}) == {}
-
-    def test_large_collision(self):
-        cells = {"big": {"u1", "u2", "u3", "u4", "u5"}}
-        result = find_colliding_cells(cells)
-        assert result["big"] == {"u1", "u2", "u3", "u4", "u5"}
-
-
 # ============= sample_target_items =============
 
 class TestSampleTargetItems:
     def test_no_collisions_returns_empty(self, three_unit_kb, f1, annotations_f1_f2):
-        result = sample_target_items(three_unit_kb, [f1], annotations_f1_f2, {})
+        result = sample_target_items(three_unit_kb, {})
         assert result == []
 
     def test_returns_one_result_per_cell(self, three_unit_kb, f1, annotations_f1_f2):
@@ -536,9 +566,8 @@ class TestSampleTargetItems:
         Should return one (target_ids, cell_sig) tuple.
         """
         cells = compute_cells(three_unit_kb, [f1], annotations_f1_f2)
-        colliding = find_colliding_cells(cells)
         result = sample_target_items(
-            three_unit_kb, [f1], annotations_f1_f2, colliding, max_cells=1
+            three_unit_kb, cells, max_cells=1
         )
         assert len(result) == 1
         target_ids, cell_sig = result[0]
@@ -555,8 +584,7 @@ class TestSampleTargetItems:
         ann = AnnotationTable()
         ann[("i1", "f1")] = "a"; ann[("i2", "f1")] = "a"; ann[("i3", "f1")] = "a"
         cells = compute_cells(kb, [f1], ann)
-        colliding = find_colliding_cells(cells)
-        result = sample_target_items(kb, [f1], ann, colliding, max_cells=0)
+        result = sample_target_items(kb, cells, max_cells=0)
         assert result == []
 
     def test_skips_cells_with_fewer_than_two_representatives(self, f1):
@@ -570,11 +598,7 @@ class TestSampleTargetItems:
         ann[("i1", "f1")] = "a"
         ann[("i2", "f1")] = "a"
         cells = compute_cells(kb, [f1], ann)
-        # compute_cells groups by unit_id so this won't actually collide,
-        # but we can test directly with a synthetic collision of 1 item
-        fake_colliding = {"fake_sig": {"u1", "u2"}}
-        result = sample_target_items(kb, [f1], ann, fake_colliding, max_cells=1)
-        # fake_sig doesn't exist in cell_items → 0 representatives → skipped
+        result = sample_target_items(kb, cells, max_cells=1)
         assert result == []
 
     def test_largest_cell_sampled_first(self, f1):
@@ -592,14 +616,13 @@ class TestSampleTargetItems:
         ann[("i4", "f1")] = "b"
 
         cells = compute_cells(kb, [f1], ann)
-        colliding = find_colliding_cells(cells)  # only "a" is colliding
 
         # Add a second fake collision of size 2 for ordering test
-        colliding_with_extra = dict(colliding)
-        colliding_with_extra["<Difficulty:b>"] = {"u4", "u5"}  # size 2
+        cells_with_extra = cells.copy()
+        cells_with_extra["<Difficulty:b>"] = {"u3", "u4"}  # size 2
 
         result = sample_target_items(
-            kb, [f1], ann, colliding_with_extra, max_cells=1
+            kb, cells_with_extra, max_cells=1, max_items_per_cell=3
         )
         assert len(result) == 1
         # Should pick the larger cell (size 3) first
@@ -615,10 +638,9 @@ class TestSampleTargetItems:
             ann[(item.id, "f1")] = "same"
 
         cells = compute_cells(kb, [f1], ann)
-        colliding = find_colliding_cells(cells)
 
         result = sample_target_items(
-            kb, [f1], ann, colliding, max_cells=1, max_items_per_cell=3
+            kb, cells, max_cells=1, max_items_per_cell=3
         )
         assert len(result) == 1
         target_ids, _ = result[0]

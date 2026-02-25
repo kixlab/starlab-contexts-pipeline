@@ -45,7 +45,6 @@ from facets import (
 
 from optimization import (
     compute_cells,
-    find_colliding_cells,
     sample_target_items,
     sample_schemas,
 
@@ -272,12 +271,9 @@ class IterativeSchemaDiscovery:
                     cells = compute_cells(
                         self._knowledge_base, schema_facets, self._annotations
                     )
-                    colliding = find_colliding_cells(cells)
                     targets = sample_target_items(
                         self._knowledge_base,
-                        schema_facets,
-                        self._annotations,
-                        colliding,
+                        cells,
                         max_cells=max_cells_per_iteration,
                         max_items_per_cell=max_items_per_cell,
                     )

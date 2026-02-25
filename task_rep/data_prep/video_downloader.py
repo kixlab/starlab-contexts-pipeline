@@ -163,14 +163,18 @@ class VideoDownloader:
                 text=True,
                 timeout=300,
             )
-            if result.returncode == 0:
-                data = json.loads(result.stdout)
-                with open(metadata_path, "w", encoding="utf-8") as f:
-                    json.dump(data, f, indent=2, ensure_ascii=False)
-                return True
-            else:
-                print(f"    Failed to get video metadata `{url}`: {result.stderr}")
-                return None
+            if result.stdout.strip():
+                # Parse stdout even on non-zero exit: yt-dlp may emit warnings
+                # (non-zero exit) but still produce valid JSON output.
+                try:
+                    data = json.loads(result.stdout)
+                    with open(metadata_path, "w", encoding="utf-8") as f:
+                        json.dump(data, f, indent=2, ensure_ascii=False)
+                    return True
+                except json.JSONDecodeError:
+                    pass
+            print(f"    Failed to get video metadata `{url}`: {result.stderr}")
+            return None
         except subprocess.TimeoutExpired:
             print(f"    Timeout getting video metadata `{url}`")
             return None
