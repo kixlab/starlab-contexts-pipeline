@@ -65,7 +65,9 @@ def video_to_message_content(
 
     return MessageContent(content=content)
 
-_KNOWLEDGE_ITEM_FORMAT = """[{display_id}] {text}"""
+_KNOWLEDGE_ITEM_FORMAT = """<item id="{display_id}">
+{text}
+</item>"""
 
 def format_item(
     item: KnowledgeItem,
@@ -88,7 +90,7 @@ def knowledge_item_to_message_content(
     """Format a KnowledgeItem as MessageContent for prompt inclusion."""
     return MessageContent(content=[{"type": "text", "text": format_item(item, display_id, with_type)}])
 
-_TAXONOMY_ITEM_FORMAT = """[{name}] {definition}"""
+_TAXONOMY_ITEM_FORMAT = """<category id="{name}">{definition}</category>"""
 def taxonomy_to_message_content(taxonomy: List[Dict[str, Any]]) -> MessageContent:
     """Format a taxonomy list as MessageContent for prompts."""
     if not taxonomy:
@@ -96,7 +98,7 @@ def taxonomy_to_message_content(taxonomy: List[Dict[str, Any]]) -> MessageConten
     lines = [_TAXONOMY_ITEM_FORMAT.format(name=item.get('name'), definition=item.get('definition')) for item in taxonomy]
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
-_STEP_FORMAT = """{id}. [{step_id}] {text}"""
+_STEP_FORMAT = """<step id="{id}" name="{step_id}">{text}</step>"""
 def steps_by_video_to_message_content(
     videos: List[Video],
     steps_by_video: Dict[str, List["KnowledgeItem"]],

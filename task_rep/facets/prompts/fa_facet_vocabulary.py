@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 # ============= Phase 1: Per-(Facet, Video) Proposal =============
 
-PROPOSAL_SYSTEM_PROMPT = """You are an expert at analyzing tutorial content and identifying vocabulary labels for contextual factors related to the task: {task}."""
+PROPOSAL_SYSTEM_PROMPT = """You are an expert at analyzing tutorial content and identifying vocabulary labels for contextual factors related to the task: {task}. Inputs are structured with XML tags — use the tag name and id attribute to identify each object and its boundaries."""
 
 PROPOSAL_USER_PROMPT = """You are given a contextual factor (facet) and knowledge items extracted from a tutorial video. Propose vocabulary labels that capture the distinct values this facet takes within the video content.
 
@@ -90,7 +90,7 @@ def process_vocabulary_proposal_response(
     proposed_labels = result.get("proposed_labels", [])
     return [
         FacetLabel(
-            label=lbl.get("label", "").strip(),
+            label=lbl.get("label", "").strip().lower(),
             definition=lbl.get("definition", "").strip(),
         )
         for lbl in proposed_labels
@@ -99,7 +99,7 @@ def process_vocabulary_proposal_response(
 
 # ============= Phase 2: Per-Facet Consolidation =============
 
-CONSOLIDATION_SYSTEM_PROMPT = """You are an expert at organizing and consolidating vocabulary labels for contextual factors related to the task: {task}."""
+CONSOLIDATION_SYSTEM_PROMPT = """You are an expert at organizing and consolidating vocabulary labels for contextual factors related to the task: {task}. Inputs are structured with XML tags — use the tag name and id attribute to identify each object and its boundaries."""
 
 CONSOLIDATION_USER_PROMPT = """You are given a contextual factor (facet) with its definition and guidelines, along with vocabulary labels proposed from multiple tutorial videos. Your goal is to consolidate all labels into a single, clean vocabulary.
 
@@ -157,7 +157,7 @@ def process_vocabulary_consolidation_response(
     logger.info("Consolidation notes: %s", notes)
     return [
         FacetLabel(
-            label=lbl.get("label", "").strip(),
+            label=lbl.get("label", "").strip().lower(),
             definition=lbl.get("definition", "").strip(),
         )
         for lbl in labels
