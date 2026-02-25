@@ -21,6 +21,7 @@ from .formatters import (
     facet_to_message_content,
     knowledge_items_to_message_content,
     proposals_by_video_to_message_content,
+    build_item_id_map,
 )
 
 from facets.schema import Facet, FacetLabel
@@ -59,6 +60,7 @@ def form_vocabulary_proposal_request(
     **kwargs,
 ) -> Dict[str, Any]:
     """Form request to propose vocabulary labels for one facet from one video."""
+    id_map = build_item_id_map(video_items)
     messages = [
         {
             "role": "system",
@@ -69,7 +71,7 @@ def form_vocabulary_proposal_request(
             "content": MessageContent.from_template(
                 PROPOSAL_USER_PROMPT,
                 facet=facet_to_message_content(facet, "F"),
-                video_items=knowledge_items_to_message_content(video_items),
+                video_items=knowledge_items_to_message_content(video_items, id_map),
             ),
         },
     ]

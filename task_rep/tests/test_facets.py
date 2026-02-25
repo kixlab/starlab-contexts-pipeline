@@ -8,7 +8,6 @@ import pytest
 
 from facets import Facet, FacetLabel, VLMFacetExtractor
 from facets.prompts.formatters import (
-    facet_label_to_message_content,
     facet_to_message_content,
     format_guidelines,
     format_vocabulary,
@@ -65,16 +64,6 @@ def test_facet_label_str():
     s = str(label)
     assert "Beginner Level" in s
     assert "For newcomers" in s
-
-
-def test_facet_label_format_to_message_content():
-    """Test facet_label_to_message_content()."""
-    label = FacetLabel(label="beginner", definition="For newcomers", id="l1")
-    mc = facet_label_to_message_content(label)
-    assert len(mc.content) == 1
-    assert mc.content[0]["type"] == "text"
-    assert "beginner" in mc.content[0]["text"]
-
 
 # ============= Facet Tests =============
 

@@ -35,13 +35,13 @@ def reverse_id_map(id_map: Dict[str, str]) -> Dict[str, str]:
 # ============= Text-level formatters (controllable display IDs) =============
 
 
-_GUIDELINE_STR_FORMAT = """{guideline}"""
+_GUIDELINE_STR_FORMAT = """- {guideline}"""
 
 def format_guidelines(guidelines: List[str]) -> str:
     """Format the guidelines for the facet."""
     if len(guidelines) == 0:
         return "No guidelines are available."
-    return "\n".join(["-" + _GUIDELINE_STR_FORMAT.format(guideline=guideline) for guideline in guidelines])
+    return "\n".join([_GUIDELINE_STR_FORMAT.format(guideline=guideline) for guideline in guidelines])
 
 _LABEL_STR_FORMAT = """[{label}] {definition}"""
 
@@ -58,21 +58,17 @@ def format_vocabulary(vocabulary: List[FacetLabel]) -> str:
     return "\n".join([format_facet_label(label) for label in vocabulary])
 
 
-_FACET_FORMAT = """\
-[{display_id}] ({scope}) {title} (Plural: {title_plural}): {definition}
+_FACET_FORMAT = """[{display_id}] {title_plural}: {definition}
 **Guidelines for labeling items**:
 {guidelines}
 **Vocabulary**:
-{vocabulary}
-"""
+{vocabulary}"""
 
 def format_facet(facet: Facet, display_id: Optional[str] = None) -> str:
     """Format a Facet as text using display_id instead of facet.id."""
     did = display_id if display_id is not None else facet.id
     return _FACET_FORMAT.format(
         display_id=did,
-        scope=facet.scope,
-        title=facet.title,
         title_plural=facet.title_plural,
         definition=facet.definition,
         guidelines=format_guidelines(facet.guidelines),
@@ -82,10 +78,6 @@ def format_facet(facet: Facet, display_id: Optional[str] = None) -> str:
 
 # ============= MessageContent formatters =============
 
-def facet_label_to_message_content(label: FacetLabel) -> MessageContent:
-    """Format a single FacetLabel as MessageContent."""
-    return MessageContent(content=[{"type": "text", "text": format_facet_label(label)}])
-
 
 def facet_to_message_content(facet: Facet, display_id: Optional[str] = None) -> MessageContent:
     """Format a single Facet as MessageContent."""
@@ -94,10 +86,10 @@ def facet_to_message_content(facet: Facet, display_id: Optional[str] = None) -> 
 
 def facets_to_message_content(facets: List[Facet]) -> MessageContent:
     """Format a list of Facets using sequential F1, F2 display IDs."""
-    content = []
+    lines = []
     for i, facet in enumerate(facets):
-        content.extend(facet_to_message_content(facet, f"F{i + 1}").content)
-    return MessageContent(content=content)
+        lines.append(format_facet(facet, f"F{i + 1}"))
+    return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
 def knowledge_items_to_message_content(
@@ -110,11 +102,11 @@ def knowledge_items_to_message_content(
         id_map: Optional real_id → temp_id mapping. When provided, items are
                 shown with short sequential IDs so the LLM can reproduce them.
     """
-    content = []
+    lines = []
     for item in items:
         display_id = id_map[item.id] if id_map else None
-        content.append({"type": "text", "text": format_item(item, display_id)})
-    return MessageContent(content=content)
+        lines.append(format_item(item, display_id))
+    return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
 def target_items_to_message_content(
@@ -126,11 +118,7 @@ def target_items_to_message_content(
     Args:
         id_map: Optional real_id → temp_id mapping for reliable LLM reproduction.
     """
-    content = []
-    for item in items:
-        display_id = id_map[item.id] if id_map else None
-        content.append({"type": "text", "text": format_item(item, display_id)})
-    return MessageContent(content=content)
+    return knowledge_items_to_message_content(items, id_map)
 
 
 def videos_to_message_content(
@@ -142,22 +130,22 @@ def videos_to_message_content(
     Args:
         id_map: Optional real_id → temp_id mapping for reliable LLM reproduction.
     """
-    content = []
+    lines = []
     for video_id, items in videos.items():
-        content.append({"type": "text", "text": f"- [{video_id}]"})
+        lines.append(f"Video {video_id}:")
         for item in items:
             display_id = id_map[item.id] if id_map else None
-            content.append({"type": "text", "text": format_item(item, display_id)})
-    return MessageContent(content=content)
+            lines.append(format_item(item, display_id))
+    return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
 def proposals_by_video_to_message_content(
     proposals_by_video: Dict[str, List[FacetLabel]],
 ) -> MessageContent:
     """Format per-video vocabulary proposals as MessageContent."""
-    content = []
+    lines = []
     for video_id, proposals in proposals_by_video.items():
-        content.append({"type": "text", "text": f"Video {video_id}:"})
+        lines.append(f"Video {video_id}:")
         for proposal in proposals:
-            content.append({"type": "text", "text": str(proposal)})
-    return MessageContent(content=content)
+            lines.append(format_facet_label(proposal))
+    return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
