@@ -196,14 +196,6 @@ def is_pareto_improved(
     old_clipped = clip_frontier(old_frontier, min_d)
     new_clipped = clip_frontier(new_frontier, min_d)
 
-    print("-------------------------------- Old --------------------------------")
-    for item in old_clipped:
-        print(f"Old: {item.discriminativeness} {item.compactness}")
-    print("-------------------------------- New --------------------------------")
-    for item in new_clipped:
-        print(f"New: {item.discriminativeness} {item.compactness}")
-    print("---------------------------------------------------------------------")
-
     if not old_clipped:
         return False
     if not new_clipped:

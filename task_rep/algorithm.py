@@ -338,6 +338,10 @@ class IterativeSchemaDiscovery:
 
             # Step 6: Accept if the clipped frontier before target_d is improved
             if is_pareto_improved(self._frontier, new_frontier, min_d=target_d):
+                logger.info("-------------------------------- New frontier --------------------------------")
+                for point in new_frontier:
+                    logger.info(f"New: {point.discriminativeness} {point.compactness}")
+                logger.info("---------------------------------------------------------------------")
                 logger.info("Pareto improvement — accepting %d new facets.", len(unique_new))
                 for f in unique_new:
                     self._facets[f.id] = f
