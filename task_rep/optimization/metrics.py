@@ -7,6 +7,7 @@ from server/helpers/cim_scripts.py into the task_rep data model.
 
 from __future__ import annotations
 
+import logging
 import json
 import math
 from collections import defaultdict
@@ -19,6 +20,8 @@ from facets import (
     Facet,
     AnnotationTable,
 )
+
+logger = logging.getLogger(__name__)
 
 def compute_cells(
     knowledge_base: KnowledgeBase,
@@ -70,7 +73,7 @@ def compute_discriminativeness(
         n_c = len(unit_set)
         if n_c > 0:
             total += (n_c / num_units) * math.log(n_c, base)
-    print(total)
+    logger.debug(f"Discriminativeness: {total}")
     return total
 
 
