@@ -31,8 +31,7 @@ Return ALL the task-relevant steps found in the video with detailed descriptions
 
 INPUT:
 - Tutorial:
-{tutorial}
-"""
+{tutorial}"""
 
 
 def form_step_extraction_request_discovery(

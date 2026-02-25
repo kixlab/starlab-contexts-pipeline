@@ -44,20 +44,24 @@ def video_to_message_content(
             max_frames=chunk_config.frames_per_chunk,
         )
 
+        group_start = int(group_start)
+        group_end = int(group_end)
+
         if group_text or group_frames:
-            content.append({
-                "type": "text",
-                "text": f"\n--- Time {group_start}-{group_end} ---\n",
-            })
             if group_text:
-                content.append({"type": "text", "text": f"{group_text}\n"})
+                content.append({"type": "text", "text": f"[{group_start}-{group_end}] {group_text}\n"})
             if group_frames and use_vision:
                 for frame in group_frames:
+                    frame_time = int(frame.time)
                     content.append({
                         "type": "text",
-                        "text": f"[Visual frame at {frame.time}]\n",
+                        "text": f"[Visual frame at {frame_time}]",
                     })
                     content.append({"type": "image_path", "path": frame.path})
+                    content.append({
+                        "type": "text",
+                        "text": "\n",
+                    })
 
     return MessageContent(content=content)
 

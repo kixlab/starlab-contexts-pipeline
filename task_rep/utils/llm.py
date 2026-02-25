@@ -282,7 +282,7 @@ class MessageContent:
         content: List[Dict[str, Any]] = []
         for part in parts:
             if part in marker_to_key:
-                content.extend(mc_kwargs[marker_to_key[part]].to_dict())
+                content.extend(mc_kwargs[marker_to_key[part]].content)
             elif part:
                 content.append({"type": "text", "text": part})
 

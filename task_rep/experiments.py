@@ -270,13 +270,14 @@ def register_experiment(config: ExperimentConfig) -> ExperimentConfig:
 # ---------------------------------------------------------------------------
 # Add your own experiments below.  The three "baseline" entries demonstrate
 # the three main axes of variation.
-task_id = "sushi_roll_3"
+test_task_id = "sushi_roll_3"
+item_type = KnowledgeItemType.STEP
 register_experiment(ExperimentConfig(
-    task_id=task_id,
+    task_id=test_task_id,
 
-    name=f"{task_id}_base",
-    description=f"{task_id} baseline experiment v0.1",
-    tags=["baseline", f"{task_id}", "v0.1"],
+    name=f"test_{test_task_id}_{item_type.value}",
+    description=f"test {test_task_id} {item_type.value} experiment v0.1",
+    tags=[f"test", f"{test_task_id}", f"{item_type.value}", "v0.1"],
     constructor=ConstructorConfig(
         use_cache=True,
         use_vision=True,
@@ -296,7 +297,7 @@ register_experiment(ExperimentConfig(
     ),
     discovery=DiscoveryConfig(
         use_cache=True,
-        item_type=KnowledgeItemType.STEP,
+        item_type=item_type,
         max_iterations=1,
         k_schemas_to_sample=2,
         target_d=0.7,
@@ -320,7 +321,55 @@ register_experiment(ExperimentConfig(
     ),
 ))
 
+item_type = KnowledgeItemType.ATOMIC
+register_experiment(ExperimentConfig(
+    task_id=test_task_id,
 
+    name=f"test_{test_task_id}_{item_type.value}",
+    description=f"test {test_task_id} {item_type.value} experiment v0.1",
+    tags=[f"test", f"{test_task_id}", f"{item_type.value}", "v0.1"],
+    constructor=ConstructorConfig(
+        use_cache=True,
+        use_vision=True,
+        cluster_config=ClusterConfig(
+            similarity_threshold=0.85,
+            model_config=ModelConfig(
+                category="embedding",
+                provider="openai",
+                model="text-embedding-3-small",
+            ),
+        ),
+        model_config=ModelConfig(
+            category="vlm",
+            provider="openai",
+            model="gpt-4o-mini",
+        ),
+    ),
+    discovery=DiscoveryConfig(
+        use_cache=True,
+        item_type=item_type,
+        max_iterations=1,
+        k_schemas_to_sample=2,
+        target_d=0.7,
+        max_cells_per_iteration=1,
+        max_items_per_cell=5,
+        discovery_model=ModelConfig(
+            category="vlm",
+            provider="openai",
+            model="gpt-4o-mini",
+        ),
+        vocab_model=ModelConfig(
+            category="vlm",
+            provider="openai",
+            model="gpt-4o-mini",
+        ),
+        labeling_model=ModelConfig(
+            category="vlm",
+            provider="openai",
+            model="gpt-4o-mini",
+        ),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
