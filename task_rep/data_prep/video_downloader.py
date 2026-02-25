@@ -16,14 +16,20 @@ from typing import List, Optional, Literal
 
 from .transcriber import transcribe_audio
 
+COOKIES_FILE = Path("./static/chrome_cookies_personal.txt")
+
 def _add_cookie_support(cmd: List[str]) -> List[str]:
     # Add JS runtime (required by yt-dlp >= 2025)
     cmd.extend(["--js-runtimes", "node"])
     # Add cookie support
-    if os.environ.get("YT_DLP_COOKIES_FROM_BROWSER"):
-        cmd.extend(["--cookies-from-browser", os.environ["YT_DLP_COOKIES_FROM_BROWSER"]])
-    elif os.path.exists(os.path.expanduser("~/.config/yt-dlp/cookies.txt")):
-        cmd.extend(["--cookies", os.path.expanduser("~/.config/yt-dlp/cookies.txt")])
+    # if COOKIES_FILE.exists():
+    #     cmd.extend(["--cookies", COOKIES_FILE])
+    # else:
+    #     if os.environ.get("YT_DLP_COOKIES_FROM_BROWSER"):
+    #         cmd.extend(["--cookies-from-browser", os.environ["YT_DLP_COOKIES_FROM_BROWSER"]])
+    #     else:
+    #         print(f"    Cookies file `{COOKIES_FILE}` not found and YT_DLP_COOKIES_FROM_BROWSER not set")
+    #         return cmd
     return cmd
 
 @dataclass
@@ -105,7 +111,7 @@ class VideoDownloader:
         # Fetch metadata if needed
         if not metadata_path.exists() or force:
             print(f"  Fetching metadata...")
-            metadata_success = self._fetch_metadata(url, metadata_path)
+            metadata_success = self._fetch_metadata(video_id, url, metadata_path)
         else:
             print(f"  Metadata already exists")
             metadata_success = True
@@ -145,45 +151,118 @@ class VideoDownloader:
 
         return metadata_success and video_success and audio_success and transcript_success
 
-    def _fetch_metadata(self, url: str, metadata_path: Path) -> bool:
-        """Fetch metadata from a video."""
-        cmd = [
-            "yt-dlp",
-            "--skip-download",
-            "-j",
-        ]
+    def _fetch_metadata(self, video_id: str, url: str, metadata_path: Path) -> bool:
+        """Fetch metadata, trying YouTube Data API v3 first, then yt-dlp as fallback."""
+        api_key = os.environ.get("YOUTUBE_API_KEY")
+        if api_key:
+            try:
+                data = self._fetch_metadata_via_youtube_api(video_id, api_key)
+                with open(metadata_path, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                return True
+            except Exception as e:
+                print(f"    YouTube Data API failed, falling back to yt-dlp: {e}")
+        else:
+            print("    YOUTUBE_API_KEY not set, falling back to yt-dlp")
 
-        cmd = _add_cookie_support(cmd)
-        cmd.append(url)
+        return self._fetch_metadata_via_ytdlp(url, metadata_path)
+
+    def _fetch_metadata_via_youtube_api(self, video_id: str, api_key: str) -> dict:
+        """
+        Fetch metadata from the YouTube Data API v3.
+
+        Raises on any failure so the caller can fall back to yt-dlp.
+        Only requests the parts needed for the summary fields.
+        """
+        import urllib.request
+        import urllib.parse
+        import re
+
+        params = urllib.parse.urlencode({
+            "id": video_id,
+            "part": "snippet,contentDetails,statistics",
+            "key": api_key,
+        })
+        api_url = f"https://www.googleapis.com/youtube/v3/videos?{params}"
+        with urllib.request.urlopen(api_url, timeout=30) as resp:
+            body = json.loads(resp.read())
+
+        items = body.get("items", [])
+        if not items:
+            raise ValueError(f"Video not found or API quota exceeded for {video_id}")
+
+        item = items[0]
+        snippet = item.get("snippet", {})
+        stats = item.get("statistics", {})
+        details = item.get("contentDetails", {})
+
+        # Parse ISO 8601 duration (e.g. "PT1H3M42S") into seconds
+        duration_str = details.get("duration", "PT0S")
+        m = re.fullmatch(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?", duration_str)
+        h, mins, s = (int(x or 0) for x in m.groups()) if m else (0, 0, 0)
+        duration_secs = h * 3600 + mins * 60 + s
+
+        published_at = snippet.get("publishedAt", "")  # e.g. "2009-10-25T06:57:33Z"
+
+        def _int_or_none(v):
+            return int(v) if v is not None else None
+
+        return {
+            "id": video_id,
+            "title": snippet.get("title"),
+            "description": snippet.get("description"),
+            "creator": snippet.get("channelTitle"),
+            "channel_id": snippet.get("channelId"),
+            "tags": snippet.get("tags", []),
+            "duration": duration_secs,
+            "upload_date": published_at[:10].replace("-", ""),  # "YYYYMMDD"
+            "release_year": int(published_at[:4]) if published_at else None,
+            "view_count": _int_or_none(stats.get("viewCount")),
+            "like_count": _int_or_none(stats.get("likeCount")),
+            "dislike_count": None,  # Removed by YouTube in 2021
+            "comment_count": _int_or_none(stats.get("commentCount")),
+            "thumbnail": snippet.get("thumbnails", {}).get("high", {}).get("url"),
+            "_source": "youtube_api_v3",
+        }
+
+    def _fetch_metadata_via_ytdlp(self, url: str, metadata_path: Path) -> bool:
+        """Fetch metadata via yt-dlp (fallback when YouTube API is unavailable)."""
+        try:
+            import yt_dlp
+        except ImportError:
+            print("    yt-dlp not found. Install with: pip install yt-dlp")
+            return False
+
+        ydl_opts = {
+            "quiet": True,
+            "no_warnings": True,
+            "skip_download": True,
+            "no_check_formats": True,
+            "retries": 3,
+            "socket_timeout": 30,
+        }
 
         try:
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=300,
-            )
-            if result.stdout.strip():
-                # Parse stdout even on non-zero exit: yt-dlp may emit warnings
-                # (non-zero exit) but still produce valid JSON output.
-                try:
-                    data = json.loads(result.stdout)
-                    with open(metadata_path, "w", encoding="utf-8") as f:
-                        json.dump(data, f, indent=2, ensure_ascii=False)
-                    return True
-                except json.JSONDecodeError:
-                    pass
-            print(f"    Failed to get video metadata `{url}`: {result.stderr}")
-            return None
-        except subprocess.TimeoutExpired:
-            print(f"    Timeout getting video metadata `{url}`")
-            return None
-        except FileNotFoundError:
-            print(f"    yt-dlp not found. Install with: pip install yt-dlp")
-            return None
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                data = ydl.extract_info(url, download=False)
+                data = ydl.sanitize_info(data)
+
+            if not data.get("creator"):
+                data["creator"] = data.get("uploader") or data.get("channel")
+            if not data.get("release_year"):
+                upload_date = data.get("upload_date") or data.get("release_date") or ""
+                if len(upload_date) >= 4:
+                    data["release_year"] = int(upload_date[:4])
+
+            with open(metadata_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            return True
+        except yt_dlp.utils.DownloadError as e:
+            print(f"    Failed to get video metadata `{url}`: {e}")
+            return False
         except Exception as e:
             print(f"    Error getting video metadata `{url}`: {e}")
-            return None
+            return False
 
     def _download_video_file(self, url: str, video_path: Path) -> bool:
         """Download video file only."""

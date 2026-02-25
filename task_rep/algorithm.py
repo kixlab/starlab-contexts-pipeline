@@ -230,9 +230,10 @@ class IterativeSchemaDiscovery:
             self._annotations,
         )
         logger.info(
-            "Initial frontier: %d points | best D=%.4f",
+            "Initial frontier: %d points | worst D=%.4f | best D=%.4f",
             len(self._frontier),
             self._frontier[0].discriminativeness if self._frontier else float("inf"),
+            self._frontier[-1].discriminativeness if self._frontier else float("inf"),
         )
 
         tries_with_no_improvement = 0
