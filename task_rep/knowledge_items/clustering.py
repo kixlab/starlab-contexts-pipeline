@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import numpy as np
 from dataclasses import dataclass
-from typing import List
+from typing import Any, Dict, List
 from collections import defaultdict
 
 from utils import (
@@ -32,6 +32,19 @@ class ClusterConfig:
         threshold_str = str(self.similarity_threshold).replace(".", "")
         model_name = self.model_config.cache_suffix()
         return f"sim{threshold_str}_{model_name}"
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "similarity_threshold": self.similarity_threshold,
+            "model_config": self.model_config.to_dict(),
+        }
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "ClusterConfig":
+        return ClusterConfig(
+            model_config=ModelConfig.from_dict(data["model_config"]),
+            similarity_threshold=data.get("similarity_threshold", 0.85),
+        )
 
 
 def _cluster_greedy(

@@ -6,16 +6,37 @@ Define, run, save, and compare experiments across three axes:
   2. Extraction — granularity (ATOMIC/STEP) + clustering threshold + model
   3. Discovery  — algorithm hyperparameters + VLM provider/model
 
-Usage (library):
-    from experiments import EXPERIMENTS, run_experiment, print_summary
+Experiments are stored as JSON files in task_rep/experiments/.
+Use load_experiment() / save_experiment() to work with them, or
+drop a JSON file into that directory and it will be auto-loaded.
 
-    result = run_experiment(EXPERIMENTS["sushi_atomic_baseline"])
-    print_summary(result)
+Naming convention for experiment files:
+  {task_id}__{item_type}__{variant}.json
+  e.g.  sushi_roll_3__step__baseline.json
+        sushi_roll_3__atomic__gpt4o.json
+        sushi_roll_3__step__high_iter_v2.json
+
+The double-underscore separates logical parts so you can glob by task or type:
+  ls experiments/sushi_roll_3__*          # all experiments for a task
+  ls experiments/*__step__*               # all step experiments
+
+Usage (library):
+    from experiments import EXPERIMENTS, run_experiment, compare_results
+    from experiments import load_experiment, save_experiment
+
+    result = run_experiment(EXPERIMENTS["sushi_roll_3__step__baseline"])
+    compare_results([result])
+
+    # Save a config you built in code to a file:
+    save_experiment(my_config)
+
+    # Load a single file:
+    cfg = load_experiment("experiments/sushi_roll_3__step__baseline.json")
 
 Usage (script):
     python -m experiments --list
-    python -m experiments --run sushi_atomic_baseline
-    python -m experiments --run sushi_atomic_baseline --save-dir results/
+    python -m experiments --run sushi_roll_3__step__baseline
+    python -m experiments --save-config sushi_roll_3__step__baseline
 
 All paths are relative to the task_rep/ directory.
 """
@@ -23,7 +44,6 @@ All paths are relative to the task_rep/ directory.
 from __future__ import annotations
 
 import argparse
-import dataclasses
 import json
 import time
 import uuid
@@ -31,10 +51,9 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from config import Config
-from utils import ModelConfig
 
 from algorithm import (
     DiscoveryConfig,
@@ -42,10 +61,6 @@ from algorithm import (
     IterativeSchemaDiscovery,
 )
 
-from knowledge_items import (
-    ClusterConfig,
-    KnowledgeItemType,
-)
 from construct import (
     ConstructKnowledgeBase,
     ConstructorConfig,
@@ -58,6 +73,10 @@ from data_prep import (
 from optimization import (
     count_unique_units,
 )
+
+# ---------------------------------------------------------------------------
+# Config dataclass
+# ---------------------------------------------------------------------------
 
 @dataclass
 class ExperimentConfig:
@@ -82,6 +101,27 @@ class ExperimentConfig:
         constructor_suffix = self.constructor.cache_suffix()
         discovery_suffix = self.discovery.cache_suffix()
         return f"{constructor_suffix}_{discovery_suffix}"
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "task_id": self.task_id,
+            "description": self.description,
+            "tags": self.tags,
+            "constructor": self.constructor.to_dict(),
+            "discovery": self.discovery.to_dict(),
+        }
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "ExperimentConfig":
+        return ExperimentConfig(
+            name=data["name"],
+            task_id=data["task_id"],
+            description=data.get("description", ""),
+            tags=data.get("tags", []),
+            constructor=ConstructorConfig.from_dict(data["constructor"]),
+            discovery=DiscoveryConfig.from_dict(data["discovery"]),
+        )
 
 # ---------------------------------------------------------------------------
 # Result dataclasses
@@ -176,17 +216,17 @@ def run_experiment(
     if verbose:
         elapsed = time.monotonic() - t0
         logging.info(f"{elapsed:.2f}s: Prepared constructor and discovery.\nRunning experiment for {config.task_id}.")
-    
+
     task = manager.get_task(config.task_id)
     if verbose:
         elapsed = time.monotonic() - t0
         logging.info(f"{elapsed:.2f}s: Running experiment for {task.id}.")
-    
+
     result = discovery.run(
         task=task,
         constructor=constructor,
     )
-    
+
     elapsed = time.monotonic() - t0
 
     num_units = count_unique_units(result.knowledge_base)
@@ -250,126 +290,71 @@ def compare_results(results: List[ExperimentResult]) -> None:
 EXPERIMENTS: Dict[str, ExperimentConfig] = {}
 """Registry mapping experiment name → ExperimentConfig.
 
-Add entries with register_experiment() or by directly assigning:
-    EXPERIMENTS["my_exp"] = ExperimentConfig(...)
+Populated automatically from JSON files in the experiments/ directory.
+You can also call register_experiment() to add configs at runtime.
 """
+
+EXPERIMENTS_DIR = Path(__file__).parent / "experiments"
+"""Directory where experiment JSON files are stored."""
 
 
 def register_experiment(config: ExperimentConfig) -> ExperimentConfig:
-    """Register an ExperimentConfig and return it unchanged.
-
-    Can be used as a statement (register_experiment(ExperimentConfig(...)))
-    or to build the registry incrementally.
-    """
+    """Register an ExperimentConfig and return it unchanged."""
     EXPERIMENTS[config.name] = config
     return config
 
 
 # ---------------------------------------------------------------------------
-# Built-in experiments
+# File I/O
 # ---------------------------------------------------------------------------
-# Add your own experiments below.  The three "baseline" entries demonstrate
-# the three main axes of variation.
-test_task_id = "sushi_roll_3"
-item_type = KnowledgeItemType.STEP
-register_experiment(ExperimentConfig(
-    task_id=test_task_id,
 
-    name=f"test_{test_task_id}_{item_type.value}",
-    description=f"test {test_task_id} {item_type.value} experiment v0.1",
-    tags=[f"test", f"{test_task_id}", f"{item_type.value}", "v0.1"],
-    constructor=ConstructorConfig(
-        use_cache=True,
-        use_vision=True,
-        cluster_config=ClusterConfig(
-            similarity_threshold=0.85,
-            model_config=ModelConfig(
-                category="embedding",
-                provider="openai",
-                model="text-embedding-3-small",
-            ),
-        ),
-        model_config=ModelConfig(
-            category="vlm",
-            provider="openai",
-            model="gpt-4o-mini",
-        ),
-    ),
-    discovery=DiscoveryConfig(
-        use_cache=True,
-        item_type=item_type,
-        max_iterations=1,
-        k_schemas_to_sample=2,
-        target_d=0.7,
-        max_cells_per_iteration=1,
-        max_items_per_cell=5,
-        discovery_model=ModelConfig(
-            category="vlm",
-            provider="openai",
-            model="gpt-4o-mini",
-        ),
-        vocab_model=ModelConfig(
-            category="vlm",
-            provider="openai",
-            model="gpt-4o-mini",
-        ),
-        labeling_model=ModelConfig(
-            category="vlm",
-            provider="openai",
-            model="gpt-4o-mini",
-        ),
-    ),
-))
 
-item_type = KnowledgeItemType.ATOMIC
-register_experiment(ExperimentConfig(
-    task_id=test_task_id,
+def load_experiment(path: str | Path) -> ExperimentConfig:
+    """Load an ExperimentConfig from a JSON file."""
+    data = json.loads(Path(path).read_text())
+    return ExperimentConfig.from_dict(data)
 
-    name=f"test_{test_task_id}_{item_type.value}",
-    description=f"test {test_task_id} {item_type.value} experiment v0.1",
-    tags=[f"test", f"{test_task_id}", f"{item_type.value}", "v0.1"],
-    constructor=ConstructorConfig(
-        use_cache=True,
-        use_vision=True,
-        cluster_config=ClusterConfig(
-            similarity_threshold=0.85,
-            model_config=ModelConfig(
-                category="embedding",
-                provider="openai",
-                model="text-embedding-3-small",
-            ),
-        ),
-        model_config=ModelConfig(
-            category="vlm",
-            provider="openai",
-            model="gpt-4o-mini",
-        ),
-    ),
-    discovery=DiscoveryConfig(
-        use_cache=True,
-        item_type=item_type,
-        max_iterations=1,
-        k_schemas_to_sample=2,
-        target_d=0.7,
-        max_cells_per_iteration=1,
-        max_items_per_cell=5,
-        discovery_model=ModelConfig(
-            category="vlm",
-            provider="openai",
-            model="gpt-4o-mini",
-        ),
-        vocab_model=ModelConfig(
-            category="vlm",
-            provider="openai",
-            model="gpt-4o-mini",
-        ),
-        labeling_model=ModelConfig(
-            category="vlm",
-            provider="openai",
-            model="gpt-4o-mini",
-        ),
-    ),
-))
+
+def save_experiment(config: ExperimentConfig, path: str | Path | None = None) -> Path:
+    """Save an ExperimentConfig to a JSON file.
+
+    If path is None, saves to EXPERIMENTS_DIR/{config.name}.json.
+    Returns the path written.
+    """
+    if path is None:
+        path = EXPERIMENTS_DIR / f"{config.name}.json"
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(config.to_dict(), indent=2))
+    return path
+
+
+def load_experiments_dir(directory: str | Path | None = None) -> Dict[str, ExperimentConfig]:
+    """Load all experiment JSON files from a directory.
+
+    Returns a dict mapping experiment name → ExperimentConfig.
+    Files are loaded in sorted order; duplicate names (same 'name' field)
+    from different files raise a ValueError.
+    """
+    if directory is None:
+        directory = EXPERIMENTS_DIR
+    directory = Path(directory)
+    result: Dict[str, ExperimentConfig] = {}
+    if not directory.exists():
+        return result
+    for f in sorted(directory.glob("*.json")):
+        config = load_experiment(f)
+        if config.name in result:
+            raise ValueError(
+                f"Duplicate experiment name '{config.name}' found in {f}. "
+                f"Each experiment file must have a unique 'name' field."
+            )
+        result[config.name] = config
+    return result
+
+
+# Auto-load experiments from the experiments/ directory.
+EXPERIMENTS.update(load_experiments_dir())
 
 
 # ---------------------------------------------------------------------------
@@ -378,11 +363,12 @@ register_experiment(ExperimentConfig(
 
 
 def _list_experiments() -> None:
-    print(f"\n{'name':<40} {'tags'}")
-    print("-" * 70)
+    print(f"\n{'name':<40} {'file':<35} {'tags'}")
+    print("-" * 90)
     for name, cfg in EXPERIMENTS.items():
         tag_str = ", ".join(cfg.tags) if cfg.tags else "—"
-        print(f"{name:<40} [{tag_str}]")
+        file_hint = f"experiments/{name}.json"
+        print(f"{name:<40} {file_hint:<35} [{tag_str}]")
         if cfg.description:
             print(f"  {cfg.description}")
     print()
@@ -395,10 +381,24 @@ def main() -> None:
     )
     parser.add_argument("--list", action="store_true", help="List all registered experiments.")
     parser.add_argument("--run", metavar="NAME", help="Run an experiment by name.")
+    parser.add_argument(
+        "--save-config",
+        metavar="NAME",
+        help="Save an experiment's config to experiments/<NAME>.json.",
+    )
     args = parser.parse_args()
 
     if args.list:
         _list_experiments()
+        return
+
+    if args.save_config:
+        name = args.save_config
+        if name not in EXPERIMENTS:
+            print(f"Unknown experiment '{name}'. Available: {list(EXPERIMENTS)}")
+            return
+        path = save_experiment(EXPERIMENTS[name])
+        print(f"Saved to {path}")
         return
 
     if args.run:
