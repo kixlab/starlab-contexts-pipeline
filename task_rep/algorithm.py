@@ -236,7 +236,7 @@ class IterativeSchemaDiscovery:
         )
 
         tries_with_no_improvement = 0
-        min_d = self.config.min_d
+        # min_d = self.config.min_d
         target_d = self.config.target_d
         max_iterations = self.config.max_iterations
         max_cells_per_iteration = self.config.max_cells_per_iteration
@@ -336,8 +336,8 @@ class IterativeSchemaDiscovery:
                 self._knowledge_base, combined_facets, combined_annotations
             )
 
-            # Step 6: Accept if the clipped frontier improved
-            if is_pareto_improved(self._frontier, new_frontier, min_d=min_d):
+            # Step 6: Accept if the clipped frontier before target_d is improved
+            if is_pareto_improved(self._frontier, new_frontier, min_d=target_d):
                 logger.info("Pareto improvement — accepting %d new facets.", len(unique_new))
                 for f in unique_new:
                     self._facets[f.id] = f
