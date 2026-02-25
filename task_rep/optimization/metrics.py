@@ -73,7 +73,7 @@ def compute_discriminativeness(
         n_c = len(unit_set)
         if n_c > 0:
             total += (n_c / num_units) * math.log(n_c, base)
-    logger.debug(f"Discriminativeness: {total}")
+    logger.info(f"Discriminativeness: {total}")
     return total
 
 

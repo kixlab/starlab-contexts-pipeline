@@ -172,7 +172,7 @@ def process_facet_discovery_response(
     total = len(signature_values)
     unique = len(set(signature_values))
     if total > 0:
-        logger.debug(
+        logger.info(
             f"Effectiveness ({len(candidates)}/{total}) "
             f"({unique}/{total}) = {unique / total:.3f}"
         )

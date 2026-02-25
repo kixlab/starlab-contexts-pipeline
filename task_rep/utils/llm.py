@@ -841,7 +841,7 @@ async def process_api_requests(
     # Run producer and workers
     await asyncio.gather(producer(), *[worker(i) for i in range(max_concurrency)])
 
-    logger.debug(
+    logger.info(
         f"Batch {batch_id} complete: "
         f"Success={status.num_tasks_succeeded} "
         f"Failed={status.num_tasks_failed} "
@@ -856,7 +856,7 @@ def batch_run_llm_calls(
     max_concurrency: int,
     model_config: ModelConfig,
 ):
-    logger.debug(f"Batch ID for {func_request.__name__}: {batch_id}")
+    logger.info(f"Batch ID for {func_request.__name__}: {batch_id}")
     if len(request_args) == 0:
         return []
     req_ids = []
