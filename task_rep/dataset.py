@@ -30,6 +30,7 @@ from data_prep import (
     build_task_dataset,
     VideoDownloader,
 )
+from data_prep.narration_checker import DEFAULT_MIN_WORD_COUNT, DEFAULT_MIN_WORDS_PER_MINUTE
 
 def cmd_build(args):
     """Build a dataset from task definition."""
@@ -44,10 +45,13 @@ def cmd_build(args):
     output_path = build_task_dataset(
         task=task,
         downloader=downloader,
-        dataset_dir = Config.TASK_DATASETS_DIR,
-        fps=fps, 
-        transcript_source=transcript_source, 
-        force_download=force_download
+        dataset_dir=Config.TASK_DATASETS_DIR,
+        fps=fps,
+        transcript_source=transcript_source,
+        force_download=force_download,
+        narration_check=not args.no_narration_check,
+        min_word_count=args.min_word_count,
+        min_words_per_minute=args.min_words_per_minute,
     )
     print(f"\n✓ Dataset ready: {output_path}")
 
@@ -68,6 +72,9 @@ def cmd_build_all(args):
     transcript_source = args.transcript_source
     force_download = args.force_download
     fps = args.fps
+    narration_check = not args.no_narration_check
+    min_word_count = args.min_word_count
+    min_words_per_minute = args.min_words_per_minute
 
     success_count = 0
     failed_tasks = []
@@ -87,6 +94,9 @@ def cmd_build_all(args):
                 fps=fps,
                 transcript_source=transcript_source,
                 force_download=force_download,
+                narration_check=narration_check,
+                min_word_count=min_word_count,
+                min_words_per_minute=min_words_per_minute,
             )
             print(f"\n✓ Dataset ready: {output_path}")
             success_count += 1
@@ -232,6 +242,9 @@ def main():
         help="Transcript source: 'openai' (default, most reliable) or 'youtube' (prefer YouTube)"
     )
     build_parser.add_argument("--force-download", action="store_true", help="Re-do everything (download, extract frames, get transcript)")
+    build_parser.add_argument("--no-narration-check", action="store_true", help="Disable narration quality filter")
+    build_parser.add_argument("--min-word-count", type=int, default=DEFAULT_MIN_WORD_COUNT, help=f"Minimum word count to pass narration check (default: {DEFAULT_MIN_WORD_COUNT})")
+    build_parser.add_argument("--min-words-per-minute", type=float, default=DEFAULT_MIN_WORDS_PER_MINUTE, help=f"Minimum words/min to pass narration check (default: {DEFAULT_MIN_WORDS_PER_MINUTE})")
 
     # Build all command
     build_all_parser = subparsers.add_parser("build-all", help="Build datasets for all tasks")
@@ -243,6 +256,9 @@ def main():
         help="Transcript source: 'openai' (default, most reliable) or 'youtube' (prefer YouTube)"
     )
     build_all_parser.add_argument("--force-download", action="store_true", help="Re-do everything (download, extract frames, get transcript)")
+    build_all_parser.add_argument("--no-narration-check", action="store_true", help="Disable narration quality filter")
+    build_all_parser.add_argument("--min-word-count", type=int, default=DEFAULT_MIN_WORD_COUNT, help=f"Minimum word count to pass narration check (default: {DEFAULT_MIN_WORD_COUNT})")
+    build_all_parser.add_argument("--min-words-per-minute", type=float, default=DEFAULT_MIN_WORDS_PER_MINUTE, help=f"Minimum words/min to pass narration check (default: {DEFAULT_MIN_WORDS_PER_MINUTE})")
 
     # Status command
     status_parser = subparsers.add_parser("status", help="Show download/processing status")
