@@ -7,6 +7,7 @@ import { StatsPanel } from "./components/StatsPanel";
 import { UnitsList } from "./components/UnitsList";
 import { DetailsPanel } from "./components/DetailsPanel";
 import type { DatasetVideo, Facet } from "@/app/types";
+import { normalizeBundle } from "@/app/utils/bundleConverter";
 import { GRID_TEMPLATE } from "@/app/constants/ui";
 import { getSelectedDataset } from "@/app/constants/datasetConfig";
 
@@ -56,9 +57,9 @@ export default function Home() {
       // Load bundled file with { context_schema, facet_candidates, labeled_dataset }
       if (!bundleUrl) return;
       try {
-        const bundle = await fetch(bundleUrl).then((r) => r.json());
-        if (bundle && typeof bundle === "object" && (bundle.labeled_dataset || bundle.dataset)) {
-          setDataset((bundle.labeled_dataset ?? bundle.dataset) as DatasetVideo[]);
+        const bundle = normalizeBundle(await fetch(bundleUrl).then((r) => r.json()));
+        if (bundle && typeof bundle === "object" && bundle.labeled_dataset) {
+          setDataset(bundle.labeled_dataset as DatasetVideo[]);
           const contextSchema = (bundle.context_schema ?? []) as Facet[];
           const candidates = (bundle.facet_candidates ?? []) as Facet[];
 
