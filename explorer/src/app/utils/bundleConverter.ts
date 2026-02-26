@@ -147,9 +147,15 @@ export function normalizeBundle(bundle: Record<string, unknown>): OldBundle {
       unit_id: item.unit_id,
       start: item.source.time_range[0],
       end: item.source.time_range[1],
-      // 'subtype' is the short step label; 'text' is the longer narrative
-      content: item.subtype,
-      content_type: item.subtype,
+      // item_type carries the top-level knowledge kind ("atomic" | "step" | "tutorial")
+      item_type: item.type,
+      // content_type is the specific subtype/category label.
+      // For "atomic": an information-taxonomy label (e.g. "Method - Instruction").
+      // For "step":   a dataset-specific step label (e.g. "gather ingredients, tools…").
+      // For "tutorial": no meaningful subtype, so fall back to the item type itself.
+      content_type: item.subtype ?? item.type,
+      // content is the human-readable display text.
+      content: item.text,
       labels: annIndex.get(item.id) ?? {},
     }));
 

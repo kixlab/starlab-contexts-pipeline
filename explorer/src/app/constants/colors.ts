@@ -79,13 +79,47 @@ export const INFO_CATEGORY_COLORS: Record<string, { bg: string; border: string; 
   },
 };
 
-// Default colors for categories not in the map
+// Default colors for categories not in the map (plain white fallback)
 export const DEFAULT_CATEGORY_COLORS = {
   bg: 'rgba(255, 255, 255, 0.1)',
   border: 'rgba(255, 255, 255, 0.3)',
   header: '#FFFFFF',
   glow: 'rgba(255, 255, 255, 0.4)',
 } as const;
+
+// ---------------------------------------------------------------------------
+// Dynamic color generation for content_types not in INFO_CATEGORY_COLORS.
+// The hue is derived deterministically from the content_type string so that
+// the same type always gets the same colour, regardless of order.
+// ---------------------------------------------------------------------------
+
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (Math.imul(31, hash) + str.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+export function generateCategoryColors(contentType: string): { bg: string; border: string; header: string; glow: string } {
+  const hue = hashString(contentType) % 360;
+  return {
+    bg: `hsla(${hue}, 60%, 55%, 0.1)`,
+    border: `hsla(${hue}, 60%, 55%, 0.3)`,
+    header: `hsl(${hue}, 60%, 70%)`,
+    glow: `hsla(${hue}, 60%, 55%, 0.4)`,
+  };
+}
+
+/**
+ * Return the colour palette for a given content_type.
+ * Checks the hardcoded map first (atomic taxonomy labels), then falls back to
+ * a deterministic generated palette so that any step label or "tutorial" also
+ * gets a consistent, unique colour.
+ */
+export function getCategoryColors(contentType: string): { bg: string; border: string; header: string; glow: string } {
+  return INFO_CATEGORY_COLORS[contentType] ?? generateCategoryColors(contentType);
+}
 
 // Semantic colors for UI elements
 export const SEMANTIC_COLORS = {

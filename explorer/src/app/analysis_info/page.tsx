@@ -9,13 +9,15 @@ import { DetailsPanel } from "./components/DetailsPanel";
 import type { DatasetVideo, Facet } from "@/app/types";
 import { normalizeBundle } from "@/app/utils/bundleConverter";
 import { GRID_TEMPLATE } from "@/app/constants/ui";
-import { getSelectedDataset } from "@/app/constants/datasetConfig";
+import { getSelectedDataset, deriveInfoTypesFromDataset } from "@/app/constants/datasetConfig";
 
 export default function Home() {
   // Get dataset from localStorage or use default
   const selectedDataset = getSelectedDataset();
   const [bundleUrl] = useState(selectedDataset.bundleUrl);
-  const [availableInfoTypes] = useState<string[]>([...selectedDataset.infoTypes]);
+  // availableInfoTypes starts from the config list; when config is null it is
+  // populated after the dataset loads via deriveInfoTypesFromDataset.
+  const [availableInfoTypes, setAvailableInfoTypes] = useState<string[]>(selectedDataset.infoTypes ?? []);
   const [dataset, setDataset] = useState<DatasetVideo[]>([]);
   // Facets are now adjustable:
   // - `shownFacets` are the facets rendered in the FacetPanel / used for context computations
@@ -59,7 +61,8 @@ export default function Home() {
       try {
         const bundle = normalizeBundle(await fetch(bundleUrl).then((r) => r.json()));
         if (bundle && typeof bundle === "object" && bundle.labeled_dataset) {
-          setDataset(bundle.labeled_dataset as DatasetVideo[]);
+          const ds = bundle.labeled_dataset as DatasetVideo[];
+          setDataset(ds);
           const contextSchema = (bundle.context_schema ?? []) as Facet[];
           const candidates = (bundle.facet_candidates ?? []) as Facet[];
 
@@ -67,6 +70,11 @@ export default function Home() {
           const initialCandidates = candidates.length ? candidates : contextSchema;
           setShownFacets([]);
           setFacetCandidates(initialCandidates);
+
+          // Derive infoTypes from data when config is null (step/tutorial datasets).
+          if (selectedDataset.infoTypes === null) {
+            setAvailableInfoTypes(deriveInfoTypesFromDataset(ds));
+          }
         }
       } catch (error) {
         console.error("Failed to load bundle:", error);
