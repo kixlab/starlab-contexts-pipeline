@@ -94,6 +94,11 @@ class DiscoveryConfig:
 
     max_concurrency: int = 32
 
+    # Vocabulary sampling — limits Phase 1 (per-video proposal) to a random
+    # sample of this many videos.  `0` means use all videos (original behaviour).
+    # Phase 2 consolidation and labeling are always run on the full corpus.
+    vocab_sample_videos: int = 0
+
     def cache_suffix(self) -> str:
         item_type = self.item_type.value.lower().replace(" ", "_")
         discovery_model_suffix = self.discovery_model.cache_suffix()
@@ -104,8 +109,9 @@ class DiscoveryConfig:
         target_d = str(self.target_d)
         max_cells_per_iteration = str(self.max_cells_per_iteration)
         max_items_per_cell = str(self.max_items_per_cell)
-        
-        return f"{item_type}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}"
+        vocab_sample_videos = str(self.vocab_sample_videos) if self.vocab_sample_videos != 0 else "all"
+
+        return f"{item_type}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -118,6 +124,7 @@ class DiscoveryConfig:
             "max_cells_per_iteration": self.max_cells_per_iteration,
             "max_items_per_cell": self.max_items_per_cell,
             "max_concurrency": self.max_concurrency,
+            "vocab_sample_videos": self.vocab_sample_videos,
             "discovery_model": self.discovery_model.to_dict(),
             "vocab_model": self.vocab_model.to_dict(),
             "labeling_model": self.labeling_model.to_dict(),
@@ -138,6 +145,7 @@ class DiscoveryConfig:
             max_cells_per_iteration=data.get("max_cells_per_iteration", 1),
             max_items_per_cell=data.get("max_items_per_cell", 5),
             max_concurrency=data.get("max_concurrency", 32),
+            vocab_sample_videos=data.get("vocab_sample_videos", 0),
         )
 
 
@@ -244,6 +252,7 @@ class IterativeSchemaDiscovery:
         max_cells_per_iteration = self.config.max_cells_per_iteration
         max_items_per_cell = self.config.max_items_per_cell
         k_schemas_to_sample = self.config.k_schemas_to_sample
+        vocab_sample_videos = self.config.vocab_sample_videos
 
         while tries_with_no_improvement < max_iterations:
             self._iteration += 1
@@ -296,7 +305,7 @@ class IterativeSchemaDiscovery:
                             task=task.name,
                             videos=videos,
                             target_item_ids=target_ids,
-                            facets=list(self._facets.values()),
+                            facets=schema_facets,
                             target_signature=cell_sig,
                         )
                         all_new_facets.extend(proposed)
@@ -334,6 +343,7 @@ class IterativeSchemaDiscovery:
                 task=task.name,
                 facets=unique_new,
                 knowledge_base=self._knowledge_base,
+                sample_videos=vocab_sample_videos,
             )
 
             # Step 4: Label items with new facets
