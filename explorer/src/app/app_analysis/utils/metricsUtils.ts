@@ -172,9 +172,14 @@ export async function computeDatasetParetoPoints(
   datasetLabel: string,
   dataset: DatasetVideo[],
   allFacets: Facet[],
+  infoTypes: string[] | null,
   onProgress?: (facetsDone: number, facetsTotal: number) => void
 ): Promise<PlotPoint[]> {
-  const allPieces = dataset.flatMap((v) => v.pieces ?? []);
+  const rawPieces = dataset.flatMap((v) => v.pieces ?? []);
+  const allPieces =
+    infoTypes && infoTypes.length > 0
+      ? rawPieces.filter((p) => infoTypes.includes(p.content_type ?? ""))
+      : rawPieces;
 
   // Sort facets by key name for deterministic, consistent component ordering
   const sortedFacets = [...allFacets].sort((a, b) =>
@@ -312,9 +317,14 @@ export function computeParetoFrontIndices(points: PlotPoint[]): Set<number> {
 /** For each facet in the subset, count pieces per vocabulary value. */
 export function computeFacetDistributions(
   dataset: DatasetVideo[],
-  facetSubset: Facet[]
+  facetSubset: Facet[],
+  infoTypes: string[] | null
 ): FacetValueDist[] {
-  const allPieces = dataset.flatMap((v) => v.pieces ?? []);
+  const rawPieces = dataset.flatMap((v) => v.pieces ?? []);
+  const allPieces =
+    infoTypes && infoTypes.length > 0
+      ? rawPieces.filter((p) => infoTypes.includes(p.content_type ?? ""))
+      : rawPieces;
   return facetSubset.map((facet) => {
     const key = facetToLabelKey(facet);
     const countMap = new Map<string, number>();
@@ -346,10 +356,15 @@ export function computeFacetDistributions(
 /** Per-video context-breakdown under the selected facet subset. */
 export function computeVideoBreakdowns(
   dataset: DatasetVideo[],
-  facetSubset: Facet[]
+  facetSubset: Facet[],
+  infoTypes: string[] | null
 ): VideoBreakdown[] {
   return dataset.map((video) => {
-    const pieces = video.pieces ?? [];
+    const rawPieces = video.pieces ?? [];
+    const pieces =
+      infoTypes && infoTypes.length > 0
+        ? rawPieces.filter((p) => infoTypes.includes(p.content_type ?? ""))
+        : rawPieces;
     const contextMap = new Map<string, number>();
     for (const piece of pieces) {
       const key = buildContextKey(piece, facetSubset);
@@ -398,9 +413,14 @@ export function computeVideoBreakdowns(
 export function computeTopCells(
   dataset: DatasetVideo[],
   facetSubset: Facet[],
-  topN: number
+  topN: number,
+  infoTypes: string[] | null
 ): CellCount[] {
-  const allPieces = dataset.flatMap((v) => v.pieces ?? []);
+  const rawPieces = dataset.flatMap((v) => v.pieces ?? []);
+  const allPieces =
+    infoTypes && infoTypes.length > 0
+      ? rawPieces.filter((p) => infoTypes.includes(p.content_type ?? ""))
+      : rawPieces;
   const cellMap = new Map<string, {
     contentType: string;
     contextKey: string;
@@ -439,14 +459,18 @@ export function computeTopCells(
 export function computeCellPieces(
   dataset: DatasetVideo[],
   facetSubset: Facet[],
-  targetCellKey: string
+  targetCellKey: string,
+  infoTypes: string[] | null
 ): UnitGroup[] {
   const unitMap = new Map<string, PieceInfo[]>();
+  const isIncluded = (ct: string) =>
+    !infoTypes || infoTypes.length === 0 || infoTypes.includes(ct);
 
   for (const video of dataset) {
     const videoId = video.id ?? video.url;
     for (const piece of video.pieces ?? []) {
       const contentType = piece.content_type ?? "unknown";
+      if (!isIncluded(contentType)) continue;
       const contextKey = buildContextKey(piece, facetSubset);
       if (`${contentType}|||${contextKey}` !== targetCellKey) continue;
 
