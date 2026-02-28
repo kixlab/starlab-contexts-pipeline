@@ -82,8 +82,8 @@ class VLMKnowledgeExtractor:
         batch_id = f"atomic_extraction_{random_uid()}"
 
         information_taxonomy = [
-            {"name": type_name.value, "definition": desc}
-            for type_name, desc in TYPE_DESCRIPTIONS.items()
+            {"name": atomic_type.value, "definition": info.definition, "examples": info.examples}
+            for atomic_type, info in TYPE_DESCRIPTIONS.items()
         ]
 
         request_args = [
@@ -150,7 +150,12 @@ class VLMKnowledgeExtractor:
             model_config=self.model_config,
         )
 
-        step_taxonomy = batch_results[0]  # List[Dict[str, Any]]
+        step_taxonomy = batch_results[0]  # Dict[str, TaxonomyCategoryInfo]
+
+        step_taxonomy = [
+            {"name": step_name, "definition": info.definition, "examples": info.examples}
+            for step_name, info in step_taxonomy.items()
+        ]
         if not step_taxonomy:
             return []
 

@@ -13,6 +13,7 @@ from .formatters import steps_by_video_to_message_content
 from .ki_pydantic import StepTaxonomy
 
 from knowledge_items.schema import KnowledgeItem, Video
+from knowledge_items.taxonomy import TaxonomyCategoryInfo
 
 
 SYSTEM_MESSAGE = """You are an expert at analyzing procedural knowledge and creating step taxonomies for the task: {task}. You excel at identifying similar or duplicate steps across multiple tutorials, understanding naming variations, and creating clear, consistent canonical names with comprehensive definitions. You understand logical ordering of procedural steps and can recognize when steps from different videos represent the same action versus genuinely distinct actions. Inputs are structured with XML tags — use the tag name and id attribute to identify each object and its boundaries."""
@@ -27,6 +28,7 @@ REQUIREMENTS:
 2. **Keep genuinely distinct steps separate.** If two steps appear *within the same tutorial* as separate actions, they are distinct and should remain separate entries — even if their names sound similar.
 3. **Enforce consistent granularity.** Every step in the taxonomy should represent a similar "size" of action, roughly the kind of segment you'd label in a tutorial (a single coherent physical or conceptual action lasting roughly 30-120 seconds). Avoid mixing high-level phases (e.g., "Prepare the surface") with fine-grained micro-actions (e.g., "Pick up sandpaper"). If you encounter steps at mismatched levels, either split coarse steps or merge overly fine ones so the taxonomy is uniform.
 4. **Use clear canonical names and definitions.** Each step should have a concise, verb-phrase canonical name (e.g., "Sand the edges", "Apply primer coat") and a definition (1-3 sentences) describing what the step involves, broad enough to cover the variations seen across tutorials but specific enough to distinguish it from other steps.
+5. **Exclude non-task steps.** Omit any steps that are not part of the core task procedure: video introductions, channel introductions, outros, calls-to-action (e.g. "like and subscribe"), closing remarks, or any other meta-content. Include only steps that actively contribute to completing the task.
 
 OUTPUT:
 Return a list of step names and definitions.
@@ -68,14 +70,20 @@ def form_step_aggregation_request(
 def process_step_aggregation_response(
     response: Dict[str, Any],
     **kwargs,
-) -> List[Dict[str, Any]]:
+) -> Dict[str, TaxonomyCategoryInfo]:
     """Process step aggregation response, returning the canonical taxonomy as dicts."""
     result = response.get("response", {})
     steps = result.get("steps", [])
 
-    taxonomy = []
+    taxonomy = {}
     for step in steps:
         name = step.get("name", "").strip().lower()
         definition = step.get("definition", "").strip()
-        taxonomy.append({"name": name, "definition": definition})
+        examples = []
+        for example in step.get("examples", []):
+            examples.append(example.strip())
+        taxonomy[name] = TaxonomyCategoryInfo(
+            definition=definition,
+            examples=examples,
+        )
     return taxonomy
