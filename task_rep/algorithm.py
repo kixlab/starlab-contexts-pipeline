@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import logging
 import json
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Dict, List
 from pathlib import Path
@@ -247,6 +248,18 @@ class IterativeSchemaDiscovery:
         while tries_with_no_improvement < max_iterations:
             self._iteration += 1
             logger.info("=== Iteration %d ===", self._iteration)
+
+            # Print distribution of cell sizes
+            cells = compute_cells(
+                self._knowledge_base, list(self._facets.values()), self._annotations
+            )
+            size_counts = defaultdict(int)
+            for _, units in cells.items():
+                size_counts[len(units)] += 1
+            total_cell_sizes = sum(size_counts.values())
+            logger.info("Cell size distribution (total=%d units):", total_cell_sizes)
+            for size, count in size_counts.items():
+                logger.info(f"{size} units: {count} ({count/total_cell_sizes*100:.1f}%)")
 
             # Step 1: Sample schemas from the clipped frontier
             clipped = clip_frontier(self._frontier, min_d=target_d)
