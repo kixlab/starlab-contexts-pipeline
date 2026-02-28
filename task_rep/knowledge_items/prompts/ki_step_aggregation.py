@@ -79,11 +79,8 @@ def process_step_aggregation_response(
     for step in steps:
         name = step.get("name", "").strip().lower()
         definition = step.get("definition", "").strip()
-        examples = []
-        for example in step.get("examples", []):
-            examples.append(example.strip())
         taxonomy[name] = TaxonomyCategoryInfo(
             definition=definition,
-            examples=examples,
+            examples=[],
         )
     return taxonomy
