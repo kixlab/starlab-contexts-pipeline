@@ -24,7 +24,7 @@ def video_to_message_content(
     if use_vision and not video.frames:
         raise ValueError("When vision is enabled, video must have frames")
     if not video.transcript:
-        raise ValueError("Video must have transcript")
+        raise ValueError("Video must have transcript") ### potentially errorneous for purely visual videos
 
     if chunk_config.size == 0:
         segment_groups = [[seg] for seg in video.transcript]

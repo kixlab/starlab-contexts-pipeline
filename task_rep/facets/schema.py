@@ -77,10 +77,6 @@ class Facet:
     vocabulary: List[FacetLabel]
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def __post_init__(self):
-        if self.scope not in {"global", "mid-level", "fine-grained"}:
-            raise ValueError(f"Invalid scope: {self.scope}")
-
     def __hash__(self):
         return hash(self.id)
 
