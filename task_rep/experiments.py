@@ -222,10 +222,25 @@ def run_experiment(
         elapsed = time.monotonic() - t0
         logging.info(f"{elapsed:.2f}s: Running experiment for {task.id}.")
 
-    result = discovery.run(
-        task=task,
-        constructor=constructor,
-    )
+    run_id = str(uuid.uuid4())
+    cache_dir = constructor.get_cache_dir(task)
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    log_path = discovery.get_result_path(cache_dir).with_suffix(".log")
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write(f"\n=== {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} run_id={run_id} ===\n")
+    file_handler = logging.FileHandler(log_path, mode="a", encoding="utf-8")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(logging.Formatter("%(levelname)s %(name)s: %(message)s"))
+    logging.getLogger().addHandler(file_handler)
+
+    try:
+        result = discovery.run(
+            task=task,
+            constructor=constructor,
+        )
+    finally:
+        logging.getLogger().removeHandler(file_handler)
+        file_handler.close()
 
     elapsed = time.monotonic() - t0
 
@@ -257,7 +272,7 @@ def run_experiment(
     )
 
     return ExperimentResult(
-        run_id=str(uuid.uuid4())[:8],
+        run_id=run_id,
         timestamp=datetime.now(timezone.utc).isoformat(),
         config=config,
         result=result,
