@@ -104,11 +104,9 @@ class FacetDiscoveryResult(BaseModel):
     candidates: list[FacetCandidate] = Field(
         description="Proposed facet candidates. Empty list if no valid factors found."
     )
-    refusal_reason: str | None = Field(
-        default=None,
+    refusal_reason: str = Field(
         description="If no candidates are proposed, a brief explanation of why "
-        "the target items cannot be meaningfully distinguished by contextual factors. "
-        "Null when candidates are proposed.",
+        "the target items cannot be meaningfully distinguished by contextual factors. Otherwise, leave it empty.",
     )
 
 #----------------------------------------
