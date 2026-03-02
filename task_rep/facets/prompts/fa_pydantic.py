@@ -17,9 +17,11 @@ class RevisedFacetCandidate(BaseModel):
     title: str = Field(description="Factor title")
     title_plural: str = Field(description="Plural form")
     scope: str = Field(description="global, mid-level, or fine-grained")
-    justification: str = Field(description="Brief justification of changes")
+    justification: str = Field(
+        description="Brief justification of changes and why this facet is (1) monolithic and (2) piecewise-stable, target-independent, and task-relevant."
+    )
     definition: str = Field(description="Updated definition")
-    guidelines: List[str] = Field(description="Updated guidelines")
+    guidelines: List[str] = Field(description="Updated instructions for labeling")
     segment_labels: List[SegmentLabel] = Field(description="Updated vocabulary")
 
 class FacetRevisionResult(BaseModel):
@@ -27,7 +29,7 @@ class FacetRevisionResult(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
     candidates: List[RevisedFacetCandidate] = Field(description="Revised facets")
-    changes: str = Field(description="Summary of what was changed and why")
+    changes: str = Field(description="Summary of what was changed and why. If no changes are proposed, a brief explanation of why.")
 
 #----------------------------------------
 
@@ -78,12 +80,10 @@ class FacetCandidate(BaseModel):
     title: str = Field(description="Short name (2-3 words)")
     title_plural: str = Field(description="Plural form of the title")
     scope: str = Field(description="global, mid-level, or fine-grained")
-    definition: str = Field(description="What this facet captures")
     justification: str = Field(
-        description="Why this facet was chosen: (1) satisfies piecewise-stable, "
-        "target-independent, task-relevant, (2) how it separates colliding items, "
-        "(3) why it is distinct from previous factors"
+        description="Why this facet was chosen: (1) satisfies piecewise-stable, target-independent, task-relevant, (2) how it separates colliding items, (3) why it is distinct from previous factors"
     )
+    definition: str = Field(description="What this facet captures")
     guidelines: List[str] = Field(description="Instructions for labeling")
     segment_labels: list[SegmentLabel] = Field(description="Full vocabulary")
     target_assignments: list[TargetAssignment] = Field(
@@ -105,8 +105,7 @@ class FacetDiscoveryResult(BaseModel):
         description="Proposed facet candidates. Empty list if no valid factors found."
     )
     refusal_reason: str = Field(
-        description="If no candidates are proposed, a brief explanation of why "
-        "the target items cannot be meaningfully distinguished by contextual factors. Otherwise, leave it empty.",
+        description="If no candidates are proposed, a brief explanation of why the target items cannot be meaningfully distinguished by contextual factors. Otherwise, leave it empty.",
     )
 
 #----------------------------------------
