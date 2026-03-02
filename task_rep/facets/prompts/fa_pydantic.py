@@ -49,6 +49,8 @@ class Segmentation(BaseModel):
 
 class TargetAssignment(BaseModel):
     """Label assignment for a target item."""
+    model_config = ConfigDict(extra='forbid')
+
     item_id: str = Field(description="ID of the target information unit")
     label: str = Field(description="Assigned label from the vocabulary")
     brief_reason: str = Field(
@@ -59,6 +61,8 @@ class TargetAssignment(BaseModel):
 
 class AnchorExample(BaseModel):
     """A non-target item demonstrating that the factor applies broadly."""
+    model_config = ConfigDict(extra='forbid')
+
     item_id: str = Field(description="ID of a non-target item from the tutorial")
     label: str = Field(description="Label that would apply to this item's context")
     brief_reason: str = Field(
@@ -95,6 +99,8 @@ class FacetCandidate(BaseModel):
 
 class FacetDiscoveryResult(BaseModel):
     """Result of facet discovery."""
+    model_config = ConfigDict(extra='forbid')
+
     candidates: list[FacetCandidate] = Field(
         description="Proposed facet candidates. Empty list if no valid factors found."
     )
