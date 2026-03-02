@@ -268,6 +268,7 @@ class IterativeSchemaDiscovery:
         max_items_per_cell = self.config.max_items_per_cell
         k_schemas_to_sample = self.config.k_schemas_to_sample
         vocab_sample_videos = self.config.vocab_sample_videos
+        min_d = self.config.min_d
 
         while tries_with_no_improvement < max_iterations:
             self._iteration += 1
@@ -381,11 +382,31 @@ class IterativeSchemaDiscovery:
                 for point in new_frontier:
                     logger.info(f"New: {point.discriminativeness} {point.compactness}")
                 logger.info("---------------------------------------------------------------------")
-                logger.info("Pareto improvement — accepting %d new facets.", len(unique_new))
-                for f in unique_new:
+
+                # Only keep new facets that actually appear in a meaningful
+                # frontier point (D > min_d).  Proposals that don't contribute
+                # to any unresolved schema are dropped before committing.
+                active_ids: set[str] = set()
+                for point in clip_frontier(new_frontier, min_d=min_d):
+                    active_ids.update(point.facet_ids)
+                accepted_new = [f for f in unique_new if f.id in active_ids]
+                n_dropped = len(unique_new) - len(accepted_new)
+                logger.info(
+                    "Pareto improvement — accepting %d new facet(s)%s.",
+                    len(accepted_new),
+                    f" ({n_dropped} dropped as non-contributing)" if n_dropped else "",
+                )
+
+                for f in accepted_new:
                     self._facets[f.id] = f
-                self._annotations.update(new_annotations)
-                self._frontier = new_frontier
+                self._annotations.update(new_annotations.filter_facets(active_ids))
+
+                # Recompute frontier from the accepted pool (may differ from
+                # new_frontier if some candidates were dropped).
+                self._frontier = compute_frontier(
+                    focused_kb, list(self._facets.values()), self._annotations
+                )
+
                 tries_with_no_improvement = 0
                 self._save_cache(cache_dir)
             else:
