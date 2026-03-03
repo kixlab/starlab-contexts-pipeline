@@ -10,7 +10,8 @@ from __future__ import annotations
 import math
 import random
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from itertools import combinations
+from typing import Any, Dict, FrozenSet, List, Tuple
 
 from knowledge_items import (
     KnowledgeBase,
@@ -61,15 +62,19 @@ def compute_frontier(
     knowledge_base: KnowledgeBase,
     facets: List[Facet],
     annotations: AnnotationTable,
+    max_schema_facets: int = 4,
 ) -> List[FrontierPoint]:
     """
-    Compute the Pareto frontier of schemas via 0/1 knapsack DP.
+    Compute the Pareto frontier of schemas by brute-force enumeration.
 
-    Each facet is a knapsack item with weight = vocabulary size (non-NA labels).
-    For each achievable total weight (compactness), the DP finds the facet subset
-    that minimizes discriminativeness. Dominated points are then removed.
+    Enumerates all subsets of up to MAX_SCHEMA_FACETS facets. For each
+    achievable compactness value, the subset with the lowest discriminativeness
+    is retained. Dominated points are then removed.
 
-    Port of server's compute_frontier_knapsack() (framework_split.py:52-133).
+    Discriminativeness is not additively separable across facets (facet
+    interactions can be large), so knapsack DP cannot guarantee optimality.
+    Brute-force over subsets of bounded size is correct and efficient in
+    practice (n^K evaluations, K=MAX_SCHEMA_FACETS).
 
     Args:
         knowledge_base: Items with unit_ids assigned.
@@ -101,48 +106,42 @@ def compute_frontier(
         return [FrontierPoint(discriminativeness=d, compactness=0, facet_ids=[])]
 
     weights = [compute_compactness([f]) for f in facets]
-    max_weight = sum(w for w in weights if w > 0)
+    max_size = min(max_schema_facets, len(facets))
 
-    if max_weight == 0:
-        d = eval_subset(())
-        return [FrontierPoint(discriminativeness=d, compactness=0, facet_ids=[])]
+    # best[compactness] = (min_D, winning_subset)
+    best: Dict[int, Tuple[float, Tuple[int, ...]]] = {}
+    # Index sets of subsets that achieve D=0; all strict supersets are dominated
+    # (adding facets can only keep D at 0, never improve it, and costs more C).
+    perfect: List[FrozenSet[int]] = []
 
-    # DP state: for each achievable weight w, track min D and the achieving subset
-    dp_d: List[float] = [float("inf")] * (max_weight + 1)
-    dp_subset: List[Optional[Tuple[int, ...]]] = [None] * (max_weight + 1)
-
-    # Base case: empty subset
-    dp_d[0] = eval_subset(())
-    dp_subset[0] = ()
-
-    # 0/1 knapsack — iterate weights backwards to prevent reuse
-    for i, w_i in enumerate(weights):
-        if w_i <= 0:
-            continue
-        for w in range(max_weight - w_i, -1, -1):
-            if dp_subset[w] is None:
+    for size in range(max_size + 1):
+        for combo in combinations(range(len(facets)), size):
+            # Monotonicity pruning: a superset of a D=0 subset achieves D=0 at
+            # higher compactness — strictly dominated, skip.
+            if any(p.issubset(combo) for p in perfect):
                 continue
-            new_w = w + w_i
-            new_subset = tuple(sorted(dp_subset[w] + (i,)))
-            new_d = eval_subset(new_subset)
-            if new_d < dp_d[new_w]:
-                dp_d[new_w] = new_d
-                dp_subset[new_w] = new_subset
+            c = sum(weights[i] for i in combo)
+            d = eval_subset(combo)
+            if c not in best or d < best[c][0]:
+                best[c] = (d, combo)
+            if d == 0.0:
+                perfect.append(frozenset(combo))
 
-    # Collect all achievable (compactness, D) points
-    raw: List[FrontierPoint] = []
-    for w in range(max_weight + 1):
-        if dp_subset[w] is None:
-            continue
-        raw.append(FrontierPoint(
-            discriminativeness=dp_d[w],
-            compactness=w,
-            facet_ids=[facets[i].id for i in dp_subset[w]],
-        ))
+    # Collect all (compactness, D) points sorted by ascending compactness
+    raw: List[FrontierPoint] = sorted(
+        [
+            FrontierPoint(
+                discriminativeness=d,
+                compactness=c,
+                facet_ids=[facets[i].id for i in subset],
+            )
+            for c, (d, subset) in best.items()
+        ],
+        key=lambda p: p.compactness,
+    )
 
-    # Smooth: remove dominated points.
-    # Raw is sorted by ascending compactness. Keep only points where D is
-    # strictly less than the previous kept point (so D decreases as C increases).
+    # Remove dominated points: keep only points where D strictly decreases
+    # as compactness increases.
     smoothed: List[FrontierPoint] = []
     for point in raw:
         if smoothed and smoothed[-1].discriminativeness <= point.discriminativeness:

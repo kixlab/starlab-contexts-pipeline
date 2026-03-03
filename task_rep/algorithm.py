@@ -92,6 +92,10 @@ class DiscoveryConfig:
     # Minimum D value for the frontier (i.e., considered resolved)
     min_d: float = 0.01
 
+    # Maximum number of facets in a single schema on the frontier.
+    # Brute-force enumeration is O(n^max_schema_facets), so keep this small.
+    max_schema_facets: int = 4
+
     # Collision detection
     max_cells_per_iteration: int = 1
     max_items_per_cell: int = 5
@@ -114,8 +118,9 @@ class DiscoveryConfig:
         max_cells_per_iteration = str(self.max_cells_per_iteration)
         max_items_per_cell = str(self.max_items_per_cell)
         vocab_sample_videos = str(self.vocab_sample_videos) if self.vocab_sample_videos != 0 else "all"
+        max_schema_facets = str(self.max_schema_facets)
 
-        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}"
+        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}_{max_schema_facets}"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -129,6 +134,7 @@ class DiscoveryConfig:
             "max_items_per_cell": self.max_items_per_cell,
             "max_concurrency": self.max_concurrency,
             "vocab_sample_videos": self.vocab_sample_videos,
+            "max_schema_facets": self.max_schema_facets,
             "discovery_model": self.discovery_model.to_dict(),
             "vocab_model": self.vocab_model.to_dict(),
             "labeling_model": self.labeling_model.to_dict(),
@@ -150,6 +156,7 @@ class DiscoveryConfig:
             max_items_per_cell=data.get("max_items_per_cell", 5),
             max_concurrency=data.get("max_concurrency", 32),
             vocab_sample_videos=data.get("vocab_sample_videos", 0),
+            max_schema_facets=data.get("max_schema_facets", 4),
         )
 
 
@@ -248,10 +255,13 @@ class IterativeSchemaDiscovery:
         if use_cache:
             self._restore_cache(cache_dir)
 
+        max_schema_facets = self.config.max_schema_facets
+
         self._frontier = compute_frontier(
             focused_kb,
             list(self._facets.values()),
             self._annotations,
+            max_schema_facets=max_schema_facets,
         )
         logger.info(
             "Initial frontier: %d points | worst D=%.4f | best D=%.4f",
@@ -373,7 +383,8 @@ class IterativeSchemaDiscovery:
             combined_facets = list(self._facets.values()) + unique_new
             combined_annotations = self._annotations.merge(new_annotations)
             new_frontier = compute_frontier(
-                focused_kb, combined_facets, combined_annotations
+                focused_kb, combined_facets, combined_annotations,
+                max_schema_facets=max_schema_facets,
             )
 
             # Step 6: Accept if the clipped frontier before target_d is improved
@@ -404,7 +415,8 @@ class IterativeSchemaDiscovery:
                 # Recompute frontier from the accepted pool (may differ from
                 # new_frontier if some candidates were dropped).
                 self._frontier = compute_frontier(
-                    focused_kb, list(self._facets.values()), self._annotations
+                    focused_kb, list(self._facets.values()), self._annotations,
+                    max_schema_facets=max_schema_facets,
                 )
 
                 tries_with_no_improvement = 0

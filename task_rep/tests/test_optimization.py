@@ -531,6 +531,73 @@ class TestComputeFrontier:
         assert by_c[2].discriminativeness == pytest.approx(4 / 3)
         assert by_c[3].discriminativeness == pytest.approx(0.0)
 
+    def test_synergistic_facets_knapsack_regression(self):
+        """
+        Regression: the old 0/1 knapsack DP could miss the optimal subset
+        when facets interact non-additively.
+
+        Setup — 6 units (one item each), three 2-label facets (weight=2 each):
+
+          Facet A: u1-u4 → a1  (4 units), u5-u6 → a2  (2 units)
+            D({A}) = (4/6)·log2(4) + (2/6)·log2(2) = 4/3 + 1/3 = 5/3 ≈ 1.667
+
+          Facet B: u1-u3 → b1  (3 units), u4-u6 → b2  (3 units)
+            D({B}) = 2·(3/6)·log2(3) = log2(3) ≈ 1.585
+
+          Facet C: u1-u2 → c1  (2 units), u3-u6 → c2  (4 units)
+            D({C}) ≈ 1.667
+
+        D({B}) < D({A}): the knapsack stores {B} at weight 2 and evicts {A},
+        then tries {B,C} at weight 4 and never explores {A,C}.
+
+          D({A,C}) = 3·(2/6)·log2(2) = 1.0       ← optimal at weight 4
+          D({B,C}) = 1/3 + (1/2)·log2(3) ≈ 1.125 ← what the knapsack found
+
+        Brute-force enumeration correctly identifies {A,C} as the winning
+        schema at compactness 4.
+        """
+        kb = KnowledgeBase(items=[
+            make_item("i1", unit_id="u1"),
+            make_item("i2", unit_id="u2"),
+            make_item("i3", unit_id="u3"),
+            make_item("i4", unit_id="u4"),
+            make_item("i5", unit_id="u5"),
+            make_item("i6", unit_id="u6"),
+        ])
+
+        fa = make_facet("fa", "A", ["a1", "a2"])  # weight=2
+        fb = make_facet("fb", "B", ["b1", "b2"])  # weight=2
+        fc = make_facet("fc", "C", ["c1", "c2"])  # weight=2
+
+        ann = AnnotationTable()
+        for item_id in ("i1", "i2", "i3", "i4"):
+            ann[(item_id, "fa")] = "a1"
+        for item_id in ("i5", "i6"):
+            ann[(item_id, "fa")] = "a2"
+
+        for item_id in ("i1", "i2", "i3"):
+            ann[(item_id, "fb")] = "b1"
+        for item_id in ("i4", "i5", "i6"):
+            ann[(item_id, "fb")] = "b2"
+
+        for item_id in ("i1", "i2"):
+            ann[(item_id, "fc")] = "c1"
+        for item_id in ("i3", "i4", "i5", "i6"):
+            ann[(item_id, "fc")] = "c2"
+
+        frontier = compute_frontier(kb, [fa, fb, fc], ann)
+        by_c = {p.compactness: p for p in frontier}
+
+        # At compactness 4, the winner must be {A,C} (D=1.0), not {B,C} (D≈1.125).
+        d_at_4 = by_c[4].discriminativeness
+        d_ac = 1.0
+        d_bc = 1 / 3 + math.log(3, 2) / 2
+        assert d_at_4 == pytest.approx(d_ac), (
+            f"Expected D({'{A,C}'})={d_ac:.4f} at compactness 4, got {d_at_4:.4f}. "
+            f"Knapsack would have returned D({'{B,C}'})={d_bc:.4f}."
+        )
+        assert set(by_c[4].facet_ids) == {"fa", "fc"}
+
 
 # ============= sample_schemas =============
 
