@@ -155,26 +155,60 @@ function computeD(
 }
 
 // ---------------------------------------------------------------------------
-// 0/1 Knapsack DP to find Pareto-optimal (compactness, discriminativeness) points
+// Exhaustive subset enumeration to find Pareto-optimal
+// (compactness, discriminativeness) points.
 //
-// Since compactness is additive (sum of per-facet vocab sizes), we use a DP
-// table keyed by compactness value.  For each achievable C we keep the facet
-// subset with minimum D.  The resulting points are then filtered to the global
-// Pareto front (minimize both C and D).
-//
-// The function is async and yields to the browser event loop after each facet
-// iteration to prevent UI freezes on large datasets.  Per-piece, per-facet
-// component strings are pre-computed once so the inner loop avoids redundant
-// normalization and sorting work.
+// All subsets up to MAX_FACETS_CAP are pre-computed once on dataset load and
+// stored as a CandidateMap keyed by (compactness, facetCount).
+// computeParetoFromCandidates then derives the Pareto front for any
+// maxFacets ≤ MAX_FACETS_CAP instantly — no async recomputation needed.
 // ---------------------------------------------------------------------------
 
-export async function computeDatasetParetoPoints(
+export const MAX_FACETS_CAP = 3;
+
+export type CandidateEntry = {
+  D: number;
+  facetIndices: number[];
+  cellCount: number;
+  k: number; // facet count
+  c: number; // compactness
+};
+
+/** Keyed by `"${compactness},${facetCount}"` */
+export type DatasetCandidates = {
+  datasetLabel: string;
+  ckMap: Map<string, CandidateEntry>;
+  sortedFacets: Facet[];
+  numUniqueUnits: number;
+};
+
+/** Push all k-combinations of indices [0..n-1] into `out`. */
+function generateCombinations(n: number, k: number, out: number[][]): void {
+  const current: number[] = [];
+  function recurse(start: number): void {
+    if (current.length === k) { out.push([...current]); return; }
+    const remaining = k - current.length;
+    for (let i = start; i <= n - remaining; i++) {
+      current.push(i);
+      recurse(i + 1);
+      current.pop();
+    }
+  }
+  recurse(0);
+}
+
+/**
+ * Enumerate all subsets up to MAX_FACETS_CAP and store the best (min-D)
+ * entry per (compactness, facetCount) bucket.  Returns null when the
+ * dataset has no usable pieces.
+ */
+export async function computeDatasetCandidates(
   datasetLabel: string,
   dataset: DatasetVideo[],
   allFacets: Facet[],
   infoTypes: string[] | null,
-  onProgress?: (facetsDone: number, facetsTotal: number) => void
-): Promise<PlotPoint[]> {
+  onProgress?: (done: number, total: number) => void
+): Promise<DatasetCandidates | null> {
   const rawPieces = dataset.flatMap((v) => v.pieces ?? []);
   const allPieces =
     infoTypes && infoTypes.length > 0
@@ -210,7 +244,7 @@ export async function computeDatasetParetoPoints(
   }
 
   const numUniqueUnits = unitIdSet.size;
-  if (sortedFacets.length === 0 || numUniqueUnits === 0 || validPieces.length === 0) return [];
+  if (sortedFacets.length === 0 || numUniqueUnits === 0 || validPieces.length === 0) return null;
 
   // Build cell key from pre-computed data — facetIndices are always in ascending order
   function buildKeyFast(pc: PieceData, facetIndices: number[]): string {
@@ -224,62 +258,110 @@ export async function computeDatasetParetoPoints(
     for (const pc of validPieces) {
       const key = buildKeyFast(pc, facetIndices);
       let s = cellToUnits.get(key);
-      if (!s) {
-        s = new Set();
-        cellToUnits.set(key, s);
-      }
+      if (!s) { s = new Set(); cellToUnits.set(key, s); }
       s.add(pc.unitId);
     }
     return cellToUnits;
   }
 
-  type DpEntry = { facetIndices: number[]; D: number; cellCount: number };
+  // Memoised evaluation — each unique subset is computed at most once
+  const evalMemo = new Map<string, { D: number; cellCount: number }>();
+  const evalSubset = (facetIndices: number[]): { D: number; cellCount: number } => {
+    const key = facetIndices.join(',');
+    const cached = evalMemo.get(key);
+    if (cached) return cached;
+    const cells = computeCellsFast(facetIndices);
+    const result = { D: computeD(cells, numUniqueUnits), cellCount: cells.size };
+    evalMemo.set(key, result);
+    return result;
+  };
 
-  // Initialise with the empty subset (compactness = 0)
-  const dp = new Map<number, DpEntry>();
-  const baseCells = computeCellsFast([]);
-  dp.set(0, { facetIndices: [], D: computeD(baseCells, numUniqueUnits), cellCount: baseCells.size });
+  const facetCompactness = sortedFacets.map((f) => computeCompactness([f]));
 
-  // Process each facet exactly once (0/1 knapsack)
-  // Yield after each facet to keep the UI responsive
-  for (let fi = 0; fi < sortedFacets.length; fi++) {
-    const facet = sortedFacets[fi];
-    const facetC = computeCompactness([facet]);
-    // Snapshot current dp so we don't reuse the same facet in a single pass
-    const snapshot = Array.from(dp.entries());
-    for (const [c, entry] of snapshot) {
-      const newC = c + facetC;
-      // fi is always > all indices in entry.facetIndices (earlier iterations), so append is sorted
-      const newFacetIndices = [...entry.facetIndices, fi];
-      const newCells = computeCellsFast(newFacetIndices);
-      const newD = computeD(newCells, numUniqueUnits);
-      const existing = dp.get(newC);
-      if (!existing || newD < existing.D) {
-        dp.set(newC, { facetIndices: newFacetIndices, D: newD, cellCount: newCells.size });
-      }
-    }
-    onProgress?.(fi + 1, sortedFacets.length);
-    // Yield to browser event loop to prevent UI freeze
-    await new Promise<void>((r) => setTimeout(r, 0));
+  // Enumerate subsets of size 0 (empty baseline) through MAX_FACETS_CAP
+  const combos: number[][] = [[]];
+  for (let k = 1; k <= Math.min(MAX_FACETS_CAP, sortedFacets.length); k++) {
+    generateCombinations(sortedFacets.length, k, combos);
   }
 
-  // Collect points (skip empty subset at c = 0)
-  const points: PlotPoint[] = [];
-  for (const [c, entry] of dp.entries()) {
-    if (c === 0) continue;
-    points.push({
-      datasetLabel,
-      facetSubset: entry.facetIndices.map((fi) => sortedFacets[fi]),
+  // ckMap[`${c},${k}`] = best (min-D) entry for that (compactness, facetCount) bucket
+  const ckMap = new Map<string, CandidateEntry>();
+  // Subsets with D=0: adding more facets keeps D=0 at strictly higher C → dominated, skip
+  const perfect: number[][] = [];
+
+  const YIELD_EVERY = 200;
+
+  for (let ci = 0; ci < combos.length; ci++) {
+    const facetIndices = combos[ci];
+
+    // Monotonicity pruning: skip if any already-found D=0 subset is ⊆ this combo
+    if (perfect.length > 0) {
+      const comboSet = new Set(facetIndices);
+      if (perfect.some((p) => p.every((i) => comboSet.has(i)))) {
+        if ((ci + 1) % YIELD_EVERY === 0) {
+          onProgress?.(ci + 1, combos.length);
+          await new Promise<void>((r) => setTimeout(r, 0));
+        }
+        continue;
+      }
+    }
+
+    const c = facetIndices.reduce((s, fi) => s + facetCompactness[fi], 0);
+    const k = facetIndices.length;
+    const { D, cellCount } = evalSubset(facetIndices);
+
+    const ckKey = `${c},${k}`;
+    const existing = ckMap.get(ckKey);
+    if (!existing || D < existing.D) {
+      ckMap.set(ckKey, { D, facetIndices: [...facetIndices], cellCount, k, c });
+    }
+    if (D === 0) perfect.push([...facetIndices]);
+
+    if ((ci + 1) % YIELD_EVERY === 0) {
+      onProgress?.(ci + 1, combos.length);
+      await new Promise<void>((r) => setTimeout(r, 0));
+    }
+  }
+  onProgress?.(combos.length, combos.length);
+
+  return { datasetLabel, ckMap, sortedFacets, numUniqueUnits };
+}
+
+/**
+ * Instant (synchronous) — filter pre-computed candidates to subsets of
+ * size ≤ maxFacets, pick the min-D winner per compactness value, and
+ * return the Pareto front sorted by ascending compactness.
+ */
+export function computeParetoFromCandidates(
+  candidates: DatasetCandidates,
+  maxFacets: number
+): PlotPoint[] {
+  // For each compactness C, find the min-D entry among subsets with k ≤ maxFacets
+  const bestPerC = new Map<number, CandidateEntry>();
+  for (const entry of candidates.ckMap.values()) {
+    if (entry.k > maxFacets) continue;
+    const existing = bestPerC.get(entry.c);
+    if (!existing || entry.D < existing.D) bestPerC.set(entry.c, entry);
+  }
+
+  const raw = Array.from(bestPerC.entries())
+    .map(([c, entry]) => ({
+      datasetLabel: candidates.datasetLabel,
+      facetSubset: entry.facetIndices.map((fi) => candidates.sortedFacets[fi]),
       compactness: c,
       discriminativeness: entry.D,
       relativeTotal: entry.cellCount,
-      numUniqueUnits,
-    });
-  }
+      numUniqueUnits: candidates.numUniqueUnits,
+    }))
+    .sort((a, b) => a.compactness - b.compactness);
 
-  // Filter to Pareto front within this dataset (eliminates any remaining dominated points)
-  const paretoIdx = computeParetoFrontIndices(points);
-  return points.filter((_, i) => paretoIdx.has(i));
+  // Pareto filter: keep only points where D strictly decreases as C increases
+  const smoothed: PlotPoint[] = [];
+  for (const point of raw) {
+    if (smoothed.length > 0 && smoothed[smoothed.length - 1].discriminativeness <= point.discriminativeness) continue;
+    smoothed.push(point);
+  }
+  return smoothed;
 }
 
 /**
