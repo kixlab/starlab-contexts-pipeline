@@ -83,6 +83,24 @@ export function getDatasetColor(index: number): string {
   return DATASET_COLORS[index % DATASET_COLORS.length];
 }
 
+/** Synthetic facet ID for content_type (treated as a pinnable facet). */
+export const CONTENT_TYPE_FACET_ID = "__content_type__";
+
+/**
+ * Build a synthetic Facet representing piece.content_type values.
+ * Pinned by default when the dataset has an explicit infoTypes list.
+ */
+export function buildContentTypeFacet(infoTypes: string[]): Facet {
+  return {
+    id: CONTENT_TYPE_FACET_ID,
+    type: "subtype",
+    title: "Content Type",
+    title_plural: "Content Types",
+    definition: "The subtype (content_type field) of each information piece.",
+    vocabulary: infoTypes.map((ct) => ({ label: ct, definition: ct })),
+  };
+}
+
 export function buildContextKey(
   piece: DatasetVideo["pieces"][number],
   facetSubset: Facet[]
@@ -92,7 +110,11 @@ export function buildContextKey(
   const parts = facetSubset
     .map((f) => {
       const k = facetToLabelKey(f);
-      const raw = (labels[k] ?? []) as string[];
+      // Special handling for synthetic content_type facet
+      const raw: string[] =
+        k === CONTENT_TYPE_FACET_ID
+          ? [piece.content_type ?? "unknown"]
+          : ((labels[k] ?? []) as string[]);
       const vals = normalizeFacetVals(raw);
       return [k, vals.sort().join("|")] as const;
     })
@@ -158,8 +180,10 @@ function computeD(
 // Exhaustive subset enumeration to find Pareto-optimal
 // (compactness, discriminativeness) points.
 //
-// All subsets up to MAX_FACETS_CAP are pre-computed once on dataset load and
-// stored as a CandidateMap keyed by (compactness, facetCount).
+// All subsets of FREE facets up to MAX_FACETS_CAP are pre-computed once
+// (given a set of pinned facets that are always included). Pinning changes
+// the search space so computeDatasetCandidates must be re-run when pins change.
+//
 // computeParetoFromCandidates then derives the Pareto front for any
 // maxFacets ≤ MAX_FACETS_CAP instantly — no async recomputation needed.
 // ---------------------------------------------------------------------------
@@ -168,17 +192,20 @@ export const MAX_FACETS_CAP = 3;
 
 export type CandidateEntry = {
   D: number;
-  facetIndices: number[];
+  facetIndices: number[]; // indices into DatasetCandidates.sortedFacets (FREE facets only)
   cellCount: number;
-  k: number; // facet count
-  c: number; // compactness
+  k: number; // free facet count
+  c: number; // total compactness (pinned + free)
 };
 
-/** Keyed by `"${compactness},${facetCount}"` */
+/** Keyed by `"${compactness},${freeK}"` */
 export type DatasetCandidates = {
   datasetLabel: string;
   ckMap: Map<string, CandidateEntry>;
+  /** FREE facets only (not pinned). Indices in CandidateEntry refer to this array. */
   sortedFacets: Facet[];
+  /** Always included in every point's facetSubset. */
+  pinnedFacets: Facet[];
   numUniqueUnits: number;
 };
 
@@ -198,15 +225,18 @@ function generateCombinations(n: number, k: number, out: number[][]): void {
 }
 
 /**
- * Enumerate all subsets up to MAX_FACETS_CAP and store the best (min-D)
- * entry per (compactness, facetCount) bucket.  Returns null when the
- * dataset has no usable pieces.
+ * Enumerate all FREE subsets up to MAX_FACETS_CAP and store the best (min-D)
+ * entry per (compactness, freeK) bucket. Pinned facets are always included in
+ * every evaluated subset (affecting D and C) but are not permuted.
+ *
+ * Returns null when the dataset has no usable pieces.
  */
 export async function computeDatasetCandidates(
   datasetLabel: string,
   dataset: DatasetVideo[],
   allFacets: Facet[],
   infoTypes: string[] | null,
+  pinnedFacetIds: Set<string>,
   onProgress?: (done: number, total: number) => void
 ): Promise<DatasetCandidates | null> {
   const rawPieces = dataset.flatMap((v) => v.pieces ?? []);
@@ -215,15 +245,23 @@ export async function computeDatasetCandidates(
       ? rawPieces.filter((p) => infoTypes.includes(p.content_type ?? ""))
       : rawPieces;
 
-  // Sort facets by key name for deterministic, consistent component ordering
-  const sortedFacets = [...allFacets].sort((a, b) =>
+  // Sort all facets for deterministic ordering, then split pinned vs free
+  const allSorted = [...allFacets].sort((a, b) =>
     facetToLabelKey(a).localeCompare(facetToLabelKey(b))
   );
-  const facetKeys = sortedFacets.map(facetToLabelKey);
+  const pinnedFacets = allSorted.filter((f) => pinnedFacetIds.has(f.id));
+  const freeFacets = allSorted.filter((f) => !pinnedFacetIds.has(f.id));
 
-  // Pre-compute per-piece data once: content_type + per-facet label strings
-  // This avoids redundant normalizeFacetVals / sort / join calls in the inner loop
-  type PieceData = { contentType: string; components: string[]; unitId: string };
+  const pinnedKeys = pinnedFacets.map(facetToLabelKey);
+  const freeKeys = freeFacets.map(facetToLabelKey);
+
+  // Pre-compute per-piece data once: per-facet label strings for both pinned and free
+  type PieceData = {
+    contentType: string;
+    pinnedComponents: string[];
+    freeComponents: string[];
+    unitId: string;
+  };
   const validPieces: PieceData[] = [];
   const unitIdSet = new Set<string>();
 
@@ -231,32 +269,64 @@ export async function computeDatasetCandidates(
     if (!piece.unit_id) continue;
     unitIdSet.add(piece.unit_id as string);
     const labels = (piece.labels ?? {}) as Record<string, string[]>;
-    const components = facetKeys.map((k) => {
+
+    const getComponent = (k: string): string => {
+      if (k === CONTENT_TYPE_FACET_ID) return piece.content_type ?? "unknown";
       const raw = (labels[k] ?? []) as string[];
-      const vals = normalizeFacetVals(raw);
-      return vals.sort().join("|");
-    });
+      return normalizeFacetVals(raw).sort().join("|");
+    };
+
+    const pinnedComponents = pinnedKeys.map(getComponent);
+    const freeComponents = freeKeys.map(getComponent);
+
     validPieces.push({
       contentType: piece.content_type ?? "unknown",
-      components,
+      pinnedComponents,
+      freeComponents,
       unitId: piece.unit_id as string,
     });
   }
 
   const numUniqueUnits = unitIdSet.size;
-  if (sortedFacets.length === 0 || numUniqueUnits === 0 || validPieces.length === 0) return null;
+  // We need at least pinned facets; can still proceed with 0 free facets
+  if (numUniqueUnits === 0 || validPieces.length === 0) return null;
 
-  // Build cell key from pre-computed data — facetIndices are always in ascending order
-  function buildKeyFast(pc: PieceData, facetIndices: number[]): string {
-    if (facetIndices.length === 0) return pc.contentType;
-    const parts = facetIndices.map((fi) => `${facetKeys[fi]}:${pc.components[fi]}`);
-    return `${pc.contentType}|${parts.join(";")}`;
+  // Compactness of pinned facets (fixed cost in every subset)
+  const pinnedCompactness = computeCompactness(pinnedFacets);
+  const freeCompactness = freeFacets.map((f) => computeCompactness([f]));
+
+  /**
+   * Build a cell key that is unique per (pinned context) + (free context subset).
+   * The content_type prefix is omitted when __content_type__ is already encoded
+   * as a facet component (either pinned or free) to avoid double-encoding.
+   */
+  const contentTypePinned = pinnedFacetIds.has(CONTENT_TYPE_FACET_ID);
+
+  function buildKeyFast(pc: PieceData, freeIndices: number[]): string {
+    const contentTypeFree =
+      !contentTypePinned && freeIndices.some((fi) => freeKeys[fi] === CONTENT_TYPE_FACET_ID);
+    const hasContentTypeFacet = contentTypePinned || contentTypeFree;
+
+    // Build pinned parts
+    const pinnedParts = pinnedKeys.map((k, i) => `${k}:${pc.pinnedComponents[i]}`);
+    // Build free parts from selected indices
+    const freeParts = freeIndices.map((fi) => `${freeKeys[fi]}:${pc.freeComponents[fi]}`);
+
+    const allParts = [...pinnedParts, ...freeParts].sort();
+
+    if (allParts.length === 0) {
+      // No facets at all — use content_type as sole discriminator
+      return pc.contentType;
+    }
+
+    const prefix = hasContentTypeFacet ? "" : `${pc.contentType}|`;
+    return `${prefix}${allParts.join(";")}`;
   }
 
-  function computeCellsFast(facetIndices: number[]): Map<string, Set<string>> {
+  function computeCellsFast(freeIndices: number[]): Map<string, Set<string>> {
     const cellToUnits = new Map<string, Set<string>>();
     for (const pc of validPieces) {
-      const key = buildKeyFast(pc, facetIndices);
+      const key = buildKeyFast(pc, freeIndices);
       let s = cellToUnits.get(key);
       if (!s) { s = new Set(); cellToUnits.set(key, s); }
       s.add(pc.unitId);
@@ -264,39 +334,37 @@ export async function computeDatasetCandidates(
     return cellToUnits;
   }
 
-  // Memoised evaluation — each unique subset is computed at most once
+  // Memoised evaluation — each unique free-subset is computed at most once
   const evalMemo = new Map<string, { D: number; cellCount: number }>();
-  const evalSubset = (facetIndices: number[]): { D: number; cellCount: number } => {
-    const key = facetIndices.join(',');
+  const evalSubset = (freeIndices: number[]): { D: number; cellCount: number } => {
+    const key = freeIndices.join(",");
     const cached = evalMemo.get(key);
     if (cached) return cached;
-    const cells = computeCellsFast(facetIndices);
+    const cells = computeCellsFast(freeIndices);
     const result = { D: computeD(cells, numUniqueUnits), cellCount: cells.size };
     evalMemo.set(key, result);
     return result;
   };
 
-  const facetCompactness = sortedFacets.map((f) => computeCompactness([f]));
-
-  // Enumerate subsets of size 0 (empty baseline) through MAX_FACETS_CAP
+  // Enumerate subsets of FREE facets of size 0 through MAX_FACETS_CAP
   const combos: number[][] = [[]];
-  for (let k = 1; k <= Math.min(MAX_FACETS_CAP, sortedFacets.length); k++) {
-    generateCombinations(sortedFacets.length, k, combos);
+  for (let k = 1; k <= Math.min(MAX_FACETS_CAP, freeFacets.length); k++) {
+    generateCombinations(freeFacets.length, k, combos);
   }
 
-  // ckMap[`${c},${k}`] = best (min-D) entry for that (compactness, facetCount) bucket
+  // ckMap[`${totalC},${freeK}`] = best (min-D) entry for that bucket
   const ckMap = new Map<string, CandidateEntry>();
-  // Subsets with D=0: adding more facets keeps D=0 at strictly higher C → dominated, skip
+  // Subsets with D=0: adding more free facets keeps D=0 at strictly higher C → dominated, skip
   const perfect: number[][] = [];
 
   const YIELD_EVERY = 200;
 
   for (let ci = 0; ci < combos.length; ci++) {
-    const facetIndices = combos[ci];
+    const freeIndices = combos[ci];
 
-    // Monotonicity pruning: skip if any already-found D=0 subset is ⊆ this combo
+    // Monotonicity pruning: skip if any already-found D=0 free subset is ⊆ this combo
     if (perfect.length > 0) {
-      const comboSet = new Set(facetIndices);
+      const comboSet = new Set(freeIndices);
       if (perfect.some((p) => p.every((i) => comboSet.has(i)))) {
         if ((ci + 1) % YIELD_EVERY === 0) {
           onProgress?.(ci + 1, combos.length);
@@ -306,16 +374,17 @@ export async function computeDatasetCandidates(
       }
     }
 
-    const c = facetIndices.reduce((s, fi) => s + facetCompactness[fi], 0);
-    const k = facetIndices.length;
-    const { D, cellCount } = evalSubset(facetIndices);
+    const freeC = freeIndices.reduce((s, fi) => s + freeCompactness[fi], 0);
+    const totalC = pinnedCompactness + freeC;
+    const k = freeIndices.length;
+    const { D, cellCount } = evalSubset(freeIndices);
 
-    const ckKey = `${c},${k}`;
+    const ckKey = `${totalC},${k}`;
     const existing = ckMap.get(ckKey);
     if (!existing || D < existing.D) {
-      ckMap.set(ckKey, { D, facetIndices: [...facetIndices], cellCount, k, c });
+      ckMap.set(ckKey, { D, facetIndices: [...freeIndices], cellCount, k, c: totalC });
     }
-    if (D === 0) perfect.push([...facetIndices]);
+    if (D === 0) perfect.push([...freeIndices]);
 
     if ((ci + 1) % YIELD_EVERY === 0) {
       onProgress?.(ci + 1, combos.length);
@@ -324,19 +393,21 @@ export async function computeDatasetCandidates(
   }
   onProgress?.(combos.length, combos.length);
 
-  return { datasetLabel, ckMap, sortedFacets, numUniqueUnits };
+  return { datasetLabel, ckMap, sortedFacets: freeFacets, pinnedFacets, numUniqueUnits };
 }
 
 /**
- * Instant (synchronous) — filter pre-computed candidates to subsets of
- * size ≤ maxFacets, pick the min-D winner per compactness value, and
+ * Instant (synchronous) — filter pre-computed candidates to free subsets of
+ * size ≤ maxFacets, pick the min-D winner per total compactness value, and
  * return the Pareto front sorted by ascending compactness.
+ *
+ * Each point's facetSubset includes both pinned and free facets.
  */
 export function computeParetoFromCandidates(
   candidates: DatasetCandidates,
   maxFacets: number
 ): PlotPoint[] {
-  // For each compactness C, find the min-D entry among subsets with k ≤ maxFacets
+  // For each total compactness C, find the min-D entry among free subsets with k ≤ maxFacets
   const bestPerC = new Map<number, CandidateEntry>();
   for (const entry of candidates.ckMap.values()) {
     if (entry.k > maxFacets) continue;
@@ -347,7 +418,11 @@ export function computeParetoFromCandidates(
   const raw = Array.from(bestPerC.entries())
     .map(([c, entry]) => ({
       datasetLabel: candidates.datasetLabel,
-      facetSubset: entry.facetIndices.map((fi) => candidates.sortedFacets[fi]),
+      // Full facetSubset = pinned + free
+      facetSubset: [
+        ...candidates.pinnedFacets,
+        ...entry.facetIndices.map((fi) => candidates.sortedFacets[fi]),
+      ],
       compactness: c,
       discriminativeness: entry.D,
       relativeTotal: entry.cellCount,
@@ -411,7 +486,12 @@ export function computeFacetDistributions(
     const key = facetToLabelKey(facet);
     const countMap = new Map<string, number>();
     for (const piece of allPieces) {
-      const raw = (piece.labels?.[key] ?? []) as string[];
+      let raw: string[];
+      if (key === CONTENT_TYPE_FACET_ID) {
+        raw = [piece.content_type ?? "unknown"];
+      } else {
+        raw = (piece.labels?.[key] ?? []) as string[];
+      }
       const vals = normalizeFacetVals(raw);
       for (const val of vals) {
         countMap.set(val, (countMap.get(val) ?? 0) + 1);
@@ -579,4 +659,123 @@ export function computeCellPieces(
       pieces: pieces.sort((a, b) => a.start - b.start),
     }))
     .sort((a, b) => (a.pieces[0]?.start ?? 0) - (b.pieces[0]?.start ?? 0));
+}
+
+// ---------------------------------------------------------------------------
+// Comparison helpers
+// ---------------------------------------------------------------------------
+
+export type CellBreakdownEntry = {
+  readableContext: string;
+  count: number;
+  percentage: number;
+};
+
+/**
+ * For a given anchor cell, show how a comparison schema breaks it down.
+ * Returns the distribution of comparison-schema context keys among pieces
+ * that belong to the anchor cell.
+ */
+export function computeCellBreakdown(
+  dataset: DatasetVideo[],
+  anchorFacets: Facet[],
+  comparisonFacets: Facet[],
+  anchorCellKey: string,
+  infoTypes: string[] | null
+): CellBreakdownEntry[] {
+  const isIncluded = (ct: string) =>
+    !infoTypes || infoTypes.length === 0 || infoTypes.includes(ct);
+
+  const countMap = new Map<string, number>();
+  let total = 0;
+
+  for (const video of dataset) {
+    for (const piece of video.pieces ?? []) {
+      const contentType = piece.content_type ?? "unknown";
+      if (!isIncluded(contentType)) continue;
+      const aKey = buildContextKey(piece, anchorFacets);
+      const aCellKey = `${contentType}|||${aKey}`;
+      if (aCellKey !== anchorCellKey) continue;
+      total++;
+      const cKey = buildContextKey(piece, comparisonFacets);
+      const readable = buildReadableContext(cKey, comparisonFacets);
+      countMap.set(readable, (countMap.get(readable) ?? 0) + 1);
+    }
+  }
+
+  return Array.from(countMap.entries())
+    .map(([readableContext, count]) => ({
+      readableContext,
+      count,
+      percentage: total > 0 ? (count / total) * 100 : 0,
+    }))
+    .sort((a, b) => b.count - a.count);
+}
+
+export type MergedChapterEntry = {
+  startTime: number;
+  endTime: number;
+  context0: string;
+  context1: string;
+  readableContext0: string;
+  readableContext1: string;
+  pieceCount0: number;
+  pieceCount1: number;
+};
+
+/**
+ * Merge chapters from two schemas for the same video into a unified timeline.
+ * Each entry spans a time interval where both schemas have a constant context.
+ * The result is sorted by startTime.
+ */
+export function mergeVideoChapters(
+  chapters0: VideoChapter[],
+  chapters1: VideoChapter[]
+): MergedChapterEntry[] {
+  // Collect all unique boundary times from both schemas
+  const boundaries = new Set<number>();
+  for (const ch of chapters0) { boundaries.add(ch.startTime); boundaries.add(ch.endTime); }
+  for (const ch of chapters1) { boundaries.add(ch.startTime); boundaries.add(ch.endTime); }
+  const times = Array.from(boundaries).sort((a, b) => a - b);
+
+  if (times.length < 2) return [];
+
+  // For each interval [times[i], times[i+1]), find the active chapter in each schema
+  const findChapter = (chapters: VideoChapter[], t: number) =>
+    chapters.find((ch) => ch.startTime <= t && ch.endTime > t) ?? null;
+
+  const merged: MergedChapterEntry[] = [];
+  for (let i = 0; i < times.length - 1; i++) {
+    const start = times[i];
+    const end = times[i + 1];
+    const mid = (start + end) / 2;
+    const ch0 = findChapter(chapters0, mid);
+    const ch1 = findChapter(chapters1, mid);
+    if (!ch0 && !ch1) continue;
+    merged.push({
+      startTime: start,
+      endTime: end,
+      context0: ch0?.context ?? "",
+      context1: ch1?.context ?? "",
+      readableContext0: ch0?.readableContext ?? "—",
+      readableContext1: ch1?.readableContext ?? "—",
+      pieceCount0: ch0?.pieceCount ?? 0,
+      pieceCount1: ch1?.pieceCount ?? 0,
+    });
+  }
+
+  // Merge consecutive entries with identical context pair
+  const compressed: MergedChapterEntry[] = [];
+  for (const entry of merged) {
+    const last = compressed[compressed.length - 1];
+    if (last && last.context0 === entry.context0 && last.context1 === entry.context1) {
+      last.endTime = entry.endTime;
+      last.pieceCount0 += entry.pieceCount0;
+      last.pieceCount1 += entry.pieceCount1;
+    } else {
+      compressed.push({ ...entry });
+    }
+  }
+
+  return compressed;
 }
