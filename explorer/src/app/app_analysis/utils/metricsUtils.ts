@@ -188,7 +188,7 @@ function computeD(
 // maxFacets ≤ MAX_FACETS_CAP instantly — no async recomputation needed.
 // ---------------------------------------------------------------------------
 
-export const MAX_FACETS_CAP = 3;
+export const MAX_FACETS_CAP = 2;
 
 export type CandidateEntry = {
   D: number;
@@ -202,10 +202,10 @@ export type CandidateEntry = {
 export type DatasetCandidates = {
   datasetLabel: string;
   ckMap: Map<string, CandidateEntry>;
-  /** FREE facets only (not pinned). Indices in CandidateEntry refer to this array. */
+  /** FREE facets only (not included/excluded). Indices in CandidateEntry refer to this array. */
   sortedFacets: Facet[];
   /** Always included in every point's facetSubset. */
-  pinnedFacets: Facet[];
+  includedFacets: Facet[];
   numUniqueUnits: number;
 };
 
@@ -236,7 +236,8 @@ export async function computeDatasetCandidates(
   dataset: DatasetVideo[],
   allFacets: Facet[],
   infoTypes: string[] | null,
-  pinnedFacetIds: Set<string>,
+  includedFacetIds: Set<string>,
+  excludedFacetIds: Set<string>,
   onProgress?: (done: number, total: number) => void
 ): Promise<DatasetCandidates | null> {
   const rawPieces = dataset.flatMap((v) => v.pieces ?? []);
@@ -245,12 +246,12 @@ export async function computeDatasetCandidates(
       ? rawPieces.filter((p) => infoTypes.includes(p.content_type ?? ""))
       : rawPieces;
 
-  // Sort all facets for deterministic ordering, then split pinned vs free
-  const allSorted = [...allFacets].sort((a, b) =>
-    facetToLabelKey(a).localeCompare(facetToLabelKey(b))
-  );
-  const pinnedFacets = allSorted.filter((f) => pinnedFacetIds.has(f.id));
-  const freeFacets = allSorted.filter((f) => !pinnedFacetIds.has(f.id));
+  // Sort all facets for deterministic ordering, filter out excluded, then split included vs free
+  const allSorted = [...allFacets]
+    .filter((f) => !excludedFacetIds.has(f.id))
+    .sort((a, b) => facetToLabelKey(a).localeCompare(facetToLabelKey(b)));
+  const pinnedFacets = allSorted.filter((f) => includedFacetIds.has(f.id));
+  const freeFacets = allSorted.filter((f) => !includedFacetIds.has(f.id));
 
   const pinnedKeys = pinnedFacets.map(facetToLabelKey);
   const freeKeys = freeFacets.map(facetToLabelKey);
@@ -300,7 +301,7 @@ export async function computeDatasetCandidates(
    * The content_type prefix is omitted when __content_type__ is already encoded
    * as a facet component (either pinned or free) to avoid double-encoding.
    */
-  const contentTypePinned = pinnedFacetIds.has(CONTENT_TYPE_FACET_ID);
+  const contentTypePinned = includedFacetIds.has(CONTENT_TYPE_FACET_ID);
 
   function buildKeyFast(pc: PieceData, freeIndices: number[]): string {
     const contentTypeFree =
@@ -393,7 +394,7 @@ export async function computeDatasetCandidates(
   }
   onProgress?.(combos.length, combos.length);
 
-  return { datasetLabel, ckMap, sortedFacets: freeFacets, pinnedFacets, numUniqueUnits };
+  return { datasetLabel, ckMap, sortedFacets: freeFacets, includedFacets: pinnedFacets, numUniqueUnits };
 }
 
 /**
@@ -401,7 +402,7 @@ export async function computeDatasetCandidates(
  * size ≤ maxFacets, pick the min-D winner per total compactness value, and
  * return the Pareto front sorted by ascending compactness.
  *
- * Each point's facetSubset includes both pinned and free facets.
+ * Each point's facetSubset includes both included and free facets.
  */
 export function computeParetoFromCandidates(
   candidates: DatasetCandidates,
@@ -420,7 +421,7 @@ export function computeParetoFromCandidates(
       datasetLabel: candidates.datasetLabel,
       // Full facetSubset = pinned + free
       facetSubset: [
-        ...candidates.pinnedFacets,
+        ...candidates.includedFacets,
         ...entry.facetIndices.map((fi) => candidates.sortedFacets[fi]),
       ],
       compactness: c,
@@ -666,6 +667,7 @@ export function computeCellPieces(
 // ---------------------------------------------------------------------------
 
 export type CellBreakdownEntry = {
+  contextKey: string;
   readableContext: string;
   count: number;
   percentage: number;
@@ -686,6 +688,7 @@ export function computeCellBreakdown(
   const isIncluded = (ct: string) =>
     !infoTypes || infoTypes.length === 0 || infoTypes.includes(ct);
 
+  // Map from raw contextKey → count
   const countMap = new Map<string, number>();
   let total = 0;
 
@@ -698,14 +701,14 @@ export function computeCellBreakdown(
       if (aCellKey !== anchorCellKey) continue;
       total++;
       const cKey = buildContextKey(piece, comparisonFacets);
-      const readable = buildReadableContext(cKey, comparisonFacets);
-      countMap.set(readable, (countMap.get(readable) ?? 0) + 1);
+      countMap.set(cKey, (countMap.get(cKey) ?? 0) + 1);
     }
   }
 
   return Array.from(countMap.entries())
-    .map(([readableContext, count]) => ({
-      readableContext,
+    .map(([contextKey, count]) => ({
+      contextKey,
+      readableContext: buildReadableContext(contextKey, comparisonFacets),
       count,
       percentage: total > 0 ? (count / total) * 100 : 0,
     }))
@@ -778,4 +781,92 @@ export function mergeVideoChapters(
   }
 
   return compressed;
+}
+
+// ---------------------------------------------------------------------------
+// Context-chip utilities (shared between DatasetPanel & InspectionPanel)
+// ---------------------------------------------------------------------------
+
+/** Palette of visually distinct facet chip colors (used for both panels). */
+export const FACET_CHIP_COLORS = [
+  "#8B5CF6", // violet
+  "#06B6D4", // cyan
+  "#F59E0B", // amber
+  "#10B981", // emerald
+  "#EC4899", // pink
+  "#6366F1", // indigo
+  "#14B8A6", // teal
+  "#F97316", // orange
+  "#A855F7", // purple
+  "#0EA5E9", // sky
+];
+
+/** Deterministic color for a facet ID (hash-based, same ID → same color). */
+export function facetIdToChipColor(facetId: string): string {
+  let hash = 0;
+  for (let i = 0; i < facetId.length; i++) {
+    hash = ((hash << 5) - hash + facetId.charCodeAt(i)) | 0;
+  }
+  return FACET_CHIP_COLORS[Math.abs(hash) % FACET_CHIP_COLORS.length];
+}
+
+/** Compute short abbreviations for facets (e.g. "Content Type" → "CT"). */
+export function computeFacetAbbreviations(facetSubset: Facet[]): Map<string, string> {
+  const abbrevs = new Map<string, string>();
+  const used = new Set<string>();
+  for (const facet of facetSubset) {
+    const words = facet.title.split(/\s+/).filter(Boolean);
+    let abbr: string;
+    if (words.length > 1) {
+      abbr = words.map((w) => w[0]).join("").toUpperCase().slice(0, 3);
+    } else {
+      abbr = facet.title.slice(0, 2).toUpperCase();
+    }
+    let candidate = abbr;
+    let i = 1;
+    while (used.has(candidate)) {
+      candidate = abbr + i;
+      i++;
+    }
+    used.add(candidate);
+    abbrevs.set(facet.id, candidate);
+  }
+  return abbrevs;
+}
+
+export type ParsedChipEntry = {
+  facetId: string;
+  facetTitle: string;
+  value: string;
+};
+
+/**
+ * Parse a context key (from buildContextKey) into structured facet-value pairs.
+ * Context key format: `facetId=val1|val2;facetId=val1|val2` (sorted by key).
+ */
+export function parseContextKey(
+  contextKey: string,
+  facetSubset: Facet[]
+): ParsedChipEntry[] {
+  if (!contextKey || contextKey === "__NO_FACETS__") return [];
+  return contextKey.split(";").map((part) => {
+    const eq = part.indexOf("=");
+    if (eq < 0) return { facetId: part, facetTitle: part, value: "" };
+    const key = part.slice(0, eq);
+    const val = part.slice(eq + 1);
+    const facet = facetSubset.find((f) => facetToLabelKey(f) === key);
+    return {
+      facetId: facet?.id ?? key,
+      facetTitle: facet?.title ?? key.slice(0, 12),
+      value: val,
+    };
+  });
+}
+
+/**
+ * Extract the raw context key from a cellKey (format: `contentType|||contextKey`).
+ */
+export function extractContextKeyFromCellKey(cellKey: string): string {
+  const sep = cellKey.indexOf("|||");
+  return sep >= 0 ? cellKey.slice(sep + 3) : cellKey;
 }
