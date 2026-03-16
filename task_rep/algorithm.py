@@ -107,6 +107,10 @@ class DiscoveryConfig:
     # Phase 2 consolidation and labeling are always run on the full corpus.
     vocab_sample_videos: int = 0
 
+    # Initialization — bootstrap the iterative algorithm with this many
+    # common-sense facets before the main loop.  0 = no initialization.
+    init_facets: int = 0
+
     def cache_suffix(self) -> str:
         item_scope = self.item_scope.cache_suffix()
         discovery_model_suffix = self.discovery_model.cache_suffix()
@@ -119,8 +123,9 @@ class DiscoveryConfig:
         max_items_per_cell = str(self.max_items_per_cell)
         vocab_sample_videos = str(self.vocab_sample_videos) if self.vocab_sample_videos != 0 else "all"
         max_schema_facets = str(self.max_schema_facets)
+        init_facets = str(self.init_facets) if self.init_facets != 0 else "0"
 
-        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}_{max_schema_facets}"
+        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}_{max_schema_facets}_{init_facets}"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -135,6 +140,7 @@ class DiscoveryConfig:
             "max_concurrency": self.max_concurrency,
             "vocab_sample_videos": self.vocab_sample_videos,
             "max_schema_facets": self.max_schema_facets,
+            "init_facets": self.init_facets,
             "discovery_model": self.discovery_model.to_dict(),
             "vocab_model": self.vocab_model.to_dict(),
             "labeling_model": self.labeling_model.to_dict(),
@@ -157,6 +163,7 @@ class DiscoveryConfig:
             max_concurrency=data.get("max_concurrency", 32),
             vocab_sample_videos=data.get("vocab_sample_videos", 0),
             max_schema_facets=data.get("max_schema_facets", 4),
+            init_facets=data.get("init_facets", 0),
         )
 
 
@@ -254,6 +261,37 @@ class IterativeSchemaDiscovery:
 
         if use_cache:
             self._restore_cache(cache_dir)
+
+        # Optional: bootstrap with common-sense facets before iterating.
+        # Only runs when init_facets > 0 and no facets exist yet (fresh run).
+        if self.config.init_facets > 0 and not self._facets:
+            logger.info(
+                "Initializing with %d common-sense facet(s)...",
+                self.config.init_facets,
+            )
+            videos = self._knowledge_base.by_video()
+            init_facets = self._extractor.init_facets(
+                task=task.name,
+                videos=videos,
+                num_facets=self.config.init_facets,
+            )
+            if init_facets:
+                init_facets = self._vocab_builder.build_vocabulary(
+                    task=task.name,
+                    facets=init_facets,
+                    knowledge_base=self._knowledge_base,
+                    sample_videos=self.config.vocab_sample_videos,
+                )
+                init_annotations = self._labeler.label_batch(
+                    task=task.name,
+                    facets=init_facets,
+                    knowledge_base=self._knowledge_base,
+                )
+                for f in init_facets:
+                    self._facets[f.id] = f
+                self._annotations.update(init_annotations)
+                logger.info("Initialized %d facet(s).", len(init_facets))
+                self._save_cache(cache_dir)
 
         max_schema_facets = self.config.max_schema_facets
 

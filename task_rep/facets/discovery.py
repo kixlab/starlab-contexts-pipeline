@@ -8,6 +8,7 @@ Follows the same architectural pattern as VLMKnowledgeExtractor.
 from __future__ import annotations
 
 import logging
+import random
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
@@ -24,6 +25,8 @@ from knowledge_items import (
 from .prompts import (
     form_facet_discovery_request,
     process_facet_discovery_response,
+    form_facet_init_request,
+    process_facet_init_response,
     form_facet_revision_request,
     process_facet_revision_response,
 )
@@ -43,6 +46,51 @@ class VLMFacetExtractor:
     """
     model_config: ModelConfig
     max_concurrency: int = 32
+
+    def init_facets(
+        self,
+        task: str,
+        videos: Dict[str, List[KnowledgeItem]],
+        num_facets: int,
+    ) -> List[Facet]:
+        """
+        Bootstrap the algorithm with common-sense contextual factors.
+
+        Args:
+            task: Task name/description
+            videos: Dict of video_id -> List of KnowledgeItems
+            num_facets: Number of facets to initialize with
+
+        Returns:
+            List of initialized facets
+        """
+        batch_id = f"facet_init_{random_uid()}"
+
+        # Sample a few tutorials with a few items each for concrete examples
+        sample_n_videos = 2
+        video_ids = list(videos.keys())
+        if len(video_ids) > sample_n_videos:
+            video_ids = random.sample(video_ids, sample_n_videos)
+        sampled_videos = {}
+        for vid in video_ids:
+            sampled_videos[vid] = videos[vid]
+
+        request_args = [{
+            "task": task,
+            "videos": sampled_videos,
+            "num_facets": num_facets,
+        }]
+
+        batch_results = batch_run_llm_calls(
+            batch_id,
+            request_args,
+            form_facet_init_request,
+            process_facet_init_response,
+            max_concurrency=self.max_concurrency,
+            model_config=self.model_config,
+        )
+
+        return [facet for result in batch_results for facet in result]
 
     def propose_facets(
         self,

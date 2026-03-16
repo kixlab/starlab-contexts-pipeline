@@ -30,7 +30,12 @@ LABELING_SYSTEM_PROMPT = """You are an expert at analyzing tutorial content and 
 LABELING_USER_PROMPT = """You are given a contextual factor (facet) with its vocabulary, and knowledge items extracted from a tutorial video. For each knowledge item, assign the single most appropriate label from the facet's vocabulary.
 
 DEFINITIONS
-- A contextual factor (facet) is a piecewise-stable, target-independent, task-relevant dimension that discriminates knowledge items.
+- A contextual factor is a domain-grounded, task-relevant, monolithic, piecewise-stable, and target-independent variable that describes the procedural situation of the task at a given moment or over a meaningful span.
+    - Domain-grounded: the factor is anchored in the task-world and describes a real aspect of the procedure as it unfolds, such as procedural stage, material state, tool state, object configuration, environmental condition, or service context. It does not describe the media, editorial, or presentation format through which the procedure is shown.
+    - Task-relevant: the factor changes what actions, constraints, interpretations, or information are applicable in that part of the task.
+    - Monolithic: the factor captures one coherent semantic concept rather than combining multiple distinct concepts.
+    - Piecewise-stable: the factor remains constant over meaningful temporal segments and changes at identifiable boundaries.
+    - Target-independent: the factor is determined by the broader procedural context, not by the specific information unit being labeled; removing that unit would not change the factor value.
 - A vocabulary label is one possible value a facet can take.
 
 REQUIREMENTS
