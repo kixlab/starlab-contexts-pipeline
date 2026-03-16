@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional
 
 import tiktoken
-from openai import OpenAI
+from openai import BadRequestError, OpenAI
 from anthropic import AnthropicBedrock
 from uuid import uuid4
 
@@ -359,10 +359,15 @@ def get_response_pydantic_openai(
     else:
         variable_args["temperature"] = TEMPERATURE
 
-    response_raw = client.chat.completions.with_raw_response.create(
-        **basic_args,
-        **variable_args,
-    )
+    try:
+        response_raw = client.chat.completions.with_raw_response.create(
+            **basic_args,
+            **variable_args,
+        )
+    except BadRequestError as e:
+        if "could not parse the json body" in str(e).lower():
+            raise LLMParseError(f"OpenAI failed to parse request JSON: {e}") from e
+        raise
 
     completion = response_raw.parse()
     response_text = completion.choices[0].message.content
