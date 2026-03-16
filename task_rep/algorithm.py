@@ -94,7 +94,7 @@ class DiscoveryConfig:
 
     # Maximum number of facets in a single schema on the frontier.
     # Brute-force enumeration is O(n^max_schema_facets), so keep this small.
-    max_schema_facets: int = 4
+    max_schema_facets: int = 3
 
     # Collision detection
     max_cells_per_iteration: int = 1
