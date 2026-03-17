@@ -188,7 +188,7 @@ function computeD(
 // maxFacets ≤ MAX_FACETS_CAP instantly — no async recomputation needed.
 // ---------------------------------------------------------------------------
 
-export const MAX_FACETS_CAP = 2;
+export const MAX_FACETS_CAP = 3;
 
 export type CandidateEntry = {
   D: number;
