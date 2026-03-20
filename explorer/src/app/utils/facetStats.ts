@@ -6,10 +6,7 @@ export type FacetImpactStats = {
   relativeTotal: number; // observed unique contexts under filters
   theoreticalTotal: number; // product of vocab sizes for unfixed facets
   totalValues: number; // sum of vocab sizes across facets
-  conditionalEntropyBits: number; // H(Information | context) in bits
 };
-
-export type DiscriminativenessTarget = "unit" | "piece" | "type";
 
 export function facetToLabelKey(facet: Facet) {
   return facet.id || `context_${facet.title.trim().toLowerCase().replace(/\s+/g, "_")}`;
@@ -64,36 +61,62 @@ function buildContextKey(
   return entries.map(([kk, v]) => `${kk}=${v}`).join(";");
 }
 
-function log2(x: number) {
-  return Math.log(x) / Math.log(2);
-}
-
-function entropyBitsFromCounts(counts: readonly number[]) {
+/**
+ * Discriminativeness D = Σ_c (n_c / N) · log₂(n_c).
+ * D = 0   → perfect separation (each cell contains exactly one unit).
+ * D = log₂(N) → no separation (all units in one cell).
+ * Lower D is better. Adding more facets can only decrease or maintain D.
+ */
+export function computeD(
+  cellToUnits: Map<string, Set<string>>,
+  numUnits: number
+): number {
+  if (numUnits === 0) return 0;
   let total = 0;
-  for (const c of counts) total += c;
-  if (total <= 0) return 0;
-  let h = 0;
-  for (const c of counts) {
-    if (c <= 0) continue;
-    const p = c / total;
-    h += -p * log2(p);
+  for (const unitSet of cellToUnits.values()) {
+    const n_c = unitSet.size;
+    if (n_c > 1) {
+      total += (n_c / numUnits) * Math.log2(n_c);
+    }
   }
-  return h;
+  return total;
 }
 
 /**
- * Computes:
- * - Relative/theoretical context totals under current selection filters
- * - Total values across facets (sum of vocab sizes)
- * - Discriminativeness as conditional entropy H(target | context)
+ * High-level discriminativeness: groups pieces into cells by facet values,
+ * collects distinct unit_ids per cell, and computes D.
+ */
+export function computeDiscriminativeness(
+  pieces: DatasetVideo["pieces"],
+  facets: readonly Facet[],
+): { D: number; numUniqueUnits: number; cellCount: number } {
+  const cellToUnits = new Map<string, Set<string>>();
+  const allUnits = new Set<string>();
+
+  for (const piece of pieces) {
+    if (!piece.unit_id) continue;
+    allUnits.add(piece.unit_id);
+    const key = buildContextKey(piece, facets);
+    let s = cellToUnits.get(key);
+    if (!s) { s = new Set(); cellToUnits.set(key, s); }
+    s.add(piece.unit_id);
+  }
+
+  const numUniqueUnits = allUnits.size;
+  return {
+    D: computeD(cellToUnits, numUniqueUnits),
+    numUniqueUnits,
+    cellCount: cellToUnits.size,
+  };
+}
+
+/**
+ * Computes context count stats under current selection filters:
+ * - relativeTotal: observed unique contexts
+ * - theoreticalTotal: product of vocab sizes for unfixed facets
+ * - totalValues: sum of vocab sizes across facets
  *
- * Definitions:
- * - context: joint assignment of values across ALL provided facets (each piece contributes one context key).
- * - target:
- *   - "type": the `content_type` label (restricted to enabled `infoTypes`).
- *   - "piece": the `piece_id` label (i.e., which exact information piece it is).
- *   - "unit": the `unit_id` label (i.e., which information unit it is).
- * - Conditioning distribution p(context): treated as uniform over observed contexts (each context equally likely).
+ * For discriminativeness, use `computeDiscriminativeness` instead.
  */
 export function computeFacetImpactStats({
   facets,
@@ -101,14 +124,12 @@ export function computeFacetImpactStats({
   allPieces,
   selectedType,
   infoTypes,
-  target = "type",
 }: {
   facets: readonly Facet[];
   selectedFacets: SelectedFacets;
   allPieces: DatasetVideo["pieces"];
   selectedType: string;
   infoTypes: readonly string[];
-  target?: DiscriminativenessTarget;
 }): FacetImpactStats {
   const totalValues = facets.reduce((acc, f) => acc + (f.vocabulary?.length || 0), 0);
 
@@ -119,52 +140,18 @@ export function computeFacetImpactStats({
     return acc * (isFixed ? 1 : Math.max(1, len));
   }, 1);
 
-  // contextKey -> totalPiecesInContext, and counts by target label
-  const contextTotals = new Map<string, number>();
-  const contextTargetCounts = new Map<string, Map<string, number>>();
+  const contextTotals = new Set<string>();
 
   for (const p of allPieces) {
     if (!pieceMatchesAllSelectedFacets(p, selectedFacets)) continue;
     if (!pieceMatchesInfoTypeFilters(p, selectedType, infoTypes)) continue;
-
-    const ctx = buildContextKey(p, facets);
-    contextTotals.set(ctx, (contextTotals.get(ctx) || 0) + 1);
-
-    const label =
-      target === "unit"
-        ? p.unit_id
-        : target === "piece"
-          ? p.piece_id
-          : p.content_type;
-    const byLabel = contextTargetCounts.get(ctx) || new Map<string, number>();
-    byLabel.set(label, (byLabel.get(label) || 0) + 1);
-    contextTargetCounts.set(ctx, byLabel);
+    contextTotals.add(buildContextKey(p, facets));
   }
-
-  const relativeTotal = contextTotals.size;
-
-  // H(target | Context) = (1/|C|) * sum_c H(target | c)   (uniform over contexts)
-  if (relativeTotal <= 0) {
-    return { relativeTotal, theoreticalTotal, totalValues, conditionalEntropyBits: 0 };
-  }
-
-  let conditionalEntropyBits = 0;
-  for (const [ctx] of contextTotals.entries()) {
-    const byLabel = contextTargetCounts.get(ctx) || new Map<string, number>();
-    const counts =
-      target === "piece" || target === "unit"
-        ? Array.from(byLabel.values())
-        : infoTypes.map((t) => byLabel.get(t) || 0);
-    const hCtx = entropyBitsFromCounts(counts);
-    conditionalEntropyBits += hCtx;
-  }
-  conditionalEntropyBits = conditionalEntropyBits / relativeTotal;
 
   return {
-    relativeTotal,
+    relativeTotal: contextTotals.size,
     theoreticalTotal,
     totalValues,
-    conditionalEntropyBits,
   };
 }
 

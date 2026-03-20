@@ -1,5 +1,5 @@
 import type { Facet, DatasetVideo } from "@/app/types";
-import { facetToLabelKey, normalizeFacetVals } from "@/app/utils/facetStats";
+import { facetToLabelKey, normalizeFacetVals, computeD } from "@/app/utils/facetStats";
 
 export type PlotPoint = {
   datasetLabel: string;
@@ -150,27 +150,6 @@ export function computeCompactness(facetSubset: Facet[]): number {
   for (const facet of facetSubset) {
     for (const v of facet.vocabulary) {
       if (v.label.toLowerCase() !== "na") total += 1;
-    }
-  }
-  return total;
-}
-
-/**
- * Discriminativeness D = Σ_c (n_c / N) · log₂(n_c).
- * D = 0   → perfect separation (each cell contains exactly one unit).
- * D = log₂(N) → no separation (all units in one cell).
- * Lower D is better.
- */
-function computeD(
-  cellToUnits: Map<string, Set<string>>,
-  numUnits: number
-): number {
-  if (numUnits === 0) return 0;
-  let total = 0;
-  for (const unitSet of cellToUnits.values()) {
-    const n_c = unitSet.size;
-    if (n_c > 1) {
-      total += (n_c / numUnits) * Math.log2(n_c);
     }
   }
   return total;
