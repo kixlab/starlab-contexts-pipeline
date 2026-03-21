@@ -202,7 +202,8 @@ export function FacetListPanel({
       // positive delta = reduces D = good; guaranteed >= 0
       const rawDelta = baseD - withD;
       const vocabSize = Math.max(1, facet.vocabulary.length);
-      deltas.set(facet.id, rawDelta / vocabSize);
+      // deltas.set(facet.id, rawDelta / vocabSize);
+      deltas.set(facet.id, rawDelta);
     }
     return deltas;
   }, [pieces, facets, selectedFacetsList, selectedFacetIds]);
