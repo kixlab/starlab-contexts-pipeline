@@ -94,7 +94,7 @@ def process_step_extraction_response_discovery(
                 local_index=idx,
                 time_range=(float(start), float(end)),
             ),
-            subtype=name,
+            subtype=None,
         ))
     return items
 
