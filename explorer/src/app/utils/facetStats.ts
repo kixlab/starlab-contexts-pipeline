@@ -62,49 +62,110 @@ function buildContextKey(
 }
 
 /**
- * Discriminativeness D = Σ_c (n_c / N) · log₂(n_c).
- * D = 0   → perfect separation (each cell contains exactly one unit).
- * D = log₂(N) → no separation (all units in one cell).
- * Lower D is better. Adding more facets can only decrease or maintain D.
+ * Discriminativeness D = H(U|C) — item-level conditional entropy.
+ *
+ *   H(U|C) = Σ_c P(C=c) · H(U|C=c)
+ *   where:
+ *     P(C=c)      = m_c / m          (fraction of items in cell c)
+ *     P(U=u|C=c)  = count_{u,c} / m_c
+ *     H(U|C=c)    = -Σ_u P(U=u|C=c) · log₂ P(U=u|C=c)
+ *
+ * D = 0      → perfect separation (each cell has items from only one unit).
+ * D = H(U)   → no separation (context provides no info about unit).
+ * Lower D is better.
+ *
+ * @param cellToUnits  cell signature → { unit_id → item_count }
+ * @param numUnits     unused, kept for backwards compatibility
  */
 export function computeD(
-  cellToUnits: Map<string, Set<string>>,
-  numUnits: number
+  cellToUnits: Map<string, Map<string, number>>,
+  numUnits: number = 0
 ): number {
-  if (numUnits === 0) return 0;
-  let total = 0;
-  for (const unitSet of cellToUnits.values()) {
-    const n_c = unitSet.size;
-    if (n_c > 1) {
-      total += (n_c / numUnits) * Math.log2(n_c);
+  let m = 0;
+  for (const unitCounts of cellToUnits.values()) {
+    for (const count of unitCounts.values()) {
+      m += count;
     }
+  }
+  if (m === 0) return 0;
+
+  let total = 0;
+  for (const unitCounts of cellToUnits.values()) {
+    let m_c = 0;
+    for (const count of unitCounts.values()) {
+      m_c += count;
+    }
+    if (m_c === 0) continue;
+    const p_c = m_c / m;
+    let h_c = 0;
+    for (const count of unitCounts.values()) {
+      if (count > 0) {
+        const p_u_given_c = count / m_c;
+        h_c -= p_u_given_c * Math.log2(p_u_given_c);
+      }
+    }
+    total += p_c * h_c;
   }
   return total;
 }
 
 /**
+ * Compute marginal unit entropy H(U) = -Σ_u P(U=u)·log₂ P(U=u).
+ * This is the data-dependent upper bound for H(U|C).
+ */
+export function computeH_U(pieces: DatasetVideo["pieces"]): number {
+  const unitCounts = new Map<string, number>();
+  let m = 0;
+  for (const piece of pieces) {
+    if (!piece.unit_id) continue;
+    unitCounts.set(piece.unit_id, (unitCounts.get(piece.unit_id) ?? 0) + 1);
+    m++;
+  }
+  if (m === 0) return 0;
+  let h = 0;
+  for (const count of unitCounts.values()) {
+    const p = count / m;
+    if (p > 0) h -= p * Math.log2(p);
+  }
+  return h;
+}
+
+/**
  * High-level discriminativeness: groups pieces into cells by facet values,
- * collects distinct unit_ids per cell, and computes D.
+ * counts items per unit per cell, and computes D = H(U|C).
+ *
+ * Also returns H_U (marginal unit entropy) — the data-dependent upper bound
+ * for D. Normalized discriminativeness = D / H_U ∈ [0, 1].
  */
 export function computeDiscriminativeness(
   pieces: DatasetVideo["pieces"],
   facets: readonly Facet[],
-): { D: number; numUniqueUnits: number; cellCount: number } {
-  const cellToUnits = new Map<string, Set<string>>();
-  const allUnits = new Set<string>();
+): { D: number; H_U: number; numUniqueUnits: number; cellCount: number } {
+  const cellToUnits = new Map<string, Map<string, number>>();
+  const allUnits = new Map<string, number>();
 
   for (const piece of pieces) {
     if (!piece.unit_id) continue;
-    allUnits.add(piece.unit_id);
+    allUnits.set(piece.unit_id, (allUnits.get(piece.unit_id) ?? 0) + 1);
     const key = buildContextKey(piece, facets);
-    let s = cellToUnits.get(key);
-    if (!s) { s = new Set(); cellToUnits.set(key, s); }
-    s.add(piece.unit_id);
+    let unitCounts = cellToUnits.get(key);
+    if (!unitCounts) { unitCounts = new Map(); cellToUnits.set(key, unitCounts); }
+    unitCounts.set(piece.unit_id, (unitCounts.get(piece.unit_id) ?? 0) + 1);
   }
 
   const numUniqueUnits = allUnits.size;
+  const m = Array.from(allUnits.values()).reduce((a, b) => a + b, 0);
+  let H_U = 0;
+  if (m > 0) {
+    for (const count of allUnits.values()) {
+      const p = count / m;
+      if (p > 0) H_U -= p * Math.log2(p);
+    }
+  }
+
   return {
     D: computeD(cellToUnits, numUniqueUnits),
+    H_U,
     numUniqueUnits,
     cellCount: cellToUnits.size,
   };

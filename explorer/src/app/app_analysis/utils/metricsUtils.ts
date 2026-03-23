@@ -16,7 +16,7 @@ export type PlotPoint = {
   facetSubset: Facet[];
   /** Sum of vocabulary sizes (excl. "na") — lower = more compact */
   compactness: number;
-  /** D = Σ_c (n_c/N)·log₂(n_c) — lower = more discriminative (0 = perfect separation) */
+  /** D = H(U|C) conditional entropy — lower = more discriminative (0 = perfect separation) */
   discriminativeness: number;
   /** η² = 1 - SS_within/SS_total — higher = signatures better predict temporal position (1 = perfect) */
   eta2: number;
@@ -332,13 +332,13 @@ export async function computeDatasetCandidates(
     return `${prefix}${allParts.join(";")}`;
   }
 
-  function computeCellsFast(freeIndices: number[]): Map<string, Set<string>> {
-    const cellToUnits = new Map<string, Set<string>>();
+  function computeCellsFast(freeIndices: number[]): Map<string, Map<string, number>> {
+    const cellToUnits = new Map<string, Map<string, number>>();
     for (const pc of validPieces) {
       const key = buildKeyFast(pc, freeIndices);
-      let s = cellToUnits.get(key);
-      if (!s) { s = new Set(); cellToUnits.set(key, s); }
-      s.add(pc.unitId);
+      let unitCounts = cellToUnits.get(key);
+      if (!unitCounts) { unitCounts = new Map(); cellToUnits.set(key, unitCounts); }
+      unitCounts.set(pc.unitId, (unitCounts.get(pc.unitId) ?? 0) + 1);
     }
     return cellToUnits;
   }
