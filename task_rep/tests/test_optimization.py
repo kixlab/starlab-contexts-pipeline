@@ -643,7 +643,10 @@ class TestSampleSchemas:
 
 class TestSampleTargetItems:
     def test_no_collisions_returns_empty(self, three_unit_kb, f1, annotations_f1_f2):
-        result = sample_target_items(three_unit_kb, {"<Difficulty:a>": {"u1"}})
+        """Single-unit cell → no collision → empty result."""
+        # Only use f2 annotations which perfectly separate all 3 units
+        f2 = make_facet("f2", "Tool", ["x", "y", "z"])
+        result = sample_target_items(three_unit_kb, [f1, f2], annotations_f1_f2)
         assert result == []
 
     def test_returns_one_result_per_cell(self, three_unit_kb, f1, annotations_f1_f2):
@@ -651,16 +654,15 @@ class TestSampleTargetItems:
         Cell '<Difficulty:b>' has {u2,u3} — one colliding cell.
         Should return one (target_ids, cell_sig) tuple.
         """
-        cells = compute_cells(three_unit_kb, [f1], annotations_f1_f2)
         result = sample_target_items(
-            three_unit_kb, cells, max_cells=1
+            three_unit_kb, [f1], annotations_f1_f2, max_cells=1
         )
         assert len(result) == 1
         target_ids, cell_sig = result[0]
         assert len(target_ids) == 2  # one rep per unit (u2 and u3)
         assert set(target_ids) == {"item2", "item3"}
 
-    def test_max_cells_limits_output(self, f1, annotations_f1_f2):
+    def test_max_cells_limits_output(self, f1):
         """max_cells=0 means no cells are processed."""
         kb = KnowledgeBase(items=[
             make_item("i1", unit_id="u1"),
@@ -669,8 +671,7 @@ class TestSampleTargetItems:
         ])
         ann = AnnotationTable()
         ann[("i1", "f1")] = "a"; ann[("i2", "f1")] = "a"; ann[("i3", "f1")] = "a"
-        cells = compute_cells(kb, [f1], ann)
-        result = sample_target_items(kb, cells, max_cells=0)
+        result = sample_target_items(kb, [f1], ann, max_cells=0)
         assert result == []
 
     def test_skips_cells_with_fewer_than_two_representatives(self, f1):
@@ -683,37 +684,31 @@ class TestSampleTargetItems:
         ann = AnnotationTable()
         ann[("i1", "f1")] = "a"
         ann[("i2", "f1")] = "a"
-        cells = compute_cells(kb, [f1], ann)
-        result = sample_target_items(kb, cells, max_cells=1)
+        result = sample_target_items(kb, [f1], ann, max_cells=1)
         assert result == []
 
-    def test_largest_cell_sampled_first(self, f1):
+    def test_largest_cell_sampled_first(self):
         """Cells are sorted by collision size, largest first."""
+        # Two facets: f_coarse puts {u1,u2,u3} together, f_fine splits u3+u4 into their own cell
+        f_coarse = make_facet("fc", "Coarse", ["a", "b"])
+        f_fine = make_facet("ff", "Fine", ["x", "y"])
         kb = KnowledgeBase(items=[
             make_item("i1", unit_id="u1"),
             make_item("i2", unit_id="u2"),
             make_item("i3", unit_id="u3"),
             make_item("i4", unit_id="u4"),
+            make_item("i5", unit_id="u5"),
         ])
         ann = AnnotationTable()
-        # Cell "a": {u1,u2,u3} — size 3
-        ann[("i1", "f1")] = "a"; ann[("i2", "f1")] = "a"; ann[("i3", "f1")] = "a"
-        # Cell "b": {u4} — not a collision on its own, but we construct synthetic
-        ann[("i4", "f1")] = "b"
+        # Under {fc}: cell "a" has {u1,u2,u3} (size 3), cell "b" has {u4,u5} (size 2)
+        ann[("i1", "fc")] = "a"; ann[("i2", "fc")] = "a"; ann[("i3", "fc")] = "a"
+        ann[("i4", "fc")] = "b"; ann[("i5", "fc")] = "b"
 
-        cells = compute_cells(kb, [f1], ann)
-
-        # Add a second fake collision of size 2 for ordering test
-        cells_with_extra = cells.copy()
-        cells_with_extra["<Difficulty:b>"] = {"u3", "u4"}  # size 2
-
-        result = sample_target_items(
-            kb, cells_with_extra, max_cells=1, max_items_per_cell=3
-        )
+        result = sample_target_items(kb, [f_coarse], ann, max_cells=1, max_items_per_cell=5)
         assert len(result) == 1
         # Should pick the larger cell (size 3) first
-        _, sig = result[0]
-        assert "a" in sig
+        target_ids, _ = result[0]
+        assert len(target_ids) == 3
 
     def test_max_items_per_cell_limits_representatives(self, f1):
         """If a cell has more units than max_items_per_cell, subsample."""
@@ -723,10 +718,8 @@ class TestSampleTargetItems:
         for item in items:
             ann[(item.id, "f1")] = "same"
 
-        cells = compute_cells(kb, [f1], ann)
-
         result = sample_target_items(
-            kb, cells, max_cells=1, max_items_per_cell=3
+            kb, [f1], ann, max_cells=1, max_items_per_cell=3
         )
         assert len(result) == 1
         target_ids, _ = result[0]

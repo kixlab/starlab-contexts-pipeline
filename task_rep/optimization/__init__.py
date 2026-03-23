@@ -14,6 +14,8 @@ from .metrics import (
     compute_cells,
     compute_discriminativeness,
     compute_compactness,
+    compute_eta_squared,
+    compute_quality_metric,
     count_unique_units,
 )
 from .frontier import (
@@ -25,4 +27,8 @@ from .frontier import (
 )
 from .collision import (
     sample_target_items,
+    sample_target_items_coherence,
+)
+from .irr import (
+    compute_irr,
 )

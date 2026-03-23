@@ -25,6 +25,7 @@ from .metrics import (
     compute_cells,
     compute_compactness,
     compute_discriminativeness,
+    compute_quality_metric,
     count_unique_units,
 )
 
@@ -63,15 +64,17 @@ def compute_frontier(
     facets: List[Facet],
     annotations: AnnotationTable,
     max_schema_facets: int = 4,
+    metric_mode: str = "entropy",
+    eta_squared_weighting: str = "equal",
 ) -> List[FrontierPoint]:
     """
     Compute the Pareto frontier of schemas by brute-force enumeration.
 
     Enumerates all subsets of up to MAX_SCHEMA_FACETS facets. For each
-    achievable compactness value, the subset with the lowest discriminativeness
+    achievable compactness value, the subset with the lowest quality score
     is retained. Dominated points are then removed.
 
-    Discriminativeness is not additively separable across facets (facet
+    The quality metric is not additively separable across facets (facet
     interactions can be large), so knapsack DP cannot guarantee optimality.
     Brute-force over subsets of bounded size is correct and efficient in
     practice (n^K evaluations, K=MAX_SCHEMA_FACETS).
@@ -80,14 +83,16 @@ def compute_frontier(
         knowledge_base: Items with unit_ids assigned.
         facets: Pool of candidate facets.
         annotations: Current label assignments.
+        metric_mode: "entropy" | "coherence_ordinal" | "coherence_temporal"
+        eta_squared_weighting: "equal" | "weighted" (only for coherence modes)
 
     Returns:
         List of FrontierPoint sorted by ascending compactness (and thus
-        strictly decreasing discriminativeness).
+        strictly decreasing discriminativeness/quality score).
     """
     num_units = count_unique_units(knowledge_base)
 
-    # Memoized evaluation: indices_tuple -> discriminativeness
+    # Memoized evaluation: indices_tuple -> quality score (lower is better)
     memo: Dict[Tuple[int, ...], float] = {}
 
     def eval_subset(indices: Tuple[int, ...]) -> float:
@@ -96,8 +101,11 @@ def compute_frontier(
         subset_facets = [facets[i] for i in indices]
         facet_ids = [f.id for f in subset_facets]
         subset_annotations = annotations.filter_facets(facet_ids)
-        cells = compute_cells(knowledge_base, subset_facets, subset_annotations)
-        d = compute_discriminativeness(cells, num_units)
+        d = compute_quality_metric(
+            knowledge_base, subset_facets, subset_annotations,
+            metric_mode=metric_mode,
+            eta_squared_weighting=eta_squared_weighting,
+        )
         memo[indices] = d
         return d
 

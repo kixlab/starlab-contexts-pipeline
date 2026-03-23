@@ -321,6 +321,7 @@ def get_response_pydantic_openai(
     messages: List[Dict[str, Any]],
     response_format: Any,
     model: Optional[str] = None,
+    temperature: Optional[float] = None,
 ) -> Dict[str, Any]:
     """Call OpenAI API with structured output."""
     if model is None:
@@ -357,7 +358,7 @@ def get_response_pydantic_openai(
     if "gpt-5" in model:
         variable_args["reasoning_effort"] = REASONING_EFFORT
     else:
-        variable_args["temperature"] = TEMPERATURE
+        variable_args["temperature"] = temperature if temperature is not None else TEMPERATURE
 
     try:
         response_raw = client.chat.completions.with_raw_response.create(
@@ -382,6 +383,7 @@ def get_response_pydantic_anthropic(
     messages: List[Dict[str, Any]],
     response_format: Any,
     model: Optional[str] = None,
+    temperature: Optional[float] = None,
 ) -> Dict[str, Any]:
     """Call Anthropic (via Bedrock) with structured output."""
     if model is None:
@@ -411,7 +413,7 @@ def get_response_pydantic_anthropic(
         max_tokens=get_max_tokens_for_model(model),
         system=system_prompt,
         messages=messages,
-        temperature=TEMPERATURE,
+        temperature=temperature if temperature is not None else TEMPERATURE,
     )
 
     response_text = completion.content[0].text
@@ -723,6 +725,7 @@ async def process_api_requests(
     model_config: ModelConfig,
     max_concurrency: int = 64,
     seconds_to_pause_after_limit_error: float = 60.0,
+    temperature: Optional[float] = None,
 ):
     """
     Process all enqueued requests in parallel with rate limiting and retries.
@@ -809,7 +812,7 @@ async def process_api_requests(
                                     content = msg_content.to_anthropic_content()
                             processed_messages.append({"role": msg["role"], "content": content})
 
-                        return call_function(processed_messages, response_format, model_config.model)
+                        return call_function(processed_messages, response_format, model_config.model, temperature=temperature)
 
                     result = await asyncio.to_thread(_call)
                     _append_jsonl(responses_path, [req.request_json, result])
@@ -876,12 +879,13 @@ async def process_api_requests(
     )
 
 def batch_run_llm_calls(
-    batch_id: str, 
-    request_args, 
-    func_request, 
+    batch_id: str,
+    request_args,
+    func_request,
     func_response,
     max_concurrency: int,
     model_config: ModelConfig,
+    temperature: Optional[float] = None,
 ):
     logger.info(f"Batch ID for {func_request.__name__}: {batch_id}")
     if len(request_args) == 0:
@@ -896,6 +900,7 @@ def batch_run_llm_calls(
         batch_id,
         max_concurrency=max_concurrency,
         model_config=model_config,
+        temperature=temperature,
     ))
     batch_responses = llm_get_responses(batch_id)
 
