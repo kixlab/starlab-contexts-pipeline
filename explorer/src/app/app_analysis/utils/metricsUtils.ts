@@ -1,6 +1,16 @@
 import type { Facet, DatasetVideo } from "@/app/types";
 import { facetToLabelKey, normalizeFacetVals, computeD } from "@/app/utils/facetStats";
 
+/** Which metric to use on the Y axis of the scatter plot. */
+export type YMetricType = "discriminativeness" | "etaSquared";
+
+/** Population variance of a numeric array. */
+function computeVariance(values: number[]): number {
+  if (values.length <= 1) return 0;
+  const mean = values.reduce((a, b) => a + b, 0) / values.length;
+  return values.reduce((a, v) => a + (v - mean) ** 2, 0) / values.length;
+}
+
 export type PlotPoint = {
   datasetLabel: string;
   facetSubset: Facet[];
@@ -8,6 +18,10 @@ export type PlotPoint = {
   compactness: number;
   /** D = Σ_c (n_c/N)·log₂(n_c) — lower = more discriminative (0 = perfect separation) */
   discriminativeness: number;
+  /** η² = 1 - SS_within/SS_total — higher = signatures better predict temporal position (1 = perfect) */
+  eta2: number;
+  /** 1 - avg transition rate across tutorials. Higher = facet values change less often between consecutive items. */
+  stability: number;
   /** Number of distinct cells (cell = content_type + facet-label signature) */
   relativeTotal: number;
   numUniqueUnits: number;
@@ -171,6 +185,8 @@ export const MAX_FACETS_CAP = 3;
 
 export type CandidateEntry = {
   D: number;
+  eta2: number;
+  stability: number;
   facetIndices: number[]; // indices into DatasetCandidates.sortedFacets (FREE facets only)
   cellCount: number;
   k: number; // free facet count
@@ -180,7 +196,10 @@ export type CandidateEntry = {
 /** Keyed by `"${compactness},${freeK}"` */
 export type DatasetCandidates = {
   datasetLabel: string;
+  /** Best min-D entry per (C, k) bucket */
   ckMap: Map<string, CandidateEntry>;
+  /** Best max-η² entry per (C, k) bucket */
+  ckMapEta2: Map<string, CandidateEntry>;
   /** FREE facets only (not included/excluded). Indices in CandidateEntry refer to this array. */
   sortedFacets: Facet[];
   /** Always included in every point's facetSubset. */
@@ -219,12 +238,6 @@ export async function computeDatasetCandidates(
   excludedFacetIds: Set<string>,
   onProgress?: (done: number, total: number) => void
 ): Promise<DatasetCandidates | null> {
-  const rawPieces = dataset.flatMap((v) => v.pieces ?? []);
-  const allPieces =
-    infoTypes && infoTypes.length > 0
-      ? rawPieces.filter((p) => infoTypes.includes(p.content_type ?? ""))
-      : rawPieces;
-
   // Sort all facets for deterministic ordering, filter out excluded, then split included vs free
   const allSorted = [...allFacets]
     .filter((f) => !excludedFacetIds.has(f.id))
@@ -235,36 +248,52 @@ export async function computeDatasetCandidates(
   const pinnedKeys = pinnedFacets.map(facetToLabelKey);
   const freeKeys = freeFacets.map(facetToLabelKey);
 
-  // Pre-compute per-piece data once: per-facet label strings for both pinned and free
+  // Pre-compute per-piece data once: per-facet label strings for both pinned and free.
+  // Iterate per video to preserve video identity and temporal position for η².
   type PieceData = {
     contentType: string;
     pinnedComponents: string[];
     freeComponents: string[];
     unitId: string;
+    videoId: string;
+    positionInVideo: number;
   };
   const validPieces: PieceData[] = [];
   const unitIdSet = new Set<string>();
 
-  for (const piece of allPieces) {
-    if (!piece.unit_id) continue;
-    unitIdSet.add(piece.unit_id as string);
-    const labels = (piece.labels ?? {}) as Record<string, string[]>;
+  for (const video of dataset) {
+    const videoId = video.id ?? video.url;
+    const videoPieces = video.pieces ?? [];
+    const filtered =
+      infoTypes && infoTypes.length > 0
+        ? videoPieces.filter((p) => infoTypes.includes(p.content_type ?? ""))
+        : videoPieces;
 
-    const getComponent = (k: string): string => {
-      if (k === CONTENT_TYPE_FACET_ID) return piece.content_type ?? "unknown";
-      const raw = (labels[k] ?? []) as string[];
-      return normalizeFacetVals(raw).sort().join("|");
-    };
+    // Sort by start time for temporal position assignment
+    const sorted = [...filtered].sort((a, b) => a.start - b.start);
 
-    const pinnedComponents = pinnedKeys.map(getComponent);
-    const freeComponents = freeKeys.map(getComponent);
+    let posIdx = 0;
+    for (const piece of sorted) {
+      if (!piece.unit_id) continue;
+      unitIdSet.add(piece.unit_id as string);
+      const labels = (piece.labels ?? {}) as Record<string, string[]>;
 
-    validPieces.push({
-      contentType: piece.content_type ?? "unknown",
-      pinnedComponents,
-      freeComponents,
-      unitId: piece.unit_id as string,
-    });
+      const getComponent = (k: string): string => {
+        if (k === CONTENT_TYPE_FACET_ID) return piece.content_type ?? "unknown";
+        const raw = (labels[k] ?? []) as string[];
+        return normalizeFacetVals(raw).sort().join("|");
+      };
+
+      validPieces.push({
+        contentType: piece.content_type ?? "unknown",
+        pinnedComponents: pinnedKeys.map(getComponent),
+        freeComponents: freeKeys.map(getComponent),
+        unitId: piece.unit_id as string,
+        videoId,
+        positionInVideo: posIdx,
+      });
+      posIdx++;
+    }
   }
 
   const numUniqueUnits = unitIdSet.size;
@@ -314,14 +343,96 @@ export async function computeDatasetCandidates(
     return cellToUnits;
   }
 
+  /**
+   * Compute η² (eta-squared) for a facet subset.
+   * Groups pieces by video, computes within-video η², returns equal-weight average.
+   */
+  function computeEta2ForSubset(freeIndices: number[]): number {
+    const tutorials = new Map<string, Array<{ position: number; contextKey: string }>>();
+
+    for (const pc of validPieces) {
+      const key = buildKeyFast(pc, freeIndices);
+      let arr = tutorials.get(pc.videoId);
+      if (!arr) { arr = []; tutorials.set(pc.videoId, arr); }
+      arr.push({ position: pc.positionInVideo, contextKey: key });
+    }
+
+    let sum = 0;
+    let count = 0;
+
+    for (const items of tutorials.values()) {
+      if (items.length <= 1) continue;
+
+      const allPositions = items.map((it) => it.position);
+      const totalVar = computeVariance(allPositions);
+      if (totalVar === 0) continue;
+
+      const groups = new Map<string, number[]>();
+      for (const item of items) {
+        let g = groups.get(item.contextKey);
+        if (!g) { g = []; groups.set(item.contextKey, g); }
+        g.push(item.position);
+      }
+
+      let withinVar = 0;
+      for (const positions of groups.values()) {
+        withinVar += (positions.length / items.length) * computeVariance(positions);
+      }
+
+      sum += 1 - withinVar / totalVar;
+      count++;
+    }
+
+    return count > 0 ? sum / count : 0;
+  }
+
+  /**
+   * Compute Stability = 1 - avg transition rate for a facet subset.
+   * Transition rate per tutorial = #(consecutive items with different context) / (n - 1).
+   * Averaged across tutorials (equal weight).
+   */
+  function computeStabilityForSubset(freeIndices: number[]): number {
+    // Group pieces by video, preserving temporal order
+    const tutorials = new Map<string, string[]>(); // videoId → ordered context keys
+
+    for (const pc of validPieces) {
+      const key = buildKeyFast(pc, freeIndices);
+      let arr = tutorials.get(pc.videoId);
+      if (!arr) { arr = []; tutorials.set(pc.videoId, arr); }
+      arr.push(key);
+    }
+
+    let trSum = 0;
+    let trCount = 0;
+
+    for (const contextKeys of tutorials.values()) {
+      const n = contextKeys.length;
+      if (n <= 1) continue;
+      let transitions = 0;
+      for (let i = 0; i < n - 1; i++) {
+        if (contextKeys[i] !== contextKeys[i + 1]) transitions++;
+      }
+      trSum += transitions / (n - 1);
+      trCount++;
+    }
+
+    const avgTR = trCount > 0 ? trSum / trCount : 0;
+    return 1 - avgTR;
+  }
+
   // Memoised evaluation — each unique free-subset is computed at most once
-  const evalMemo = new Map<string, { D: number; cellCount: number }>();
-  const evalSubset = (freeIndices: number[]): { D: number; cellCount: number } => {
+  const evalMemo = new Map<string, { D: number; eta2: number; stability: number; cellCount: number }>();
+  const evalSubset = (freeIndices: number[]): { D: number; eta2: number; stability: number; cellCount: number } => {
     const key = freeIndices.join(",");
     const cached = evalMemo.get(key);
     if (cached) return cached;
     const cells = computeCellsFast(freeIndices);
-    const result = { D: computeD(cells, numUniqueUnits), cellCount: cells.size };
+    const result = {
+      D: computeD(cells, numUniqueUnits),
+      eta2: computeEta2ForSubset(freeIndices),
+      stability: computeStabilityForSubset(freeIndices),
+      cellCount: cells.size,
+    };
     evalMemo.set(key, result);
     return result;
   };
@@ -332,39 +443,31 @@ export async function computeDatasetCandidates(
     generateCombinations(freeFacets.length, k, combos);
   }
 
-  // ckMap[`${totalC},${freeK}`] = best (min-D) entry for that bucket
+  // Best min-D entry per (C, k) bucket
   const ckMap = new Map<string, CandidateEntry>();
-  // Subsets with D=0: adding more free facets keeps D=0 at strictly higher C → dominated, skip
-  const perfect: number[][] = [];
+  // Best max-η² entry per (C, k) bucket
+  const ckMapEta2 = new Map<string, CandidateEntry>();
 
   const YIELD_EVERY = 200;
 
   for (let ci = 0; ci < combos.length; ci++) {
     const freeIndices = combos[ci];
 
-    // Monotonicity pruning: skip if any already-found D=0 free subset is ⊆ this combo
-    if (perfect.length > 0) {
-      const comboSet = new Set(freeIndices);
-      if (perfect.some((p) => p.every((i) => comboSet.has(i)))) {
-        if ((ci + 1) % YIELD_EVERY === 0) {
-          onProgress?.(ci + 1, combos.length);
-          await new Promise<void>((r) => setTimeout(r, 0));
-        }
-        continue;
-      }
-    }
-
     const freeC = freeIndices.reduce((s, fi) => s + freeCompactness[fi], 0);
     const totalC = pinnedCompactness + freeC;
     const k = freeIndices.length;
-    const { D, cellCount } = evalSubset(freeIndices);
+    const { D, eta2, stability, cellCount } = evalSubset(freeIndices);
 
     const ckKey = `${totalC},${k}`;
-    const existing = ckMap.get(ckKey);
-    if (!existing || D < existing.D) {
-      ckMap.set(ckKey, { D, facetIndices: [...freeIndices], cellCount, k, c: totalC });
-    }
-    if (D === 0) perfect.push([...freeIndices]);
+    const entry: CandidateEntry = { D, eta2, stability, facetIndices: [...freeIndices], cellCount, k, c: totalC };
+
+    // D: keep min
+    const existingD = ckMap.get(ckKey);
+    if (!existingD || D < existingD.D) ckMap.set(ckKey, entry);
+
+    // η²: keep max
+    const existingEta2 = ckMapEta2.get(ckKey);
+    if (!existingEta2 || eta2 > existingEta2.eta2) ckMapEta2.set(ckKey, entry);
 
     if ((ci + 1) % YIELD_EVERY === 0) {
       onProgress?.(ci + 1, combos.length);
@@ -373,47 +476,61 @@ export async function computeDatasetCandidates(
   }
   onProgress?.(combos.length, combos.length);
 
-  return { datasetLabel, ckMap, sortedFacets: freeFacets, includedFacets: pinnedFacets, numUniqueUnits };
+  return { datasetLabel, ckMap, ckMapEta2, sortedFacets: freeFacets, includedFacets: pinnedFacets, numUniqueUnits };
 }
 
 /**
  * Instant (synchronous) — filter pre-computed candidates to free subsets of
- * size ≤ maxFacets, pick the min-D winner per total compactness value, and
- * return the Pareto front sorted by ascending compactness.
+ * size ≤ maxFacets, pick the best-metric winner per total compactness value,
+ * and return the Pareto front sorted by ascending compactness.
  *
  * Each point's facetSubset includes both included and free facets.
  */
 export function computeParetoFromCandidates(
   candidates: DatasetCandidates,
-  maxFacets: number
+  maxFacets: number,
+  yMetric: YMetricType = "discriminativeness",
+  stabilityThreshold: number = 0
 ): PlotPoint[] {
-  // For each total compactness C, find the min-D entry among free subsets with k ≤ maxFacets
+  const useEta2 = yMetric === "etaSquared";
+  const ckMap = useEta2 ? candidates.ckMapEta2 : candidates.ckMap;
+
   const bestPerC = new Map<number, CandidateEntry>();
-  for (const entry of candidates.ckMap.values()) {
+  for (const entry of ckMap.values()) {
     if (entry.k > maxFacets) continue;
+    if (entry.stability < stabilityThreshold) continue;
     const existing = bestPerC.get(entry.c);
-    if (!existing || entry.D < existing.D) bestPerC.set(entry.c, entry);
+    if (!existing) {
+      bestPerC.set(entry.c, entry);
+    } else if (useEta2 ? entry.eta2 > existing.eta2 : entry.D < existing.D) {
+      bestPerC.set(entry.c, entry);
+    }
   }
 
   const raw = Array.from(bestPerC.entries())
     .map(([c, entry]) => ({
       datasetLabel: candidates.datasetLabel,
-      // Full facetSubset = pinned + free
       facetSubset: [
         ...candidates.includedFacets,
         ...entry.facetIndices.map((fi) => candidates.sortedFacets[fi]),
       ],
       compactness: c,
       discriminativeness: entry.D,
+      eta2: entry.eta2,
+      stability: entry.stability,
       relativeTotal: entry.cellCount,
       numUniqueUnits: candidates.numUniqueUnits,
     }))
     .sort((a, b) => a.compactness - b.compactness);
 
-  // Pareto filter: keep only points where D strictly decreases as C increases
+  // Pareto filter: keep only points where the metric strictly improves as C increases.
+  // D: lower is better → skip if not decreasing. η²: higher is better → skip if not increasing.
   const smoothed: PlotPoint[] = [];
   for (const point of raw) {
-    if (smoothed.length > 0 && smoothed[smoothed.length - 1].discriminativeness <= point.discriminativeness) continue;
+    if (smoothed.length > 0) {
+      const last = smoothed[smoothed.length - 1];
+      if (useEta2 ? last.eta2 >= point.eta2 : last.discriminativeness <= point.discriminativeness) continue;
+    }
     smoothed.push(point);
   }
   return smoothed;
@@ -421,23 +538,29 @@ export function computeParetoFromCandidates(
 
 /**
  * Compute Pareto-front indices over an array of PlotPoints.
- * Minimises both compactness and discriminativeness.
- * A point p is dominated if there exists q with q.C ≤ p.C AND q.D ≤ p.D
- * (at least one strictly less).
+ * For D: minimises both compactness and D.
+ * For η²: minimises compactness, maximises η².
  */
-export function computeParetoFrontIndices(points: PlotPoint[]): Set<number> {
+export function computeParetoFrontIndices(
+  points: PlotPoint[],
+  yMetric: YMetricType = "discriminativeness"
+): Set<number> {
+  const useEta2 = yMetric === "etaSquared";
   const pareto = new Set<number>();
   for (let i = 0; i < points.length; i++) {
     let dominated = false;
     const p = points[i];
+    const pY = useEta2 ? p.eta2 : p.discriminativeness;
     for (let j = 0; j < points.length; j++) {
       if (i === j) continue;
       const q = points[j];
-      if (
-        q.compactness <= p.compactness &&
-        q.discriminativeness <= p.discriminativeness &&
-        (q.compactness < p.compactness || q.discriminativeness < p.discriminativeness)
-      ) {
+      const qY = useEta2 ? q.eta2 : q.discriminativeness;
+      // C: always minimise. Y: minimise D or maximise η².
+      const cOk = q.compactness <= p.compactness;
+      const yOk = useEta2 ? qY >= pY : qY <= pY;
+      const cStrict = q.compactness < p.compactness;
+      const yStrict = useEta2 ? qY > pY : qY < pY;
+      if (cOk && yOk && (cStrict || yStrict)) {
         dominated = true;
         break;
       }
