@@ -160,49 +160,74 @@ def annotations_f1_f2_with_clash():
 # ============= compute_discriminativeness =============
 
 class TestComputeDiscriminativeness:
-    def test_zero_units(self):
-        assert compute_discriminativeness({}, num_units=0) == 0.0
+    def test_zero_items(self):
+        assert compute_discriminativeness({}) == 0.0
 
     def test_empty_cells(self):
-        assert compute_discriminativeness({}, num_units=3) == 0.0
+        assert compute_discriminativeness({}) == 0.0
 
     def test_perfect_separation(self):
-        """Each unit in its own cell → D = 0."""
-        cells = {"a": {"u1"}, "b": {"u2"}, "c": {"u3"}}
-        assert compute_discriminativeness(cells, num_units=3) == pytest.approx(0.0)
+        """Each unit in its own cell → H(U|C) = 0."""
+        cells = {"a": {"u1": 1}, "b": {"u2": 1}, "c": {"u3": 1}}
+        assert compute_discriminativeness(cells) == pytest.approx(0.0)
 
     def test_no_separation(self):
-        """All units in one cell → D = log2(N)."""
-        cells = {"all": {"u1", "u2", "u3"}}
+        """All units in one cell (uniform) → H(U|C) = log2(N)."""
+        cells = {"all": {"u1": 1, "u2": 1, "u3": 1}}
         expected = math.log(3, 2)
-        assert compute_discriminativeness(cells, num_units=3) == pytest.approx(expected)
+        assert compute_discriminativeness(cells) == pytest.approx(expected)
 
     def test_partial_separation(self):
         """
-        2 units in cell A, 1 in cell B (N=3):
-        D = (2/3)*log2(2) + (1/3)*log2(1) = 2/3.
+        2 units in cell A (1 item each), 1 in cell B (1 item):
+        H(U|C) = (2/3)*log2(2) + (1/3)*0 = 2/3.
         """
-        cells = {"A": {"u1", "u2"}, "B": {"u3"}}
+        cells = {"A": {"u1": 1, "u2": 1}, "B": {"u3": 1}}
         expected = (2 / 3) * math.log(2, 2)  # = 2/3
-        assert compute_discriminativeness(cells, num_units=3) == pytest.approx(expected)
+        assert compute_discriminativeness(cells) == pytest.approx(expected)
 
     def test_custom_base(self):
-        """D uses the supplied logarithm base."""
-        cells = {"all": {"u1", "u2", "u3", "u4"}}
+        """H uses the supplied logarithm base."""
+        cells = {"all": {"u1": 1, "u2": 1, "u3": 1, "u4": 1}}
         expected_base2 = math.log(4, 2)   # = 2.0
         expected_base10 = math.log(4, 10)
-        assert compute_discriminativeness(cells, num_units=4, base=2) == pytest.approx(expected_base2)
-        assert compute_discriminativeness(cells, num_units=4, base=10) == pytest.approx(expected_base10)
+        assert compute_discriminativeness(cells, base=2) == pytest.approx(expected_base2)
+        assert compute_discriminativeness(cells, base=10) == pytest.approx(expected_base10)
 
     def test_d_increases_with_worse_separation(self):
-        """More collision → higher D."""
-        perfect = {"a": {"u1"}, "b": {"u2"}, "c": {"u3"}}
-        partial = {"a": {"u1"}, "b": {"u2", "u3"}}
-        none = {"a": {"u1", "u2", "u3"}}
-        d_perfect = compute_discriminativeness(perfect, 3)
-        d_partial = compute_discriminativeness(partial, 3)
-        d_none = compute_discriminativeness(none, 3)
+        """More collision → higher H(U|C)."""
+        perfect = {"a": {"u1": 1}, "b": {"u2": 1}, "c": {"u3": 1}}
+        partial = {"a": {"u1": 1}, "b": {"u2": 1, "u3": 1}}
+        none = {"a": {"u1": 1, "u2": 1, "u3": 1}}
+        d_perfect = compute_discriminativeness(perfect)
+        d_partial = compute_discriminativeness(partial)
+        d_none = compute_discriminativeness(none)
         assert d_perfect < d_partial < d_none
+
+    def test_unequal_item_counts_within_cell(self):
+        """Item counts affect within-cell entropy (not just distinct units)."""
+        # 100 items from u1, 1 from u2 → low entropy (nearly pure cell)
+        skewed = {"a": {"u1": 100, "u2": 1}}
+        # 1 item each → maximum entropy for 2 units
+        uniform = {"a": {"u1": 1, "u2": 1}}
+        d_skewed = compute_discriminativeness(skewed)
+        d_uniform = compute_discriminativeness(uniform)
+        assert d_skewed < d_uniform
+
+    def test_unit_overlap_across_cells(self):
+        """
+        Unit u3 spans two cells (items from different tutorials).
+        H(U|C) is properly bounded (no inflation from double-counting).
+        """
+        # u3 has 1 item in each of two cells
+        cells = {"a": {"u1": 1, "u3": 1}, "b": {"u2": 1, "u3": 1}}
+        d = compute_discriminativeness(cells)
+        # m=4, each cell has 2 items
+        # H(U|C) = 2*(2/4)*log2(2) = log2(2) = 1.0
+        assert d == pytest.approx(1.0)
+        # H(U) for this distribution: P(u1)=1/4, P(u2)=1/4, P(u3)=2/4
+        h_u = -(1/4)*math.log2(1/4)*2 - (2/4)*math.log2(2/4)
+        assert d <= h_u  # H(U|C) ≤ H(U), always
 
 
 # ============= compute_compactness =============
@@ -272,7 +297,7 @@ class TestComputeCells:
         """No facets → all items share the empty signature → one cell."""
         cells = compute_cells(three_unit_kb, [], annotations_f1_f2)
         assert len(cells) == 1
-        assert cells[""] == {"u1", "u2", "u3"}
+        assert cells[""] == {"u1": 1, "u2": 1, "u3": 1}
 
     def test_partial_separation_with_f1(self, three_unit_kb, f1, annotations_f1_f2):
         """
@@ -286,8 +311,8 @@ class TestComputeCells:
         collision_cells = {sig: units for sig, units in cells.items() if len(units) > 1}
         assert len(singleton_cells) == 1
         assert len(collision_cells) == 1
-        assert singleton_cells[next(iter(singleton_cells))] == {"u1"}
-        assert collision_cells[next(iter(collision_cells))] == {"u2", "u3"}
+        assert singleton_cells[next(iter(singleton_cells))] == {"u1": 1}
+        assert collision_cells[next(iter(collision_cells))] == {"u2": 1, "u3": 1}
 
     def test_perfect_separation_with_f2(self, three_unit_kb, f2, annotations_f1_f2):
         """Under f2: every unit gets a distinct label → 3 singleton cells."""
@@ -324,7 +349,7 @@ class TestComputeCells:
         ann[("i2", "f1")] = "a"
         cells = compute_cells(kb, [f1], ann)
         assert len(cells) == 1
-        assert cells[next(iter(cells))] == {"u1"}
+        assert cells[next(iter(cells))] == {"u1": 2}
 
 
 # ============= clip_frontier =============
@@ -507,28 +532,30 @@ class TestComputeFrontier:
 
     def test_known_frontier_values_with_clash(self, three_unit_kb_with_clash, f1, f2, annotations_f1_f2_with_clash):
         """
-        Concrete verification (3 unique units: u1, u2, u3):
+        Concrete verification (3 unique units: u1, u2, u3; 4 items):
 
           item1→u1: f1=a, f2=x
           item2→u2: f1=b, f2=y
           item3→u3: f1=b, f2=z
           item4→u3: f1=a, f2=z  ← clash: u3 lands in two f1 cells
 
-          {} (C=0):      D = log2(3)  ≈ 1.585  (one cell with all 3 units)
-          {f1} (C=2):    D = 4/3      ≈ 1.333
-                          cell <Difficulty:a> → {u1,u3}, cell <Difficulty:b> → {u2,u3}
-                          D = (2/3)·log2(2) + (2/3)·log2(2) = 4/3
-          {f2} (C=3):    D = 0
-                          cell <Tool:x>→{u1}, <Tool:y>→{u2}, <Tool:z>→{u3}  (perfect)
-          {f1,f2} (C=5): D = 0 → dominated by {f2} → excluded from frontier
+          {} (C=0):      H(U|C) = 1.5
+                          one cell: {u1:1, u2:1, u3:2}, m=4
+                          H = -(1/4)log(1/4)*2 - (2/4)log(2/4) = 1.5
+          {f1} (C=2):    H(U|C) = 1.0
+                          cell <a> → {u1:1, u3:1}, cell <b> → {u2:1, u3:1}
+                          H = 2*(2/4)*log2(2) = 1.0
+          {f2} (C=3):    H(U|C) = 0
+                          cell <x>→{u1:1}, <y>→{u2:1}, <z>→{u3:2}  (each cell pure)
+          {f1,f2} (C=5): H = 0 → dominated by {f2} → excluded from frontier
         """
         frontier = compute_frontier(three_unit_kb_with_clash, [f1, f2], annotations_f1_f2_with_clash)
 
         by_c = {p.compactness: p for p in frontier}
         assert set(by_c.keys()) == {0, 2, 3}
 
-        assert by_c[0].discriminativeness == pytest.approx(math.log(3, 2))
-        assert by_c[2].discriminativeness == pytest.approx(4 / 3)
+        assert by_c[0].discriminativeness == pytest.approx(1.5)
+        assert by_c[2].discriminativeness == pytest.approx(1.0)
         assert by_c[3].discriminativeness == pytest.approx(0.0)
 
     def test_synergistic_facets_knapsack_regression(self):

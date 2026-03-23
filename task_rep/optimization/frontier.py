@@ -26,7 +26,6 @@ from .metrics import (
     compute_compactness,
     compute_discriminativeness,
     compute_quality_metric,
-    count_unique_units,
 )
 
 
@@ -90,8 +89,6 @@ def compute_frontier(
         List of FrontierPoint sorted by ascending compactness (and thus
         strictly decreasing discriminativeness/quality score).
     """
-    num_units = count_unique_units(knowledge_base)
-
     # Memoized evaluation: indices_tuple -> quality score (lower is better)
     memo: Dict[Tuple[int, ...], float] = {}
 

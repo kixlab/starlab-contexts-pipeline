@@ -11,7 +11,7 @@ import logging
 import json
 import math
 from collections import defaultdict
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Union
 
 from knowledge_items import (
     KnowledgeBase,
@@ -27,52 +27,73 @@ def compute_cells(
     knowledge_base: KnowledgeBase,
     facets: List[Facet],
     annotations: AnnotationTable,
-) -> Dict[str, Set[str]]:
+) -> Dict[str, Dict[str, int]]:
     """
-    Compute cell -> unit_ids mapping for a given schema.
+    Compute cell -> {unit_id -> item_count} mapping for a given schema.
 
     A cell is identified by the combined label signature across all
     facets for a given item. Items sharing the same signature belong
-    to the same cell. The cell maps to the set of unit_ids it contains
-    (not item_ids, since multiple items can belong to the same unit).
+    to the same cell. Each cell maps unit_ids to the number of items
+    from that unit in the cell.
 
     Items with no unit_id are skipped (not yet clustered).
 
     Port of server's get_cell_to_units() (cim_scripts.py:264-279).
     """
-    cell_to_units: Dict[str, Set[str]] = defaultdict(set)
+    cell_to_units: Dict[str, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
     for item in knowledge_base:
         if item.unit_id is None:
             continue
         subtype = item.subtype.value if hasattr(item.subtype, "value") else (str(item.subtype) if item.subtype is not None else None)
         signature = annotations.signature(item.id, facets, subtype=subtype)
-        cell_to_units[signature].add(item.unit_id)
-    return dict(cell_to_units)
+        cell_to_units[signature][item.unit_id] += 1
+    return {k: dict(v) for k, v in cell_to_units.items()}
 
 
 def compute_discriminativeness(
-    cell_to_units: Dict[str, Set[str]],
-    num_units: int,
+    cell_to_units: Dict[str, Dict[str, int]],
+    num_units: int = 0,
     base: int = 2,
 ) -> float:
     """
-    Compute discriminativeness score D (lower is better).
+    Compute discriminativeness as H(unit|ctx) (lower is better).
 
-    D = sum_c (n_c / N) * log_base(n_c)
-    where n_c = units in cell c, N = total distinct units.
+    Uses item-level conditional entropy:
+      H(U|C) = Σ_c P(C=c) · H(U|C=c)
+    where:
+      P(C=c)      = m_{•c} / m     (fraction of items in cell c)
+      P(U=u|C=c)  = m_{u,c} / m_{•c}
+      H(U|C=c)    = -Σ_u P(U=u|C=c) · log P(U=u|C=c)
 
     Interpretation:
-      D = 0           → perfect separation (each unit in its own cell)
-      D = log_base(N) → no separation (all units in one cell)
+      H = 0    → perfect separation (each cell has items from only one unit)
+      H = H(U) → no separation (context provides no info about unit)
 
+    Args:
+        cell_to_units: Mapping of cell signature -> {unit_id -> item_count}.
+        num_units: Unused, kept for backwards compatibility.
+        base: Logarithm base.
     """
-    if num_units == 0:
+    m = sum(
+        count
+        for unit_counts in cell_to_units.values()
+        for count in unit_counts.values()
+    )
+    if m == 0:
         return 0.0
+
     total = 0.0
-    for unit_set in cell_to_units.values():
-        n_c = len(unit_set)
-        if n_c > 0:
-            total += (n_c / num_units) * math.log(n_c, base)
+    for unit_counts in cell_to_units.values():
+        m_c = sum(unit_counts.values())
+        if m_c == 0:
+            continue
+        p_c = m_c / m
+        h_c = 0.0
+        for count in unit_counts.values():
+            if count > 0:
+                p_u_given_c = count / m_c
+                h_c -= p_u_given_c * math.log(p_u_given_c, base)
+        total += p_c * h_c
     return total
 
 
@@ -213,8 +234,7 @@ def compute_quality_metric(
     """
     if metric_mode == "entropy":
         cells = compute_cells(knowledge_base, facets, annotations)
-        num_units = count_unique_units(knowledge_base)
-        return compute_discriminativeness(cells, num_units)
+        return compute_discriminativeness(cells)
     else:
         pos_mode = "ordinal" if metric_mode == "coherence_ordinal" else "time"
         return compute_eta_squared(
