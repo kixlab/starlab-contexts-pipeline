@@ -211,7 +211,7 @@ class DiscoveryConfig:
             max_items_per_cell=data.get("max_items_per_cell", 5),
             max_concurrency=data.get("max_concurrency", 32),
             vocab_sample_videos=data.get("vocab_sample_videos", 0),
-            max_schema_facets=data.get("max_schema_facets", 4),
+            max_schema_facets=data.get("max_schema_facets", 3),
             init_facets=data.get("init_facets", 0),
             metric_mode=data.get("metric_mode", "entropy"),
             eta_squared_weighting=data.get("eta_squared_weighting", "equal"),
