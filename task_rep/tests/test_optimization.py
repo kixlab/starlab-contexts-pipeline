@@ -205,28 +205,31 @@ class TestComputeDiscriminativeness:
         assert d_perfect < d_partial < d_none
 
     def test_unequal_item_counts_within_cell(self):
-        """Item counts affect within-cell entropy (not just distinct units)."""
-        # 100 items from u1, 1 from u2 → low entropy (nearly pure cell)
+        """Under uniform-over-units, item counts per unit don't affect entropy."""
+        # 100 items from u1, 1 from u2 → each unit still gets equal weight
         skewed = {"a": {"u1": 100, "u2": 1}}
-        # 1 item each → maximum entropy for 2 units
+        # 1 item each
         uniform = {"a": {"u1": 1, "u2": 1}}
         d_skewed = compute_discriminativeness(skewed)
         d_uniform = compute_discriminativeness(uniform)
-        assert d_skewed < d_uniform
+        assert d_skewed == pytest.approx(d_uniform)
 
     def test_unit_overlap_across_cells(self):
         """
         Unit u3 spans two cells (items from different tutorials).
-        H(U|C) is properly bounded (no inflation from double-counting).
+        Under uniform-over-units, u3's weight is split across cells.
         """
         # u3 has 1 item in each of two cells
         cells = {"a": {"u1": 1, "u3": 1}, "b": {"u2": 1, "u3": 1}}
         d = compute_discriminativeness(cells)
-        # m=4, each cell has 2 items
-        # H(U|C) = 2*(2/4)*log2(2) = log2(2) = 1.0
-        assert d == pytest.approx(1.0)
-        # H(U) for this distribution: P(u1)=1/4, P(u2)=1/4, P(u3)=2/4
-        h_u = -(1/4)*math.log2(1/4)*2 - (2/4)*math.log2(2/4)
+        # N=3, unit_totals: u1=1, u2=1, u3=2
+        # Cell a: w(u1)=1, w(u3)=0.5, w_sum=1.5, P(u1|a)=2/3, P(u3|a)=1/3
+        # Cell b: w(u2)=1, w(u3)=0.5, w_sum=1.5, P(u2|b)=2/3, P(u3|b)=1/3
+        # H(U|C) = 2 * (1.5/3) * H(2/3,1/3) = log2(3) - 2/3
+        expected = math.log(3, 2) - 2 / 3
+        assert d == pytest.approx(expected)
+        # H(U) under uniform prior = log2(N) = log2(3)
+        h_u = math.log(3, 2)
         assert d <= h_u  # H(U|C) ≤ H(U), always
 
 
@@ -539,12 +542,14 @@ class TestComputeFrontier:
           item3→u3: f1=b, f2=z
           item4→u3: f1=a, f2=z  ← clash: u3 lands in two f1 cells
 
-          {} (C=0):      H(U|C) = 1.5
-                          one cell: {u1:1, u2:1, u3:2}, m=4
-                          H = -(1/4)log(1/4)*2 - (2/4)log(2/4) = 1.5
-          {f1} (C=2):    H(U|C) = 1.0
+          Under uniform-over-units prior:
+
+          {} (C=0):      H(U|C) = log2(3)
+                          one cell: {u1:1, u2:1, u3:2}
+                          w(u1)=1, w(u2)=1, w(u3)=1 → all equal → H = log2(3)
+          {f1} (C=2):    H(U|C) = log2(3) - 2/3
                           cell <a> → {u1:1, u3:1}, cell <b> → {u2:1, u3:1}
-                          H = 2*(2/4)*log2(2) = 1.0
+                          u3 split across cells → same as overlap test
           {f2} (C=3):    H(U|C) = 0
                           cell <x>→{u1:1}, <y>→{u2:1}, <z>→{u3:2}  (each cell pure)
           {f1,f2} (C=5): H = 0 → dominated by {f2} → excluded from frontier
@@ -554,8 +559,8 @@ class TestComputeFrontier:
         by_c = {p.compactness: p for p in frontier}
         assert set(by_c.keys()) == {0, 2, 3}
 
-        assert by_c[0].discriminativeness == pytest.approx(1.5)
-        assert by_c[2].discriminativeness == pytest.approx(1.0)
+        assert by_c[0].discriminativeness == pytest.approx(math.log(3, 2))
+        assert by_c[2].discriminativeness == pytest.approx(math.log(3, 2) - 2 / 3)
         assert by_c[3].discriminativeness == pytest.approx(0.0)
 
     def test_synergistic_facets_knapsack_regression(self):

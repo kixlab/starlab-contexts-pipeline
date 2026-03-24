@@ -58,12 +58,13 @@ def compute_discriminativeness(
     """
     Compute discriminativeness as H(unit|ctx) (lower is better).
 
-    Uses item-level conditional entropy:
-      H(U|C) = Σ_c P(C=c) · H(U|C=c)
-    where:
-      P(C=c)      = m_{•c} / m     (fraction of items in cell c)
-      P(U=u|C=c)  = m_{u,c} / m_{•c}
-      H(U|C=c)    = -Σ_u P(U=u|C=c) · log P(U=u|C=c)
+    Uses a uniform prior over units (not items):
+      P(U=u)      = 1/N
+      P(C=c|U=u)  = m_{u,c} / m_{u,•}   (fraction of unit u's items in cell c)
+      P(U=u,C=c)  = (1/N) · (m_{u,c} / m_{u,•})
+      P(C=c)      = (1/N) · Σ_u (m_{u,c} / m_{u,•})
+      P(U=u|C=c)  = (m_{u,c} / m_{u,•}) / Σ_{u'} (m_{u',c} / m_{u',•})
+      H(U|C)      = Σ_c P(C=c) · H(U|C=c)
 
     Interpretation:
       H = 0    → perfect separation (each cell has items from only one unit)
@@ -74,25 +75,37 @@ def compute_discriminativeness(
         num_units: Unused, kept for backwards compatibility.
         base: Logarithm base.
     """
-    m = sum(
-        count
-        for unit_counts in cell_to_units.values()
-        for count in unit_counts.values()
-    )
-    if m == 0:
+    # Step 1: Compute per-unit totals m_{u,•}
+    unit_totals: Dict[str, int] = defaultdict(int)
+    for unit_counts in cell_to_units.values():
+        for unit_id, count in unit_counts.items():
+            unit_totals[unit_id] += count
+
+    n_units = len(unit_totals)
+    if n_units == 0:
         return 0.0
 
+    # Step 2: For each cell, compute weights and entropy
     total = 0.0
     for unit_counts in cell_to_units.values():
-        m_c = sum(unit_counts.values())
-        if m_c == 0:
-            continue
-        p_c = m_c / m
-        h_c = 0.0
-        for count in unit_counts.values():
+        # w_u = m_{u,c} / m_{u,•}  (fraction of unit u's items in this cell)
+        weights = {}
+        for unit_id, count in unit_counts.items():
             if count > 0:
-                p_u_given_c = count / m_c
+                weights[unit_id] = count / unit_totals[unit_id]
+
+        w_sum = sum(weights.values())
+        if w_sum == 0:
+            continue
+
+        p_c = w_sum / n_units  # P(C=c)
+
+        h_c = 0.0
+        for w in weights.values():
+            p_u_given_c = w / w_sum
+            if p_u_given_c > 0:
                 h_c -= p_u_given_c * math.log(p_u_given_c, base)
+
         total += p_c * h_c
     return total
 
