@@ -20,7 +20,7 @@ import logging
 import json
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from pathlib import Path
 
 from utils import ModelConfig
@@ -59,6 +59,13 @@ from optimization import (
     clip_frontier,
     compute_frontier,
     is_pareto_improved,
+
+    RefinementTree,
+    build_tree_nodes,
+    prune_and_connect,
+    sample_schemas_from_tree,
+    is_tree_improved,
+    get_active_facet_ids,
 )
 
 logger = logging.getLogger(__name__)
@@ -124,6 +131,15 @@ class DiscoveryConfig:
     # "weighted" = videos weighted by their item count
     eta_squared_weighting: str = "equal"
 
+    # Selection mode — which approach drives schema selection and improvement.
+    # "pareto"           = Pareto frontier (discriminativeness vs. compactness)
+    # "refinement_tree"  = MI-based refinement tree with greedy pruning
+    selection_mode: str = "pareto"
+
+    # Refinement threshold tau (only used when selection_mode="refinement_tree").
+    # A node is considered captured by another if MI(keeper, candidate) / H(candidate) > tau.
+    refinement_threshold: float = 0.85
+
     # IRR (Inter-Rater Reliability) diagnostic.
     # 0 = disabled; >0 = sample N videos and re-label to measure consistency.
     irr_sample_videos: int = 0
@@ -148,8 +164,10 @@ class DiscoveryConfig:
         metric_mode = self.metric_mode
         eta_squared_weighting = self.eta_squared_weighting if self.metric_mode != "entropy" else "na"
         irr = f"irr{self.irr_sample_videos}x{self.irr_num_raters}a{self.irr_min_agreement}" if self.irr_sample_videos > 0 else "noirr"
+        selection = self.selection_mode
+        ref_tau = f"tau{self.refinement_threshold}" if self.selection_mode == "refinement_tree" else "na"
 
-        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}_{max_schema_facets}_{init_facets}_{metric_mode}_{eta_squared_weighting}_{irr}"
+        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}_{max_schema_facets}_{init_facets}_{metric_mode}_{eta_squared_weighting}_{irr}_{selection}_{ref_tau}"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -167,6 +185,8 @@ class DiscoveryConfig:
             "init_facets": self.init_facets,
             "metric_mode": self.metric_mode,
             "eta_squared_weighting": self.eta_squared_weighting,
+            "selection_mode": self.selection_mode,
+            "refinement_threshold": self.refinement_threshold,
             "irr_sample_videos": self.irr_sample_videos,
             "irr_num_raters": self.irr_num_raters,
             "irr_min_agreement": self.irr_min_agreement,
@@ -195,6 +215,8 @@ class DiscoveryConfig:
             init_facets=data.get("init_facets", 0),
             metric_mode=data.get("metric_mode", "entropy"),
             eta_squared_weighting=data.get("eta_squared_weighting", "equal"),
+            selection_mode=data.get("selection_mode", "pareto"),
+            refinement_threshold=data.get("refinement_threshold", 0.85),
             irr_sample_videos=data.get("irr_sample_videos", 0),
             irr_num_raters=data.get("irr_num_raters", 3),
             irr_min_agreement=data.get("irr_min_agreement", 0.6),
@@ -210,24 +232,32 @@ class DiscoveryResult:
     annotations: AnnotationTable
     knowledge_base: KnowledgeBase
     iterations: int
+    tree: Optional[RefinementTree] = None  # populated in refinement_tree mode
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
+        d = {
             "facets": [f.to_dict() for f in self.facets],
             "frontier": [p.to_dict() for p in self.frontier],
             "annotations": self.annotations.to_list(),
             "knowledge_base": self.knowledge_base.to_dict(),
             "iterations": self.iterations,
         }
+        if self.tree is not None:
+            d["tree"] = self.tree.to_dict()
+        return d
 
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> DiscoveryResult:
+        tree = None
+        if "tree" in data and data["tree"] is not None:
+            tree = RefinementTree.from_dict(data["tree"])
         return DiscoveryResult(
             facets=[Facet.from_dict(f) for f in data["facets"]],
             frontier=[FrontierPoint.from_dict(p) for p in data["frontier"]],
             annotations=AnnotationTable.from_list(data["annotations"]),
             knowledge_base=KnowledgeBase.from_dict(data["knowledge_base"]),
             iterations=data["iterations"],
+            tree=tree,
         )
 
 class IterativeSchemaDiscovery:
@@ -259,6 +289,7 @@ class IterativeSchemaDiscovery:
         self._facets: Dict[str, Facet] = {}
         self._annotations: AnnotationTable = AnnotationTable()
         self._frontier: List[FrontierPoint] = []
+        self._tree: Optional[RefinementTree] = None
         self._knowledge_base: KnowledgeBase = KnowledgeBase(items=[])
         self._iteration: int = 0
 
@@ -330,21 +361,39 @@ class IterativeSchemaDiscovery:
         max_schema_facets = self.config.max_schema_facets
         metric_mode = self.config.metric_mode
         eta_squared_weighting = self.config.eta_squared_weighting
+        selection_mode = self.config.selection_mode
 
-        self._frontier = compute_frontier(
-            focused_kb,
-            list(self._facets.values()),
-            self._annotations,
-            max_schema_facets=max_schema_facets,
-            metric_mode=metric_mode,
-            eta_squared_weighting=eta_squared_weighting,
-        )
-        logger.info(
-            "Initial frontier: %d points | worst D=%.4f | best D=%.4f",
-            len(self._frontier),
-            self._frontier[0].discriminativeness if self._frontier else float("inf"),
-            self._frontier[-1].discriminativeness if self._frontier else float("inf"),
-        )
+        if selection_mode == "refinement_tree":
+            nodes, h_memo = build_tree_nodes(
+                focused_kb, list(self._facets.values()), self._annotations,
+                max_schema_facets=max_schema_facets,
+                metric_mode=metric_mode,
+                eta_squared_weighting=eta_squared_weighting,
+            )
+            self._tree = prune_and_connect(
+                nodes, focused_kb, self._facets, self._annotations, h_memo,
+                refinement_threshold=self.config.refinement_threshold,
+                metric_mode=metric_mode,
+            )
+            logger.info(
+                "Initial tree: %d surviving nodes | %d edges",
+                len(self._tree.nodes), len(self._tree.edges),
+            )
+        else:
+            self._frontier = compute_frontier(
+                focused_kb,
+                list(self._facets.values()),
+                self._annotations,
+                max_schema_facets=max_schema_facets,
+                metric_mode=metric_mode,
+                eta_squared_weighting=eta_squared_weighting,
+            )
+            logger.info(
+                "Initial frontier: %d points | worst D=%.4f | best D=%.4f",
+                len(self._frontier),
+                self._frontier[0].discriminativeness if self._frontier else float("inf"),
+                self._frontier[-1].discriminativeness if self._frontier else float("inf"),
+            )
 
         tries_with_no_improvement = 0
         target_d = self.config.target_d
@@ -371,19 +420,29 @@ class IterativeSchemaDiscovery:
             for size, count in size_counts.items():
                 logger.info(f"{size} units: {count} ({count/total_cell_sizes*100:.1f}%)")
 
-            # Step 1: Sample schemas from the clipped frontier
-            clipped = clip_frontier(self._frontier, min_d=target_d)
-            if not clipped:
-                logger.info("Frontier fully resolved (all D ≤ %s); stopping.", self.config.target_d)
-                break
-
-            sampled = sample_schemas(
-                clipped,
-                self._facets,
-                k=k_schemas_to_sample,
-            )
-            
-            assert sampled, "No schemas sampled from the frontier."
+            # Step 1: Sample schemas for expansion
+            if selection_mode == "refinement_tree":
+                sampled = sample_schemas_from_tree(
+                    self._tree,
+                    self._facets,
+                    target_d=target_d,
+                    k=k_schemas_to_sample,
+                    metric_mode=metric_mode,
+                )
+                if not sampled:
+                    logger.info("Tree fully resolved (no unresolved leaves); stopping.")
+                    break
+            else:
+                clipped = clip_frontier(self._frontier, min_d=target_d)
+                if not clipped:
+                    logger.info("Frontier fully resolved (all D ≤ %s); stopping.", self.config.target_d)
+                    break
+                sampled = sample_schemas(
+                    clipped,
+                    self._facets,
+                    k=k_schemas_to_sample,
+                )
+                assert sampled, "No schemas sampled from the frontier."
 
             # Step 2: Facet generation
             all_new_facets: List[Facet] = []
@@ -485,33 +544,57 @@ class IterativeSchemaDiscovery:
                 knowledge_base=self._knowledge_base,
             )
 
-            # Step 5: Tentatively merge and recompute frontier
+            # Step 5: Tentatively merge and recompute selection
             combined_facets = list(self._facets.values()) + unique_new
             combined_annotations = self._annotations.merge(new_annotations)
-            new_frontier = compute_frontier(
-                focused_kb, combined_facets, combined_annotations,
-                max_schema_facets=max_schema_facets,
-                metric_mode=metric_mode,
-                eta_squared_weighting=eta_squared_weighting,
-            )
 
-            # Step 6: Accept if the clipped frontier before target_d is improved
-            if is_pareto_improved(self._frontier, new_frontier, min_d=target_d):
-                logger.info("-------------------------------- New frontier --------------------------------")
-                for point in new_frontier:
-                    logger.info(f"New: {point.discriminativeness} {point.compactness}")
-                logger.info("---------------------------------------------------------------------")
+            if selection_mode == "refinement_tree":
+                new_nodes, new_h_memo = build_tree_nodes(
+                    focused_kb, combined_facets, combined_annotations,
+                    max_schema_facets=max_schema_facets,
+                    metric_mode=metric_mode,
+                    eta_squared_weighting=eta_squared_weighting,
+                )
+                new_tree = prune_and_connect(
+                    new_nodes, focused_kb,
+                    {f.id: f for f in combined_facets},
+                    combined_annotations, new_h_memo,
+                    refinement_threshold=self.config.refinement_threshold,
+                    metric_mode=metric_mode,
+                )
+                improved = is_tree_improved(self._tree, new_tree, metric_mode=metric_mode)
+            else:
+                new_frontier = compute_frontier(
+                    focused_kb, combined_facets, combined_annotations,
+                    max_schema_facets=max_schema_facets,
+                    metric_mode=metric_mode,
+                    eta_squared_weighting=eta_squared_weighting,
+                )
+                improved = is_pareto_improved(self._frontier, new_frontier, min_d=target_d)
 
-                # Only keep new facets that actually appear in a meaningful
-                # frontier point (D > min_d).  Proposals that don't contribute
-                # to any unresolved schema are dropped before committing.
-                active_ids: set[str] = set()
-                for point in clip_frontier(new_frontier, min_d=min_d):
-                    active_ids.update(point.facet_ids)
+            # Step 6: Accept if improved
+            if improved:
+                if selection_mode == "refinement_tree":
+                    logger.info("-------------------------------- New tree --------------------------------")
+                    for node in new_tree.nodes:
+                        logger.info(f"Node: {node.id} | size={node.size} D={node.D:.4f} eta2={node.eta2:.4f}")
+                    logger.info("---------------------------------------------------------------------")
+
+                    active_ids = get_active_facet_ids(new_tree, min_d=min_d, metric_mode=metric_mode)
+                else:
+                    logger.info("-------------------------------- New frontier --------------------------------")
+                    for point in new_frontier:
+                        logger.info(f"New: {point.discriminativeness} {point.compactness}")
+                    logger.info("---------------------------------------------------------------------")
+
+                    active_ids: set[str] = set()
+                    for point in clip_frontier(new_frontier, min_d=min_d):
+                        active_ids.update(point.facet_ids)
+
                 accepted_new = [f for f in unique_new if f.id in active_ids]
                 n_dropped = len(unique_new) - len(accepted_new)
                 logger.info(
-                    "Pareto improvement — accepting %d new facet(s)%s.",
+                    "Improvement — accepting %d new facet(s)%s.",
                     len(accepted_new),
                     f" ({n_dropped} dropped as non-contributing)" if n_dropped else "",
                 )
@@ -520,19 +603,31 @@ class IterativeSchemaDiscovery:
                     self._facets[f.id] = f
                 self._annotations.update(new_annotations.filter_facets(active_ids))
 
-                # Recompute frontier from the accepted pool (may differ from
-                # new_frontier if some candidates were dropped).
-                self._frontier = compute_frontier(
-                    focused_kb, list(self._facets.values()), self._annotations,
-                    max_schema_facets=max_schema_facets,
-                    metric_mode=metric_mode,
-                    eta_squared_weighting=eta_squared_weighting,
-                )
+                # Recompute from the accepted pool
+                if selection_mode == "refinement_tree":
+                    acc_nodes, acc_h_memo = build_tree_nodes(
+                        focused_kb, list(self._facets.values()), self._annotations,
+                        max_schema_facets=max_schema_facets,
+                        metric_mode=metric_mode,
+                        eta_squared_weighting=eta_squared_weighting,
+                    )
+                    self._tree = prune_and_connect(
+                        acc_nodes, focused_kb, self._facets, self._annotations, acc_h_memo,
+                        refinement_threshold=self.config.refinement_threshold,
+                        metric_mode=metric_mode,
+                    )
+                else:
+                    self._frontier = compute_frontier(
+                        focused_kb, list(self._facets.values()), self._annotations,
+                        max_schema_facets=max_schema_facets,
+                        metric_mode=metric_mode,
+                        eta_squared_weighting=eta_squared_weighting,
+                    )
 
                 tries_with_no_improvement = 0
                 self._save_cache(cache_dir)
             else:
-                logger.info("No Pareto improvement — discarding candidates.")
+                logger.info("No improvement — discarding candidates.")
                 tries_with_no_improvement += 1
 
         self._save_cache(cache_dir)
@@ -542,6 +637,7 @@ class IterativeSchemaDiscovery:
             annotations=self._annotations,
             knowledge_base=self._knowledge_base,
             iterations=self._iteration,
+            tree=self._tree,
         )
 
     # ---- caching ----
@@ -555,6 +651,7 @@ class IterativeSchemaDiscovery:
             annotations=self._annotations,
             knowledge_base=self._knowledge_base,
             iterations=self._iteration,
+            tree=self._tree,
         )
 
         with open(result_path, "w", encoding="utf-8") as f:
