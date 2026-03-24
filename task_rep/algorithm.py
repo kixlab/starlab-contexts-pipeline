@@ -91,6 +91,9 @@ class DiscoveryConfig:
     # Convergence: stop after this many consecutive iterations with no improvement
     max_iterations: int = 5
 
+    # Hard cap on total facets in the pool.  0 = unlimited.
+    max_facets: int = 0
+
     # Frontier sampling
     k_schemas_to_sample: int = 2
 
@@ -167,13 +170,16 @@ class DiscoveryConfig:
         selection = self.selection_mode
         ref_tau = f"tau{self.refinement_threshold}" if self.selection_mode == "refinement_tree" else "na"
 
-        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}_{max_schema_facets}_{init_facets}_{metric_mode}_{eta_squared_weighting}_{irr}_{selection}_{ref_tau}"
+        max_facets = str(self.max_facets) if self.max_facets > 0 else "inf"
+
+        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}_{max_schema_facets}_{init_facets}_{metric_mode}_{eta_squared_weighting}_{irr}_{selection}_{ref_tau}_{max_facets}"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "item_scope": self.item_scope.to_dict(),
             "use_cache": self.use_cache,
             "max_iterations": self.max_iterations,
+            "max_facets": self.max_facets,
             "k_schemas_to_sample": self.k_schemas_to_sample,
             "target_d": self.target_d,
             "min_d": self.min_d,
@@ -204,6 +210,7 @@ class DiscoveryConfig:
             labeling_model=ModelConfig.from_dict(data["labeling_model"]),
             use_cache=data.get("use_cache", True),
             max_iterations=data.get("max_iterations", 5),
+            max_facets=data.get("max_facets", 0),
             k_schemas_to_sample=data.get("k_schemas_to_sample", 2),
             target_d=data.get("target_d", 0.8),
             min_d=data.get("min_d", 0.01),
@@ -398,6 +405,7 @@ class IterativeSchemaDiscovery:
         tries_with_no_improvement = 0
         target_d = self.config.target_d
         max_iterations = self.config.max_iterations
+        max_facets = self.config.max_facets
         max_cells_per_iteration = self.config.max_cells_per_iteration
         max_items_per_cell = self.config.max_items_per_cell
         k_schemas_to_sample = self.config.k_schemas_to_sample
@@ -626,6 +634,13 @@ class IterativeSchemaDiscovery:
 
                 tries_with_no_improvement = 0
                 self._save_cache(cache_dir)
+
+                if max_facets > 0 and len(self._facets) >= max_facets:
+                    logger.info(
+                        "Facet pool reached cap (%d/%d) — stopping.",
+                        len(self._facets), max_facets,
+                    )
+                    break
             else:
                 logger.info("No improvement — discarding candidates.")
                 tries_with_no_improvement += 1
