@@ -55,11 +55,9 @@ export function InspectionPanel({
   const isEdge = selEdge !== null;
   const isEmpty = !isSingle && !isCompare && !isEdge;
 
-  const width = isCompare ? "w-[480px]" : "w-96";
-
   if (isEmpty) {
     return (
-      <div className="w-80 flex-shrink-0 border-l border-neutral-800 bg-neutral-950 flex items-center justify-center">
+      <div className="w-96 flex-shrink-0 border-l border-neutral-800 bg-neutral-950 flex items-center justify-center">
         <p className="text-neutral-600 text-sm text-center px-6">
           Click a node to inspect it.<br />
           Shift+click two nodes to compare.
@@ -69,7 +67,7 @@ export function InspectionPanel({
   }
 
   return (
-    <div className={`${width} flex-shrink-0 border-l border-neutral-800 bg-neutral-950 overflow-y-auto`}>
+    <div className="w-96 flex-shrink-0 border-l border-neutral-800 bg-neutral-950 overflow-y-auto">
       {/* Close button */}
       <div className="sticky top-0 z-10 flex justify-end p-2 bg-neutral-950/90 backdrop-blur-sm">
         <button onClick={onClose} className="text-neutral-500 hover:text-white text-xs px-2 py-1 rounded hover:bg-neutral-800">

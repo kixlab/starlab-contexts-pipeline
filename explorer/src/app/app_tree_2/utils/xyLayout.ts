@@ -1,21 +1,29 @@
 import type { RefinementTree, TreeNode, TreeEdge } from "./treeBuilder";
 import type { NodePosition } from "../types";
 
-// Re-export constants and types so page.tsx / TreeCanvas can import from here.
+// Re-export constants so page.tsx / TreeCanvas can import from here.
 export { NODE_WIDTH, NODE_HEIGHT, MARGIN } from "./stableLayout";
-export type { LayoutResult } from "./stableLayout";
 
 // Local copies for use in computePositions
 const _NODE_WIDTH = 160;
 const _MARGIN = { top: 48, right: 40, bottom: 40, left: 80 };
-const _NODE_HEIGHT = 60;
 const MIN_ROW_HEIGHT = 80;
-const NODE_GAP = 20; // min gap between node edges
+const NODE_GAP = 20; // min horizontal gap between node edges
 
-type LayoutResult = {
+// Adaptive node height (must stay in sync with TreeCanvas BASE_H / CHIP_H)
+const NODE_H_BASE = 36;
+const NODE_H_PER_CHIP = 16;
+const SUB_ROW_GAP = 14; // vertical gap between sub-lanes
+
+function computeNodeH(n: TreeNode): number {
+  return NODE_H_BASE + n.facetSubset.length * NODE_H_PER_CHIP;
+}
+
+export type LayoutResult = {
   positions: Map<string, NodePosition>;
-  bandRows: { band: number; y: number; count: number }[];
-  rowHeight: number;
+  /** Per-band row info. `height` may differ across bands (sub-lanes). */
+  bandRows: { band: number; y: number; count: number; height: number }[];
+  rowHeight: number; // max band height (for backwards compat)
 };
 
 /**
@@ -25,7 +33,6 @@ type LayoutResult = {
 export function computeDOrder(tree: RefinementTree): Map<string, number> {
   if (tree.nodes.length === 0) return new Map();
 
-  // Group nodes by sizeBand
   const layerMap = new Map<number, TreeNode[]>();
   for (const n of tree.nodes) {
     let arr = layerMap.get(n.sizeBand);
@@ -36,13 +43,11 @@ export function computeDOrder(tree: RefinementTree): Map<string, number> {
   const order = new Map<string, number>();
 
   for (const [, layer] of layerMap) {
-    // Sort: D ascending (best = left), then id tiebreak
     layer.sort((a, b) => {
       const dDiff = a.D - b.D;
       if (Math.abs(dDiff) > 1e-9) return dDiff;
       return a.id.localeCompare(b.id);
     });
-
     for (let i = 0; i < layer.length; i++) {
       order.set(layer[i].id, i);
     }
@@ -53,11 +58,9 @@ export function computeDOrder(tree: RefinementTree): Map<string, number> {
 
 /**
  * Position nodes using D for absolute x-positioning across all rows.
- * Nodes with the same D value land at the same x regardless of which row
- * they are in. Collision resolution pushes overlapping nodes apart within
- * each row while preserving order.
- *
- * Y-axis: bands (sizeBand) → rows, same as stableLayout.
+ * When nodes in the same band would overlap at their D-based x, they are
+ * placed into sub-lanes (extra vertical rows within the band) instead of
+ * widening the canvas. Row heights vary per band.
  */
 export function computePositions(
   visibleNodes: TreeNode[],
@@ -83,7 +86,6 @@ export function computePositions(
   const sortedBands = allBands
     ? [...new Set(allBands)].sort((a, b) => a - b)
     : Array.from(layerMap.keys()).sort((a, b) => a - b);
-  const numLayers = sortedBands.length;
 
   // ── Sort each layer by D ascending (via globalOrder) ──
   for (const [, layer] of layerMap) {
@@ -97,65 +99,90 @@ export function computePositions(
     maxD = Math.max(maxD, n.D);
   }
   if (maxD - minD < 1e-9) { minD = 0; maxD = Math.max(1, maxD); }
+  const dRange = maxD - minD;
 
-  // ── Usable width: ensure room for the widest layer after collision ──
-  let maxInLayer = 1;
-  for (const [, layer] of layerMap) {
-    maxInLayer = Math.max(maxInLayer, layer.length);
-  }
-  const minSpacing = _NODE_WIDTH + NODE_GAP;
+  // ── Usable width: moderate, sub-lanes handle density ──
   const usableWidth = Math.max(
     containerWidth - _MARGIN.left - _MARGIN.right,
-    maxInLayer * minSpacing,
+    800,
   );
+  const xStart = _MARGIN.left + _NODE_WIDTH / 2;
+  const xRange = usableWidth - _NODE_WIDTH;
+  const minSpacing = _NODE_WIDTH + NODE_GAP;
 
-  // ── Y positions ──
-  const rowHeight = Math.max(
-    MIN_ROW_HEIGHT,
-    numLayers > 0 ? containerHeight / Math.min(5, numLayers) : MIN_ROW_HEIGHT,
-  );
-  const usableHeight = Math.max(
-    containerHeight - _MARGIN.top - _MARGIN.bottom,
-    (numLayers - 1) * rowHeight,
-  );
+  // ── Assign sub-lanes per band ──
+  const nodeLane = new Map<string, number>();
+  const bandLaneCount = new Map<number, number>();
+  const bandMaxNodeH = new Map<number, number>();
 
-  const layerIndex = new Map<number, number>();
-  sortedBands.forEach((band, i) => layerIndex.set(band, i));
+  // Also store each node's ideal x for positioning later
+  const nodeIdealX = new Map<string, number>();
 
-  const bandRows: LayoutResult["bandRows"] = [];
-  for (let bi = 0; bi < sortedBands.length; bi++) {
-    const band = sortedBands[bi];
-    const y =
-      numLayers === 1
-        ? _MARGIN.top + usableHeight / 2
-        : _MARGIN.top + (bi / (numLayers - 1)) * usableHeight;
-    const layer = layerMap.get(band);
-    bandRows.push({ band, y, count: layer?.length ?? 0 });
-  }
-
-  // ── X positions: D-based with collision resolution ──
   for (const [band, layer] of layerMap) {
-    const li = layerIndex.get(band)!;
-    const y = bandRows[li].y;
+    // Each lane tracks the rightmost edge x of its last node
+    const lanes: number[] = [];
+    let maxH = 0;
 
-    // Ideal x from D (low D → left, high D → right)
-    // Offset by NODE_WIDTH/2 so the leftmost node's edge aligns with the margin
-    const xStart = _MARGIN.left + _NODE_WIDTH / 2;
-    const xRange = usableWidth - _NODE_WIDTH;
-    const xs: number[] = layer.map((n) => {
-      const frac = (n.D - minD) / (maxD - minD);
-      return xStart + frac * Math.max(0, xRange);
-    });
+    for (const n of layer) {
+      const frac = (n.D - minD) / dRange;
+      const x = xStart + frac * Math.max(0, xRange);
+      nodeIdealX.set(n.id, x);
+      const leftEdge = x - _NODE_WIDTH / 2;
+      const rightEdge = x + _NODE_WIDTH / 2;
+      maxH = Math.max(maxH, computeNodeH(n));
 
-    // Collision resolution: sweep left→right, enforce min spacing
-    for (let i = 1; i < xs.length; i++) {
-      if (xs[i] - xs[i - 1] < minSpacing) {
-        xs[i] = xs[i - 1] + minSpacing;
+      // Find first lane where this node fits without overlap
+      let assigned = false;
+      for (let li = 0; li < lanes.length; li++) {
+        if (leftEdge >= lanes[li] + NODE_GAP) {
+          lanes[li] = rightEdge;
+          nodeLane.set(n.id, li);
+          assigned = true;
+          break;
+        }
+      }
+      if (!assigned) {
+        nodeLane.set(n.id, lanes.length);
+        lanes.push(rightEdge);
       }
     }
 
-    for (let i = 0; i < layer.length; i++) {
-      positions.set(layer[i].id, { x: xs[i], y, layer: li });
+    bandLaneCount.set(band, Math.max(1, lanes.length));
+    bandMaxNodeH.set(band, Math.max(maxH, NODE_H_BASE));
+  }
+
+  // ── Compute variable row heights and y positions ──
+  const bandRows: LayoutResult["bandRows"] = [];
+  let currentY = _MARGIN.top;
+
+  for (const band of sortedBands) {
+    const numLanes = bandLaneCount.get(band) ?? 1;
+    const maxH = bandMaxNodeH.get(band) ?? NODE_H_BASE;
+    const subRowH = maxH + SUB_ROW_GAP;
+    const bandHeight = Math.max(MIN_ROW_HEIGHT, numLanes * subRowH);
+    const bandCenterY = currentY + bandHeight / 2;
+    const layer = layerMap.get(band);
+    bandRows.push({ band, y: bandCenterY, count: layer?.length ?? 0, height: bandHeight });
+    currentY += bandHeight;
+  }
+
+  const bandRowIndex = new Map<number, number>();
+  sortedBands.forEach((band, i) => bandRowIndex.set(band, i));
+
+  // ── Position each node ──
+  for (const [band, layer] of layerMap) {
+    const bi = bandRowIndex.get(band)!;
+    const bandRow = bandRows[bi];
+    const numLanes = bandLaneCount.get(band) ?? 1;
+    const maxH = bandMaxNodeH.get(band) ?? NODE_H_BASE;
+    const subRowH = maxH + SUB_ROW_GAP;
+
+    for (const n of layer) {
+      const x = nodeIdealX.get(n.id)!;
+      const lane = nodeLane.get(n.id) ?? 0;
+      const laneOffset = (lane - (numLanes - 1) / 2) * subRowH;
+      const y = bandRow.y + laneOffset;
+      positions.set(n.id, { x, y, layer: bi });
     }
   }
 
@@ -175,5 +202,6 @@ export function computePositions(
     }
   }
 
-  return { positions, bandRows, rowHeight };
+  const maxRowHeight = Math.max(...bandRows.map((b) => b.height), MIN_ROW_HEIGHT);
+  return { positions, bandRows, rowHeight: maxRowHeight };
 }

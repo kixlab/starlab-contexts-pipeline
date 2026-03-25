@@ -169,7 +169,7 @@ export function TreeCanvas({
           <div
             key={`stripe-${l.band}`}
             className={`absolute left-0 border-b border-neutral-700/40 ${i % 2 === 0 ? "bg-neutral-950" : "bg-neutral-800/25"}`}
-            style={{ top: l.y - rowHeight / 2, height: rowHeight, width: "100%" }}
+            style={{ top: l.y - (l.height ?? rowHeight) / 2, height: l.height ?? rowHeight, width: "100%" }}
           />
         ))}
       </div>
