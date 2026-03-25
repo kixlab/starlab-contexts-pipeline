@@ -13,7 +13,7 @@ import {
   type RefinementTree,
   type TreeBuildConfig,
 } from "./utils/treeBuilder";
-import { computeGlobalOrder, computePositions, type LayoutResult } from "./utils/stableLayout";
+import { computeDOrder, computePositions } from "./utils/xyLayout";
 import { computeHighlightedNodeIds } from "./utils/visibility";
 import { Toolbar } from "./components/Toolbar";
 import { TreeCanvas } from "./components/TreeCanvas";
@@ -185,7 +185,7 @@ export default function AppTree2() {
       const newTree = buildTreeFromCachedSchemas(cachedRef.current!, cfg);
       setTree(newTree);
       setLastBuiltConfig(cfg);
-      setGlobalOrder(computeGlobalOrder(newTree, cfg.qualityMetric));
+      setGlobalOrder(computeDOrder(newTree));
       const ids = new Set(newTree.nodes.map((n) => n.id));
       setSelectedNodeIds((prev) => prev.filter((id) => ids.has(id)));
       setSelectedEdgeKey((prev) => {
@@ -250,6 +250,7 @@ export default function AppTree2() {
   }, []);
 
   const validPiecesCount = cachedRef.current?.validPiecesCount ?? 0;
+  const numUniqueUnits = cachedRef.current?.numUniqueUnits ?? 0;
 
   return (
     <div className="flex h-screen bg-neutral-950 text-white overflow-hidden">
@@ -286,7 +287,7 @@ export default function AppTree2() {
               positions={layout.positions}
               bandRows={layout.bandRows}
               rowHeight={layout.rowHeight}
-              qualityMetric={config.qualityMetric}
+              numUniqueUnits={numUniqueUnits}
               selectedNodeIds={selectedNodeIds}
               selectedEdgeKey={selectedEdgeKey}
               hoveredNodeId={hoveredNodeId}
@@ -318,7 +319,7 @@ export default function AppTree2() {
         selectedEdgeKey={selectedEdgeKey}
         dataset={dataset}
         infoTypes={infoTypes}
-        qualityMetric={config.qualityMetric}
+        numUniqueUnits={numUniqueUnits}
         validPiecesCount={validPiecesCount}
         onNodeClick={handleNodeClickFromPanel}
         onClose={handleDeselectAll}

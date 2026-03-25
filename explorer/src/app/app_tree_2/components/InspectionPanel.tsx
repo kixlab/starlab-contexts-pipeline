@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { DatasetVideo, Facet } from "@/app/types";
 import { facetToLabelKey } from "@/app/utils/facetStats";
 import type { RefinementTree, TreeNode, TreeEdge } from "../utils/treeBuilder";
-import { computeMI, computeJointEntropy } from "../utils/treeBuilder";
+import { computeMI, computeEffectiveness } from "../utils/treeBuilder";
 import {
   facetIdToChipColor,
   computeFacetDistributions,
@@ -21,7 +21,7 @@ type InspectionPanelProps = {
   selectedEdgeKey: string | null;
   dataset: DatasetVideo[];
   infoTypes: string[] | null;
-  qualityMetric: "D" | "eta2";
+  numUniqueUnits: number;
   validPiecesCount: number;
   onNodeClick: (nodeId: string) => void;
   onClose: () => void;
@@ -37,7 +37,7 @@ export function InspectionPanel({
   selectedEdgeKey,
   dataset,
   infoTypes,
-  qualityMetric,
+  numUniqueUnits,
   validPiecesCount,
   onNodeClick,
   onClose,
@@ -84,7 +84,7 @@ export function InspectionPanel({
             tree={tree}
             dataset={dataset}
             infoTypes={infoTypes}
-            qualityMetric={qualityMetric}
+            numUniqueUnits={numUniqueUnits}
             nodeMap={nodeMap}
             onNodeClick={onNodeClick}
           />
@@ -93,10 +93,9 @@ export function InspectionPanel({
           <ComparisonView
             nodeA={selNodes[0]}
             nodeB={selNodes[1]}
-            tree={tree}
             dataset={dataset}
             infoTypes={infoTypes}
-            qualityMetric={qualityMetric}
+            numUniqueUnits={numUniqueUnits}
             validPiecesCount={validPiecesCount}
           />
         )}
@@ -104,7 +103,7 @@ export function InspectionPanel({
           <EdgeView
             edge={selEdge!}
             nodeMap={nodeMap}
-            qualityMetric={qualityMetric}
+            numUniqueUnits={numUniqueUnits}
             onNodeClick={onNodeClick}
           />
         )}
@@ -122,7 +121,7 @@ function SingleNodeView({
   tree,
   dataset,
   infoTypes,
-  qualityMetric,
+  numUniqueUnits,
   nodeMap,
   onNodeClick,
 }: {
@@ -130,7 +129,7 @@ function SingleNodeView({
   tree: RefinementTree;
   dataset: DatasetVideo[];
   infoTypes: string[] | null;
-  qualityMetric: "D" | "eta2";
+  numUniqueUnits: number;
   nodeMap: Map<string, TreeNode>;
   onNodeClick: (id: string) => void;
 }) {
@@ -167,12 +166,8 @@ function SingleNodeView({
       {/* Metrics */}
       <Section title="Metrics">
         <MetricGrid>
-          <MetricCell label="C" value={node.size} />
-          <MetricCell label="D" value={node.D.toFixed(3)} highlight={qualityMetric === "D"} />
-          <MetricCell label="η²" value={node.eta2.toFixed(3)} highlight={qualityMetric === "eta2"} />
-          <MetricCell label="Stab" value={node.stability.toFixed(3)} />
-          <MetricCell label="Cells" value={node.cellCount} />
-          <MetricCell label="H" value={node.H.toFixed(3)} />
+          <MetricCell label="Size" value={node.size} />
+          <MetricCell label="Effectiveness" value={`${computeEffectiveness(node.D, numUniqueUnits).toFixed(0)}%`} />
         </MetricGrid>
       </Section>
 
@@ -180,7 +175,7 @@ function SingleNodeView({
       {inEdges.length > 0 && (
         <Section title={`Parents (${inEdges.length})`}>
           {inEdges.map((e) => (
-            <EdgeLink key={e.sourceId} nodeId={e.sourceId} edge={e} direction="parent" nodeMap={nodeMap} onClick={onNodeClick} />
+            <EdgeLink key={e.sourceId} nodeId={e.sourceId} edge={e} nodeMap={nodeMap} onClick={onNodeClick} />
           ))}
         </Section>
       )}
@@ -189,7 +184,7 @@ function SingleNodeView({
       {outEdges.length > 0 && (
         <Section title={`Children (${outEdges.length})`}>
           {outEdges.map((e) => (
-            <EdgeLink key={e.targetId} nodeId={e.targetId} edge={e} direction="child" nodeMap={nodeMap} onClick={onNodeClick} />
+            <EdgeLink key={e.targetId} nodeId={e.targetId} edge={e} nodeMap={nodeMap} onClick={onNodeClick} />
           ))}
         </Section>
       )}
@@ -213,23 +208,20 @@ function SingleNodeView({
 function ComparisonView({
   nodeA,
   nodeB,
-  tree,
   dataset,
   infoTypes,
-  qualityMetric,
+  numUniqueUnits,
   validPiecesCount,
 }: {
   nodeA: TreeNode;
   nodeB: TreeNode;
-  tree: RefinementTree;
   dataset: DatasetVideo[];
   infoTypes: string[] | null;
-  qualityMetric: "D" | "eta2";
+  numUniqueUnits: number;
   validPiecesCount: number;
 }) {
   const N = validPiecesCount;
   const mi = useMemo(() => computeMI(nodeA, nodeB, N), [nodeA, nodeB, N]);
-  const jointH = useMemo(() => computeJointEntropy(nodeA, nodeB, N), [nodeA, nodeB, N]);
 
   const aIds = new Set(nodeA.facetSubset.map((f) => f.id));
   const bIds = new Set(nodeB.facetSubset.map((f) => f.id));
@@ -264,20 +256,16 @@ function ComparisonView({
           <span className="text-amber-400 text-right">#1</span>
           <span className="text-cyan-400 text-right">#2</span>
           <span className="text-neutral-400 text-right">Δ</span>
-          <CompRow label="C" a={nodeA.size} b={nodeB.size} />
-          <CompRow label="D" a={nodeA.D} b={nodeB.D} fmt={3} lower />
-          <CompRow label="η²" a={nodeA.eta2} b={nodeB.eta2} fmt={3} />
-          <CompRow label="Stab" a={nodeA.stability} b={nodeB.stability} fmt={3} />
+          <CompRow label="Size" a={nodeA.size} b={nodeB.size} />
+          <CompRow label="Effectiveness" a={computeEffectiveness(nodeA.D, numUniqueUnits)} b={computeEffectiveness(nodeB.D, numUniqueUnits)} fmt={0} suffix="%" />
         </div>
       </Section>
 
-      {/* MI */}
-      <Section title="Mutual Information">
+      {/* Overlap */}
+      <Section title="Overlap">
         <MetricGrid>
-          <MetricCell label="MI" value={mi.toFixed(3)} />
-          <MetricCell label="MI/H(#1)" value={nodeA.H > 0 ? (mi / nodeA.H).toFixed(3) : "—"} />
-          <MetricCell label="MI/H(#2)" value={nodeB.H > 0 ? (mi / nodeB.H).toFixed(3) : "—"} />
-          <MetricCell label="H(joint)" value={jointH.toFixed(3)} />
+          <MetricCell label="Overlap with #1" value={nodeA.H > 0 ? `${Math.round((mi / nodeA.H) * 100)}%` : "—"} />
+          <MetricCell label="Overlap with #2" value={nodeB.H > 0 ? `${Math.round((mi / nodeB.H) * 100)}%` : "—"} />
         </MetricGrid>
       </Section>
 
@@ -305,12 +293,12 @@ function ComparisonView({
 function EdgeView({
   edge,
   nodeMap,
-  qualityMetric,
+  numUniqueUnits,
   onNodeClick,
 }: {
   edge: TreeEdge;
   nodeMap: Map<string, TreeNode>;
-  qualityMetric: "D" | "eta2";
+  numUniqueUnits: number;
   onNodeClick: (id: string) => void;
 }) {
   const src = nodeMap.get(edge.sourceId);
@@ -350,10 +338,7 @@ function EdgeView({
       {/* Edge metrics */}
       <Section title="Edge Metrics">
         <MetricGrid>
-          <MetricCell label="MI" value={edge.MI.toFixed(3)} />
-          <MetricCell label="Refinement" value={edge.refinementScore.toFixed(3)} />
-          <MetricCell label="ΔD" value={edge.marginalDGain.toFixed(3)} />
-          <MetricCell label="Δη²" value={edge.marginalEta2Gain.toFixed(3)} />
+          <MetricCell label="Refinement" value={`${Math.round(edge.refinementScore * 100)}%`} />
         </MetricGrid>
       </Section>
 
@@ -368,10 +353,8 @@ function EdgeView({
           <span className="text-neutral-300 text-right">Parent</span>
           <span className="text-neutral-300 text-right">Child</span>
           <span className="text-neutral-400 text-right">Δ</span>
-          <CompRow label="C" a={src.size} b={tgt.size} />
-          <CompRow label="D" a={src.D} b={tgt.D} fmt={3} lower />
-          <CompRow label="η²" a={src.eta2} b={tgt.eta2} fmt={3} />
-          <CompRow label="Stab" a={src.stability} b={tgt.stability} fmt={3} />
+          <CompRow label="Size" a={src.size} b={tgt.size} />
+          <CompRow label="Effectiveness" a={computeEffectiveness(src.D, numUniqueUnits)} b={computeEffectiveness(tgt.D, numUniqueUnits)} fmt={0} suffix="%" />
         </div>
       </Section>
     </>
@@ -429,7 +412,8 @@ function MetricCell({ label, value, highlight }: { label: string; value: string 
   );
 }
 
-function CompRow({ label, a, b, fmt, lower }: { label: string; a: number; b: number; fmt?: number; lower?: boolean }) {
+function CompRow({ label, a, b, fmt, lower, suffix }: { label: string; a: number; b: number; fmt?: number; lower?: boolean; suffix?: string }) {
+  const s = suffix ?? "";
   const fa = fmt != null ? a.toFixed(fmt) : a;
   const fb = fmt != null ? b.toFixed(fmt) : b;
   const delta = b - a;
@@ -439,10 +423,10 @@ function CompRow({ label, a, b, fmt, lower }: { label: string; a: number; b: num
   return (
     <>
       <span className="text-neutral-400">{label}</span>
-      <span className="text-right font-mono text-neutral-200">{fa}</span>
-      <span className="text-right font-mono text-neutral-200">{fb}</span>
+      <span className="text-right font-mono text-neutral-200">{fa}{s}</span>
+      <span className="text-right font-mono text-neutral-200">{fb}{s}</span>
       <span className={`text-right font-mono ${better ? "text-green-400" : worse ? "text-red-400" : "text-neutral-500"}`}>
-        {delta > 0 ? "+" : ""}{fd}
+        {delta > 0 ? "+" : ""}{fd}{s}
       </span>
     </>
   );
@@ -452,7 +436,7 @@ function SchemaCard({ node, label, color }: { node: TreeNode; label: string; col
   return (
     <div className="rounded border border-neutral-800 p-2 bg-neutral-900">
       <div className="flex items-center gap-1.5 mb-1">
-        <span className="text-[10px] font-medium" style={{ color }}>{label} · C={node.size}</span>
+        <span className="text-[10px] font-medium" style={{ color }}>{label} · Size={node.size}</span>
         <CopyFacetIdsButton facets={node.facetSubset} />
       </div>
       <div className="flex flex-wrap gap-1">
@@ -474,13 +458,11 @@ function SchemaCard({ node, label, color }: { node: TreeNode; label: string; col
 function EdgeLink({
   nodeId,
   edge,
-  direction,
   nodeMap,
   onClick,
 }: {
   nodeId: string;
   edge: TreeEdge;
-  direction: "parent" | "child";
   nodeMap: Map<string, TreeNode>;
   onClick: (id: string) => void;
 }) {
@@ -493,7 +475,7 @@ function EdgeLink({
     >
       <span className="text-blue-400 truncate flex-1">{label}</span>
       <EdgeTypeBadge type={edge.edgeType} />
-      <span className="text-neutral-500 text-[10px]">ref={edge.refinementScore.toFixed(2)}</span>
+      <span className="text-neutral-500 text-[10px]">Ref={Math.round(edge.refinementScore * 100)}%</span>
     </button>
   );
 }

@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { TreeNode, TreeEdge, RefinementTree } from "../utils/treeBuilder";
-import { NODE_WIDTH, NODE_HEIGHT, MARGIN, type LayoutResult } from "../utils/stableLayout";
+import { computeEffectiveness } from "../utils/treeBuilder";
+import { NODE_WIDTH, NODE_HEIGHT, MARGIN, type LayoutResult } from "../utils/xyLayout";
 import type { NodePosition } from "../types";
-import {
-  facetIdToChipColor,
-  computeFacetAbbreviations,
-} from "@/app/app_analysis/utils/metricsUtils";
+import { facetIdToChipColor } from "@/app/app_analysis/utils/metricsUtils";
+
+// Adaptive node height constants
+const CHIP_H = 16;
+const BASE_H = 36; // metrics line + padding
 
 // ---------------------------------------------------------------------------
 // Props
@@ -18,7 +20,7 @@ type TreeCanvasProps = {
   positions: Map<string, NodePosition>;
   bandRows: LayoutResult["bandRows"];
   rowHeight: number;
-  qualityMetric: "D" | "eta2";
+  numUniqueUnits: number;
   selectedNodeIds: string[];
   selectedEdgeKey: string | null;
   hoveredNodeId: string | null;
@@ -41,7 +43,7 @@ export function TreeCanvas({
   positions,
   bandRows,
   rowHeight,
-  qualityMetric,
+  numUniqueUnits,
   selectedNodeIds,
   selectedEdgeKey,
   hoveredNodeId,
@@ -80,11 +82,14 @@ export function TreeCanvas({
 
   const svgHeight = useMemo(() => {
     let maxY = 600;
+    // Use max possible node height for bottom padding
+    let maxH = NODE_HEIGHT;
+    for (const n of tree.nodes) maxH = Math.max(maxH, BASE_H + n.facetSubset.length * CHIP_H);
     for (const pos of positions.values()) {
-      maxY = Math.max(maxY, pos.y + NODE_HEIGHT / 2 + MARGIN.bottom);
+      maxY = Math.max(maxY, pos.y + maxH / 2 + MARGIN.bottom);
     }
     return maxY;
-  }, [positions]);
+  }, [positions, tree.nodes]);
 
   // Layers for background stripes + labels (from layout)
   const layers = bandRows;
@@ -103,6 +108,16 @@ export function TreeCanvas({
   }, [scrollToNodeId, positions]);
 
 
+  // Adaptive node height: base for metrics + 16px per facet chip
+  const nodeHeight = useCallback((n: TreeNode) => BASE_H + n.facetSubset.length * CHIP_H, []);
+
+  // Pre-compute heights for edge routing
+  const nodeHeightMap = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const n of tree.nodes) m.set(n.id, nodeHeight(n));
+    return m;
+  }, [tree.nodes, nodeHeight]);
+
   // Children count (for display)
   const childrenCountMap = useMemo(() => {
     const map = new Map<string, number>();
@@ -116,11 +131,13 @@ export function TreeCanvas({
     const src = positions.get(e.sourceId);
     const tgt = positions.get(e.targetId);
     if (!src || !tgt) return "";
-    const sy = src.y + NODE_HEIGHT / 2;
-    const ty = tgt.y - NODE_HEIGHT / 2;
+    const srcH = nodeHeightMap.get(e.sourceId) ?? NODE_HEIGHT;
+    const tgtH = nodeHeightMap.get(e.targetId) ?? NODE_HEIGHT;
+    const sy = src.y + srcH / 2;
+    const ty = tgt.y - tgtH / 2;
     const midY = (sy + ty) / 2;
     return `M ${src.x} ${sy} C ${src.x} ${midY}, ${tgt.x} ${midY}, ${tgt.x} ${ty}`;
-  }, [positions]);
+  }, [positions, nodeHeightMap]);
 
   const EDGE_COLORS: Record<string, string> = { add: "#60a5fa", restructure: "#facc15" };
 
@@ -129,15 +146,10 @@ export function TreeCanvas({
     onDeselectAll();
   }, [onEdgeClick, onDeselectAll]);
 
-  // Metric helpers
-  const metricVal = (n: TreeNode) => qualityMetric === "D" ? n.D : n.eta2;
-  const metricLabel = (n: TreeNode) => {
-    const v = metricVal(n);
-    return qualityMetric === "D" ? `D=${v.toFixed(3)}` : `η²=${v.toFixed(3)}`;
-  };
+  // Node fill based on effectiveness
   const nodeFill = (n: TreeNode) => {
-    const v = metricVal(n);
-    const t = qualityMetric === "D" ? 1 - Math.min(1, v / 4) : Math.min(1, v);
+    const eff = computeEffectiveness(n.D, numUniqueUnits);
+    const t = eff / 100;
     return `rgb(${30 + t * 30},${30 + t * 60},${50 + t * 80})`;
   };
 
@@ -193,7 +205,7 @@ export function TreeCanvas({
                     setTooltip({
                       x: ev.clientX - rect.left + (containerRef.current?.scrollLeft ?? 0),
                       y: ev.clientY - rect.top + (containerRef.current?.scrollTop ?? 0) - 10,
-                      text: `[${e.edgeType}] MI=${e.MI.toFixed(3)}  ref=${e.refinementScore.toFixed(3)}\nΔD=${e.marginalDGain.toFixed(3)}  Δη²=${e.marginalEta2Gain.toFixed(3)}`,
+                      text: `[${e.edgeType}] Refinement=${Math.round(e.refinementScore * 100)}%`,
                     });
                   }
                 }}
@@ -221,13 +233,14 @@ export function TreeCanvas({
           const isHov = node.id === hoveredNodeId;
           const isHi = highlightedNodeIds.has(node.id);
           const numCh = childrenCountMap.get(node.id) ?? 0;
-          const abbrevs = computeFacetAbbreviations(node.facetSubset);
+          const eff = computeEffectiveness(node.D, numUniqueUnits);
           const selColor = selIdx === 0 ? "#f59e0b" : selIdx === 1 ? "#22d3ee" : null;
+          const nh = nodeHeight(node);
 
           return (
             <g
               key={node.id}
-              transform={`translate(${pos.x - NODE_WIDTH / 2}, ${pos.y - NODE_HEIGHT / 2})`}
+              transform={`translate(${pos.x - NODE_WIDTH / 2}, ${pos.y - nh / 2})`}
               className="cursor-pointer"
               onClick={(ev) => { ev.stopPropagation(); onNodeClick(node.id, ev.shiftKey); }}
               onMouseEnter={() => onNodeHover(node.id)}
@@ -235,12 +248,12 @@ export function TreeCanvas({
             >
               {/* Highlight ring */}
               {isHi && !isSel && (
-                <rect x={-4} y={-4} width={NODE_WIDTH + 8} height={NODE_HEIGHT + 8} rx={11}
+                <rect x={-4} y={-4} width={NODE_WIDTH + 8} height={nh + 8} rx={11}
                   fill="none" stroke="#60a5fa" strokeWidth={2} strokeDasharray="4 2" strokeOpacity={0.8} />
               )}
 
               {/* Background */}
-              <rect width={NODE_WIDTH} height={NODE_HEIGHT} rx={8} fill={nodeFill(node)}
+              <rect width={NODE_WIDTH} height={nh} rx={8} fill={nodeFill(node)}
                 stroke={selColor ?? (isHov ? "#525252" : isRoot ? "#3b82f6" : "#404040")}
                 strokeWidth={isSel ? 2.5 : isRoot ? 2 : 1} />
 
@@ -264,35 +277,29 @@ export function TreeCanvas({
                 </>
               )}
 
-              {/* Facet chips */}
+              {/* Facet chips — stacked vertically */}
               <g transform="translate(6, 8)">
                 {node.facetSubset.map((facet, fi) => {
                   const c = facetIdToChipColor(facet.id);
-                  const abbr = abbrevs.get(facet.id) ?? facet.title.slice(0, 3);
-                  const cx = fi * 34;
-                  if (cx + 30 > NODE_WIDTH - 12) return null;
+                  const chipW = Math.min(NODE_WIDTH - 12, Math.max(30, facet.title.length * 5.5 + 8));
                   return (
-                    <g key={facet.id} transform={`translate(${cx}, 0)`}>
-                      <rect width={30} height={14} rx={3} fill={c + "30"} stroke={c + "60"} strokeWidth={0.5} />
-                      <text x={15} y={10} textAnchor="middle" className="text-[8px] font-medium" fill={c}>{abbr}</text>
+                    <g key={facet.id} transform={`translate(0, ${fi * CHIP_H})`}>
+                      <rect width={chipW} height={14} rx={3} fill={c + "30"} stroke={c + "60"} strokeWidth={0.5} />
+                      <text x={chipW / 2} y={10} textAnchor="middle" className="text-[8px] font-medium" fill={c}>{facet.title}</text>
                     </g>
                   );
                 })}
               </g>
 
               {/* Metrics */}
-              <text x={NODE_WIDTH / 2} y={35} textAnchor="middle" className="text-[9px]" fill="#a3a3a3">
-                C={node.size} · {metricLabel(node)}
+              <text x={NODE_WIDTH / 2} y={nh - 14} textAnchor="middle" className="text-[9px]" fill="#a3a3a3">
+                Size={node.size} · Eff={eff.toFixed(0)}%
               </text>
 
-              {/* Bottom: children count or cell stats */}
-              {numCh > 0 ? (
-                <text x={NODE_WIDTH / 2} y={50} textAnchor="middle" className="text-[8px]" fill="#737373">
+              {/* Bottom: children count */}
+              {numCh > 0 && (
+                <text x={NODE_WIDTH / 2} y={nh - 4} textAnchor="middle" className="text-[8px]" fill="#737373">
                   {numCh} children
-                </text>
-              ) : (
-                <text x={NODE_WIDTH / 2} y={50} textAnchor="middle" className="text-[8px]" fill="#737373">
-                  cells={node.cellCount} · stab={node.stability.toFixed(2)}
                 </text>
               )}
             </g>
@@ -313,7 +320,7 @@ export function TreeCanvas({
         {layers.map((l) => (
           <div key={`cl-${l.band}`} className="absolute" style={{ top: l.y - 10, left: 8 }}>
             <div className={`text-[10px] font-mono whitespace-nowrap px-1.5 py-0.5 rounded border border-neutral-800/60 ${l.count > 0 ? "text-neutral-400 bg-neutral-900/90 backdrop-blur-sm" : "text-neutral-600 bg-neutral-900/60"}`}>
-              C={l.band}
+              Size={l.band}
               <span className="text-neutral-600 ml-1">({l.count})</span>
             </div>
           </div>

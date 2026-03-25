@@ -70,7 +70,15 @@ export const DEFAULT_TREE_CONFIG: TreeBuildConfig = {
 export type CachedSchemas = {
   allNodes: TreeNode[];
   validPiecesCount: number;
+  numUniqueUnits: number;
 };
+
+/** Organization Effectiveness: percentage (0–100), higher = better discrimination. */
+export function computeEffectiveness(D: number, numUniqueUnits: number): number {
+  if (numUniqueUnits <= 1) return 0;
+  const maxH = Math.log2(numUniqueUnits);
+  return maxH > 0 ? Math.max(0, Math.min(100, (1 - D / maxH) * 100)) : 0;
+}
 
 // ---------------------------------------------------------------------------
 // Low-level helpers
@@ -402,7 +410,7 @@ export async function enumerateSchemas(
   }
 
   onProgress?.("Enumerating schemas", allCombos.length, allCombos.length);
-  return { allNodes, validPiecesCount: rows.length };
+  return { allNodes, validPiecesCount: rows.length, numUniqueUnits: unitIds.size };
 }
 
 // ---------------------------------------------------------------------------

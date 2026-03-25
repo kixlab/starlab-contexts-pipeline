@@ -89,7 +89,7 @@ export function computeGlobalOrder(
 // ---------------------------------------------------------------------------
 
 const MARGIN = { top: 48, right: 40, bottom: 40, left: 80 };
-const NODE_WIDTH = 140;
+const NODE_WIDTH = 160;
 const NODE_HEIGHT = 60;
 const MIN_ROW_HEIGHT = 80;
 

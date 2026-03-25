@@ -72,22 +72,6 @@ export function Toolbar({
           <>
             <div className="w-px h-4 bg-neutral-700" />
 
-            {/* Quality metric toggle */}
-            <div className="flex items-center gap-1 text-xs">
-              <button
-                onClick={() => onConfigChange({ ...config, qualityMetric: "D" })}
-                className={`px-1.5 py-0.5 rounded ${config.qualityMetric === "D" ? "bg-blue-600 text-white" : "text-neutral-400 hover:text-white"}`}
-              >
-                D
-              </button>
-              <button
-                onClick={() => onConfigChange({ ...config, qualityMetric: "eta2" })}
-                className={`px-1.5 py-0.5 rounded ${config.qualityMetric === "eta2" ? "bg-blue-600 text-white" : "text-neutral-400 hover:text-white"}`}
-              >
-                η²
-              </button>
-            </div>
-
             {/* Tau */}
             <label className="flex items-center gap-1.5 text-xs text-neutral-400">
               τ
