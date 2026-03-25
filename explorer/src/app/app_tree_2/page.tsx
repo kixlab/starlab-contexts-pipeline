@@ -14,12 +14,7 @@ import {
   type TreeBuildConfig,
 } from "./utils/treeBuilder";
 import { computeGlobalOrder, computePositions } from "./utils/stableLayout";
-import {
-  computeChildrenCountMap,
-  computeVisibleNodeIds,
-  computeVisibleEdges,
-  computeHighlightedNodeIds,
-} from "./utils/visibility";
+import { computeHighlightedNodeIds } from "./utils/visibility";
 import { Toolbar } from "./components/Toolbar";
 import { TreeCanvas } from "./components/TreeCanvas";
 import { InspectionPanel } from "./components/InspectionPanel";
@@ -55,44 +50,23 @@ export default function AppTree2() {
   const [selectedEdgeKey, setSelectedEdgeKey] = useState<string | null>(null);
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
-  // --- Progressive disclosure ---
-  const [expandedNodeIds, setExpandedNodeIds] = useState<Set<string>>(new Set());
-
   // Derived: dirty flag
   const configDirty = lastBuiltConfig === null || JSON.stringify(config) !== JSON.stringify(lastBuiltConfig);
 
   // --- Global order (stable, computed once after build) ---
   const [globalOrder, setGlobalOrder] = useState<Map<string, number>>(new Map());
 
-  // --- Derived visibility ---
-  const childrenCountMap = useMemo(() => computeChildrenCountMap(tree), [tree]);
-
-  const visibleNodeIds = useMemo(
-    () => computeVisibleNodeIds(tree, expandedNodeIds),
-    [tree, expandedNodeIds],
-  );
-
-  const visibleNodes = useMemo(
-    () => tree.nodes.filter((n) => visibleNodeIds.has(n.id)),
-    [tree.nodes, visibleNodeIds],
-  );
-
-  const visibleEdges = useMemo(
-    () => computeVisibleEdges(tree, visibleNodeIds),
-    [tree, visibleNodeIds],
-  );
-
   const highlightedNodeIds = useMemo(
     () => computeHighlightedNodeIds(selectedNodeIds, tree.edges),
     [selectedNodeIds, tree.edges],
   );
 
-  // --- Layout positions (recomputed when visibility changes) ---
+  // --- Layout positions ---
   const [containerSize, setContainerSize] = useState({ w: 800, h: 600 });
 
   const positions = useMemo(
-    () => computePositions(visibleNodes, visibleEdges, globalOrder, containerSize.w, containerSize.h),
-    [visibleNodes, visibleEdges, globalOrder, containerSize],
+    () => computePositions(tree.nodes, tree.edges, globalOrder, containerSize.w, containerSize.h),
+    [tree.nodes, tree.edges, globalOrder, containerSize],
   );
 
   // --- Dataset loading ---
@@ -107,7 +81,6 @@ export default function AppTree2() {
     setTree(EMPTY_TREE);
     setSelectedNodeIds([]);
     setSelectedEdgeKey(null);
-    setExpandedNodeIds(new Set());
     setLastBuiltConfig(null);
     cachedRef.current = null;
     cachedLabelRef.current = null;
@@ -207,7 +180,6 @@ export default function AppTree2() {
       setTree(newTree);
       setLastBuiltConfig(cfg);
       setGlobalOrder(computeGlobalOrder(newTree, cfg.qualityMetric));
-      setExpandedNodeIds(new Set());
       const ids = new Set(newTree.nodes.map((n) => n.id));
       setSelectedNodeIds((prev) => prev.filter((id) => ids.has(id)));
       setSelectedEdgeKey((prev) => {
@@ -244,11 +216,7 @@ export default function AppTree2() {
     if (shiftKey) {
       selectNode(nodeId);
     } else {
-      setExpandedNodeIds((prev) => {
-        const next = new Set(prev);
-        if (next.has(nodeId)) next.delete(nodeId); else next.add(nodeId);
-        return next;
-      });
+      // Normal click: select single node
       setSelectedEdgeKey(null);
       setSelectedNodeIds([nodeId]);
     }
@@ -259,12 +227,6 @@ export default function AppTree2() {
   }, [selectNode]);
 
   const handleNodeClickFromPanel = useCallback((nodeId: string) => {
-    setExpandedNodeIds((prev) => {
-      if (prev.has(nodeId)) return prev;
-      const next = new Set(prev);
-      next.add(nodeId);
-      return next;
-    });
     setSelectedEdgeKey(null);
     setSelectedNodeIds([nodeId]);
     setScrollToNodeId(nodeId);
@@ -307,19 +269,15 @@ export default function AppTree2() {
           isBuilding={isBuilding}
           configDirty={configDirty}
           treeSummary={treeSummary}
-          visibleCount={visibleNodes.length}
-          visibleEdgeCount={visibleEdges.length}
+          visibleCount={tree.nodes.length}
+          visibleEdgeCount={tree.edges.length}
         />
 
         <div className="flex-1 min-h-0 relative">
           {datasetStatus === "loaded" ? (
             <TreeCanvas
               tree={tree}
-              visibleNodes={visibleNodes}
-              visibleEdges={visibleEdges}
               positions={positions}
-              expandedNodeIds={expandedNodeIds}
-              childrenCountMap={childrenCountMap}
               qualityMetric={config.qualityMetric}
               selectedNodeIds={selectedNodeIds}
               selectedEdgeKey={selectedEdgeKey}

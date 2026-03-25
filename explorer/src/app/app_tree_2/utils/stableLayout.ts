@@ -1,5 +1,5 @@
-import type { RefinementTree, TreeNode } from "./treeBuilder";
-import type { VisibleEdge, NodePosition } from "../types";
+import type { RefinementTree, TreeNode, TreeEdge } from "./treeBuilder";
+import type { NodePosition } from "../types";
 
 // ---------------------------------------------------------------------------
 // Phase A: Compute a deterministic global order for EVERY node (runs once).
@@ -97,7 +97,7 @@ export { NODE_WIDTH, NODE_HEIGHT, MARGIN };
 
 export function computePositions(
   visibleNodes: TreeNode[],
-  visibleEdges: VisibleEdge[],
+  visibleEdges: TreeEdge[],
   globalOrder: Map<string, number>,
   containerWidth: number,
   containerHeight: number,

@@ -3,86 +3,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { TreeNode, TreeEdge, RefinementTree } from "../utils/treeBuilder";
 import { NODE_WIDTH, NODE_HEIGHT, MARGIN } from "../utils/stableLayout";
-import type { VisibleEdge, NodePosition } from "../types";
+import type { NodePosition } from "../types";
 import {
   facetIdToChipColor,
   computeFacetAbbreviations,
 } from "@/app/app_analysis/utils/metricsUtils";
-
-// ---------------------------------------------------------------------------
-// Animated node tracking
-// ---------------------------------------------------------------------------
-
-type AnimPhase = "entering" | "stable" | "exiting";
-type AnimEntry = { nodeId: string; phase: AnimPhase; x: number; y: number; opacity: number };
-
-function useAnimatedNodes(
-  visibleNodes: TreeNode[],
-  positions: Map<string, NodePosition>,
-): AnimEntry[] {
-  const prevIds = useRef(new Set<string>());
-  const exitingRef = useRef(new Map<string, { x: number; y: number; timer: ReturnType<typeof setTimeout> }>());
-  const [, forceUpdate] = useState(0);
-
-  const currentIds = useMemo(() => new Set(visibleNodes.map((n) => n.id)), [visibleNodes]);
-
-  // Detect exits
-  useEffect(() => {
-    for (const id of prevIds.current) {
-      if (!currentIds.has(id) && !exitingRef.current.has(id)) {
-        // Preserve last known position
-        const prev = positions.get(id);
-        const x = prev?.x ?? 0;
-        const y = prev?.y ?? 0;
-        const timer = setTimeout(() => {
-          exitingRef.current.delete(id);
-          forceUpdate((c) => c + 1);
-        }, 300);
-        exitingRef.current.set(id, { x, y, timer });
-        forceUpdate((c) => c + 1);
-      }
-    }
-    prevIds.current = currentIds;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentIds]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      for (const { timer } of exitingRef.current.values()) clearTimeout(timer);
-    };
-  }, []);
-
-  const entries: AnimEntry[] = [];
-
-  // Exiting nodes
-  for (const [id, { x, y }] of exitingRef.current) {
-    entries.push({ nodeId: id, phase: "exiting", x, y, opacity: 0 });
-  }
-
-  // Visible nodes
-  const prevSet = prevIds.current;
-  for (const n of visibleNodes) {
-    const pos = positions.get(n.id);
-    if (!pos || pos.isDummy) continue;
-    const isNew = !prevSet.has(n.id) || exitingRef.current.has(n.id);
-    // Cancel exit if re-appearing
-    if (exitingRef.current.has(n.id)) {
-      const ex = exitingRef.current.get(n.id)!;
-      clearTimeout(ex.timer);
-      exitingRef.current.delete(n.id);
-    }
-    entries.push({
-      nodeId: n.id,
-      phase: isNew ? "entering" : "stable",
-      x: pos.x,
-      y: pos.y,
-      opacity: 1,
-    });
-  }
-
-  return entries;
-}
 
 // ---------------------------------------------------------------------------
 // Props
@@ -90,11 +15,7 @@ function useAnimatedNodes(
 
 type TreeCanvasProps = {
   tree: RefinementTree;
-  visibleNodes: TreeNode[];
-  visibleEdges: VisibleEdge[];
   positions: Map<string, NodePosition>;
-  expandedNodeIds: Set<string>;
-  childrenCountMap: Map<string, number>;
   qualityMetric: "D" | "eta2";
   selectedNodeIds: string[];
   selectedEdgeKey: string | null;
@@ -115,11 +36,7 @@ type TreeCanvasProps = {
 
 export function TreeCanvas({
   tree,
-  visibleNodes,
-  visibleEdges,
   positions,
-  expandedNodeIds,
-  childrenCountMap,
   qualityMetric,
   selectedNodeIds,
   selectedEdgeKey,
@@ -167,14 +84,14 @@ export function TreeCanvas({
 
   // Layers for background stripes + labels
   const layers = useMemo(() => {
-    const bandSet = new Set(visibleNodes.map((n) => n.sizeBand));
+    const bandSet = new Set(tree.nodes.map((n) => n.sizeBand));
     const sorted = Array.from(bandSet).sort((a, b) => a - b);
     return sorted.map((band) => {
-      const nodes = visibleNodes.filter((n) => n.sizeBand === band);
+      const nodes = tree.nodes.filter((n) => n.sizeBand === band);
       const pos = positions.get(nodes[0]?.id ?? "");
       return { band, count: nodes.length, y: pos?.y ?? 0 };
     });
-  }, [visibleNodes, positions]);
+  }, [tree.nodes, positions]);
 
   // Row height estimate
   const rowHeight = layers.length > 1
@@ -195,16 +112,19 @@ export function TreeCanvas({
   }, [scrollToNodeId, positions]);
 
   // Scroll state for sticky labels
-  const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
   const handleScroll = useCallback(() => {
     const el = containerRef.current;
-    if (el) { setScrollLeft(el.scrollLeft); setScrollTop(el.scrollTop); }
+    if (el) setScrollTop(el.scrollTop);
   }, []);
 
-  // Animated nodes
-  const nodeMap = useMemo(() => new Map(tree.nodes.map((n) => [n.id, n])), [tree.nodes]);
-  const animEntries = useAnimatedNodes(visibleNodes, positions);
+  // Children count (for display)
+  const childrenCountMap = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const n of tree.nodes) map.set(n.id, 0);
+    for (const e of tree.edges) map.set(e.sourceId, (map.get(e.sourceId) ?? 0) + 1);
+    return map;
+  }, [tree]);
 
   // Edge helpers
   const edgePath = useCallback((e: TreeEdge) => {
@@ -236,7 +156,7 @@ export function TreeCanvas({
     return `rgb(${30 + t * 30},${30 + t * 60},${50 + t * 80})`;
   };
 
-  if (visibleNodes.length === 0) {
+  if (tree.nodes.length === 0) {
     return (
       <div ref={containerRef} className="w-full h-full flex items-center justify-center text-neutral-500 text-sm">
         No schemas pass the current filters. Click Build to generate the tree.
@@ -272,12 +192,11 @@ export function TreeCanvas({
         </defs>
 
         {/* Edges */}
-        {visibleEdges.map((e) => {
+        {tree.edges.map((e) => {
           const key = `${e.sourceId}->${e.targetId}`;
           const isSel = key === selectedEdgeKey;
           const color = EDGE_COLORS[e.edgeType] ?? "#6b7280";
-          const dash = e.contracted ? "4 3" : e.edgeType === "restructure" ? "6 3" : "none";
-          const op = e.contracted ? 0.4 : 0.7;
+          const dash = e.edgeType === "restructure" ? "6 3" : "none";
           return (
             <g key={key}>
               <path d={edgePath(e)} fill="none" stroke="transparent" strokeWidth={12}
@@ -289,7 +208,7 @@ export function TreeCanvas({
                     setTooltip({
                       x: ev.clientX - rect.left + (containerRef.current?.scrollLeft ?? 0),
                       y: ev.clientY - rect.top + (containerRef.current?.scrollTop ?? 0) - 10,
-                      text: `${e.contracted ? "[contracted] " : ""}[${e.edgeType}] MI=${e.MI.toFixed(3)}  ref=${e.refinementScore.toFixed(3)}\nΔD=${e.marginalDGain.toFixed(3)}  Δη²=${e.marginalEta2Gain.toFixed(3)}`,
+                      text: `[${e.edgeType}] MI=${e.MI.toFixed(3)}  ref=${e.refinementScore.toFixed(3)}\nΔD=${e.marginalDGain.toFixed(3)}  Δη²=${e.marginalEta2Gain.toFixed(3)}`,
                     });
                   }
                 }}
@@ -297,27 +216,25 @@ export function TreeCanvas({
               />
               <path d={edgePath(e)} fill="none"
                 stroke={isSel ? "#f59e0b" : color}
-                strokeWidth={isSel ? 2.5 : e.contracted ? 1 : 1 + e.refinementScore * 2}
-                strokeOpacity={isSel ? 1 : op}
+                strokeWidth={isSel ? 2.5 : 1 + e.refinementScore * 2}
+                strokeOpacity={isSel ? 1 : 0.7}
                 strokeDasharray={isSel ? "6 3" : dash}
                 markerEnd={`url(#t2-arrow-${isSel ? "sel" : e.edgeType})`}
                 className="pointer-events-none"
-                style={{ transition: "opacity 200ms ease" }}
               />
             </g>
           );
         })}
 
         {/* Nodes */}
-        {animEntries.map((anim) => {
-          const node = nodeMap.get(anim.nodeId);
-          if (!node) return null;
+        {tree.nodes.map((node) => {
+          const pos = positions.get(node.id);
+          if (!pos || pos.isDummy) return null;
           const isRoot = tree.roots.includes(node.id);
           const selIdx = selectedNodeIds.indexOf(node.id);
           const isSel = selIdx >= 0;
           const isHov = node.id === hoveredNodeId;
           const isHi = highlightedNodeIds.has(node.id);
-          const isExp = expandedNodeIds.has(node.id);
           const numCh = childrenCountMap.get(node.id) ?? 0;
           const abbrevs = computeFacetAbbreviations(node.facetSubset);
           const selColor = selIdx === 0 ? "#f59e0b" : selIdx === 1 ? "#22d3ee" : null;
@@ -325,11 +242,7 @@ export function TreeCanvas({
           return (
             <g
               key={node.id}
-              style={{
-                transform: `translate(${anim.x - NODE_WIDTH / 2}px, ${anim.y - NODE_HEIGHT / 2}px)`,
-                opacity: anim.opacity,
-                transition: "transform 300ms cubic-bezier(0.4,0,0.2,1), opacity 300ms ease",
-              }}
+              transform={`translate(${pos.x - NODE_WIDTH / 2}, ${pos.y - NODE_HEIGHT / 2})`}
               className="cursor-pointer"
               onClick={(ev) => { ev.stopPropagation(); onNodeClick(node.id, ev.shiftKey); }}
               onMouseEnter={() => onNodeHover(node.id)}
@@ -387,11 +300,10 @@ export function TreeCanvas({
                 C={node.size} · {metricLabel(node)}
               </text>
 
-              {/* Bottom: expand badge or cell stats */}
+              {/* Bottom: children count or cell stats */}
               {numCh > 0 ? (
-                <text x={NODE_WIDTH / 2} y={50} textAnchor="middle" className="text-[8px]"
-                  fill={isExp ? "#60a5fa" : "#737373"}>
-                  {isExp ? "▼ expanded" : `▶ ${numCh} children`}
+                <text x={NODE_WIDTH / 2} y={50} textAnchor="middle" className="text-[8px]" fill="#737373">
+                  {numCh} children
                 </text>
               ) : (
                 <text x={NODE_WIDTH / 2} y={50} textAnchor="middle" className="text-[8px]" fill="#737373">
