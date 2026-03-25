@@ -137,6 +137,7 @@ class DiscoveryConfig:
     # Selection mode — which approach drives schema selection and improvement.
     # "pareto"           = Pareto frontier (discriminativeness vs. compactness)
     # "refinement_tree"  = MI-based refinement tree with greedy pruning
+    # "one_shot"         = Non-iterative baseline: bootstrap with init_facets, skip iteration
     selection_mode: str = "pareto"
 
     # Refinement threshold tau (only used when selection_mode="refinement_tree").
@@ -334,6 +335,19 @@ class IterativeSchemaDiscovery:
         if use_cache:
             self._restore_cache(cache_dir)
 
+        # one_shot mode: use max_facets as the bootstrap count.
+        if self.config.selection_mode == "one_shot":
+            if self.config.max_facets <= 0:
+                raise ValueError(
+                    "one_shot mode requires max_facets > 0 to determine "
+                    "how many facets to bootstrap."
+                )
+            self.config.init_facets = self.config.max_facets
+            logger.info(
+                "one_shot mode: bootstrapping %d facet(s), no iteration.",
+                self.config.init_facets,
+            )
+
         # Optional: bootstrap with common-sense facets before iterating.
         # Only runs when init_facets > 0 and no facets exist yet (fresh run).
         if self.config.init_facets > 0 and not self._facets:
@@ -412,7 +426,7 @@ class IterativeSchemaDiscovery:
         vocab_sample_videos = self.config.vocab_sample_videos
         min_d = self.config.min_d
 
-        while tries_with_no_improvement < max_iterations:
+        while selection_mode != "one_shot" and tries_with_no_improvement < max_iterations:
             self._iteration += 1
             logger.info("=== Iteration %d ===", self._iteration)
 
@@ -644,6 +658,12 @@ class IterativeSchemaDiscovery:
             else:
                 logger.info("No improvement — discarding candidates.")
                 tries_with_no_improvement += 1
+
+        if selection_mode == "one_shot":
+            logger.info(
+                "one_shot baseline complete: %d facet(s), %d frontier point(s).",
+                len(self._facets), len(self._frontier),
+            )
 
         self._save_cache(cache_dir)
         return DiscoveryResult(
