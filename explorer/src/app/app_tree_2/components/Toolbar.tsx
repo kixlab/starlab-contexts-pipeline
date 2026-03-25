@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import type { TreeBuildConfig } from "../utils/treeBuilder";
 import type { DatasetStatus } from "../types";
 
@@ -37,7 +36,6 @@ export function Toolbar({
   visibleCount,
   visibleEdgeCount,
 }: ToolbarProps) {
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const busy = isBuilding || datasetStatus === "loading" || datasetStatus === "computing";
   const canBuild = selectedLabel && datasetStatus === "loaded" && !busy;
 
@@ -90,28 +88,55 @@ export function Toolbar({
               </button>
             </div>
 
-            {/* Tau slider */}
+            {/* Tau */}
             <label className="flex items-center gap-1.5 text-xs text-neutral-400">
               τ
               <input
-                type="range"
+                type="number"
                 min={0.5}
                 max={1}
                 step={0.01}
                 value={config.refinementThreshold}
-                onChange={(e) => onConfigChange({ ...config, refinementThreshold: parseFloat(e.target.value) })}
-                className="w-20 h-1 accent-blue-500"
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value);
+                  if (!isNaN(v)) onConfigChange({ ...config, refinementThreshold: Math.max(0.5, Math.min(1, v)) });
+                }}
+                className="w-14 h-6 px-1.5 bg-neutral-800 border border-neutral-700 rounded text-white font-mono text-xs text-right"
               />
-              <span className="text-neutral-300 font-mono w-8">{config.refinementThreshold.toFixed(2)}</span>
             </label>
 
-            {/* Advanced toggle */}
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="text-xs text-neutral-500 hover:text-neutral-300"
-            >
-              {showAdvanced ? "▾ Adv" : "▸ Adv"}
-            </button>
+            {/* Max K */}
+            <label className="flex items-center gap-1.5 text-xs text-neutral-400">
+              Max K
+              <input
+                type="number"
+                min={1}
+                max={5}
+                value={config.maxK}
+                onChange={(e) => {
+                  const v = parseInt(e.target.value);
+                  if (!isNaN(v) && v >= 1) onConfigChange({ ...config, maxK: Math.min(v, 5) });
+                }}
+                className="w-12 h-6 px-1.5 bg-neutral-800 border border-neutral-700 rounded text-white font-mono text-xs text-right"
+              />
+            </label>
+
+            {/* Min stability */}
+            <label className="flex items-center gap-1.5 text-xs text-neutral-400">
+              Min stability
+              <input
+                type="number"
+                min={0}
+                max={1}
+                step={0.05}
+                value={config.stabilityThreshold}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value);
+                  if (!isNaN(v)) onConfigChange({ ...config, stabilityThreshold: Math.max(0, Math.min(1, v)) });
+                }}
+                className="w-14 h-6 px-1.5 bg-neutral-800 border border-neutral-700 rounded text-white font-mono text-xs text-right"
+              />
+            </label>
 
             {/* Build button */}
             <button
@@ -140,40 +165,6 @@ export function Toolbar({
         )}
       </div>
 
-      {/* Advanced row (collapsible) */}
-      {showAdvanced && datasetStatus === "loaded" && (
-        <div className="flex items-center gap-4 mt-2 text-xs text-neutral-400">
-          <label className="flex items-center gap-1.5">
-            Max K
-            <input
-              type="number"
-              min={1}
-              max={5}
-              value={config.maxK}
-              onChange={(e) => {
-                const v = parseInt(e.target.value);
-                if (!isNaN(v) && v >= 1) onConfigChange({ ...config, maxK: Math.min(v, 5) });
-              }}
-              className="w-12 h-6 px-1.5 bg-neutral-800 border border-neutral-700 rounded text-white font-mono text-xs text-right"
-            />
-          </label>
-          <label className="flex items-center gap-1.5">
-            Min stability
-            <input
-              type="number"
-              min={0}
-              max={1}
-              step={0.05}
-              value={config.stabilityThreshold}
-              onChange={(e) => {
-                const v = parseFloat(e.target.value);
-                if (!isNaN(v)) onConfigChange({ ...config, stabilityThreshold: Math.max(0, Math.min(1, v)) });
-              }}
-              className="w-14 h-6 px-1.5 bg-neutral-800 border border-neutral-700 rounded text-white font-mono text-xs text-right"
-            />
-          </label>
-        </div>
-      )}
     </header>
   );
 }

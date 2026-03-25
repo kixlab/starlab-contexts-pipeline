@@ -64,7 +64,7 @@ export const DEFAULT_TREE_CONFIG: TreeBuildConfig = {
   maxK: MAX_FACETS_CAP,
   qualityMetric: "D",
   stabilityThreshold: 0,
-  refinementThreshold: 0.85,
+  refinementThreshold: 0.6,
 };
 
 export type CachedSchemas = {
