@@ -6,7 +6,6 @@ import type { RefinementTree, TreeNode, TreeEdge } from "../utils/treeBuilder";
 import { computeMI, computeJointEntropy } from "../utils/treeBuilder";
 import {
   facetIdToChipColor,
-  computeFacetAbbreviations,
   computeFacetDistributions,
   type FacetValueDist,
 } from "@/app/app_analysis/utils/metricsUtils";
@@ -85,6 +84,7 @@ export function InspectionPanel({
             dataset={dataset}
             infoTypes={infoTypes}
             qualityMetric={qualityMetric}
+            nodeMap={nodeMap}
             onNodeClick={onNodeClick}
           />
         )}
@@ -122,6 +122,7 @@ function SingleNodeView({
   dataset,
   infoTypes,
   qualityMetric,
+  nodeMap,
   onNodeClick,
 }: {
   node: TreeNode;
@@ -129,9 +130,9 @@ function SingleNodeView({
   dataset: DatasetVideo[];
   infoTypes: string[] | null;
   qualityMetric: "D" | "eta2";
+  nodeMap: Map<string, TreeNode>;
   onNodeClick: (id: string) => void;
 }) {
-  const abbrevs = computeFacetAbbreviations(node.facetSubset);
   const isRoot = tree.roots.includes(node.id);
 
   const inEdges = useMemo(() => tree.edges.filter((e) => e.targetId === node.id), [tree.edges, node.id]);
@@ -145,14 +146,15 @@ function SingleNodeView({
   return (
     <>
       {/* Schema */}
-      <Section title="Schema">
+      <Section title="Schema" extra={<CopyFacetIdsButton facets={node.facetSubset} />}>
         <div className="flex flex-wrap gap-1.5">
           {node.facetSubset.map((f) => {
             const c = facetIdToChipColor(f.id);
             return (
               <span key={f.id} className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded"
+                title={f.id}
                 style={{ backgroundColor: c + "20", color: c, border: `1px solid ${c}40` }}>
-                {abbrevs.get(f.id) ?? f.title.slice(0, 3)}
+                {f.title}
                 <span className="text-[10px] opacity-60">({f.vocabulary.length})</span>
               </span>
             );
@@ -177,7 +179,7 @@ function SingleNodeView({
       {inEdges.length > 0 && (
         <Section title={`Parents (${inEdges.length})`}>
           {inEdges.map((e) => (
-            <EdgeLink key={e.sourceId} nodeId={e.sourceId} edge={e} direction="parent" onClick={onNodeClick} />
+            <EdgeLink key={e.sourceId} nodeId={e.sourceId} edge={e} direction="parent" nodeMap={nodeMap} onClick={onNodeClick} />
           ))}
         </Section>
       )}
@@ -186,7 +188,7 @@ function SingleNodeView({
       {outEdges.length > 0 && (
         <Section title={`Children (${outEdges.length})`}>
           {outEdges.map((e) => (
-            <EdgeLink key={e.targetId} nodeId={e.targetId} edge={e} direction="child" onClick={onNodeClick} />
+            <EdgeLink key={e.targetId} nodeId={e.targetId} edge={e} direction="child" nodeMap={nodeMap} onClick={onNodeClick} />
           ))}
         </Section>
       )}
@@ -318,9 +320,9 @@ function EdgeView({
     <>
       <Section title="Edge">
         <div className="flex items-center gap-2 text-xs">
-          <button onClick={() => onNodeClick(edge.sourceId)} className="text-blue-400 hover:underline">{edge.sourceId}</button>
+          <button onClick={() => onNodeClick(edge.sourceId)} className="text-blue-400 hover:underline">{nodeLabel(src)}</button>
           <span className="text-neutral-500">→</span>
-          <button onClick={() => onNodeClick(edge.targetId)} className="text-blue-400 hover:underline">{edge.targetId}</button>
+          <button onClick={() => onNodeClick(edge.targetId)} className="text-blue-400 hover:underline">{nodeLabel(tgt)}</button>
           <EdgeTypeBadge type={edge.edgeType} />
         </div>
       </Section>
@@ -379,10 +381,35 @@ function EdgeView({
 // Shared sub-components
 // ---------------------------------------------------------------------------
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function nodeLabel(node: TreeNode): string {
+  return node.facetSubset.map((f) => f.title).join(" + ");
+}
+
+function CopyFacetIdsButton({ facets }: { facets: Facet[] }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={() => {
+        const ids = facets.map((f) => f.id).join(", ");
+        navigator.clipboard.writeText(ids).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        });
+      }}
+      className="text-[9px] px-1.5 py-0.5 rounded border border-neutral-700 text-neutral-400 hover:text-white hover:border-neutral-500 transition-colors"
+    >
+      {copied ? "Copied!" : "Copy IDs"}
+    </button>
+  );
+}
+
+function Section({ title, extra, children }: { title: string; extra?: React.ReactNode; children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">{title}</h3>
+      <div className="flex items-center gap-2 mb-1.5">
+        <h3 className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider">{title}</h3>
+        {extra}
+      </div>
       {children}
     </div>
   );
@@ -421,17 +448,20 @@ function CompRow({ label, a, b, fmt, lower }: { label: string; a: number; b: num
 }
 
 function SchemaCard({ node, label, color }: { node: TreeNode; label: string; color: string }) {
-  const abbrevs = computeFacetAbbreviations(node.facetSubset);
   return (
     <div className="rounded border border-neutral-800 p-2 bg-neutral-900">
-      <div className="text-[10px] font-medium mb-1" style={{ color }}>{label} · C={node.size}</div>
+      <div className="flex items-center gap-1.5 mb-1">
+        <span className="text-[10px] font-medium" style={{ color }}>{label} · C={node.size}</span>
+        <CopyFacetIdsButton facets={node.facetSubset} />
+      </div>
       <div className="flex flex-wrap gap-1">
         {node.facetSubset.map((f) => {
           const c = facetIdToChipColor(f.id);
           return (
             <span key={f.id} className="text-[9px] px-1.5 py-0.5 rounded"
+              title={f.id}
               style={{ backgroundColor: c + "20", color: c }}>
-              {abbrevs.get(f.id) ?? f.title.slice(0, 3)}
+              {f.title}
             </span>
           );
         })}
@@ -444,19 +474,23 @@ function EdgeLink({
   nodeId,
   edge,
   direction,
+  nodeMap,
   onClick,
 }: {
   nodeId: string;
   edge: TreeEdge;
   direction: "parent" | "child";
+  nodeMap: Map<string, TreeNode>;
   onClick: (id: string) => void;
 }) {
+  const target = nodeMap.get(nodeId);
+  const label = target ? nodeLabel(target) : nodeId;
   return (
     <button
       onClick={() => onClick(nodeId)}
       className="w-full text-left text-xs px-2 py-1 rounded hover:bg-neutral-800 flex items-center gap-2"
     >
-      <span className="text-blue-400 truncate flex-1">{nodeId}</span>
+      <span className="text-blue-400 truncate flex-1">{label}</span>
       <EdgeTypeBadge type={edge.edgeType} />
       <span className="text-neutral-500 text-[10px]">ref={edge.refinementScore.toFixed(2)}</span>
     </button>
