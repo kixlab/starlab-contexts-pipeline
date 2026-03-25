@@ -95,24 +95,39 @@ const MIN_ROW_HEIGHT = 80;
 
 export { NODE_WIDTH, NODE_HEIGHT, MARGIN };
 
+export type LayoutResult = {
+  positions: Map<string, NodePosition>;
+  /** Y-center and node count for every band (including empty ones). */
+  bandRows: { band: number; y: number; count: number }[];
+  rowHeight: number;
+};
+
 export function computePositions(
   visibleNodes: TreeNode[],
   visibleEdges: TreeEdge[],
   globalOrder: Map<string, number>,
   containerWidth: number,
   containerHeight: number,
-): Map<string, NodePosition> {
-  const result = new Map<string, NodePosition>();
-  if (visibleNodes.length === 0) return result;
+  /** All possible compactness bands (so empty bands keep their row). */
+  allBands?: number[],
+): LayoutResult {
+  const positions = new Map<string, NodePosition>();
+  if (visibleNodes.length === 0 && (!allBands || allBands.length === 0)) {
+    return { positions, bandRows: [], rowHeight: MIN_ROW_HEIGHT };
+  }
 
-  // Group by sizeBand
+  // Group visible nodes by sizeBand
   const layerMap = new Map<number, TreeNode[]>();
   for (const n of visibleNodes) {
     let arr = layerMap.get(n.sizeBand);
     if (!arr) { arr = []; layerMap.set(n.sizeBand, arr); }
     arr.push(n);
   }
-  const sortedBands = Array.from(layerMap.keys()).sort((a, b) => a - b);
+
+  // Use allBands for y-layout when provided; otherwise derive from visible nodes
+  const sortedBands = allBands
+    ? [...new Set(allBands)].sort((a, b) => a - b)
+    : Array.from(layerMap.keys()).sort((a, b) => a - b);
   const numLayers = sortedBands.length;
 
   // Sort each layer by globalOrder (stable)
@@ -144,12 +159,22 @@ export function computePositions(
   const layerIndex = new Map<number, number>();
   sortedBands.forEach((band, i) => layerIndex.set(band, i));
 
-  for (const [band, layer] of layerMap) {
-    const li = layerIndex.get(band)!;
+  // Compute y-center for every band
+  const bandRows: LayoutResult["bandRows"] = [];
+  for (let bi = 0; bi < sortedBands.length; bi++) {
+    const band = sortedBands[bi];
     const y =
       numLayers === 1
         ? MARGIN.top + usableHeight / 2
-        : MARGIN.top + (li / (numLayers - 1)) * usableHeight;
+        : MARGIN.top + (bi / (numLayers - 1)) * usableHeight;
+    const layer = layerMap.get(band);
+    bandRows.push({ band, y, count: layer?.length ?? 0 });
+  }
+
+  // Place visible nodes
+  for (const [band, layer] of layerMap) {
+    const li = layerIndex.get(band)!;
+    const y = bandRows[li].y;
 
     const count = layer.length;
     for (let i = 0; i < count; i++) {
@@ -157,15 +182,15 @@ export function computePositions(
         count === 1
           ? MARGIN.left + usableWidth / 2
           : MARGIN.left + (i / (count - 1)) * usableWidth;
-      result.set(layer[i].id, { x, y, layer: li });
+      positions.set(layer[i].id, { x, y, layer: li });
     }
   }
 
   // Insert dummy nodes for long edges (spanning 2+ layers)
   let dummyCount = 0;
   for (const e of visibleEdges) {
-    const sp = result.get(e.sourceId);
-    const tp = result.get(e.targetId);
+    const sp = positions.get(e.sourceId);
+    const tp = positions.get(e.targetId);
     if (!sp || !tp) continue;
     if (tp.layer - sp.layer <= 1) continue;
     // Add dummy waypoints at intermediate layers
@@ -174,9 +199,9 @@ export function computePositions(
       const dx = sp.x + (tp.x - sp.x) * frac;
       const dy = sp.y + (tp.y - sp.y) * frac;
       const dummyId = `__dummy__${dummyCount++}`;
-      result.set(dummyId, { x: dx, y: dy, layer: l, isDummy: true });
+      positions.set(dummyId, { x: dx, y: dy, layer: l, isDummy: true });
     }
   }
 
-  return result;
+  return { positions, bandRows, rowHeight };
 }

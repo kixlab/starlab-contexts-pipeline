@@ -13,7 +13,7 @@ import {
   type RefinementTree,
   type TreeBuildConfig,
 } from "./utils/treeBuilder";
-import { computeGlobalOrder, computePositions } from "./utils/stableLayout";
+import { computeGlobalOrder, computePositions, type LayoutResult } from "./utils/stableLayout";
 import { computeHighlightedNodeIds } from "./utils/visibility";
 import { Toolbar } from "./components/Toolbar";
 import { TreeCanvas } from "./components/TreeCanvas";
@@ -55,6 +55,7 @@ export default function AppTree2() {
 
   // --- Global order (stable, computed once after build) ---
   const [globalOrder, setGlobalOrder] = useState<Map<string, number>>(new Map());
+  const [allBands, setAllBands] = useState<number[]>([]);
 
   const highlightedNodeIds = useMemo(
     () => computeHighlightedNodeIds(selectedNodeIds, tree.edges),
@@ -64,9 +65,9 @@ export default function AppTree2() {
   // --- Layout positions ---
   const [containerSize, setContainerSize] = useState({ w: 800, h: 600 });
 
-  const positions = useMemo(
-    () => computePositions(tree.nodes, tree.edges, globalOrder, containerSize.w, containerSize.h),
-    [tree.nodes, tree.edges, globalOrder, containerSize],
+  const layout = useMemo(
+    () => computePositions(tree.nodes, tree.edges, globalOrder, containerSize.w, containerSize.h, allBands),
+    [tree.nodes, tree.edges, globalOrder, containerSize, allBands],
   );
 
   // --- Dataset loading ---
@@ -176,6 +177,11 @@ export default function AppTree2() {
         setComputeStatus("");
       }
 
+      // Derive all possible compactness bands from cached schemas
+      const bandSet = new Set<number>();
+      for (const n of cachedRef.current!.allNodes) bandSet.add(n.size);
+      setAllBands(Array.from(bandSet).sort((a, b) => a - b));
+
       const newTree = buildTreeFromCachedSchemas(cachedRef.current!, cfg);
       setTree(newTree);
       setLastBuiltConfig(cfg);
@@ -277,7 +283,9 @@ export default function AppTree2() {
           {datasetStatus === "loaded" ? (
             <TreeCanvas
               tree={tree}
-              positions={positions}
+              positions={layout.positions}
+              bandRows={layout.bandRows}
+              rowHeight={layout.rowHeight}
               qualityMetric={config.qualityMetric}
               selectedNodeIds={selectedNodeIds}
               selectedEdgeKey={selectedEdgeKey}

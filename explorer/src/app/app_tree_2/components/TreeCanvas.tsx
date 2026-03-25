@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { TreeNode, TreeEdge, RefinementTree } from "../utils/treeBuilder";
-import { NODE_WIDTH, NODE_HEIGHT, MARGIN } from "../utils/stableLayout";
+import { NODE_WIDTH, NODE_HEIGHT, MARGIN, type LayoutResult } from "../utils/stableLayout";
 import type { NodePosition } from "../types";
 import {
   facetIdToChipColor,
@@ -16,6 +16,8 @@ import {
 type TreeCanvasProps = {
   tree: RefinementTree;
   positions: Map<string, NodePosition>;
+  bandRows: LayoutResult["bandRows"];
+  rowHeight: number;
   qualityMetric: "D" | "eta2";
   selectedNodeIds: string[];
   selectedEdgeKey: string | null;
@@ -37,6 +39,8 @@ type TreeCanvasProps = {
 export function TreeCanvas({
   tree,
   positions,
+  bandRows,
+  rowHeight,
   qualityMetric,
   selectedNodeIds,
   selectedEdgeKey,
@@ -82,21 +86,8 @@ export function TreeCanvas({
     return maxY;
   }, [positions]);
 
-  // Layers for background stripes + labels
-  const layers = useMemo(() => {
-    const bandSet = new Set(tree.nodes.map((n) => n.sizeBand));
-    const sorted = Array.from(bandSet).sort((a, b) => a - b);
-    return sorted.map((band) => {
-      const nodes = tree.nodes.filter((n) => n.sizeBand === band);
-      const pos = positions.get(nodes[0]?.id ?? "");
-      return { band, count: nodes.length, y: pos?.y ?? 0 };
-    });
-  }, [tree.nodes, positions]);
-
-  // Row height estimate
-  const rowHeight = layers.length > 1
-    ? Math.abs((layers[1]?.y ?? 0) - (layers[0]?.y ?? 0))
-    : 100;
+  // Layers for background stripes + labels (from layout)
+  const layers = bandRows;
 
   // Scroll to node
   useEffect(() => {
@@ -111,12 +102,6 @@ export function TreeCanvas({
     });
   }, [scrollToNodeId, positions]);
 
-  // Scroll state for sticky labels
-  const [scrollTop, setScrollTop] = useState(0);
-  const handleScroll = useCallback(() => {
-    const el = containerRef.current;
-    if (el) setScrollTop(el.scrollTop);
-  }, []);
 
   // Children count (for display)
   const childrenCountMap = useMemo(() => {
@@ -165,7 +150,7 @@ export function TreeCanvas({
   }
 
   return (
-    <div ref={containerRef} className="w-full h-full relative overflow-auto" onScroll={handleScroll}>
+    <div ref={containerRef} className="w-full h-full relative overflow-auto">
       {/* Row stripes */}
       <div className="absolute inset-0 pointer-events-none" style={{ height: svgHeight, width: svgWidth }}>
         {layers.map((l, i) => (
@@ -323,20 +308,16 @@ export function TreeCanvas({
         </div>
       )}
 
-      {/* Layer labels (sticky left gutter) */}
-      <div className="absolute top-0 left-0 pointer-events-none z-20" style={{ width: MARGIN.left, height: "100%" }}>
-        {layers.map((l) => {
-          const labelY = l.y - scrollTop;
-          if (labelY < -20 || labelY > 2000) return null;
-          return (
-            <div key={`cl-${l.band}`} className="absolute" style={{ top: labelY - 10, left: 8 }}>
-              <div className="text-[10px] font-mono text-neutral-400 bg-neutral-900/90 backdrop-blur-sm px-1.5 py-0.5 rounded border border-neutral-800/60 whitespace-nowrap">
-                C={l.band}
-                <span className="text-neutral-600 ml-1">({l.count})</span>
-              </div>
+      {/* Layer labels */}
+      <div className="absolute top-0 left-0 pointer-events-none" style={{ width: MARGIN.left, height: svgHeight }}>
+        {layers.map((l) => (
+          <div key={`cl-${l.band}`} className="absolute" style={{ top: l.y - 10, left: 8 }}>
+            <div className={`text-[10px] font-mono whitespace-nowrap px-1.5 py-0.5 rounded border border-neutral-800/60 ${l.count > 0 ? "text-neutral-400 bg-neutral-900/90 backdrop-blur-sm" : "text-neutral-600 bg-neutral-900/60"}`}>
+              C={l.band}
+              <span className="text-neutral-600 ml-1">({l.count})</span>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </div>
   );
