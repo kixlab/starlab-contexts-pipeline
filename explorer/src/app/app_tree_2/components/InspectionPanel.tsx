@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { DatasetVideo, Facet } from "@/app/types";
+import { facetToLabelKey } from "@/app/utils/facetStats";
 import type { RefinementTree, TreeNode, TreeEdge } from "../utils/treeBuilder";
 import { computeMI, computeJointEntropy } from "../utils/treeBuilder";
 import {
@@ -197,7 +198,7 @@ function SingleNodeView({
       {dists.length > 0 && (
         <Section title="Value Distributions">
           {dists.map((d) => (
-            <FacetDistBar key={d.facet.id} dist={d} />
+            <FacetDistBar key={d.facet.id} dist={d} dataset={dataset} infoTypes={infoTypes} />
           ))}
         </Section>
       )}
@@ -285,11 +286,11 @@ function ComparisonView({
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
             <span className="text-amber-400 text-[10px] font-medium">#1</span>
-            {distsA.map((d) => <FacetDistBar key={d.facet.id} dist={d} compact />)}
+            {distsA.map((d) => <FacetDistBar key={d.facet.id} dist={d} dataset={dataset} infoTypes={infoTypes} />)}
           </div>
           <div className="space-y-2">
             <span className="text-cyan-400 text-[10px] font-medium">#2</span>
-            {distsB.map((d) => <FacetDistBar key={d.facet.id} dist={d} compact />)}
+            {distsB.map((d) => <FacetDistBar key={d.facet.id} dist={d} dataset={dataset} infoTypes={infoTypes} />)}
           </div>
         </div>
       </Section>
@@ -502,28 +503,99 @@ function EdgeTypeBadge({ type }: { type: string }) {
   return <span className={`text-[9px] px-1 py-0 rounded border ${color}`}>{type}</span>;
 }
 
-function FacetDistBar({ dist, compact }: { dist: FacetValueDist; compact?: boolean }) {
-  const [expanded, setExpanded] = useState(false);
+function FacetDistBar({
+  dist,
+  dataset,
+  infoTypes,
+}: {
+  dist: FacetValueDist;
+  dataset: DatasetVideo[];
+  infoTypes: string[] | null;
+}) {
+  const [showDetails, setShowDetails] = useState(false);
   const c = facetIdToChipColor(dist.facet.id);
   const sorted = [...dist.valueCounts].sort((a, b) => b.count - a.count);
-  const shown = expanded ? sorted : sorted.slice(0, compact ? 3 : 5);
+
+  // Vocabulary lookup: label → definition
+  const vocabMap = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const v of dist.facet.vocabulary) m.set(v.label, v.definition);
+    return m;
+  }, [dist.facet.vocabulary]);
+
+  // Compute up to 2 example contents per value (only when details shown)
+  const examples = useMemo(() => {
+    if (!showDetails) return new Map<string, string[]>();
+    const key = facetToLabelKey(dist.facet);
+    const rawPieces = dataset.flatMap((v) => v.pieces ?? []);
+    const pieces = infoTypes?.length
+      ? rawPieces.filter((p) => infoTypes.includes(p.content_type ?? ""))
+      : rawPieces;
+    const result = new Map<string, string[]>();
+    for (const piece of pieces) {
+      const vals = (piece.labels?.[key] as string[] | undefined) ?? [];
+      for (const val of vals) {
+        const arr = result.get(val);
+        if (!arr) {
+          result.set(val, [piece.content]);
+        } else if (arr.length < 2) {
+          arr.push(piece.content);
+        }
+      }
+    }
+    return result;
+  }, [showDetails, dist.facet, dataset, infoTypes]);
 
   return (
     <div className="text-xs">
-      <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-1 text-neutral-300 hover:text-white mb-0.5">
-        <span className="text-[10px]" style={{ color: c }}>{dist.facet.title}</span>
-        {sorted.length > (compact ? 3 : 5) && (
-          <span className="text-neutral-600 text-[9px]">{expanded ? "▾" : `▸ ${sorted.length}`}</span>
-        )}
+      {/* Facet title — click to toggle details */}
+      <button
+        onClick={() => setShowDetails(!showDetails)}
+        className="flex items-center gap-1 text-neutral-300 hover:text-white mb-0.5"
+      >
+        <span className="text-neutral-600 text-[9px]">{showDetails ? "▾" : "▸"}</span>
+        <span className="text-[10px] font-medium" style={{ color: c }}>{dist.facet.title}</span>
       </button>
+
+      {/* Expanded facet details: definition + guidelines */}
+      {showDetails && (
+        <div className="ml-3 mb-1.5 space-y-1 text-[10px] text-neutral-400 border-l border-neutral-800 pl-2">
+          <p>{dist.facet.definition}</p>
+          {dist.facet.guidelines && dist.facet.guidelines.length > 0 && (
+            <ul className="list-disc list-inside space-y-0.5 text-neutral-500">
+              {dist.facet.guidelines.map((g, i) => (
+                <li key={i}>{g}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {/* All values — always shown */}
       <div className="space-y-0.5">
-        {shown.map((v) => (
-          <div key={v.label} className="flex items-center gap-1">
-            <span className="text-neutral-500 w-16 truncate text-[10px]">{v.label}</span>
-            <div className="flex-1 h-2 bg-neutral-800 rounded overflow-hidden">
-              <div className="h-full rounded" style={{ width: `${v.percentage}%`, backgroundColor: c + "80" }} />
+        {sorted.map((v) => (
+          <div key={v.label}>
+            <div className="flex items-center gap-1">
+              <span className="text-neutral-500 w-16 truncate text-[10px]" title={v.label}>{v.label}</span>
+              <div className="flex-1 h-2 bg-neutral-800 rounded overflow-hidden">
+                <div className="h-full rounded" style={{ width: `${v.percentage}%`, backgroundColor: c + "80" }} />
+              </div>
+              <span className="text-neutral-600 text-[9px] w-8 text-right">{v.percentage.toFixed(0)}%</span>
             </div>
-            <span className="text-neutral-600 text-[9px] w-8 text-right">{v.percentage.toFixed(0)}%</span>
+            {/* Expanded value details */}
+            {showDetails && (
+              <div className="ml-3 mb-1 text-[10px] text-neutral-500 border-l border-neutral-800 pl-2 space-y-0.5">
+                <div><span className="text-neutral-600">Name:</span> {v.label}</div>
+                {vocabMap.has(v.label) && (
+                  <div><span className="text-neutral-600">Def:</span> {vocabMap.get(v.label)}</div>
+                )}
+                {(examples.get(v.label) ?? []).map((ex, i) => (
+                  <div key={i} className="text-neutral-600 italic truncate" title={ex}>
+                    e.g. &ldquo;{ex}&rdquo;
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
