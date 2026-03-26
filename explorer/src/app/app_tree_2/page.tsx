@@ -153,8 +153,8 @@ export default function AppTree2() {
 
       await new Promise<void>((r) => setTimeout(r, 0));
       const bundle = normalizeBundle(raw as Record<string, unknown>);
-      const ds = ((bundle as any)?.labeled_dataset ?? []) as DatasetVideo[];
-      const fs = ((bundle as any)?.context_schema ?? []) as Facet[];
+      const ds = bundle.labeled_dataset;
+      const fs = bundle.context_schema;
       const it = option.infoTypes === null ? deriveInfoTypesFromDataset(ds) : option.infoTypes;
 
       setDataset(ds);
