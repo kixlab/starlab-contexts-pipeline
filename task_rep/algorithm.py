@@ -361,6 +361,23 @@ class IterativeSchemaDiscovery:
                 videos=videos,
                 num_facets=self.config.init_facets,
             )
+            # IRR check — signal unreliable facets
+            if self.config.irr_sample_videos > 0 and init_facets:
+                irr = compute_irr(
+                    task=task.name,
+                    facets=init_facets,
+                    knowledge_base=self._knowledge_base,
+                    labeler=self._labeler,
+                    sample_videos=self.config.irr_sample_videos,
+                    num_raters=self.config.irr_num_raters,
+                    min_agreement=self.config.irr_min_agreement,
+                )
+                low_irr_ids = set(irr.get("low_irr_facet_ids", []))
+                logger.info(
+                    "There are %d low-IRR candidate(s) among init facets: %s",
+                    len(low_irr_ids), list(low_irr_ids),
+                )
+
             if init_facets:
                 init_facets = self._vocab_builder.build_vocabulary(
                     task=task.name,
