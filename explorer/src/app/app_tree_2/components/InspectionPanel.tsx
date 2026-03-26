@@ -229,7 +229,7 @@ function SingleNodeView({
 
       {/* Distributions */}
       {dists.length > 0 && (
-        <Section title="Value Distributions">
+        <Section title="Definitions & Distributions" extra={<span className="text-[9px] text-neutral-600 font-normal normal-case tracking-normal">click facets to expand</span>}>
           {dists.map((d) => (
             <FacetDistBar key={d.facet.id} dist={d} dataset={dataset} infoTypes={infoTypes} />
           ))}
@@ -589,10 +589,10 @@ function FacetDistBar({
       {/* Facet title — click to toggle details */}
       <button
         onClick={() => setShowDetails(!showDetails)}
-        className="flex items-center gap-1 text-neutral-300 hover:text-white mb-0.5"
+        className="flex items-center gap-1.5 text-neutral-300 hover:text-white mb-0.5 group"
       >
-        <span className="text-neutral-600 text-[9px]">{showDetails ? "▾" : "▸"}</span>
-        <span className="text-xs font-semibold" style={{ color: c }}>{dist.facet.title}</span>
+        <span className="text-neutral-500 text-[10px] group-hover:text-neutral-300 transition-colors">{showDetails ? "▾" : "▸"}</span>
+        <span className="text-xs font-semibold group-hover:underline" style={{ color: c }}>{dist.facet.title}</span>
       </button>
 
       {/* Expanded facet details: definition + guidelines */}
