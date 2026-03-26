@@ -16,9 +16,9 @@ import {
 // ---------------------------------------------------------------------------
 
 const METRIC_TOOLTIPS: Record<string, string> = {
-  Size: "Total non-NA vocabulary items across all facets",
-  Effectiveness: "How well this schema predicts information units (higher = better)",
-  Refinement: "Fraction of parent's information preserved in child",
+  Size: "Number of values in the schema. More values enable finer annotations.",
+  Effectiveness: "How precisely the schema identifies content. Higher = viewers find specific content more easily.",
+  Refinement: "How much a child preserves its parent's organization. Higher = more consistent structure.",
 };
 
 // ---------------------------------------------------------------------------
