@@ -277,7 +277,14 @@ export default function AppTree2() {
 
   const handleEdgeClick = useCallback((edgeKey: string | null) => {
     setSelectedEdgeKey(edgeKey);
-    if (edgeKey) setSelectedNodeIds([]);
+    if (edgeKey) {
+      const [srcId, tgtId] = edgeKey.split('->');
+      setSelectedNodeIds((prev) => {
+        if (prev.includes(srcId)) return [srcId];
+        if (prev.includes(tgtId)) return [tgtId];
+        return [srcId];
+      });
+    }
   }, []);
 
   const handleDeselectAll = useCallback(() => {

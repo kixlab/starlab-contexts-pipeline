@@ -12,6 +12,45 @@ import {
 } from "@/app/app_analysis/utils/metricsUtils";
 
 // ---------------------------------------------------------------------------
+// Metric tooltip text
+// ---------------------------------------------------------------------------
+
+const METRIC_TOOLTIPS: Record<string, string> = {
+  Size: "Total non-NA vocabulary items across all facets",
+  Effectiveness: "How well this schema predicts information units (higher = better)",
+  Refinement: "Fraction of parent's information preserved in child",
+};
+
+// ---------------------------------------------------------------------------
+// Instant tooltip wrapper (no delay, unlike native title)
+// ---------------------------------------------------------------------------
+
+function Tip({ title, text, children, as: Tag = "div" }: { title?: string; text: string; children: React.ReactNode; as?: "div" | "span" }) {
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  return (
+    <Tag
+      className="relative"
+      onMouseEnter={(e: React.MouseEvent) => {
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        setPos({ x: rect.left + rect.width / 2, y: rect.top });
+      }}
+      onMouseLeave={() => setPos(null)}
+    >
+      {children}
+      {pos && (
+        <div
+          className="fixed z-[100] pointer-events-none px-2.5 py-1.5 rounded bg-neutral-800 border border-neutral-700 text-xs text-neutral-200 shadow-lg max-w-[280px]"
+          style={{ left: pos.x, top: pos.y - 4, transform: "translate(-50%, -100%)" }}
+        >
+          {title && <div className="font-semibold text-white mb-0.5 whitespace-nowrap">{title}</div>}
+          <div className="whitespace-pre-wrap">{text}</div>
+        </div>
+      )}
+    </Tag>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Props
 // ---------------------------------------------------------------------------
 
@@ -149,23 +188,24 @@ function SingleNodeView({
           {node.facetSubset.map((f) => {
             const c = facetIdToChipColor(f.id);
             return (
-              <span key={f.id} className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded"
-                title={f.id}
-                style={{ backgroundColor: c + "20", color: c, border: `1px solid ${c}40` }}>
-                {f.title}
-                <span className="text-[10px] opacity-60">({f.vocabulary.length})</span>
-              </span>
+              <Tip key={f.id} title={f.title} text={f.definition} as="span">
+                <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded"
+                  style={{ backgroundColor: c + "20", color: c, border: `1px solid ${c}40` }}>
+                  {f.title}
+                  <span className="text-[11px] opacity-60">({f.vocabulary.length})</span>
+                </span>
+              </Tip>
             );
           })}
         </div>
-        {isRoot && <span className="text-blue-400 text-[10px] font-medium mt-1 block">ROOT</span>}
+        {isRoot && <span className="text-blue-400 text-xs font-medium mt-1 block">ROOT</span>}
       </Section>
 
       {/* Metrics */}
       <Section title="Metrics">
         <MetricGrid>
-          <MetricCell label="Size" value={node.size} />
-          <MetricCell label="Effectiveness" value={`${computeEffectiveness(node.D, numUniqueUnits).toFixed(0)}%`} />
+          <MetricCell label="Size" value={node.size} tooltip={METRIC_TOOLTIPS.Size} />
+          <MetricCell label="Effectiveness" value={`${computeEffectiveness(node.D, numUniqueUnits).toFixed(0)}%`} tooltip={METRIC_TOOLTIPS.Effectiveness} />
         </MetricGrid>
       </Section>
 
@@ -254,8 +294,8 @@ function ComparisonView({
           <span className="text-amber-400 text-right">#1</span>
           <span className="text-cyan-400 text-right">#2</span>
           <span className="text-neutral-400 text-right">Δ</span>
-          <CompRow label="Size" a={nodeA.size} b={nodeB.size} />
-          <CompRow label="Effectiveness" a={computeEffectiveness(nodeA.D, numUniqueUnits)} b={computeEffectiveness(nodeB.D, numUniqueUnits)} fmt={0} suffix="%" />
+          <CompRow label="Size" a={nodeA.size} b={nodeB.size} tooltip={METRIC_TOOLTIPS.Size} />
+          <CompRow label="Effectiveness" a={computeEffectiveness(nodeA.D, numUniqueUnits)} b={computeEffectiveness(nodeB.D, numUniqueUnits)} fmt={0} suffix="%" tooltip={METRIC_TOOLTIPS.Effectiveness} />
         </div>
       </Section>
 
@@ -271,11 +311,11 @@ function ComparisonView({
       <Section title="Distributions">
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
-            <span className="text-amber-400 text-[10px] font-medium">#1</span>
+            <span className="text-amber-400 text-xs font-medium">#1</span>
             {distsA.map((d) => <FacetDistBar key={d.facet.id} dist={d} dataset={dataset} infoTypes={infoTypes} />)}
           </div>
           <div className="space-y-2">
-            <span className="text-cyan-400 text-[10px] font-medium">#2</span>
+            <span className="text-cyan-400 text-xs font-medium">#2</span>
             {distsB.map((d) => <FacetDistBar key={d.facet.id} dist={d} dataset={dataset} infoTypes={infoTypes} />)}
           </div>
         </div>
@@ -336,7 +376,7 @@ function EdgeView({
       {/* Edge metrics */}
       <Section title="Edge Metrics">
         <MetricGrid>
-          <MetricCell label="Refinement" value={`${Math.round(edge.refinementScore * 100)}%`} />
+          <MetricCell label="Refinement" value={`${Math.round(edge.refinementScore * 100)}%`} tooltip={METRIC_TOOLTIPS.Refinement} />
         </MetricGrid>
       </Section>
 
@@ -351,8 +391,8 @@ function EdgeView({
           <span className="text-neutral-300 text-right">Parent</span>
           <span className="text-neutral-300 text-right">Child</span>
           <span className="text-neutral-400 text-right">Δ</span>
-          <CompRow label="Size" a={src.size} b={tgt.size} />
-          <CompRow label="Effectiveness" a={computeEffectiveness(src.D, numUniqueUnits)} b={computeEffectiveness(tgt.D, numUniqueUnits)} fmt={0} suffix="%" />
+          <CompRow label="Size" a={src.size} b={tgt.size} tooltip={METRIC_TOOLTIPS.Size} />
+          <CompRow label="Effectiveness" a={computeEffectiveness(src.D, numUniqueUnits)} b={computeEffectiveness(tgt.D, numUniqueUnits)} fmt={0} suffix="%" tooltip={METRIC_TOOLTIPS.Effectiveness} />
         </div>
       </Section>
     </>
@@ -402,7 +442,7 @@ function Section({ title, extra, children }: { title: string; extra?: React.Reac
   return (
     <div>
       <div className="flex items-center gap-2 mb-1.5">
-        <h3 className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider">{title}</h3>
+        <h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">{title}</h3>
         {extra}
       </div>
       {children}
@@ -414,16 +454,17 @@ function MetricGrid({ children }: { children: React.ReactNode }) {
   return <div className="grid grid-cols-3 gap-2">{children}</div>;
 }
 
-function MetricCell({ label, value, highlight }: { label: string; value: string | number; highlight?: boolean }) {
-  return (
+function MetricCell({ label, value, highlight, tooltip }: { label: string; value: string | number; highlight?: boolean; tooltip?: string }) {
+  const inner = (
     <div className={`rounded px-2 py-1 ${highlight ? "bg-blue-900/30 border border-blue-700/40" : "bg-neutral-900 border border-neutral-800"}`}>
       <div className="text-[9px] text-neutral-500">{label}</div>
       <div className="text-xs font-mono text-neutral-200">{value}</div>
     </div>
   );
+  return tooltip ? <Tip text={tooltip}>{inner}</Tip> : inner;
 }
 
-function CompRow({ label, a, b, fmt, lower, suffix }: { label: string; a: number; b: number; fmt?: number; lower?: boolean; suffix?: string }) {
+function CompRow({ label, a, b, fmt, lower, suffix, tooltip }: { label: string; a: number; b: number; fmt?: number; lower?: boolean; suffix?: string; tooltip?: string }) {
   const s = suffix ?? "";
   const fa = fmt != null ? a.toFixed(fmt) : a;
   const fb = fmt != null ? b.toFixed(fmt) : b;
@@ -433,7 +474,11 @@ function CompRow({ label, a, b, fmt, lower, suffix }: { label: string; a: number
   const worse = lower ? delta > 0.001 : delta < -0.001;
   return (
     <>
-      <span className="text-neutral-400">{label}</span>
+      {tooltip ? (
+        <Tip text={tooltip} as="span"><span className="text-neutral-400">{label}</span></Tip>
+      ) : (
+        <span className="text-neutral-400">{label}</span>
+      )}
       <span className="text-right font-mono text-neutral-200">{fa}{s}</span>
       <span className="text-right font-mono text-neutral-200">{fb}{s}</span>
       <span className={`text-right font-mono ${better ? "text-green-400" : worse ? "text-red-400" : "text-neutral-500"}`}>
@@ -447,7 +492,7 @@ function SchemaCard({ node, label, color }: { node: TreeNode; label: string; col
   return (
     <div className="rounded border border-neutral-800 p-2 bg-neutral-900">
       <div className="flex items-center gap-1.5 mb-1">
-        <span className="text-[10px] font-medium" style={{ color }}>{label} · Size={node.size}</span>
+        <span className="text-xs font-medium" style={{ color }}>{label} · Size={node.size}</span>
         <CopyFacetIdsButton facets={node.facetSubset} />
       </div>
       <div className="flex flex-wrap gap-1">
@@ -486,7 +531,7 @@ function EdgeLink({
     >
       <span className="text-blue-400 truncate flex-1">{label}</span>
       <EdgeTypeBadge type={edge.edgeType} />
-      <span className="text-neutral-500 text-[10px]">Ref={Math.round(edge.refinementScore * 100)}%</span>
+      <span className="text-neutral-500 text-[11px]">Ref={Math.round(edge.refinementScore * 100)}%</span>
     </button>
   );
 }
@@ -547,12 +592,12 @@ function FacetDistBar({
         className="flex items-center gap-1 text-neutral-300 hover:text-white mb-0.5"
       >
         <span className="text-neutral-600 text-[9px]">{showDetails ? "▾" : "▸"}</span>
-        <span className="text-[10px] font-medium" style={{ color: c }}>{dist.facet.title}</span>
+        <span className="text-xs font-semibold" style={{ color: c }}>{dist.facet.title}</span>
       </button>
 
       {/* Expanded facet details: definition + guidelines */}
       {showDetails && (
-        <div className="ml-3 mb-1.5 space-y-1 text-[10px] text-neutral-400 border-l border-neutral-800 pl-2">
+        <div className="ml-3 mb-1.5 space-y-1 text-xs text-neutral-300 border-l border-neutral-800 pl-2">
           <p>{dist.facet.definition}</p>
           {dist.facet.guidelines && dist.facet.guidelines.length > 0 && (
             <ul className="list-disc list-inside space-y-0.5 text-neutral-500">
@@ -569,7 +614,7 @@ function FacetDistBar({
         {sorted.map((v) => (
           <div key={v.label}>
             <div className="flex items-center gap-1">
-              <span className="text-neutral-500 w-16 truncate text-[10px]" title={v.label}>{v.label}</span>
+              <span className="text-neutral-400 w-20 truncate text-xs" title={v.label}>{v.label}</span>
               <div className="flex-1 h-2 bg-neutral-800 rounded overflow-hidden">
                 <div className="h-full rounded" style={{ width: `${v.percentage}%`, backgroundColor: c + "80" }} />
               </div>
@@ -577,7 +622,7 @@ function FacetDistBar({
             </div>
             {/* Expanded value details */}
             {showDetails && (
-              <div className="ml-3 mb-1 text-[10px] text-neutral-500 border-l border-neutral-800 pl-2 space-y-0.5">
+              <div className="ml-3 mb-1 text-[11px] text-neutral-400 border-l border-neutral-800 pl-2 space-y-0.5">
                 <div><span className="text-neutral-600">Name:</span> {v.label}</div>
                 {vocabMap.has(v.label) && (
                   <div><span className="text-neutral-600">Def:</span> {vocabMap.get(v.label)}</div>
@@ -603,7 +648,7 @@ function FacetList({ label, facets }: { label: string; facets: Facet[] }) {
       {facets.map((f) => {
         const c = facetIdToChipColor(f.id);
         return (
-          <span key={f.id} className="inline-block text-[10px] px-1.5 py-0 rounded mr-1"
+          <span key={f.id} className="inline-block text-xs px-1.5 py-0.5 rounded mr-1"
             style={{ backgroundColor: c + "20", color: c }}>
             {f.title}
           </span>

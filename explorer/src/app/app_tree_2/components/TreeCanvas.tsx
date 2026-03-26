@@ -59,7 +59,7 @@ export function TreeCanvas({
   scrollToNodeId,
 }: TreeCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; title?: string; text: string } | null>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
 
   // Resize observer
@@ -284,11 +284,26 @@ export function TreeCanvas({
               <g transform="translate(6, 4)">
                 {node.facetSubset.map((facet, fi) => {
                   const c = facetIdToChipColor(facet.id);
-                  const chipW = Math.min(NODE_WIDTH - 12, Math.max(36, facet.title.length * 6.5 + 10));
+                  const chipW = NODE_WIDTH - 12;
+                  const maxChars = Math.floor((chipW - 10) / 6.5);
+                  const displayTitle = facet.title.length > maxChars ? facet.title.slice(0, maxChars - 1) + "…" : facet.title;
                   return (
-                    <g key={facet.id} transform={`translate(0, ${fi * CHIP_H})`}>
+                    <g key={facet.id} transform={`translate(0, ${fi * CHIP_H})`}
+                      onMouseEnter={(ev) => {
+                        const rect = containerRef.current?.getBoundingClientRect();
+                        if (rect) {
+                          setTooltip({
+                            x: ev.clientX - rect.left + (containerRef.current?.scrollLeft ?? 0),
+                            y: ev.clientY - rect.top + (containerRef.current?.scrollTop ?? 0) - 10,
+                            title: facet.title,
+                            text: facet.definition,
+                          });
+                        }
+                      }}
+                      onMouseLeave={() => setTooltip(null)}
+                    >
                       <rect width={chipW} height={17} rx={3} fill={c + "30"} stroke={c + "60"} strokeWidth={0.5} />
-                      <text x={chipW / 2} y={12} textAnchor="middle" className="text-[10px] font-medium" fill={c}>{facet.title}</text>
+                      <text x={chipW / 2} y={12} textAnchor="middle" className="text-[10px] font-medium" fill={c}>{displayTitle}</text>
                     </g>
                   );
                 })}
@@ -307,6 +322,7 @@ export function TreeCanvas({
       {tooltip && (
         <div className="absolute pointer-events-none bg-neutral-800 border border-neutral-700 rounded-md px-3 py-2 text-xs text-neutral-200 whitespace-pre-wrap max-w-[280px] z-50 shadow-lg"
           style={{ left: tooltip.x + 12, top: tooltip.y }}>
+          {tooltip.title && <div className="font-semibold text-white mb-0.5">{tooltip.title}</div>}
           {tooltip.text}
         </div>
       )}
