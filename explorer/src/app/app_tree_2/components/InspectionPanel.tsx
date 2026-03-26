@@ -373,7 +373,20 @@ function CopyFacetIdsButton({ facets }: { facets: Facet[] }) {
     <button
       onClick={() => {
         const ids = facets.map((f) => f.id).join(", ");
-        navigator.clipboard.writeText(ids).then(() => {
+        const write = navigator.clipboard?.writeText
+          ? navigator.clipboard.writeText(ids)
+          : new Promise<void>((resolve) => {
+              const ta = document.createElement("textarea");
+              ta.value = ids;
+              ta.style.position = "fixed";
+              ta.style.opacity = "0";
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              document.body.removeChild(ta);
+              resolve();
+            });
+        write.then(() => {
           setCopied(true);
           setTimeout(() => setCopied(false), 1500);
         });

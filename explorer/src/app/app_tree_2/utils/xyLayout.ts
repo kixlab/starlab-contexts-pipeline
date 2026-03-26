@@ -11,8 +11,8 @@ const MIN_ROW_HEIGHT = 80;
 const NODE_GAP = 20; // min horizontal gap between node edges
 
 // Adaptive node height (must stay in sync with TreeCanvas BASE_H / CHIP_H)
-const NODE_H_BASE = 36;
-const NODE_H_PER_CHIP = 16;
+const NODE_H_BASE = 20;
+const NODE_H_PER_CHIP = 20;
 const SUB_ROW_GAP = 14; // vertical gap between sub-lanes
 
 function computeNodeH(n: TreeNode): number {

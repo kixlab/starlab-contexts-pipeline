@@ -8,8 +8,8 @@ import type { NodePosition } from "../types";
 import { facetIdToChipColor } from "@/app/app_analysis/utils/metricsUtils";
 
 // Adaptive node height constants
-const CHIP_H = 16;
-const BASE_H = 36; // metrics line + padding
+const CHIP_H = 20;
+const BASE_H = 20; // thin footer for metrics
 
 // ---------------------------------------------------------------------------
 // Props
@@ -17,6 +17,7 @@ const BASE_H = 36; // metrics line + padding
 
 type TreeCanvasProps = {
   tree: RefinementTree;
+  visibleEdges: TreeEdge[];
   positions: Map<string, NodePosition>;
   bandRows: LayoutResult["bandRows"];
   rowHeight: number;
@@ -40,6 +41,7 @@ type TreeCanvasProps = {
 
 export function TreeCanvas({
   tree,
+  visibleEdges,
   positions,
   bandRows,
   rowHeight,
@@ -58,6 +60,7 @@ export function TreeCanvas({
 }: TreeCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   // Resize observer
   useEffect(() => {
@@ -70,6 +73,15 @@ export function TreeCanvas({
     obs.observe(el);
     return () => obs.disconnect();
   }, [onContainerResize]);
+
+  // Track vertical scroll for sticky y-axis labels
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onScroll = () => setScrollLeft(el.scrollLeft);
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
 
   // SVG dimensions from positions
   const svgWidth = useMemo(() => {
@@ -108,7 +120,7 @@ export function TreeCanvas({
   }, [scrollToNodeId, positions]);
 
 
-  // Adaptive node height: base for metrics + 16px per facet chip
+  // Adaptive node height: footer + per-chip height
   const nodeHeight = useCallback((n: TreeNode) => BASE_H + n.facetSubset.length * CHIP_H, []);
 
   // Pre-compute heights for edge routing
@@ -117,14 +129,6 @@ export function TreeCanvas({
     for (const n of tree.nodes) m.set(n.id, nodeHeight(n));
     return m;
   }, [tree.nodes, nodeHeight]);
-
-  // Children count (for display)
-  const childrenCountMap = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const n of tree.nodes) map.set(n.id, 0);
-    for (const e of tree.edges) map.set(e.sourceId, (map.get(e.sourceId) ?? 0) + 1);
-    return map;
-  }, [tree]);
 
   // Edge helpers
   const edgePath = useCallback((e: TreeEdge) => {
@@ -188,8 +192,8 @@ export function TreeCanvas({
           </marker>
         </defs>
 
-        {/* Edges */}
-        {tree.edges.map((e) => {
+        {/* Edges (only for selected node's neighbours) */}
+        {visibleEdges.map((e) => {
           const key = `${e.sourceId}->${e.targetId}`;
           const isSel = key === selectedEdgeKey;
           const color = EDGE_COLORS[e.edgeType] ?? "#6b7280";
@@ -232,7 +236,6 @@ export function TreeCanvas({
           const isSel = selIdx >= 0;
           const isHov = node.id === hoveredNodeId;
           const isHi = highlightedNodeIds.has(node.id);
-          const numCh = childrenCountMap.get(node.id) ?? 0;
           const eff = computeEffectiveness(node.D, numUniqueUnits);
           const selColor = selIdx === 0 ? "#f59e0b" : selIdx === 1 ? "#22d3ee" : null;
           const nh = nodeHeight(node);
@@ -277,31 +280,24 @@ export function TreeCanvas({
                 </>
               )}
 
-              {/* Facet chips — stacked vertically */}
-              <g transform="translate(6, 8)">
+              {/* Facet chips — stacked vertically, bigger text */}
+              <g transform="translate(6, 4)">
                 {node.facetSubset.map((facet, fi) => {
                   const c = facetIdToChipColor(facet.id);
-                  const chipW = Math.min(NODE_WIDTH - 12, Math.max(30, facet.title.length * 5.5 + 8));
+                  const chipW = Math.min(NODE_WIDTH - 12, Math.max(36, facet.title.length * 6.5 + 10));
                   return (
                     <g key={facet.id} transform={`translate(0, ${fi * CHIP_H})`}>
-                      <rect width={chipW} height={14} rx={3} fill={c + "30"} stroke={c + "60"} strokeWidth={0.5} />
-                      <text x={chipW / 2} y={10} textAnchor="middle" className="text-[8px] font-medium" fill={c}>{facet.title}</text>
+                      <rect width={chipW} height={17} rx={3} fill={c + "30"} stroke={c + "60"} strokeWidth={0.5} />
+                      <text x={chipW / 2} y={12} textAnchor="middle" className="text-[10px] font-medium" fill={c}>{facet.title}</text>
                     </g>
                   );
                 })}
               </g>
 
-              {/* Metrics */}
-              <text x={NODE_WIDTH / 2} y={nh - 14} textAnchor="middle" className="text-[9px]" fill="#a3a3a3">
-                Size={node.size} · Eff={eff.toFixed(0)}%
+              {/* Footer: compact metrics */}
+              <text x={NODE_WIDTH / 2} y={nh - 5} textAnchor="middle" className="text-[8px]" fill="#737373">
+                {node.size} · {eff.toFixed(0)}%
               </text>
-
-              {/* Bottom: children count */}
-              {numCh > 0 && (
-                <text x={NODE_WIDTH / 2} y={nh - 4} textAnchor="middle" className="text-[8px]" fill="#737373">
-                  {numCh} children
-                </text>
-              )}
             </g>
           );
         })}
@@ -315,8 +311,8 @@ export function TreeCanvas({
         </div>
       )}
 
-      {/* Layer labels */}
-      <div className="absolute top-0 left-0 pointer-events-none" style={{ width: MARGIN.left, height: svgHeight }}>
+      {/* Layer labels — sticky: stays at left edge when scrolling horizontally */}
+      <div className="absolute top-0 pointer-events-none z-10" style={{ left: scrollLeft, width: MARGIN.left, height: svgHeight }}>
         {layers.map((l) => (
           <div key={`cl-${l.band}`} className="absolute" style={{ top: l.y - 10, left: 8 }}>
             <div className={`text-[10px] font-mono whitespace-nowrap px-1.5 py-0.5 rounded border border-neutral-800/60 ${l.count > 0 ? "text-neutral-400 bg-neutral-900/90 backdrop-blur-sm" : "text-neutral-600 bg-neutral-900/60"}`}>

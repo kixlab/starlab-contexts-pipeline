@@ -61,7 +61,7 @@ export type TreeBuildConfig = {
 };
 
 export const DEFAULT_TREE_CONFIG: TreeBuildConfig = {
-  maxK: MAX_FACETS_CAP,
+  maxK: 2,
   qualityMetric: "D",
   stabilityThreshold: 0,
   refinementThreshold: 0.6,
