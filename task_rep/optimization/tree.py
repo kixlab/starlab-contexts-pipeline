@@ -587,3 +587,27 @@ def get_active_facet_ids(
         if _node_quality_value(node, metric_mode) > min_d:
             active.update(node.facet_ids)
     return active
+
+
+def compute_tree_depth(tree: RefinementTree) -> int:
+    """
+    Max path length from any root to any leaf in the refinement tree.
+
+    Returns 0 if the tree has no edges (all nodes are roots/leaves).
+    """
+    if not tree.edges:
+        return 0
+    children: Dict[str, List[str]] = defaultdict(list)
+    for e in tree.edges:
+        children[e.source_id].append(e.target_id)
+    parents = {e.target_id for e in tree.edges}
+    roots = [n.id for n in tree.nodes if n.id not in parents]
+    max_depth = 0
+    for root in roots:
+        stack = [(root, 0)]
+        while stack:
+            nid, d = stack.pop()
+            max_depth = max(max_depth, d)
+            for child in children.get(nid, []):
+                stack.append((child, d + 1))
+    return max_depth

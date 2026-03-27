@@ -42,4 +42,5 @@ from .tree import (
     sample_schemas_from_tree,
     is_tree_improved,
     get_active_facet_ids,
+    compute_tree_depth,
 )

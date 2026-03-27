@@ -144,6 +144,11 @@ class DiscoveryConfig:
     # A node is considered captured by another if MI(keeper, candidate) / H(candidate) > tau.
     refinement_threshold: float = 0.85
 
+    # Tree complexity cap (only used when selection_mode="refinement_tree").
+    # 0 = unlimited; >0 = stop iterating when the tree has >= this many surviving nodes.
+    # Useful for matching tree complexity across methods (e.g., set to one_shot's node count).
+    max_tree_nodes: int = 0
+
     # IRR (Inter-Rater Reliability) diagnostic.
     # 0 = disabled; >0 = sample N videos and re-label to measure consistency.
     irr_sample_videos: int = 0
@@ -172,8 +177,9 @@ class DiscoveryConfig:
         ref_tau = f"tau{self.refinement_threshold}" if self.selection_mode == "refinement_tree" else "na"
 
         max_facets = str(self.max_facets) if self.max_facets > 0 else "inf"
+        max_tree_nodes = f"tn{self.max_tree_nodes}" if self.max_tree_nodes > 0 else "tninf"
 
-        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}_{max_schema_facets}_{init_facets}_{metric_mode}_{eta_squared_weighting}_{irr}_{selection}_{ref_tau}_{max_facets}"
+        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}_{max_schema_facets}_{init_facets}_{metric_mode}_{eta_squared_weighting}_{irr}_{selection}_{ref_tau}_{max_facets}_{max_tree_nodes}"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -194,6 +200,7 @@ class DiscoveryConfig:
             "eta_squared_weighting": self.eta_squared_weighting,
             "selection_mode": self.selection_mode,
             "refinement_threshold": self.refinement_threshold,
+            "max_tree_nodes": self.max_tree_nodes,
             "irr_sample_videos": self.irr_sample_videos,
             "irr_num_raters": self.irr_num_raters,
             "irr_min_agreement": self.irr_min_agreement,
@@ -225,6 +232,7 @@ class DiscoveryConfig:
             eta_squared_weighting=data.get("eta_squared_weighting", "equal"),
             selection_mode=data.get("selection_mode", "pareto"),
             refinement_threshold=data.get("refinement_threshold", 0.85),
+            max_tree_nodes=data.get("max_tree_nodes", 0),
             irr_sample_videos=data.get("irr_sample_videos", 0),
             irr_num_raters=data.get("irr_num_raters", 3),
             irr_min_agreement=data.get("irr_min_agreement", 0.6),
@@ -241,6 +249,7 @@ class DiscoveryResult:
     knowledge_base: KnowledgeBase
     iterations: int
     tree: Optional[RefinementTree] = None  # populated in refinement_tree mode
+    discovery_calls: int = 0  # total VLM discovery/revision calls (init + propose + revise)
 
     def to_dict(self) -> Dict[str, Any]:
         d = {
@@ -249,6 +258,7 @@ class DiscoveryResult:
             "annotations": self.annotations.to_list(),
             "knowledge_base": self.knowledge_base.to_dict(),
             "iterations": self.iterations,
+            "discovery_calls": self.discovery_calls,
         }
         if self.tree is not None:
             d["tree"] = self.tree.to_dict()
@@ -266,6 +276,7 @@ class DiscoveryResult:
             knowledge_base=KnowledgeBase.from_dict(data["knowledge_base"]),
             iterations=data["iterations"],
             tree=tree,
+            discovery_calls=data.get("discovery_calls", 0),
         )
 
 class IterativeSchemaDiscovery:
@@ -300,6 +311,7 @@ class IterativeSchemaDiscovery:
         self._tree: Optional[RefinementTree] = None
         self._knowledge_base: KnowledgeBase = KnowledgeBase(items=[])
         self._iteration: int = 0
+        self._discovery_calls: int = 0
 
     def get_result_path(self, cache_dir: str | Path) -> Path:
         return cache_dir / f"run_result_{self.config.cache_suffix()}.json"
@@ -361,6 +373,7 @@ class IterativeSchemaDiscovery:
                 videos=videos,
                 num_facets=self.config.init_facets,
             )
+            self._discovery_calls += 1
             # IRR check — signal unreliable facets
             if self.config.irr_sample_videos > 0 and init_facets:
                 irr = compute_irr(
@@ -437,6 +450,7 @@ class IterativeSchemaDiscovery:
         target_d = self.config.target_d
         max_iterations = self.config.max_iterations
         max_facets = self.config.max_facets
+        max_tree_nodes = self.config.max_tree_nodes
         max_cells_per_iteration = self.config.max_cells_per_iteration
         max_items_per_cell = self.config.max_items_per_cell
         k_schemas_to_sample = self.config.k_schemas_to_sample
@@ -515,6 +529,7 @@ class IterativeSchemaDiscovery:
                             facets=schema_facets,
                             target_signature=cell_sig,
                         )
+                        self._discovery_calls += 1
                         all_new_facets.extend(proposed)
 
                 # 2b: Revise existing facets in this schema
@@ -523,6 +538,7 @@ class IterativeSchemaDiscovery:
                         task=task.name,
                         facets=schema_facets
                     )
+                    self._discovery_calls += 1
                     all_new_facets.extend(revised)
 
             if not all_new_facets:
@@ -672,6 +688,16 @@ class IterativeSchemaDiscovery:
                         len(self._facets), max_facets,
                     )
                     break
+
+                if (selection_mode == "refinement_tree"
+                    and max_tree_nodes > 0
+                    and self._tree
+                    and len(self._tree.nodes) >= max_tree_nodes):
+                    logger.info(
+                        "Tree complexity reached cap (%d/%d surviving nodes) — stopping.",
+                        len(self._tree.nodes), max_tree_nodes,
+                    )
+                    break
             else:
                 logger.info("No improvement — discarding candidates.")
                 tries_with_no_improvement += 1
@@ -682,6 +708,25 @@ class IterativeSchemaDiscovery:
                 len(self._facets), len(self._frontier),
             )
 
+        # Unified evaluation: always build a refinement tree from the final pool
+        # so that all selection modes produce comparable tree metrics.
+        if self._tree is None and self._facets:
+            final_nodes, final_h_memo = build_tree_nodes(
+                focused_kb, list(self._facets.values()), self._annotations,
+                max_schema_facets=max_schema_facets,
+                metric_mode=metric_mode,
+                eta_squared_weighting=eta_squared_weighting,
+            )
+            self._tree = prune_and_connect(
+                final_nodes, focused_kb, self._facets, self._annotations, final_h_memo,
+                refinement_threshold=self.config.refinement_threshold,
+                metric_mode=metric_mode,
+            )
+            logger.info(
+                "Unified eval tree: %d surviving nodes | %d edges",
+                len(self._tree.nodes), len(self._tree.edges),
+            )
+
         self._save_cache(cache_dir)
         return DiscoveryResult(
             facets=list(self._facets.values()),
@@ -690,6 +735,7 @@ class IterativeSchemaDiscovery:
             knowledge_base=self._knowledge_base,
             iterations=self._iteration,
             tree=self._tree,
+            discovery_calls=self._discovery_calls,
         )
 
     # ---- caching ----
@@ -704,6 +750,7 @@ class IterativeSchemaDiscovery:
             knowledge_base=self._knowledge_base,
             iterations=self._iteration,
             tree=self._tree,
+            discovery_calls=self._discovery_calls,
         )
 
         with open(result_path, "w", encoding="utf-8") as f:
