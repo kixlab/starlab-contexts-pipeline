@@ -2,7 +2,7 @@
 Prompts for bootstrapping the iterative algorithm with common-sense contextual factors.
 
 Unlike discovery (which resolves specific collisions), initialization asks the
-LLM to propose N broad, task-relevant facets upfront given the tutorials.
+LLM to propose N broad facets upfront given the tutorials.
 """
 
 import logging
@@ -27,20 +27,22 @@ SYSTEM_PROMPT = """You are a helpful assistant who can analyze and detect the co
 
 USER_PROMPT = """You are given tutorial videos and information units extracted from them. Propose exactly {num_facets} broad `contextual factors` (facets) that would help differentiate when information units appear in the videos.
 
-A contextual factor is a domain-grounded, task-relevant, monolithic, piecewise-stable, and target-independent variable that describes the procedural situation of the task at a given moment or over a meaningful span.
-    - Domain-grounded: the factor is anchored in the task-world and describes a real aspect of the procedure as it unfolds, such as procedural stage, material state, tool state, object configuration, environmental condition, or service context. It does not describe the media, editorial, or presentation format through which the procedure is shown.
-    - Task-relevant: the factor changes what actions, constraints, interpretations, or information are applicable in that part of the task.
-    - Monolithic: the factor captures one coherent semantic concept rather than combining multiple distinct concepts.
-    - Piecewise-stable: the factor remains constant over meaningful temporal segments and changes at identifiable boundaries.
-    - Target-independent: the factor is determined by the broader procedural context, not by the specific information unit being labeled; removing that unit would not change the factor value.
-Non-examples of contextual factors include:
-    - video genre or tutorial format
-    - presenter configuration
-    - narration style
-    - camera or editing style
-    - entertainment framing
-    - human skill or expertise
-    - subjective quality judgments
+CONTEXTUAL FACTOR DEFINITION
+A valid contextual factor is a variable describing the procedural situation at a given moment or span. It must be:
+
+- Domain-grounded: anchored in the task-world (e.g., procedural stage, material state, tool state, object configuration, environmental condition, operating mode, verification state, service context) — NOT in media, narration, editing, presentation, or social framing.
+- Consequential: changes what actions, constraints, interpretations, checks, or information apply.
+- Monolithic: captures one coherent semantic concept, not a bundle.
+- Piecewise-stable: remains constant over meaningful spans; changes at identifiable boundaries.
+- Target-independent: determined by the broader procedural context; removing the target item would not change the factor's value.
+
+Non-examples: video genre, tutorial format, presenter configuration, narration style, camera/editing style, entertainment framing, human skill level, subjective quality, labels restating target content.
+
+DESIDERATA
+Prefer factors that are:
+- easy to understand at a glance, even without deep domain familiarity
+- broadly useful across the tutorial
+- simple, intuitive, mid-level task-world distinctions over obscure or overly fine-grained ones
 
 GOAL
 Propose top-{num_facets} contextual factors that capture the most important axes of variation across the tutorials. Think about what meaningful dimensions a practitioner would naturally use to organize or contextualize the information in these tutorials.
@@ -64,7 +66,7 @@ REQUIREMENTS
 
 PROCEDURE
 1. Identify the {num_facets} most important contextual dimensions that vary across the tutorials.
-    - Briefly justify why each is a contextual factor (domain-grounded, task-relevant, monolithic, piecewise-stable, target-independent, task-relevant).
+    - Brief validity note: one sentence confirming it satisfies the five criteria
     - Provide for each factor:
         - Context scope ("global", "mid-level", "fine-grained")
         - Title
