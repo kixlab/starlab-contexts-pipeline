@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useInteractionLog } from "./utils/useInteractionLog";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import type { DatasetVideo, Facet } from "@/app/types";
@@ -68,6 +69,9 @@ export default function AppTree2() {
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
   const [selectedEdgeKey, setSelectedEdgeKey] = useState<string | null>(null);
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+
+  // --- Interaction logging ---
+  const log = useInteractionLog();
 
   // Derived: dirty flag
   const configDirty = lastBuiltConfig === null || JSON.stringify(config) !== JSON.stringify(lastBuiltConfig);
@@ -222,6 +226,7 @@ export default function AppTree2() {
       setTree(newTree);
       setLastBuiltConfig(cfg);
       setGlobalOrder(computeDOrder(newTree));
+      log.startSession(selectedLabel!, cfg, { nodes: newTree.nodes.length, edges: newTree.edges.length });
       const ids = new Set(newTree.nodes.map((n) => n.id));
       setSelectedNodeIds((prev) => prev.filter((id) => ids.has(id)));
       setSelectedEdgeKey((prev) => {
@@ -231,7 +236,7 @@ export default function AppTree2() {
     } finally {
       setIsBuilding(false);
     }
-  }, [config, selectedLabel, datasetStatus, dataset, facets, infoTypes]);
+  }, [config, selectedLabel, datasetStatus, dataset, facets, infoTypes, log]);
 
   // --- Tree summary ---
   const treeSummary = useMemo(
@@ -261,19 +266,21 @@ export default function AppTree2() {
       // Normal click: select single node
       setSelectedEdgeKey(null);
       setSelectedNodeIds([nodeId]);
+      log.logNodeInspect(nodeId, "visualization");
     }
-  }, [selectNode]);
+  }, [selectNode, log]);
 
   const handleCompareClick = useCallback((nodeId: string) => {
     selectNode(nodeId);
   }, [selectNode]);
 
-  const handleNodeClickFromPanel = useCallback((nodeId: string) => {
+  const handleNodeClickFromPanel = useCallback((nodeId: string, trigger: "child" | "parent") => {
     setSelectedEdgeKey(null);
     setSelectedNodeIds([nodeId]);
     setScrollToNodeId(nodeId);
     setTimeout(() => setScrollToNodeId(null), 600);
-  }, []);
+    log.logNodeInspect(nodeId, trigger);
+  }, [log]);
 
   const handleEdgeClick = useCallback((edgeKey: string | null) => {
     setSelectedEdgeKey(edgeKey);
@@ -284,13 +291,53 @@ export default function AppTree2() {
         if (prev.includes(tgtId)) return [tgtId];
         return [srcId];
       });
+      log.logEdgeInspect(srcId, tgtId);
+    } else {
+      log.endCurrentInspection();
     }
-  }, []);
+  }, [log]);
 
   const handleDeselectAll = useCallback(() => {
     setSelectedNodeIds([]);
     setSelectedEdgeKey(null);
-  }, []);
+    log.endCurrentInspection();
+  }, [log]);
+
+  // --- Log comparison when two nodes are selected ---
+  const prevSelectedRef = useRef<string[]>([]);
+  useEffect(() => {
+    const prev = prevSelectedRef.current;
+    prevSelectedRef.current = selectedNodeIds;
+    if (selectedNodeIds.length === 2 && (prev.length !== 2 || prev[0] !== selectedNodeIds[0] || prev[1] !== selectedNodeIds[1])) {
+      log.logCompare(selectedNodeIds[0], selectedNodeIds[1]);
+    }
+  }, [selectedNodeIds, log]);
+
+  // --- Debounced hover logging (500ms threshold) ---
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleNodeHover = useCallback((nodeId: string | null) => {
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+    setHoveredNodeId(nodeId);
+    if (nodeId) {
+      hoverTimerRef.current = setTimeout(() => {
+        log.logHover(nodeId);
+        hoverTimerRef.current = null;
+      }, 500);
+    }
+  }, [log]);
+
+  // --- Expand distribution logging ---
+  const handleExpandDist = useCallback((nodeId: string, facetId: string) => {
+    log.logExpandDist(nodeId, facetId);
+  }, [log]);
+
+  // --- Copy ID logging ---
+  const handleCopyId = useCallback((facetIds: string) => {
+    log.logCopyId(facetIds);
+  }, [log]);
 
   const validPiecesCount = cachedRef.current?.validPiecesCount ?? 0;
   const numUniqueUnits = cachedRef.current?.numUniqueUnits ?? 0;
@@ -323,6 +370,8 @@ export default function AppTree2() {
           treeSummary={treeSummary}
           visibleCount={tree.nodes.length}
           visibleEdgeCount={tree.edges.length}
+          onDownloadLog={log.downloadLog}
+          hasLogEntries={log.hasEntries}
         />
 
         <div className="flex-1 min-h-0 relative">
@@ -341,7 +390,7 @@ export default function AppTree2() {
               onNodeClick={handleNodeClick}
               onCompareClick={handleCompareClick}
               onEdgeClick={handleEdgeClick}
-              onNodeHover={setHoveredNodeId}
+              onNodeHover={handleNodeHover}
               onDeselectAll={handleDeselectAll}
               onContainerResize={setContainerSize}
               scrollToNodeId={scrollToNodeId}
@@ -370,6 +419,8 @@ export default function AppTree2() {
         pieceUnitIds={pieceUnitIds}
         unitTotals={unitTotals}
         onNodeClick={handleNodeClickFromPanel}
+        onExpandDist={handleExpandDist}
+        onCopyId={handleCopyId}
         onClose={handleDeselectAll}
       />
     </div>

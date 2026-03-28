@@ -18,6 +18,8 @@ type ToolbarProps = {
   treeSummary: { nodeCount: number; edgeCount: number; rootCount: number } | null;
   visibleCount: number;
   visibleEdgeCount: number;
+  onDownloadLog?: () => void;
+  hasLogEntries?: boolean;
 };
 
 export function Toolbar({
@@ -35,6 +37,8 @@ export function Toolbar({
   treeSummary,
   visibleCount,
   visibleEdgeCount,
+  onDownloadLog,
+  hasLogEntries,
 }: ToolbarProps) {
   const busy = isBuilding || datasetStatus === "loading" || datasetStatus === "computing";
   const canBuild = selectedLabel && datasetStatus === "loaded" && !busy;
@@ -139,12 +143,25 @@ export function Toolbar({
           </>
         )}
 
-        {/* Right side: summary stats */}
+        {/* Right side: summary stats + log download */}
         {treeSummary && (
           <div className="ml-auto flex items-center gap-3 text-xs text-neutral-500">
             <span>{visibleCount}/{treeSummary.nodeCount} nodes</span>
             <span>{visibleEdgeCount} edges</span>
             <span className="text-blue-400">{treeSummary.rootCount} roots</span>
+            {onDownloadLog && (
+              <button
+                onClick={onDownloadLog}
+                disabled={!hasLogEntries}
+                className={`h-6 px-2 rounded text-[10px] border transition-colors ${
+                  hasLogEntries
+                    ? "border-neutral-600 text-neutral-300 hover:bg-neutral-800"
+                    : "border-neutral-800 text-neutral-700 cursor-not-allowed"
+                }`}
+              >
+                ↓ Log
+              </button>
+            )}
           </div>
         )}
       </div>
