@@ -347,6 +347,8 @@ class IterativeSchemaDiscovery:
         if use_cache:
             self._restore_cache(cache_dir)
 
+        init_facets_count = 0
+
         # one_shot mode: use max_facets as the bootstrap count.
         if self.config.selection_mode == "one_shot":
             if self.config.max_facets <= 0:
@@ -354,24 +356,26 @@ class IterativeSchemaDiscovery:
                     "one_shot mode requires max_facets > 0 to determine "
                     "how many facets to bootstrap."
                 )
-            self.config.init_facets = self.config.max_facets
+            init_facets_count = self.config.max_facets
             logger.info(
                 "one_shot mode: bootstrapping %d facet(s), no iteration.",
-                self.config.init_facets,
+                init_facets_count,
             )
 
+        if init_facets_count == 0:
+            init_facets_count = self.config.init_facets
         # Optional: bootstrap with common-sense facets before iterating.
         # Only runs when init_facets > 0 and no facets exist yet (fresh run).
-        if self.config.init_facets > 0 and not self._facets:
+        if init_facets_count > 0 and not self._facets:
             logger.info(
                 "Initializing with %d common-sense facet(s)...",
-                self.config.init_facets,
+                init_facets_count,
             )
             videos = self._knowledge_base.by_video()
             init_facets = self._extractor.init_facets(
                 task=task.name,
                 videos=videos,
-                num_facets=self.config.init_facets,
+                num_facets=init_facets_count,
             )
             self._discovery_calls += 1
             # IRR check — signal unreliable facets
