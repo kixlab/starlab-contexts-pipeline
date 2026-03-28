@@ -75,6 +75,14 @@ from optimization import (
     compute_tree_depth,
 )
 
+from knowledge_items.io import (
+    load_task_dataset,
+    load_knowledge_items,
+    get_extraction_cache_path,
+    get_clustering_cache_path,
+)
+from knowledge_items.schema import KnowledgeItemType, KnowledgeBase
+
 # ---------------------------------------------------------------------------
 # Config dataclass
 # ---------------------------------------------------------------------------
@@ -405,6 +413,109 @@ def _list_experiments() -> None:
     print()
 
 
+def _dataset_info(name: str) -> None:
+    if name not in EXPERIMENTS:
+        print(f"Unknown experiment '{name}'. Available: {list(EXPERIMENTS)}")
+        return
+
+    config = EXPERIMENTS[name]
+    manager = TaskManager(tasks_file=Config.TASKS_FILE)
+    task = manager.get_task(config.task_id)
+
+    # --- Dataset info ---
+    dataset_path = task.get_dataset_path(Config.TASK_DATASETS_DIR)
+    videos = load_task_dataset(dataset_path)
+    if config.constructor.max_videos is not None:
+        videos = videos[: config.constructor.max_videos]
+
+    num_videos = len(videos)
+    avg_duration = sum(v.get_duration() for v in videos) / num_videos if num_videos > 0 else 0.0
+
+    print(f"\n=== Dataset Info: {name} ===")
+    print(f"Task ID:           {config.task_id}")
+    print(f"Videos:            {num_videos}")
+    print(f"Avg duration:      {avg_duration:.1f}s")
+
+    # --- Knowledge info ---
+    cache_dir = task.get_cache_dir(Config.CACHE_DIR, config.constructor.cache_suffix())
+    item_type = config.discovery.item_scope.item_type
+
+    clustering_path = get_clustering_cache_path(cache_dir, item_type, config.constructor.cluster_config)
+    extraction_path = get_extraction_cache_path(cache_dir, item_type)
+
+    if clustering_path.exists():
+        kb = KnowledgeBase(items=load_knowledge_items(clustering_path))
+    elif extraction_path.exists():
+        kb = KnowledgeBase(items=load_knowledge_items(extraction_path))
+    else:
+        kb = None
+
+    if kb is not None:
+        by_video = kb.by_video()
+        num_items = len(kb)
+        num_videos_with_items = len(by_video)
+        avg_items = num_items / num_videos_with_items if num_videos_with_items > 0 else 0.0
+        print(f"Avg {item_type.value}s/video: {avg_items:.1f}  (total: {num_items} across {num_videos_with_items} videos)")
+    else:
+        print("No knowledge info")
+
+    # --- Algorithm info ---
+    result_path = cache_dir / f"run_result_{config.discovery.cache_suffix()}.json"
+
+    if result_path.exists():
+        result = DiscoveryResult.from_dict(json.loads(result_path.read_text()))
+
+        num_units = count_unique_units(result.knowledge_base)
+
+        target_discriminativeness = config.discovery.target_d
+        target_compactness = 0
+        for fp in result.frontier:
+            if fp.discriminativeness <= target_discriminativeness:
+                target_discriminativeness = fp.discriminativeness
+                target_compactness = fp.compactness
+                break
+
+        min_discriminativeness = float("inf")
+        min_compactness = 0
+        if len(result.frontier) > 0:
+            min_discriminativeness = result.frontier[-1].discriminativeness
+            min_compactness = result.frontier[-1].compactness
+
+        tree_nodes = len(result.tree.nodes) if result.tree else 0
+        tree_depth = compute_tree_depth(result.tree) if result.tree else 0
+
+        summary = ExperimentSummary(
+            num_units=num_units,
+            num_facets=len(result.facets),
+            frontier_size=len(result.frontier),
+            min_discriminativeness=min_discriminativeness,
+            min_compactness=min_compactness,
+            target_discriminativeness=target_discriminativeness,
+            target_compactness=target_compactness,
+            iterations=result.iterations,
+            tree_nodes=tree_nodes,
+            tree_depth=tree_depth,
+            discovery_calls=result.discovery_calls,
+        )
+
+        print(f"\n--- Experiment Summary ---")
+        print(f"Units:             {summary.num_units}")
+        print(f"Facets:            {summary.num_facets}")
+        print(f"Frontier size:     {summary.frontier_size}")
+        print(f"Min D:             {summary.min_discriminativeness:.4f}")
+        print(f"Min C:             {summary.min_compactness}")
+        print(f"Target D:          {summary.target_discriminativeness:.4f}")
+        print(f"Target C:          {summary.target_compactness}")
+        print(f"Iterations:        {summary.iterations}")
+        print(f"Tree nodes:        {summary.tree_nodes}")
+        print(f"Tree depth:        {summary.tree_depth}")
+        print(f"Discovery calls:   {summary.discovery_calls}")
+    else:
+        print("No algorithm info")
+
+    print()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run task schema discovery experiments.",
@@ -416,6 +527,11 @@ def main() -> None:
         "--save-config",
         metavar="NAME",
         help="Save an experiment's config to experiments/<NAME>.json.",
+    )
+    parser.add_argument(
+        "--dataset-info",
+        metavar="NAME",
+        help="Show dataset statistics and experiment summary for NAME.",
     )
     args = parser.parse_args()
 
@@ -430,6 +546,10 @@ def main() -> None:
             return
         path = save_experiment(EXPERIMENTS[name])
         print(f"Saved to {path}")
+        return
+
+    if args.dataset_info:
+        _dataset_info(args.dataset_info)
         return
 
     if args.run:
