@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import type { TreeBuildConfig } from "../utils/treeBuilder";
 import type { DatasetStatus } from "../types";
 
@@ -20,6 +21,7 @@ type ToolbarProps = {
   visibleEdgeCount: number;
   onDownloadLog?: () => void;
   hasLogEntries?: boolean;
+  buildTimestamp?: number | null;
 };
 
 export function Toolbar({
@@ -39,6 +41,7 @@ export function Toolbar({
   visibleEdgeCount,
   onDownloadLog,
   hasLogEntries,
+  buildTimestamp,
 }: ToolbarProps) {
   const busy = isBuilding || datasetStatus === "loading" || datasetStatus === "computing";
   const canBuild = selectedLabel && datasetStatus === "loaded" && !busy;
@@ -149,6 +152,7 @@ export function Toolbar({
             <span>{visibleCount}/{treeSummary.nodeCount} nodes</span>
             <span>{visibleEdgeCount} edges</span>
             <span className="text-blue-400">{treeSummary.rootCount} roots</span>
+            {buildTimestamp && <ElapsedTimer since={buildTimestamp} />}
             {onDownloadLog && (
               <button
                 onClick={onDownloadLog}
@@ -168,6 +172,21 @@ export function Toolbar({
 
     </header>
   );
+}
+
+function ElapsedTimer({ since }: { since: number }) {
+  const [elapsed, setElapsed] = useState(() => Math.floor((Date.now() - since) / 1000));
+
+  useEffect(() => {
+    setElapsed(Math.floor((Date.now() - since) / 1000));
+    const id = setInterval(() => setElapsed(Math.floor((Date.now() - since) / 1000)), 1000);
+    return () => clearInterval(id);
+  }, [since]);
+
+  const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
+  const ss = String(elapsed % 60).padStart(2, "0");
+
+  return <span className="font-mono text-neutral-400">{mm}:{ss}</span>;
 }
 
 function Spinner() {

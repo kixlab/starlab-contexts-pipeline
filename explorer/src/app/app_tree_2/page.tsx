@@ -58,6 +58,7 @@ export default function AppTree2() {
   const [tree, setTree] = useState<RefinementTree>(EMPTY_TREE);
   const [computeStatus, setComputeStatus] = useState("");
   const [isBuilding, setIsBuilding] = useState(false);
+  const [buildTimestamp, setBuildTimestamp] = useState<number | null>(null);
 
   // Phase 1 cache
   const cachedRef = useRef<CachedSchemas | null>(null);
@@ -227,6 +228,7 @@ export default function AppTree2() {
       setLastBuiltConfig(cfg);
       setGlobalOrder(computeDOrder(newTree));
       log.startSession(selectedLabel!, cfg, { nodes: newTree.nodes.length, edges: newTree.edges.length });
+      setBuildTimestamp(Date.now());
       const ids = new Set(newTree.nodes.map((n) => n.id));
       setSelectedNodeIds((prev) => prev.filter((id) => ids.has(id)));
       setSelectedEdgeKey((prev) => {
@@ -372,6 +374,7 @@ export default function AppTree2() {
           visibleEdgeCount={tree.edges.length}
           onDownloadLog={log.downloadLog}
           hasLogEntries={log.hasEntries}
+          buildTimestamp={buildTimestamp}
         />
 
         <div className="flex-1 min-h-0 relative">
