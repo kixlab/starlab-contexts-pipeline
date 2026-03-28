@@ -43,4 +43,5 @@ from .tree import (
     is_tree_improved,
     get_active_facet_ids,
     compute_tree_depth,
+    trim_tree_by_facet_removal,
 )

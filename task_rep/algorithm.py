@@ -461,7 +461,27 @@ class IterativeSchemaDiscovery:
         vocab_sample_videos = self.config.vocab_sample_videos
         min_d = self.config.min_d
 
-        while selection_mode != "one_shot" and tries_with_no_improvement < max_iterations:
+        # Skip iteration if caps are already satisfied from cache
+        skip_iteration = False
+        if max_facets > 0 and len(self._facets) >= max_facets:
+            logger.info(
+                "Facet pool already at cap (%d/%d) from cache — skipping iteration.",
+                len(self._facets), max_facets,
+            )
+            skip_iteration = True
+
+        if (not skip_iteration
+            and selection_mode == "refinement_tree"
+            and max_tree_nodes > 0
+            and self._tree
+            and len(self._tree.nodes) >= max_tree_nodes):
+            logger.info(
+                "Tree already at cap (%d/%d nodes) from cache — skipping iteration.",
+                len(self._tree.nodes), max_tree_nodes,
+            )
+            skip_iteration = True
+
+        while not skip_iteration and selection_mode != "one_shot" and tries_with_no_improvement < max_iterations:
             self._iteration += 1
             logger.info("=== Iteration %d ===", self._iteration)
 

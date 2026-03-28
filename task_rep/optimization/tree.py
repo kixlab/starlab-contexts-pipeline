@@ -589,6 +589,89 @@ def get_active_facet_ids(
     return active
 
 
+def trim_tree_by_facet_removal(
+    knowledge_base: KnowledgeBase,
+    facets: List[Facet],
+    annotations: AnnotationTable,
+    target_nodes: int,
+    max_schema_facets: int,
+    refinement_threshold: float,
+    metric_mode: str = "entropy",
+    eta_squared_weighting: str = "equal",
+    max_attempts: int = 100,
+) -> Tuple[RefinementTree, List[str]]:
+    """
+    Remove facets one at a time until tree has ≈ target_nodes (±1).
+
+    Randomly selects facets for removal. Accepts removal if it moves the
+    node count closer to (or within ±1 of) the target; rejects and tries
+    another facet otherwise.  Tau is unchanged, so tree semantics are preserved.
+
+    Args:
+        knowledge_base: Items with unit_ids assigned.
+        facets: Pool of candidate facets.
+        annotations: Current label assignments.
+        target_nodes: Desired number of surviving nodes.
+        max_schema_facets: Maximum facets per schema for enumeration.
+        refinement_threshold: Tau threshold (kept fixed).
+        metric_mode: Quality metric for sorting.
+        eta_squared_weighting: Eta-squared averaging mode.
+        max_attempts: Maximum random removal attempts.
+
+    Returns:
+        Tuple of (trimmed RefinementTree, list of removed facet IDs).
+    """
+    current_facets = list(facets)
+    facets_by_id = {f.id: f for f in current_facets}
+    removed: List[str] = []
+
+    nodes, h_memo = build_tree_nodes(
+        knowledge_base, current_facets, annotations,
+        max_schema_facets=max_schema_facets,
+        metric_mode=metric_mode,
+        eta_squared_weighting=eta_squared_weighting,
+    )
+    tree = prune_and_connect(
+        nodes, knowledge_base, facets_by_id, annotations, h_memo,
+        refinement_threshold=refinement_threshold,
+        metric_mode=metric_mode,
+    )
+
+    attempts = 0
+    while abs(len(tree.nodes) - target_nodes) > 1 and attempts < max_attempts:
+        candidate = random.choice(current_facets)
+        trial_facets = [f for f in current_facets if f.id != candidate.id]
+
+        if not trial_facets:
+            break
+
+        trial_by_id = {f.id: f for f in trial_facets}
+        trial_nodes, trial_h = build_tree_nodes(
+            knowledge_base, trial_facets, annotations,
+            max_schema_facets=max_schema_facets,
+            metric_mode=metric_mode,
+            eta_squared_weighting=eta_squared_weighting,
+        )
+        trial_tree = prune_and_connect(
+            trial_nodes, knowledge_base, trial_by_id, annotations, trial_h,
+            refinement_threshold=refinement_threshold,
+            metric_mode=metric_mode,
+        )
+
+        old_diff = abs(len(tree.nodes) - target_nodes)
+        new_diff = abs(len(trial_tree.nodes) - target_nodes)
+
+        if new_diff <= old_diff:
+            current_facets = trial_facets
+            facets_by_id = trial_by_id
+            tree = trial_tree
+            removed.append(candidate.id)
+
+        attempts += 1
+
+    return tree, removed
+
+
 def compute_tree_depth(tree: RefinementTree) -> int:
     """
     Max path length from any root to any leaf in the refinement tree.

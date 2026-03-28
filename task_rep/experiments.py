@@ -73,6 +73,7 @@ from data_prep import (
 from optimization import (
     count_unique_units,
     compute_tree_depth,
+    trim_tree_by_facet_removal,
 )
 
 from knowledge_items.io import (
@@ -261,6 +262,47 @@ def run_experiment(
         file_handler.close()
 
     elapsed = time.monotonic() - t0
+
+    # Post-hoc tree trimming — works on cached results too
+    trim_tree_nodes = config.discovery.max_tree_nodes
+    if trim_tree_nodes > 0 and result.tree and len(result.tree.nodes) > trim_tree_nodes + 1:
+        focused_kb = result.knowledge_base
+        subtype_filter = config.discovery.item_scope.atomic_subtype
+        if subtype_filter.subtypes:
+            focused_kb = result.knowledge_base.filter_subtypes(subtype_filter.subtypes)
+
+        pre_trim = len(result.tree.nodes)
+        trimmed_tree, removed_ids = trim_tree_by_facet_removal(
+            knowledge_base=focused_kb,
+            facets=result.facets,
+            annotations=result.annotations,
+            target_nodes=trim_tree_nodes,
+            max_schema_facets=config.discovery.max_schema_facets,
+            refinement_threshold=config.discovery.refinement_threshold,
+            metric_mode=config.discovery.metric_mode,
+            eta_squared_weighting=config.discovery.eta_squared_weighting,
+        )
+        kept_ids = {f.id for f in result.facets} - set(removed_ids)
+        result = DiscoveryResult(
+            facets=[f for f in result.facets if f.id in kept_ids],
+            frontier=result.frontier,
+            annotations=result.annotations,
+            knowledge_base=result.knowledge_base,
+            iterations=result.iterations,
+            tree=trimmed_tree,
+            discovery_calls=result.discovery_calls,
+        )
+        logging.info(
+            "Trimmed tree from %d to %d nodes (target %d) by removing %d facet(s): %s",
+            pre_trim, len(trimmed_tree.nodes), trim_tree_nodes,
+            len(removed_ids), removed_ids,
+        )
+
+        # Save trimmed result separately from the original cache
+        trimmed_path = cache_dir / f"run_result_{config.discovery.cache_suffix()}_trimmed_{trim_tree_nodes}.json"
+        with open(trimmed_path, "w", encoding="utf-8") as f:
+            json.dump(result.to_dict(), f, ensure_ascii=False, indent=2)
+        logging.info("Saved trimmed result to %s.", trimmed_path)
 
     num_units = count_unique_units(result.knowledge_base)
 
