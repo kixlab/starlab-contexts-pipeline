@@ -62,6 +62,8 @@ type InspectionPanelProps = {
   infoTypes: string[] | null;
   numUniqueUnits: number;
   validPiecesCount: number;
+  pieceUnitIds: Uint32Array;
+  unitTotals: Uint32Array;
   onNodeClick: (nodeId: string) => void;
   onClose: () => void;
 };
@@ -78,6 +80,8 @@ export function InspectionPanel({
   infoTypes,
   numUniqueUnits,
   validPiecesCount,
+  pieceUnitIds,
+  unitTotals,
   onNodeClick,
   onClose,
 }: InspectionPanelProps) {
@@ -134,6 +138,8 @@ export function InspectionPanel({
             infoTypes={infoTypes}
             numUniqueUnits={numUniqueUnits}
             validPiecesCount={validPiecesCount}
+            pieceUnitIds={pieceUnitIds}
+            unitTotals={unitTotals}
           />
         )}
         {isEdge && (
@@ -250,6 +256,8 @@ function ComparisonView({
   infoTypes,
   numUniqueUnits,
   validPiecesCount,
+  pieceUnitIds,
+  unitTotals,
 }: {
   nodeA: TreeNode;
   nodeB: TreeNode;
@@ -257,9 +265,13 @@ function ComparisonView({
   infoTypes: string[] | null;
   numUniqueUnits: number;
   validPiecesCount: number;
+  pieceUnitIds: Uint32Array;
+  unitTotals: Uint32Array;
 }) {
-  const N = validPiecesCount;
-  const mi = useMemo(() => computeMI(nodeA, nodeB, N), [nodeA, nodeB, N]);
+  const mi = useMemo(
+    () => computeMI(nodeA, nodeB, pieceUnitIds, unitTotals, numUniqueUnits),
+    [nodeA, nodeB, pieceUnitIds, unitTotals, numUniqueUnits],
+  );
 
   const aIds = new Set(nodeA.facetSubset.map((f) => f.id));
   const bIds = new Set(nodeB.facetSubset.map((f) => f.id));

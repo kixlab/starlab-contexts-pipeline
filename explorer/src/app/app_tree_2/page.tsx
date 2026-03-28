@@ -294,6 +294,8 @@ export default function AppTree2() {
 
   const validPiecesCount = cachedRef.current?.validPiecesCount ?? 0;
   const numUniqueUnits = cachedRef.current?.numUniqueUnits ?? 0;
+  const pieceUnitIds = cachedRef.current?.pieceUnitIds ?? new Uint32Array(0);
+  const unitTotals = cachedRef.current?.unitTotals ?? new Uint32Array(0);
 
   return (
     <div className="flex h-screen bg-neutral-950 text-white overflow-hidden">
@@ -365,6 +367,8 @@ export default function AppTree2() {
         infoTypes={infoTypes}
         numUniqueUnits={numUniqueUnits}
         validPiecesCount={validPiecesCount}
+        pieceUnitIds={pieceUnitIds}
+        unitTotals={unitTotals}
         onNodeClick={handleNodeClickFromPanel}
         onClose={handleDeselectAll}
       />
