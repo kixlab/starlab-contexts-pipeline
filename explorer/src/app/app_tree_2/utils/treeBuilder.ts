@@ -31,7 +31,7 @@ export type TreeNode = {
   H: number;
 };
 
-export type EdgeType = "add" | "restructure";
+export type EdgeType = "add" | "refine";
 
 export type TreeEdge = {
   sourceId: string;
@@ -436,12 +436,12 @@ export function buildTreeFromCachedSchemas(
   // Step 2+3: prune & connect
   const { survivors, edges: rawEdges } = pruneAndConnect(nodes, config, N);
 
-  // Step 4: transitive reduction
-  const reduced = transitiveReduction(rawEdges);
-
-  // Step 5: annotate + find roots
+  // Step 4: annotate edges (before reduction so edge types are available)
   const nodeMap = new Map(survivors.map((n) => [n.id, n]));
-  const edges = annotateEdges(reduced, nodeMap);
+  const annotated = annotateEdges(rawEdges, nodeMap);
+
+  // Step 5: type-aware transitive reduction
+  const edges = transitiveReduction(annotated);
   const incoming = new Set(edges.map((e) => e.targetId));
   const roots = survivors.filter((n) => !incoming.has(n.id)).map((n) => n.id);
 
@@ -546,17 +546,24 @@ function makeEdge(
 // ---------------------------------------------------------------------------
 
 function transitiveReduction(edges: TreeEdge[]): TreeEdge[] {
-  // Build adjacency
-  const adj = new Map<string, Set<string>>();
+  // Build per-type adjacency: only follow edges of the same type during BFS.
+  // This preserves edges whose target is reachable only via mixed-type paths,
+  // since those paths carry different semantic information.
+  const adjByType = new Map<EdgeType, Map<string, Set<string>>>();
   for (const e of edges) {
-    let s = adj.get(e.sourceId);
-    if (!s) { s = new Set(); adj.set(e.sourceId, s); }
+    let typeAdj = adjByType.get(e.edgeType);
+    if (!typeAdj) { typeAdj = new Map(); adjByType.set(e.edgeType, typeAdj); }
+    let s = typeAdj.get(e.sourceId);
+    if (!s) { s = new Set(); typeAdj.set(e.sourceId, s); }
     s.add(e.targetId);
   }
 
-  // For each edge A→B, check if B is reachable from A via other paths
+  // For each edge A→B of type T, check if B is reachable from A
+  // via other same-type paths only
   return edges.filter((e) => {
-    const children = adj.get(e.sourceId);
+    const typeAdj = adjByType.get(e.edgeType);
+    if (!typeAdj) return true;
+    const children = typeAdj.get(e.sourceId);
     if (!children || children.size <= 1) return true;
     const visited = new Set<string>();
     const queue: string[] = [];
@@ -568,7 +575,7 @@ function transitiveReduction(edges: TreeEdge[]): TreeEdge[] {
       if (cur === e.targetId) return false;
       if (visited.has(cur)) continue;
       visited.add(cur);
-      const next = adj.get(cur);
+      const next = typeAdj.get(cur);
       if (next) {
         for (const n of next) {
           if (!visited.has(n)) queue.push(n);
@@ -597,7 +604,7 @@ function annotateEdges(
     const edgeType: EdgeType =
       removedFacets.length === 0 && addedFacets.length > 0
         ? "add"
-        : "restructure";
+        : "refine";
     return {
       ...e,
       marginalDGain: src.D - tgt.D,

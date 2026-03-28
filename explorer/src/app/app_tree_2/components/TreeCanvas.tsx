@@ -143,7 +143,7 @@ export function TreeCanvas({
     return `M ${src.x} ${sy} C ${src.x} ${midY}, ${tgt.x} ${midY}, ${tgt.x} ${ty}`;
   }, [positions, nodeHeightMap]);
 
-  const EDGE_COLORS: Record<string, string> = { add: "#60a5fa", restructure: "#facc15" };
+  const EDGE_COLORS: Record<string, string> = { add: "#60a5fa", refine: "#facc15" };
 
   const handleBgClick = useCallback(() => {
     onEdgeClick(null);
@@ -184,7 +184,7 @@ export function TreeCanvas({
           <marker id="t2-arrow-add" viewBox="0 0 10 8" refX="10" refY="4" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
             <path d="M 0 0 L 10 4 L 0 8 z" fill="#60a5fa" />
           </marker>
-          <marker id="t2-arrow-restructure" viewBox="0 0 10 8" refX="10" refY="4" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+          <marker id="t2-arrow-refine" viewBox="0 0 10 8" refX="10" refY="4" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
             <path d="M 0 0 L 10 4 L 0 8 z" fill="#facc15" />
           </marker>
           <marker id="t2-arrow-sel" viewBox="0 0 10 8" refX="10" refY="4" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
@@ -197,7 +197,7 @@ export function TreeCanvas({
           const key = `${e.sourceId}->${e.targetId}`;
           const isSel = key === selectedEdgeKey;
           const color = EDGE_COLORS[e.edgeType] ?? "#6b7280";
-          const dash = e.edgeType === "restructure" ? "6 3" : "none";
+          const dash = e.edgeType === "refine" ? "6 3" : "none";
           return (
             <g key={key}>
               <path d={edgePath(e)} fill="none" stroke="transparent" strokeWidth={12}
