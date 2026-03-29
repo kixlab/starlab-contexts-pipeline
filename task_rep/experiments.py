@@ -458,6 +458,54 @@ def _dataset_info(name: str) -> None:
     print()
 
 
+def _budget_analysis(name: str) -> None:
+    """Show how tree quality changes as max_facets increases."""
+    if name not in EXPERIMENTS:
+        print(f"Unknown experiment '{name}'. Available: {list(EXPERIMENTS)}")
+        return
+
+    config = EXPERIMENTS[name]
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s %(name)s: %(message)s",
+        force=True,
+    )
+
+    constructor = ConstructKnowledgeBase(
+        config=config.constructor,
+        task_datasets_dir=Config.TASK_DATASETS_DIR,
+        cache_dir=Config.CACHE_DIR,
+    )
+    discovery = IterativeSchemaDiscovery(config=config.discovery)
+    manager = TaskManager(tasks_file=Config.TASKS_FILE)
+    task = manager.get_task(config.task_id)
+
+    rows = discovery.analyze_budget(task=task, constructor=constructor)
+    if not rows:
+        print(f"No facet bank found for '{name}' (mode: {config.discovery.selection_mode}). Run the experiment first.")
+        return
+
+    # Print progression table
+    header = f"{'budget':>7} {'t_nodes':>8} {'t_ufacets':>10} {'pool':>50}"
+    print(f"\n=== Budget Analysis: {name} (target_facets={config.discovery.target_facets}) ===\n")
+    print(header)
+    print("-" * len(header))
+
+    prev_nodes = None
+    for row in rows:
+        marker = ""
+        if prev_nodes is not None and row["tree_nodes"] != prev_nodes:
+            marker = " *"
+        prev_nodes = row["tree_nodes"]
+        pool_str = ", ".join(row["pool_ids"])
+        if len(pool_str) > 50:
+            pool_str = pool_str[:47] + "..."
+        print(f"{row['budget']:>7} {row['tree_nodes']:>8} {row['unique_facets_in_tree']:>10} {pool_str:>50}{marker}")
+
+    print(f"\n* = tree_nodes changed from previous row")
+    print(f"Bank size: {rows[-1]['budget']}  |  Final tree: {rows[-1]['tree_nodes']} nodes\n")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run task schema discovery experiments.",
@@ -474,6 +522,11 @@ def main() -> None:
         "--dataset-info",
         metavar="NAME",
         help="Show dataset statistics and experiment summary for NAME.",
+    )
+    parser.add_argument(
+        "--budget-analysis",
+        metavar="NAME",
+        help="Show how tree quality changes as max_facets increases (uses facet bank).",
     )
     args = parser.parse_args()
 
@@ -492,6 +545,10 @@ def main() -> None:
 
     if args.dataset_info:
         _dataset_info(args.dataset_info)
+        return
+
+    if args.budget_analysis:
+        _budget_analysis(args.budget_analysis)
         return
 
     if args.run:

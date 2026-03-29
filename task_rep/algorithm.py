@@ -467,6 +467,84 @@ class IterativeSchemaDiscovery:
 
         return pool_changed
 
+    def analyze_budget(
+        self,
+        task: Task,
+        constructor: ConstructKnowledgeBase,
+    ) -> List[Dict[str, Any]]:
+        """Analyze how tree quality changes as max_facets increases.
+
+        Loads the facet bank, then simulates greedy pool building from
+        target_facets up to the full bank size. Returns one row per candidate
+        processed, showing the progression of tree quality.
+
+        No VLM calls — purely local computation on the cached bank.
+        """
+        if self.config.target_facets <= 0:
+            raise ValueError("target_facets must be > 0.")
+
+        item_type = self.config.item_scope.item_type
+        cache_dir = constructor.get_cache_dir(task)
+        self._knowledge_base = constructor.get_knowledge_base(task, item_type)
+
+        focused_kb = self._knowledge_base
+        subtype_filter = self.config.item_scope.atomic_subtype
+        if subtype_filter.subtypes:
+            focused_kb = self._knowledge_base.filter_subtypes(subtype_filter.subtypes)
+
+        self._load_facet_bank(cache_dir)
+        if not self._bank_facets:
+            logger.warning("Facet bank is empty — nothing to analyze.")
+            return []
+
+        target = self.config.target_facets
+        all_facets = list(self._bank_facets.values())
+        bank_ann = self._bank_annotations
+
+        # Initialize pool with first target_facets
+        pool = all_facets[:target]
+        pool_ann = bank_ann.filter_facets([f.id for f in pool])
+        tree = self._build_tree(focused_kb, pool, pool_ann)
+        unique_facets_in_tree = len({fid for n in tree.nodes for fid in n.facet_ids})
+
+        rows: List[Dict[str, Any]] = []
+        rows.append({
+            "budget": target,
+            "pool_ids": [f.id for f in pool],
+            "tree_nodes": len(tree.nodes),
+            "unique_facets_in_tree": unique_facets_in_tree,
+        })
+
+        # Process remaining facets one by one as candidates
+        for idx, candidate in enumerate(all_facets[target:], start=target + 1):
+            best_tree = tree
+            best_replace_idx = -1
+
+            for i in range(len(pool)):
+                trial_pool = pool[:i] + [candidate] + pool[i+1:]
+                trial_ids = [f.id for f in trial_pool]
+                trial_ann = bank_ann.filter_facets(trial_ids)
+                trial_tree = self._build_tree(focused_kb, trial_pool, trial_ann)
+
+                if compare_tree_quality(trial_tree, best_tree) > 0:
+                    best_tree = trial_tree
+                    best_replace_idx = i
+
+            if best_replace_idx >= 0:
+                pool[best_replace_idx] = candidate
+                pool_ann = bank_ann.filter_facets([f.id for f in pool])
+                tree = best_tree
+
+            unique_facets_in_tree = len({fid for n in tree.nodes for fid in n.facet_ids})
+            rows.append({
+                "budget": idx,
+                "pool_ids": [f.id for f in pool],
+                "tree_nodes": len(tree.nodes),
+                "unique_facets_in_tree": unique_facets_in_tree,
+            })
+
+        return rows
+
     def run(self, task: Task, constructor: ConstructKnowledgeBase) -> DiscoveryResult:
         """
         Run the full iterative schema discovery algorithm.
