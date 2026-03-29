@@ -550,6 +550,9 @@ class IterativeSchemaDiscovery:
                     logger.info("No facets generated.")
                     return
 
+                if len(all_facets) > max_facets:
+                    all_facets = all_facets[:max_facets]
+
                 # IRR check
                 if self.config.irr_sample_videos > 0:
                     irr = compute_irr(
@@ -738,6 +741,9 @@ class IterativeSchemaDiscovery:
             total_proposed = len(self._bank_facets)
             logger.info("Candidate new facets: %d (total proposed: %d/%d)",
                         len(unique_new), total_proposed, max_facets)
+
+            if total_proposed + len(unique_new) > max_facets:
+                unique_new = unique_new[:max_facets-total_proposed]
 
             # IRR check
             if self.config.irr_sample_videos > 0 and unique_new:
