@@ -73,7 +73,6 @@ from data_prep import (
 from optimization import (
     count_unique_units,
     compute_tree_depth,
-    trim_tree_by_facet_removal,
 )
 
 from knowledge_items.io import (
@@ -147,19 +146,6 @@ class ExperimentSummary:
 
     num_facets: int
     """Facets in the final facet pool."""
-
-    frontier_size: int
-    """Points on the final Pareto frontier."""
-
-    min_discriminativeness: float
-    """Minimum D value on the frontier."""
-    min_compactness: int
-    """Compactness at the minimum D value."""
-
-    target_discriminativeness: float
-    """Target D value."""
-    target_compactness: int
-    """Compactness at the target D value."""
 
     iterations: int
     """How many algorithm iterations ran before convergence."""
@@ -263,74 +249,13 @@ def run_experiment(
 
     elapsed = time.monotonic() - t0
 
-    # Post-hoc tree trimming — works on cached results too
-    trim_tree_nodes = config.discovery.max_tree_nodes
-    if trim_tree_nodes > 0 and result.tree and len(result.tree.nodes) > trim_tree_nodes + 1:
-        focused_kb = result.knowledge_base
-        subtype_filter = config.discovery.item_scope.atomic_subtype
-        if subtype_filter.subtypes:
-            focused_kb = result.knowledge_base.filter_subtypes(subtype_filter.subtypes)
-
-        pre_trim = len(result.tree.nodes)
-        trimmed_tree, removed_ids = trim_tree_by_facet_removal(
-            knowledge_base=focused_kb,
-            facets=result.facets,
-            annotations=result.annotations,
-            target_nodes=trim_tree_nodes,
-            max_schema_facets=config.discovery.max_schema_facets,
-            refinement_threshold=config.discovery.refinement_threshold,
-            metric_mode=config.discovery.metric_mode,
-            eta_squared_weighting=config.discovery.eta_squared_weighting,
-        )
-        kept_ids = {f.id for f in result.facets} - set(removed_ids)
-        result = DiscoveryResult(
-            facets=[f for f in result.facets if f.id in kept_ids],
-            frontier=result.frontier,
-            annotations=result.annotations,
-            knowledge_base=result.knowledge_base,
-            iterations=result.iterations,
-            tree=trimmed_tree,
-            discovery_calls=result.discovery_calls,
-        )
-        logging.info(
-            "Trimmed tree from %d to %d nodes (target %d) by removing %d facet(s): %s",
-            pre_trim, len(trimmed_tree.nodes), trim_tree_nodes,
-            len(removed_ids), removed_ids,
-        )
-
-        # Save trimmed result separately from the original cache
-        trimmed_path = cache_dir / f"run_result_{config.discovery.cache_suffix()}_trimmed_{trim_tree_nodes}.json"
-        with open(trimmed_path, "w", encoding="utf-8") as f:
-            json.dump(result.to_dict(), f, ensure_ascii=False, indent=2)
-        logging.info("Saved trimmed result to %s.", trimmed_path)
-
     num_units = count_unique_units(result.knowledge_base)
-
-    target_discriminativeness = config.discovery.target_d
-    target_compactness = 0
-    for frontier_point in result.frontier:
-        if frontier_point.discriminativeness <= target_discriminativeness:
-            target_discriminativeness = frontier_point.discriminativeness
-            target_compactness = frontier_point.compactness
-            break
-
-    min_discriminativeness = float("inf")
-    min_compactness = 0
-    if len(result.frontier) > 0:
-        min_discriminativeness = result.frontier[-1].discriminativeness
-        min_compactness = result.frontier[-1].compactness
-
     tree_nodes = len(result.tree.nodes) if result.tree else 0
     tree_depth = compute_tree_depth(result.tree) if result.tree else 0
 
     summary = ExperimentSummary(
         num_units=num_units,
         num_facets=len(result.facets),
-        frontier_size=len(result.frontier),
-        min_discriminativeness=min_discriminativeness,
-        min_compactness=min_compactness,
-        target_discriminativeness=target_discriminativeness,
-        target_compactness=target_compactness,
         iterations=result.iterations,
         tree_nodes=tree_nodes,
         tree_depth=tree_depth,
@@ -353,14 +278,14 @@ def run_experiment(
 
 def compare_results(results: List[ExperimentResult]) -> None:
     """Print a compact side-by-side comparison table."""
-    cols = f"{'name':<38} {'units':>6} {'facets':>7} {'frontier':>7} {'min_D':>7} {'min_C':>7} {'target_D':>7} {'target_C':>7} {'t_nodes':>7} {'t_depth':>7} {'d_calls':>7} {'iters':>6} {'secs':>6}"
+    cols = f"{'name':<38} {'units':>6} {'facets':>7} {'t_nodes':>7} {'t_depth':>7} {'d_calls':>7} {'iters':>6} {'secs':>6}"
     print(cols)
     print("-" * len(cols))
     for r in results:
         s = r.summary
         c = r.config
         print(
-            f"{c.name:<38} {s.num_units:>6} {s.num_facets:>7} {s.frontier_size:>7} {s.min_discriminativeness:>7.4f} {s.min_compactness:>7} {s.target_discriminativeness:>7.4f} {s.target_compactness:>7} {s.tree_nodes:>7} {s.tree_depth:>7} {s.discovery_calls:>7} {s.iterations:>6} {r.elapsed_seconds:.1f}"
+            f"{c.name:<38} {s.num_units:>6} {s.num_facets:>7} {s.tree_nodes:>7} {s.tree_depth:>7} {s.discovery_calls:>7} {s.iterations:>6} {r.elapsed_seconds:.1f}"
         )
 
 
@@ -508,32 +433,12 @@ def _dataset_info(name: str) -> None:
         result = DiscoveryResult.from_dict(json.loads(result_path.read_text()))
 
         num_units = count_unique_units(result.knowledge_base)
-
-        target_discriminativeness = config.discovery.target_d
-        target_compactness = 0
-        for fp in result.frontier:
-            if fp.discriminativeness <= target_discriminativeness:
-                target_discriminativeness = fp.discriminativeness
-                target_compactness = fp.compactness
-                break
-
-        min_discriminativeness = float("inf")
-        min_compactness = 0
-        if len(result.frontier) > 0:
-            min_discriminativeness = result.frontier[-1].discriminativeness
-            min_compactness = result.frontier[-1].compactness
-
         tree_nodes = len(result.tree.nodes) if result.tree else 0
         tree_depth = compute_tree_depth(result.tree) if result.tree else 0
 
         summary = ExperimentSummary(
             num_units=num_units,
             num_facets=len(result.facets),
-            frontier_size=len(result.frontier),
-            min_discriminativeness=min_discriminativeness,
-            min_compactness=min_compactness,
-            target_discriminativeness=target_discriminativeness,
-            target_compactness=target_compactness,
             iterations=result.iterations,
             tree_nodes=tree_nodes,
             tree_depth=tree_depth,
@@ -543,11 +448,6 @@ def _dataset_info(name: str) -> None:
         print(f"\n--- Experiment Summary ---")
         print(f"Units:             {summary.num_units}")
         print(f"Facets:            {summary.num_facets}")
-        print(f"Frontier size:     {summary.frontier_size}")
-        print(f"Min D:             {summary.min_discriminativeness:.4f}")
-        print(f"Min C:             {summary.min_compactness}")
-        print(f"Target D:          {summary.target_discriminativeness:.4f}")
-        print(f"Target C:          {summary.target_compactness}")
         print(f"Iterations:        {summary.iterations}")
         print(f"Tree nodes:        {summary.tree_nodes}")
         print(f"Tree depth:        {summary.tree_depth}")

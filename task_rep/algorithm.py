@@ -1,17 +1,18 @@
 """
 Iterative task schema discovery algorithm.
 
-Implements the loop described in pseudo_code.py, following the reference
-implementation in server/src/framework_split.py.
+The algorithm finds the best pool of `target_facets` facets that produces
+the highest-quality refinement tree, within a discovery budget of `max_facets`.
 
-The algorithm:
-1. Computes a Pareto frontier of schemas (facet subsets) trading off
-   discriminativeness vs. compactness via 0/1 knapsack DP.
-2. Samples schemas from the frontier and finds collision sites.
-3. Proposes new facets to resolve collisions; revises existing ones.
-4. Builds vocabulary and labels items for the new facets.
-5. Accepts the update if the new frontier Pareto-improves the old one.
-6. Repeats until no improvement for max_iterations consecutive rounds.
+Two selection modes share the same greedy pool-building logic:
+- one_shot: generates max_facets facets at once, then greedily selects best pool
+- refinement_tree: proposes facets iteratively, maintaining best pool via greedy replacement
+
+Tree quality: more surviving nodes = better. Ties broken by fewer unique facets.
+
+Greedy pool building:
+- If pool < target_facets: add candidate
+- If pool >= target_facets: try replacing each member, keep best improvement
 """
 
 from __future__ import annotations
@@ -52,20 +53,13 @@ from optimization import (
     compute_cells,
     sample_target_items,
     sample_target_items_coherence,
-    sample_schemas,
     compute_irr,
-
-    FrontierPoint,
-    clip_frontier,
-    compute_frontier,
-    is_pareto_improved,
 
     RefinementTree,
     build_tree_nodes,
     prune_and_connect,
     sample_schemas_from_tree,
-    is_tree_improved,
-    get_active_facet_ids,
+    compare_tree_quality,
 )
 
 logger = logging.getLogger(__name__)
@@ -73,36 +67,28 @@ logger = logging.getLogger(__name__)
 @dataclass
 class DiscoveryConfig:
     """Configuration for the iterative schema discovery algorithm."""
-    # Per-stage model overrides.  Set only the fields you want to change;
-    # unset fields fall back to the global provider/model above.
+    # Per-stage model overrides.
     discovery_model: ModelConfig  # VLMFacetExtractor
     vocab_model: ModelConfig      # VLMFacetVocabularyBuilder
     labeling_model: ModelConfig   # VLMFacetLabeler
-    
+
     # Item scope — defines which items the algorithm processes.
-    # item_scope.item_type selects ATOMIC / STEP / TUTORIAL.
-    # item_scope.atomic_subtype restricts *optimization* (frontier / cells / target sampling) to a named preset of atomic subtypes; discovery, vocabulary, and
-    # labeling always operate on the full knowledge base for richer context.
     item_scope: ItemScopeConfig
 
-    # Caching — set both to enable per-iteration checkpointing
+    # Caching
     use_cache: bool = True
 
     # Convergence: stop after this many consecutive iterations with no improvement
     max_iterations: int = 5
 
-    # Hard cap on total facets in the pool.  0 = unlimited.
+    # Discovery budget: total facets proposed (accepted or not). Required > 0.
     max_facets: int = 0
+
+    # Desired pool size. Required > 0.
+    target_facets: int = 0
 
     # Frontier sampling
     k_schemas_to_sample: int = 2
-
-    # Only discover new facets from a schema if its D is above this threshold.
-    # Schemas already discriminating well are only revised, not expanded.
-    target_d: float = 0.8
-    
-    # Minimum D value for the frontier (i.e., considered resolved)
-    min_d: float = 0.01
 
     # Maximum number of facets in a single schema on the frontier.
     # Brute-force enumeration is O(n^max_schema_facets), so keep this small.
@@ -115,46 +101,31 @@ class DiscoveryConfig:
     max_concurrency: int = 32
 
     # Vocabulary sampling — limits Phase 1 (per-video proposal) to a random
-    # sample of this many videos.  `0` means use all videos (original behaviour).
-    # Phase 2 consolidation and labeling are always run on the full corpus.
+    # sample of this many videos.  0 = use all videos.
     vocab_sample_videos: int = 0
 
     # Initialization — bootstrap the iterative algorithm with this many
     # common-sense facets before the main loop.  0 = no initialization.
     init_facets: int = 0
 
-    # Metric mode — which quality metric drives the Pareto frontier.
-    # "entropy"             = original discriminativeness (log-based, cross-unit separation)
-    # "coherence_ordinal"   = η² using item local_index as position (within-tutorial clustering)
-    # "coherence_temporal"  = η² using time_range midpoint as position (within-tutorial clustering)
+    # Metric mode — which quality metric drives the tree.
+    # "entropy"             = discriminativeness (log-based, cross-unit separation)
+    # "coherence_ordinal"   = η² using item local_index as position
+    # "coherence_temporal"  = η² using time_range midpoint as position
     metric_mode: str = "entropy"
 
     # Eta-squared averaging mode (only used when metric_mode is coherence_*).
-    # "equal"    = each video contributes equally to the average η²
-    # "weighted" = videos weighted by their item count
     eta_squared_weighting: str = "equal"
 
-    # Selection mode — which approach drives schema selection and improvement.
-    # "pareto"           = Pareto frontier (discriminativeness vs. compactness)
-    # "refinement_tree"  = MI-based refinement tree with greedy pruning
-    # "one_shot"         = Non-iterative baseline: bootstrap with init_facets, skip iteration
-    selection_mode: str = "pareto"
+    # Selection mode — "one_shot" or "refinement_tree"
+    selection_mode: str = "refinement_tree"
 
-    # Refinement threshold tau (only used when selection_mode="refinement_tree").
-    # A node is considered captured by another if MI(keeper, candidate) / H(candidate) > tau.
+    # Refinement threshold tau for tree pruning.
     refinement_threshold: float = 0.85
 
-    # Tree complexity cap (only used when selection_mode="refinement_tree").
-    # 0 = unlimited; >0 = stop iterating when the tree has >= this many surviving nodes.
-    # Useful for matching tree complexity across methods (e.g., set to one_shot's node count).
-    max_tree_nodes: int = 0
-
     # IRR (Inter-Rater Reliability) diagnostic.
-    # 0 = disabled; >0 = sample N videos and re-label to measure consistency.
     irr_sample_videos: int = 0
-    # Number of independent labeling passes for IRR.
     irr_num_raters: int = 3
-    # Minimum Fleiss' kappa for a facet to be retained; facets below this are pruned.
     irr_min_agreement: float = 0.6
 
     def cache_suffix(self) -> str:
@@ -164,7 +135,6 @@ class DiscoveryConfig:
         labeling_model_suffix = self.labeling_model.cache_suffix()
         max_iterations = str(self.max_iterations)
         k_schemas_to_sample = str(self.k_schemas_to_sample)
-        target_d = str(self.target_d)
         max_cells_per_iteration = str(self.max_cells_per_iteration)
         max_items_per_cell = str(self.max_items_per_cell)
         vocab_sample_videos = str(self.vocab_sample_videos) if self.vocab_sample_videos != 0 else "all"
@@ -174,12 +144,12 @@ class DiscoveryConfig:
         eta_squared_weighting = self.eta_squared_weighting if self.metric_mode != "entropy" else "na"
         irr = f"irr{self.irr_sample_videos}x{self.irr_num_raters}a{self.irr_min_agreement}" if self.irr_sample_videos > 0 else "noirr"
         selection = self.selection_mode
-        ref_tau = f"tau{self.refinement_threshold}" if self.selection_mode == "refinement_tree" else "na"
+        ref_tau = f"tau{self.refinement_threshold}"
 
         max_facets = str(self.max_facets) if self.max_facets > 0 else "inf"
-        max_tree_nodes = f"tn{self.max_tree_nodes}" if self.max_tree_nodes > 0 else "tninf"
+        target_facets = str(self.target_facets) if self.target_facets > 0 else "inf"
 
-        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}_{max_schema_facets}_{init_facets}_{metric_mode}_{eta_squared_weighting}_{irr}_{selection}_{ref_tau}_{max_facets}_{max_tree_nodes}"
+        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}_{max_schema_facets}_{init_facets}_{metric_mode}_{eta_squared_weighting}_{irr}_{selection}_{ref_tau}_{max_facets}_{target_facets}"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -187,9 +157,8 @@ class DiscoveryConfig:
             "use_cache": self.use_cache,
             "max_iterations": self.max_iterations,
             "max_facets": self.max_facets,
+            "target_facets": self.target_facets,
             "k_schemas_to_sample": self.k_schemas_to_sample,
-            "target_d": self.target_d,
-            "min_d": self.min_d,
             "max_cells_per_iteration": self.max_cells_per_iteration,
             "max_items_per_cell": self.max_items_per_cell,
             "max_concurrency": self.max_concurrency,
@@ -200,7 +169,6 @@ class DiscoveryConfig:
             "eta_squared_weighting": self.eta_squared_weighting,
             "selection_mode": self.selection_mode,
             "refinement_threshold": self.refinement_threshold,
-            "max_tree_nodes": self.max_tree_nodes,
             "irr_sample_videos": self.irr_sample_videos,
             "irr_num_raters": self.irr_num_raters,
             "irr_min_agreement": self.irr_min_agreement,
@@ -219,9 +187,8 @@ class DiscoveryConfig:
             use_cache=data.get("use_cache", True),
             max_iterations=data.get("max_iterations", 5),
             max_facets=data.get("max_facets", 0),
+            target_facets=data.get("target_facets", 0),
             k_schemas_to_sample=data.get("k_schemas_to_sample", 2),
-            target_d=data.get("target_d", 0.8),
-            min_d=data.get("min_d", 0.01),
             max_cells_per_iteration=data.get("max_cells_per_iteration", 1),
             max_items_per_cell=data.get("max_items_per_cell", 5),
             max_concurrency=data.get("max_concurrency", 32),
@@ -230,9 +197,8 @@ class DiscoveryConfig:
             init_facets=data.get("init_facets", 0),
             metric_mode=data.get("metric_mode", "entropy"),
             eta_squared_weighting=data.get("eta_squared_weighting", "equal"),
-            selection_mode=data.get("selection_mode", "pareto"),
+            selection_mode=data.get("selection_mode", "refinement_tree"),
             refinement_threshold=data.get("refinement_threshold", 0.85),
-            max_tree_nodes=data.get("max_tree_nodes", 0),
             irr_sample_videos=data.get("irr_sample_videos", 0),
             irr_num_raters=data.get("irr_num_raters", 3),
             irr_min_agreement=data.get("irr_min_agreement", 0.6),
@@ -244,17 +210,15 @@ class DiscoveryResult:
     """Result of the iterative schema discovery algorithm."""
 
     facets: List[Facet]
-    frontier: List[FrontierPoint]
     annotations: AnnotationTable
     knowledge_base: KnowledgeBase
     iterations: int
-    tree: Optional[RefinementTree] = None  # populated in refinement_tree mode
-    discovery_calls: int = 0  # total VLM discovery/revision calls (init + propose + revise)
+    tree: Optional[RefinementTree] = None
+    discovery_calls: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
         d = {
             "facets": [f.to_dict() for f in self.facets],
-            "frontier": [p.to_dict() for p in self.frontier],
             "annotations": self.annotations.to_list(),
             "knowledge_base": self.knowledge_base.to_dict(),
             "iterations": self.iterations,
@@ -271,7 +235,6 @@ class DiscoveryResult:
             tree = RefinementTree.from_dict(data["tree"])
         return DiscoveryResult(
             facets=[Facet.from_dict(f) for f in data["facets"]],
-            frontier=[FrontierPoint.from_dict(p) for p in data["frontier"]],
             annotations=AnnotationTable.from_list(data["annotations"]),
             knowledge_base=KnowledgeBase.from_dict(data["knowledge_base"]),
             iterations=data["iterations"],
@@ -284,9 +247,9 @@ class IterativeSchemaDiscovery:
     Orchestrates iterative task schema discovery.
 
     Usage:
-        config = DiscoveryConfig(task="pandas")
+        config = DiscoveryConfig(...)
         algo = IterativeSchemaDiscovery(config)
-        result = algo.run()
+        result = algo.run(task, constructor)
     """
 
     def __init__(self, config: DiscoveryConfig):
@@ -304,17 +267,180 @@ class IterativeSchemaDiscovery:
             model_config=self.config.labeling_model,
             max_concurrency=self.config.max_concurrency,
         )
-        # Mutable state
+        # Mutable state — current best pool
         self._facets: Dict[str, Facet] = {}
         self._annotations: AnnotationTable = AnnotationTable()
-        self._frontier: List[FrontierPoint] = []
         self._tree: Optional[RefinementTree] = None
         self._knowledge_base: KnowledgeBase = KnowledgeBase(items=[])
         self._iteration: int = 0
         self._discovery_calls: int = 0
+        # Facet bank — ALL discovered facets with vocab+annotations (append-only)
+        self._bank_facets: Dict[str, Facet] = {}
+        self._bank_annotations: AnnotationTable = AnnotationTable()
 
     def get_result_path(self, cache_dir: str | Path) -> Path:
         return cache_dir / f"run_result_{self.config.cache_suffix()}.json"
+
+    def _get_facet_bank_path(self, cache_dir: str | Path) -> Path:
+        """Cache path for the facet bank.
+
+        Keyed only by models + item scope so that facets can be reused across
+        different target_facets / max_facets / max_iterations / selection_mode.
+
+        **Important caveat**: facets in the bank were discovered under specific
+        algorithm parameters (metric_mode, refinement_threshold, k_schemas_to_sample,
+        etc.) that influence which schemas are sampled and which collisions are
+        found. Reusing the bank with different parameters is a practical shortcut
+        — the vocab and labels are still valid — but the *set of facets* may not
+        be the same set that would have been discovered under the new parameters.
+        The bank file stores the discovery config of each contributing run so
+        this provenance is visible.
+        """
+        item_scope = self.config.item_scope.cache_suffix()
+        discovery = self.config.discovery_model.cache_suffix()
+        vocab = self.config.vocab_model.cache_suffix()
+        labeling = self.config.labeling_model.cache_suffix()
+        return Path(cache_dir) / f"facet_bank_{item_scope}_{discovery}_{vocab}_{labeling}.json"
+
+    def _save_facet_bank(self, cache_dir: str | Path):
+        path = self._get_facet_bank_path(cache_dir)
+        # Record this run's discovery parameters for provenance
+        run_config = {
+            "selection_mode": self.config.selection_mode,
+            "metric_mode": self.config.metric_mode,
+            "refinement_threshold": self.config.refinement_threshold,
+            "max_schema_facets": self.config.max_schema_facets,
+            "k_schemas_to_sample": self.config.k_schemas_to_sample,
+            "max_cells_per_iteration": self.config.max_cells_per_iteration,
+            "max_items_per_cell": self.config.max_items_per_cell,
+        }
+        # Load existing provenance if present
+        existing_provenance = []
+        if path.exists():
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    old = json.load(f)
+                existing_provenance = old.get("discovery_provenance", [])
+            except (json.JSONDecodeError, KeyError):
+                pass
+        # Append if this config is new
+        if run_config not in existing_provenance:
+            existing_provenance.append(run_config)
+
+        data = {
+            "facets": [f.to_dict() for f in self._bank_facets.values()],
+            "annotations": self._bank_annotations.to_list(),
+            "discovery_provenance": existing_provenance,
+        }
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        logger.info("Saved facet bank to %s (%d facets, %d provenance entries).",
+                     path, len(self._bank_facets), len(existing_provenance))
+
+    def _load_facet_bank(self, cache_dir: str | Path):
+        path = self._get_facet_bank_path(cache_dir)
+        if path.exists():
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            facets = [Facet.from_dict(d) for d in data["facets"]]
+            self._bank_facets = {f.id: f for f in facets}
+            self._bank_annotations = AnnotationTable.from_list(data["annotations"])
+            provenance = data.get("discovery_provenance", [])
+            logger.info("Loaded facet bank from %s (%d facets).", path, len(self._bank_facets))
+            if provenance:
+                logger.info("Bank provenance — discovered under %d config(s):", len(provenance))
+                for p in provenance:
+                    logger.info("  %s", p)
+
+    def _add_to_bank(self, facets: List[Facet], annotations: AnnotationTable):
+        """Add facets and their annotations to the bank."""
+        for f in facets:
+            self._bank_facets[f.id] = f
+        self._bank_annotations.update(annotations)
+
+    def _build_tree(
+        self,
+        focused_kb: KnowledgeBase,
+        facets: List[Facet],
+        annotations: AnnotationTable,
+    ) -> RefinementTree:
+        """Build a refinement tree from the given facets and annotations."""
+        nodes, h_memo = build_tree_nodes(
+            focused_kb, facets, annotations,
+            max_schema_facets=self.config.max_schema_facets,
+            metric_mode=self.config.metric_mode,
+            eta_squared_weighting=self.config.eta_squared_weighting,
+        )
+        return prune_and_connect(
+            nodes, focused_kb,
+            {f.id: f for f in facets},
+            annotations, h_memo,
+            refinement_threshold=self.config.refinement_threshold,
+            metric_mode=self.config.metric_mode,
+        )
+
+    def _greedy_select_pool(
+        self,
+        candidates: List[Facet],
+        focused_kb: KnowledgeBase,
+        new_annotations: AnnotationTable,
+    ) -> bool:
+        """
+        Try to improve pool by adding/replacing with each candidate.
+
+        - If pool < target_facets: add candidate directly
+        - If pool >= target_facets: try replacing each member, keep best
+
+        Returns True if pool changed.
+        """
+        pool_changed = False
+        current_pool = list(self._facets.values())
+        target = self.config.target_facets
+
+        for candidate in candidates:
+            if len(current_pool) < target:
+                # Phase 1: just add until we reach target_facets
+                current_pool.append(candidate)
+                self._facets = {f.id: f for f in current_pool}
+                self._annotations = self._annotations.merge(new_annotations).filter_facets(
+                    list(self._facets.keys())
+                )
+                self._tree = self._build_tree(focused_kb, current_pool, self._annotations)
+                pool_changed = True
+                logger.info(
+                    "Added facet %s to pool (%d/%d).",
+                    candidate.id, len(current_pool), target,
+                )
+            else:
+                # Phase 2: try replacing each member, keep best
+                best_tree = self._tree  # baseline
+                best_idx = -1
+
+                for i in range(len(current_pool)):
+                    trial_pool = current_pool[:i] + [candidate] + current_pool[i+1:]
+                    trial_ids = [f.id for f in trial_pool]
+                    trial_ann = self._annotations.merge(new_annotations).filter_facets(trial_ids)
+                    trial_tree = self._build_tree(focused_kb, trial_pool, trial_ann)
+
+                    if compare_tree_quality(trial_tree, best_tree) > 0:
+                        best_tree = trial_tree
+                        best_idx = i
+
+                if best_idx >= 0:
+                    replaced = current_pool[best_idx]
+                    current_pool[best_idx] = candidate
+                    self._facets = {f.id: f for f in current_pool}
+                    self._annotations = self._annotations.merge(new_annotations).filter_facets(
+                        list(self._facets.keys())
+                    )
+                    self._tree = best_tree
+                    pool_changed = True
+                    logger.info(
+                        "Replaced facet %s with %s (tree: %d nodes).",
+                        replaced.id, candidate.id, len(best_tree.nodes),
+                    )
+
+        return pool_changed
 
     def run(self, task: Task, constructor: ConstructKnowledgeBase) -> DiscoveryResult:
         """
@@ -325,15 +451,20 @@ class IterativeSchemaDiscovery:
             constructor: ConstructKnowledgeBase instance.
 
         Returns:
-            DiscoveryResult with final facets, frontier, annotations, and knowledge base.
+            DiscoveryResult with final facets, annotations, and knowledge base.
         """
+        if self.config.max_facets <= 0:
+            raise ValueError("max_facets must be > 0 (discovery budget).")
+        if self.config.target_facets <= 0:
+            raise ValueError("target_facets must be > 0 (desired pool size).")
+
         use_cache = self.config.use_cache
         item_type = self.config.item_scope.item_type
         cache_dir = constructor.get_cache_dir(task)
         self._knowledge_base = constructor.get_knowledge_base(task, item_type)
         logger.info("Knowledge base: %d items of type '%s'.", len(self._knowledge_base), item_type.value)
 
-        # Focused KB for optimization (frontier / cells / target sampling).
+        # Focused KB for optimization (tree / cells / target sampling).
         # Discovery, vocab, and labeling always use the full self._knowledge_base.
         focused_kb = self._knowledge_base
         subtype_filter = self.config.item_scope.atomic_subtype
@@ -345,216 +476,217 @@ class IterativeSchemaDiscovery:
             )
 
         if use_cache:
+            self._load_facet_bank(cache_dir)
             self._restore_cache(cache_dir)
 
-        init_facets_count = 0
+        selection_mode = self.config.selection_mode
 
-        # one_shot mode: use max_facets as the bootstrap count.
-        if self.config.selection_mode == "one_shot":
-            if self.config.max_facets <= 0:
-                raise ValueError(
-                    "one_shot mode requires max_facets > 0 to determine "
-                    "how many facets to bootstrap."
-                )
-            init_facets_count = self.config.max_facets
-            logger.info(
-                "one_shot mode: bootstrapping %d facet(s), no iteration.",
-                init_facets_count,
-            )
+        if selection_mode == "one_shot":
+            self._run_one_shot(task, focused_kb, cache_dir)
+        elif selection_mode == "refinement_tree":
+            self._run_refinement_tree(task, focused_kb, cache_dir)
+        else:
+            raise ValueError(f"Unknown selection_mode: {selection_mode!r}. Use 'one_shot' or 'refinement_tree'.")
 
-        if init_facets_count == 0:
-            init_facets_count = self.config.init_facets
-        # Optional: bootstrap with common-sense facets before iterating.
-        # Only runs when init_facets > 0 and no facets exist yet (fresh run).
-        if init_facets_count > 0 and not self._facets:
-            logger.info(
-                "Initializing with %d common-sense facet(s)...",
-                init_facets_count,
-            )
-            videos = self._knowledge_base.by_video()
-            init_facets = self._extractor.init_facets(
-                task=task.name,
-                videos=videos,
-                num_facets=init_facets_count,
-            )
-            self._discovery_calls += 1
-            # IRR check — signal unreliable facets
-            if self.config.irr_sample_videos > 0 and init_facets:
-                irr = compute_irr(
-                    task=task.name,
-                    facets=init_facets,
-                    knowledge_base=self._knowledge_base,
-                    labeler=self._labeler,
-                    sample_videos=self.config.irr_sample_videos,
-                    num_raters=self.config.irr_num_raters,
-                    min_agreement=self.config.irr_min_agreement,
-                )
-                low_irr_ids = set(irr.get("low_irr_facet_ids", []))
+        self._save_cache(cache_dir)
+        return DiscoveryResult(
+            facets=list(self._facets.values()),
+            annotations=self._annotations,
+            knowledge_base=self._knowledge_base,
+            iterations=self._iteration,
+            tree=self._tree,
+            discovery_calls=self._discovery_calls,
+        )
+
+    def _run_one_shot(self, task: Task, focused_kb: KnowledgeBase, cache_dir: str | Path):
+        """
+        one_shot: generate max_facets at once, then greedily select best target_facets pool.
+
+        Uses the facet bank: if the bank already has >= max_facets facets,
+        skip generation entirely and just re-run greedy selection.
+        """
+        max_facets = self.config.max_facets
+
+        if not self._facets:
+            # Use bank if it already has enough facets
+            if len(self._bank_facets) >= max_facets:
                 logger.info(
-                    "There are %d low-IRR candidate(s) among init facets: %s",
-                    len(low_irr_ids), list(low_irr_ids),
+                    "Facet bank has %d facets (need %d) — skipping generation.",
+                    len(self._bank_facets), max_facets,
                 )
-
-            if init_facets:
-                init_facets = self._vocab_builder.build_vocabulary(
+                all_facets = list(self._bank_facets.values())[:max_facets]
+                all_annotations = self._bank_annotations
+            else:
+                logger.info("Generating %d facet(s) for one_shot...", max_facets)
+                videos = self._knowledge_base.by_video()
+                all_facets = self._extractor.init_facets(
                     task=task.name,
-                    facets=init_facets,
+                    videos=videos,
+                    num_facets=max_facets,
+                )
+                self._discovery_calls += 1
+
+                if not all_facets:
+                    logger.info("No facets generated.")
+                    return
+
+                # IRR check
+                if self.config.irr_sample_videos > 0:
+                    irr = compute_irr(
+                        task=task.name,
+                        facets=all_facets,
+                        knowledge_base=self._knowledge_base,
+                        labeler=self._labeler,
+                        sample_videos=self.config.irr_sample_videos,
+                        num_raters=self.config.irr_num_raters,
+                        min_agreement=self.config.irr_min_agreement,
+                    )
+                    low_irr_ids = set(irr.get("low_irr_facet_ids", []))
+                    if low_irr_ids:
+                        all_facets = [f for f in all_facets if f.id not in low_irr_ids]
+                        logger.info("Pruned %d low-IRR facet(s).", len(low_irr_ids))
+
+                # Build vocabulary and label
+                all_facets = self._vocab_builder.build_vocabulary(
+                    task=task.name,
+                    facets=all_facets,
                     knowledge_base=self._knowledge_base,
                     sample_videos=self.config.vocab_sample_videos,
                 )
-                init_annotations = self._labeler.label_batch(
+                all_annotations = self._labeler.label_batch(
                     task=task.name,
-                    facets=init_facets,
+                    facets=all_facets,
                     knowledge_base=self._knowledge_base,
                 )
-                for f in init_facets:
-                    self._facets[f.id] = f
-                self._annotations.update(init_annotations)
-                logger.info("Initialized %d facet(s).", len(init_facets))
-                self._save_cache(cache_dir)
 
-        max_schema_facets = self.config.max_schema_facets
-        metric_mode = self.config.metric_mode
-        eta_squared_weighting = self.config.eta_squared_weighting
-        selection_mode = self.config.selection_mode
+                # Save to facet bank
+                self._add_to_bank(all_facets, all_annotations)
+                self._save_facet_bank(cache_dir)
 
-        if selection_mode == "refinement_tree":
-            nodes, h_memo = build_tree_nodes(
-                focused_kb, list(self._facets.values()), self._annotations,
-                max_schema_facets=max_schema_facets,
-                metric_mode=metric_mode,
-                eta_squared_weighting=eta_squared_weighting,
-            )
-            self._tree = prune_and_connect(
-                nodes, focused_kb, self._facets, self._annotations, h_memo,
-                refinement_threshold=self.config.refinement_threshold,
-                metric_mode=metric_mode,
-            )
+            # Start pool with first target_facets, use rest as candidates
+            target = self.config.target_facets
+            initial_pool = all_facets[:target]
+            candidates = all_facets[target:]
+
+            for f in initial_pool:
+                self._facets[f.id] = f
+            self._annotations = all_annotations.filter_facets(list(self._facets.keys()))
+
+            # Build initial tree
+            self._tree = self._build_tree(focused_kb, list(self._facets.values()), self._annotations)
             logger.info(
-                "Initial tree: %d surviving nodes | %d edges",
-                len(self._tree.nodes), len(self._tree.edges),
-            )
-        else:
-            self._frontier = compute_frontier(
-                focused_kb,
-                list(self._facets.values()),
-                self._annotations,
-                max_schema_facets=max_schema_facets,
-                metric_mode=metric_mode,
-                eta_squared_weighting=eta_squared_weighting,
-            )
-            logger.info(
-                "Initial frontier: %d points | worst D=%.4f | best D=%.4f",
-                len(self._frontier),
-                self._frontier[0].discriminativeness if self._frontier else float("inf"),
-                self._frontier[-1].discriminativeness if self._frontier else float("inf"),
+                "Initial pool: %d facet(s), tree: %d nodes. Trying %d candidate(s)...",
+                len(initial_pool), len(self._tree.nodes), len(candidates),
             )
 
-        tries_with_no_improvement = 0
-        target_d = self.config.target_d
-        max_iterations = self.config.max_iterations
+            # Greedy selection with remaining candidates
+            self._greedy_select_pool(candidates, focused_kb, all_annotations)
+
+        logger.info(
+            "one_shot complete: %d facet(s), tree: %d nodes.",
+            len(self._facets), len(self._tree.nodes) if self._tree else 0,
+        )
+
+    def _run_refinement_tree(self, task: Task, focused_kb: KnowledgeBase, cache_dir: str | Path):
+        """
+        refinement_tree: propose facets iteratively, maintain best pool via greedy replacement.
+        Stops when budget (max_facets total proposed) exhausted or max_iterations non-improvements.
+
+        The facet bank tracks ALL discovered facets (accepted or not) so the budget
+        and deduplication persist across runs with different selection parameters.
+        """
         max_facets = self.config.max_facets
-        max_tree_nodes = self.config.max_tree_nodes
+        max_iterations = self.config.max_iterations
         max_cells_per_iteration = self.config.max_cells_per_iteration
         max_items_per_cell = self.config.max_items_per_cell
         k_schemas_to_sample = self.config.k_schemas_to_sample
         vocab_sample_videos = self.config.vocab_sample_videos
-        min_d = self.config.min_d
+        metric_mode = self.config.metric_mode
 
-        # Skip iteration if caps are already satisfied from cache
-        skip_iteration = False
-        if max_facets > 0 and len(self._facets) >= max_facets:
+        # Budget tracks all facets ever discovered (bank), not just pool
+        total_proposed = len(self._bank_facets)
+        tries_with_no_improvement = 0
+
+        # Build initial tree (may be empty if no facets yet)
+        if self._facets and self._tree is None:
+            self._tree = self._build_tree(focused_kb, list(self._facets.values()), self._annotations)
+
+        # If no tree yet, create an empty one
+        if self._tree is None:
+            self._tree = RefinementTree(nodes=[], edges=[])
+
+        # If bank has facets not yet tried for the pool, run greedy on them first
+        bank_untried = [f for fid, f in self._bank_facets.items() if fid not in self._facets]
+        if bank_untried:
             logger.info(
-                "Facet pool already at cap (%d/%d) from cache — skipping iteration.",
-                len(self._facets), max_facets,
+                "Bank has %d untried facet(s) — running greedy selection...",
+                len(bank_untried),
             )
-            skip_iteration = True
+            self._greedy_select_pool(bank_untried, focused_kb, self._bank_annotations)
+            self._save_cache(cache_dir)
 
-        if (not skip_iteration
-            and selection_mode == "refinement_tree"
-            and max_tree_nodes > 0
-            and self._tree
-            and len(self._tree.nodes) >= max_tree_nodes):
-            logger.info(
-                "Tree already at cap (%d/%d nodes) from cache — skipping iteration.",
-                len(self._tree.nodes), max_tree_nodes,
-            )
-            skip_iteration = True
-
-        while not skip_iteration and selection_mode != "one_shot" and tries_with_no_improvement < max_iterations:
+        while total_proposed < max_facets and tries_with_no_improvement < max_iterations:
             self._iteration += 1
-            logger.info("=== Iteration %d ===", self._iteration)
+            logger.info("=== Iteration %d (proposed: %d/%d, no-improve: %d/%d) ===",
+                        self._iteration, total_proposed, max_facets,
+                        tries_with_no_improvement, max_iterations)
 
-            # Print distribution of cell sizes
-            cells = compute_cells(
-                focused_kb, list(self._facets.values()), self._annotations
+            # Print cell distribution
+            if self._facets:
+                cells = compute_cells(
+                    focused_kb, list(self._facets.values()), self._annotations
+                )
+                size_counts = defaultdict(int)
+                for _, units in cells.items():
+                    size_counts[len(units)] += 1
+                total_cell_sizes = sum(size_counts.values())
+                logger.info("Cell size distribution (total=%d):", total_cell_sizes)
+                for size, count in sorted(size_counts.items()):
+                    logger.info(f"  {size} units: {count} ({count/total_cell_sizes*100:.1f}%)")
+
+            # Step 1: Sample schemas from tree leaves
+            sampled = sample_schemas_from_tree(
+                self._tree,
+                self._facets,
+                k=k_schemas_to_sample,
             )
-            size_counts = defaultdict(int)
-            for _, units in cells.items():
-                size_counts[len(units)] += 1
-            total_cell_sizes = sum(size_counts.values())
-            logger.info("Cell size distribution (total=%d units):", total_cell_sizes)
-            for size, count in size_counts.items():
-                logger.info(f"{size} units: {count} ({count/total_cell_sizes*100:.1f}%)")
-
-            # Step 1: Sample schemas for expansion
-            if selection_mode == "refinement_tree":
-                sampled = sample_schemas_from_tree(
-                    self._tree,
-                    self._facets,
-                    target_d=target_d,
-                    k=k_schemas_to_sample,
-                    metric_mode=metric_mode,
-                )
-                if not sampled:
-                    logger.info("Tree fully resolved (no unresolved leaves); stopping.")
-                    break
-            else:
-                clipped = clip_frontier(self._frontier, min_d=target_d)
-                if not clipped:
-                    logger.info("Frontier fully resolved (all D ≤ %s); stopping.", self.config.target_d)
-                    break
-                sampled = sample_schemas(
-                    clipped,
-                    self._facets,
-                    k=k_schemas_to_sample,
-                )
-                assert sampled, "No schemas sampled from the frontier."
+            # If no tree/leaves yet, use empty schema
+            if not sampled:
+                sampled = [([], None)]
 
             # Step 2: Facet generation
             all_new_facets: List[Facet] = []
             videos = self._knowledge_base.by_video()
 
-            for schema_facets, point in sampled:
-                # 2a: Discover new facets from collision sites when D is still high
-                if point.discriminativeness > target_d:
-                    if metric_mode == "entropy":
-                        targets = sample_target_items(
-                            focused_kb,
-                            schema_facets,
-                            self._annotations,
-                            max_cells=max_cells_per_iteration,
-                            max_items_per_cell=max_items_per_cell,
-                        )
-                    else:
-                        pos_mode = "ordinal" if metric_mode == "coherence_ordinal" else "time"
-                        targets = sample_target_items_coherence(
-                            focused_kb,
-                            schema_facets,
-                            self._annotations,
-                            position_mode=pos_mode,
-                            max_cells=max_cells_per_iteration,
-                        )
-                    for target_ids, cell_sig in targets:
-                        proposed = self._extractor.propose_facets(
-                            task=task.name,
-                            videos=videos,
-                            target_item_ids=target_ids,
-                            facets=schema_facets,
-                            target_signature=cell_sig,
-                        )
-                        self._discovery_calls += 1
-                        all_new_facets.extend(proposed)
+            for schema_facets, _point in sampled:
+                # 2a: Discover new facets from collision sites
+                if metric_mode == "entropy":
+                    targets = sample_target_items(
+                        focused_kb,
+                        schema_facets,
+                        self._annotations,
+                        max_cells=max_cells_per_iteration,
+                        max_items_per_cell=max_items_per_cell,
+                    )
+                else:
+                    pos_mode = "ordinal" if metric_mode == "coherence_ordinal" else "time"
+                    targets = sample_target_items_coherence(
+                        focused_kb,
+                        schema_facets,
+                        self._annotations,
+                        position_mode=pos_mode,
+                        max_cells=max_cells_per_iteration,
+                    )
+                for target_ids, cell_sig in targets:
+                    proposed = self._extractor.propose_facets(
+                        task=task.name,
+                        videos=videos,
+                        target_item_ids=target_ids,
+                        facets=schema_facets,
+                        target_signature=cell_sig,
+                    )
+                    self._discovery_calls += 1
+                    all_new_facets.extend(proposed)
 
                 # 2b: Revise existing facets in this schema
                 if schema_facets:
@@ -570,22 +702,24 @@ class IterativeSchemaDiscovery:
                 tries_with_no_improvement += 1
                 continue
 
-            # Deduplicate by id against the existing pool
-            seen_ids = set(self._facets.keys())
+            # Deduplicate by id against the bank (all previously discovered facets)
             unique_new = []
             for f in all_new_facets:
-                if f.id not in seen_ids:
-                    seen_ids.add(f.id)
+                if f.id not in self._bank_facets:
+                    self._bank_facets[f.id] = f  # reserve the id to avoid dupes within batch
                     unique_new.append(f)
 
             if not unique_new:
-                logger.info("All proposed facets already in pool.")
+                logger.info("All proposed facets already in bank.")
                 tries_with_no_improvement += 1
                 continue
 
-            logger.info("Candidate new facets: %d", len(unique_new))
+            # Count towards budget
+            total_proposed = len(self._bank_facets)
+            logger.info("Candidate new facets: %d (total proposed: %d/%d)",
+                        len(unique_new), total_proposed, max_facets)
 
-            # Step 3.5: IRR check — prune unreliable facets before full annotation
+            # IRR check
             if self.config.irr_sample_videos > 0 and unique_new:
                 irr = compute_irr(
                     task=task.name,
@@ -599,167 +733,48 @@ class IterativeSchemaDiscovery:
                 low_irr_ids = set(irr.get("low_irr_facet_ids", []))
                 if low_irr_ids:
                     unique_new = [f for f in unique_new if f.id not in low_irr_ids]
-                    logger.info(
-                        "Pruned %d low-IRR candidate(s): %s",
-                        len(low_irr_ids), list(low_irr_ids),
-                    )
+                    logger.info("Pruned %d low-IRR candidate(s).", len(low_irr_ids))
                 if not unique_new:
                     logger.info("All candidates pruned by IRR.")
                     tries_with_no_improvement += 1
                     continue
-            
-            # Step 3: Build vocabulary for new facets (TODO: should put before irr?)
+
+            # Build vocabulary and label
             unique_new = self._vocab_builder.build_vocabulary(
                 task=task.name,
                 facets=unique_new,
                 knowledge_base=self._knowledge_base,
                 sample_videos=vocab_sample_videos,
             )
-
-            # Step 4: Label items with new facets
             new_annotations = self._labeler.label_batch(
                 task=task.name,
                 facets=unique_new,
                 knowledge_base=self._knowledge_base,
             )
 
-            # Step 5: Tentatively merge and recompute selection
-            combined_facets = list(self._facets.values()) + unique_new
-            combined_annotations = self._annotations.merge(new_annotations)
+            # Save to facet bank (all discovered, regardless of pool acceptance)
+            self._add_to_bank(unique_new, new_annotations)
+            self._save_facet_bank(cache_dir)
 
-            if selection_mode == "refinement_tree":
-                new_nodes, new_h_memo = build_tree_nodes(
-                    focused_kb, combined_facets, combined_annotations,
-                    max_schema_facets=max_schema_facets,
-                    metric_mode=metric_mode,
-                    eta_squared_weighting=eta_squared_weighting,
-                )
-                new_tree = prune_and_connect(
-                    new_nodes, focused_kb,
-                    {f.id: f for f in combined_facets},
-                    combined_annotations, new_h_memo,
-                    refinement_threshold=self.config.refinement_threshold,
-                    metric_mode=metric_mode,
-                )
-                improved = is_tree_improved(self._tree, new_tree, metric_mode=metric_mode)
-            else:
-                new_frontier = compute_frontier(
-                    focused_kb, combined_facets, combined_annotations,
-                    max_schema_facets=max_schema_facets,
-                    metric_mode=metric_mode,
-                    eta_squared_weighting=eta_squared_weighting,
-                )
-                improved = is_pareto_improved(self._frontier, new_frontier, min_d=target_d)
+            # Greedy pool selection
+            improved = self._greedy_select_pool(unique_new, focused_kb, new_annotations)
 
-            # Step 6: Accept if improved
             if improved:
-                if selection_mode == "refinement_tree":
-                    logger.info("-------------------------------- New tree --------------------------------")
-                    for node in new_tree.nodes:
-                        logger.info(f"Node: {node.id} | size={node.size} D={node.D:.4f} eta2={node.eta2:.4f}")
-                    logger.info("---------------------------------------------------------------------")
-
-                    active_ids = get_active_facet_ids(new_tree, min_d=min_d, metric_mode=metric_mode)
-                else:
-                    logger.info("-------------------------------- New frontier --------------------------------")
-                    for point in new_frontier:
-                        logger.info(f"New: {point.discriminativeness} {point.compactness}")
-                    logger.info("---------------------------------------------------------------------")
-
-                    active_ids: set[str] = set()
-                    for point in clip_frontier(new_frontier, min_d=min_d):
-                        active_ids.update(point.facet_ids)
-
-                accepted_new = [f for f in unique_new if f.id in active_ids]
-                n_dropped = len(unique_new) - len(accepted_new)
-                logger.info(
-                    "Improvement — accepting %d new facet(s)%s.",
-                    len(accepted_new),
-                    f" ({n_dropped} dropped as non-contributing)" if n_dropped else "",
-                )
-
-                for f in accepted_new:
-                    self._facets[f.id] = f
-                self._annotations.update(new_annotations.filter_facets(active_ids))
-
-                # Recompute from the accepted pool
-                if selection_mode == "refinement_tree":
-                    acc_nodes, acc_h_memo = build_tree_nodes(
-                        focused_kb, list(self._facets.values()), self._annotations,
-                        max_schema_facets=max_schema_facets,
-                        metric_mode=metric_mode,
-                        eta_squared_weighting=eta_squared_weighting,
-                    )
-                    self._tree = prune_and_connect(
-                        acc_nodes, focused_kb, self._facets, self._annotations, acc_h_memo,
-                        refinement_threshold=self.config.refinement_threshold,
-                        metric_mode=metric_mode,
-                    )
-                else:
-                    self._frontier = compute_frontier(
-                        focused_kb, list(self._facets.values()), self._annotations,
-                        max_schema_facets=max_schema_facets,
-                        metric_mode=metric_mode,
-                        eta_squared_weighting=eta_squared_weighting,
-                    )
-
                 tries_with_no_improvement = 0
                 self._save_cache(cache_dir)
-
-                if max_facets > 0 and len(self._facets) >= max_facets:
-                    logger.info(
-                        "Facet pool reached cap (%d/%d) — stopping.",
-                        len(self._facets), max_facets,
-                    )
-                    break
-
-                if (selection_mode == "refinement_tree"
-                    and max_tree_nodes > 0
-                    and self._tree
-                    and len(self._tree.nodes) >= max_tree_nodes):
-                    logger.info(
-                        "Tree complexity reached cap (%d/%d surviving nodes) — stopping.",
-                        len(self._tree.nodes), max_tree_nodes,
-                    )
-                    break
+                logger.info(
+                    "Pool improved: %d facet(s), tree: %d nodes.",
+                    len(self._facets), len(self._tree.nodes) if self._tree else 0,
+                )
             else:
-                logger.info("No improvement — discarding candidates.")
                 tries_with_no_improvement += 1
+                logger.info("No improvement — discarding candidates.")
 
-        if selection_mode == "one_shot":
-            logger.info(
-                "one_shot baseline complete: %d facet(s), %d frontier point(s).",
-                len(self._facets), len(self._frontier),
-            )
-
-        # Unified evaluation: always build a refinement tree from the final pool
-        # so that all selection modes produce comparable tree metrics.
-        if self._tree is None and self._facets:
-            final_nodes, final_h_memo = build_tree_nodes(
-                focused_kb, list(self._facets.values()), self._annotations,
-                max_schema_facets=max_schema_facets,
-                metric_mode=metric_mode,
-                eta_squared_weighting=eta_squared_weighting,
-            )
-            self._tree = prune_and_connect(
-                final_nodes, focused_kb, self._facets, self._annotations, final_h_memo,
-                refinement_threshold=self.config.refinement_threshold,
-                metric_mode=metric_mode,
-            )
-            logger.info(
-                "Unified eval tree: %d surviving nodes | %d edges",
-                len(self._tree.nodes), len(self._tree.edges),
-            )
-
-        self._save_cache(cache_dir)
-        return DiscoveryResult(
-            facets=list(self._facets.values()),
-            frontier=self._frontier,
-            annotations=self._annotations,
-            knowledge_base=self._knowledge_base,
-            iterations=self._iteration,
-            tree=self._tree,
-            discovery_calls=self._discovery_calls,
+        logger.info(
+            "refinement_tree complete: %d iteration(s), %d facet(s), tree: %d nodes, bank: %d facets.",
+            self._iteration, len(self._facets),
+            len(self._tree.nodes) if self._tree else 0,
+            len(self._bank_facets),
         )
 
     # ---- caching ----
@@ -769,7 +784,6 @@ class IterativeSchemaDiscovery:
 
         result = DiscoveryResult(
             facets=list(self._facets.values()),
-            frontier=self._frontier,
             annotations=self._annotations,
             knowledge_base=self._knowledge_base,
             iterations=self._iteration,
@@ -779,7 +793,7 @@ class IterativeSchemaDiscovery:
 
         with open(result_path, "w", encoding="utf-8") as f:
             json.dump(result.to_dict(), f, ensure_ascii=False, indent=2)
-        
+
         logger.info("Saved cache to %s.", result_path)
 
     def _restore_cache(self, cache_dir: str | Path):
@@ -794,6 +808,9 @@ class IterativeSchemaDiscovery:
                 self._knowledge_base = result.knowledge_base
                 self._facets = {f.id: f for f in result.facets}
                 self._annotations = result.annotations
+                self._tree = result.tree
+                self._discovery_calls = result.discovery_calls
+                self._iteration = result.iterations
                 logger.info("Restored cache from %s (%d facets, %d annotations).", result_path, len(result.facets), len(result.annotations))
         else:
             logger.info("No cache found at %s.", result_path)
