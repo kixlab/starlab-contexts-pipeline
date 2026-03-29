@@ -27,19 +27,24 @@ from knowledge_items import (
 
 logger = logging.getLogger(__name__)
 
+# ---- ConstructorConfig defaults (single source of truth) ----
+_CC_MAX_VIDEOS = None
+_CC_USE_CACHE = True
+_CC_MAX_CONCURRENCY = 32
+
 @dataclass
 class ConstructorConfig:
     """Knowledge item construction settings."""
-    
+
     use_vision: bool
     cluster_config: ClusterConfig
     model_config: ModelConfig
 
-    max_videos: Optional[int] = None
+    max_videos: Optional[int] = _CC_MAX_VIDEOS
     """Limit to first N videos. None = all videos in the file."""
 
-    use_cache: bool = True
-    max_concurrency: int = 32
+    use_cache: bool = _CC_USE_CACHE
+    max_concurrency: int = _CC_MAX_CONCURRENCY
 
     def cache_suffix(self) -> str:
         max_videos = str(self.max_videos) if self.max_videos is not None else ""
@@ -63,9 +68,9 @@ class ConstructorConfig:
             use_vision=data["use_vision"],
             cluster_config=ClusterConfig.from_dict(data["cluster_config"]),
             model_config=ModelConfig.from_dict(data["model_config"]),
-            max_videos=data.get("max_videos"),
-            use_cache=data.get("use_cache", True),
-            max_concurrency=data.get("max_concurrency", 32),
+            max_videos=data.get("max_videos", _CC_MAX_VIDEOS),
+            use_cache=data.get("use_cache", _CC_USE_CACHE),
+            max_concurrency=data.get("max_concurrency", _CC_MAX_CONCURRENCY),
         )
 
 

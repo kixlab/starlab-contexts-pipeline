@@ -64,6 +64,26 @@ from optimization import (
 
 logger = logging.getLogger(__name__)
 
+# ---- DiscoveryConfig defaults (single source of truth) ----
+_DC_USE_CACHE = True
+_DC_MAX_ITERATIONS = 5
+_DC_MAX_FACETS = 60 ### let's try upper-bound and see how last 20 may improve the tree quality (if it does)
+_DC_TARGET_FACETS = 20 ### seems reasonable --> oneshot generates around 35 nodes
+_DC_K_SCHEMAS_TO_SAMPLE = 3
+_DC_MAX_SCHEMA_FACETS = 2
+_DC_MAX_CELLS_PER_ITERATION = 1
+_DC_MAX_ITEMS_PER_CELL = 5
+_DC_MAX_CONCURRENCY = 32
+_DC_VOCAB_SAMPLE_VIDEOS = 0
+_DC_INIT_FACETS = 0
+_DC_METRIC_MODE = "entropy"
+_DC_ETA_SQUARED_WEIGHTING = "equal"
+_DC_SELECTION_MODE = "refinement_tree"
+_DC_REFINEMENT_THRESHOLD = 0.60
+_DC_IRR_SAMPLE_VIDEOS = 3
+_DC_IRR_NUM_RATERS = 3
+_DC_IRR_MIN_AGREEMENT = 0.8
+
 @dataclass
 class DiscoveryConfig:
     """Configuration for the iterative schema discovery algorithm."""
@@ -76,57 +96,57 @@ class DiscoveryConfig:
     item_scope: ItemScopeConfig
 
     # Caching
-    use_cache: bool = True
+    use_cache: bool = _DC_USE_CACHE
 
     # Convergence: stop after this many consecutive iterations with no improvement
-    max_iterations: int = 5
+    max_iterations: int = _DC_MAX_ITERATIONS
 
     # Discovery budget: total facets proposed (accepted or not). Required > 0.
-    max_facets: int = 0
+    max_facets: int = _DC_MAX_FACETS
 
     # Desired pool size. Required > 0.
-    target_facets: int = 0
+    target_facets: int = _DC_TARGET_FACETS
 
     # Frontier sampling
-    k_schemas_to_sample: int = 2
+    k_schemas_to_sample: int = _DC_K_SCHEMAS_TO_SAMPLE
 
     # Maximum number of facets in a single schema on the frontier.
     # Brute-force enumeration is O(n^max_schema_facets), so keep this small.
-    max_schema_facets: int = 3
+    max_schema_facets: int = _DC_MAX_SCHEMA_FACETS
 
     # Collision detection
-    max_cells_per_iteration: int = 1
-    max_items_per_cell: int = 5
+    max_cells_per_iteration: int = _DC_MAX_CELLS_PER_ITERATION
+    max_items_per_cell: int = _DC_MAX_ITEMS_PER_CELL
 
-    max_concurrency: int = 32
+    max_concurrency: int = _DC_MAX_CONCURRENCY
 
     # Vocabulary sampling — limits Phase 1 (per-video proposal) to a random
     # sample of this many videos.  0 = use all videos.
-    vocab_sample_videos: int = 0
+    vocab_sample_videos: int = _DC_VOCAB_SAMPLE_VIDEOS
 
     # Initialization — bootstrap the iterative algorithm with this many
     # common-sense facets before the main loop.  0 = no initialization.
-    init_facets: int = 0
+    init_facets: int = _DC_INIT_FACETS
 
     # Metric mode — which quality metric drives the tree.
     # "entropy"             = discriminativeness (log-based, cross-unit separation)
     # "coherence_ordinal"   = η² using item local_index as position
     # "coherence_temporal"  = η² using time_range midpoint as position
-    metric_mode: str = "entropy"
+    metric_mode: str = _DC_METRIC_MODE
 
     # Eta-squared averaging mode (only used when metric_mode is coherence_*).
-    eta_squared_weighting: str = "equal"
+    eta_squared_weighting: str = _DC_ETA_SQUARED_WEIGHTING
 
     # Selection mode — "one_shot" or "refinement_tree"
-    selection_mode: str = "refinement_tree"
+    selection_mode: str = _DC_SELECTION_MODE
 
     # Refinement threshold tau for tree pruning.
-    refinement_threshold: float = 0.85
+    refinement_threshold: float = _DC_REFINEMENT_THRESHOLD
 
     # IRR (Inter-Rater Reliability) diagnostic.
-    irr_sample_videos: int = 0
-    irr_num_raters: int = 3
-    irr_min_agreement: float = 0.6
+    irr_sample_videos: int = _DC_IRR_SAMPLE_VIDEOS
+    irr_num_raters: int = _DC_IRR_NUM_RATERS
+    irr_min_agreement: float = _DC_IRR_MIN_AGREEMENT
 
     def cache_suffix(self) -> str:
         item_scope = self.item_scope.cache_suffix()
@@ -184,24 +204,24 @@ class DiscoveryConfig:
             discovery_model=ModelConfig.from_dict(data["discovery_model"]),
             vocab_model=ModelConfig.from_dict(data["vocab_model"]),
             labeling_model=ModelConfig.from_dict(data["labeling_model"]),
-            use_cache=data.get("use_cache", True),
-            max_iterations=data.get("max_iterations", 5),
-            max_facets=data.get("max_facets", 0),
-            target_facets=data.get("target_facets", 0),
-            k_schemas_to_sample=data.get("k_schemas_to_sample", 2),
-            max_cells_per_iteration=data.get("max_cells_per_iteration", 1),
-            max_items_per_cell=data.get("max_items_per_cell", 5),
-            max_concurrency=data.get("max_concurrency", 32),
-            vocab_sample_videos=data.get("vocab_sample_videos", 0),
-            max_schema_facets=data.get("max_schema_facets", 3),
-            init_facets=data.get("init_facets", 0),
-            metric_mode=data.get("metric_mode", "entropy"),
-            eta_squared_weighting=data.get("eta_squared_weighting", "equal"),
-            selection_mode=data.get("selection_mode", "refinement_tree"),
-            refinement_threshold=data.get("refinement_threshold", 0.85),
-            irr_sample_videos=data.get("irr_sample_videos", 0),
-            irr_num_raters=data.get("irr_num_raters", 3),
-            irr_min_agreement=data.get("irr_min_agreement", 0.6),
+            use_cache=data.get("use_cache", _DC_USE_CACHE),
+            max_iterations=data.get("max_iterations", _DC_MAX_ITERATIONS),
+            max_facets=data.get("max_facets", _DC_MAX_FACETS),
+            target_facets=data.get("target_facets", _DC_TARGET_FACETS),
+            k_schemas_to_sample=data.get("k_schemas_to_sample", _DC_K_SCHEMAS_TO_SAMPLE),
+            max_cells_per_iteration=data.get("max_cells_per_iteration", _DC_MAX_CELLS_PER_ITERATION),
+            max_items_per_cell=data.get("max_items_per_cell", _DC_MAX_ITEMS_PER_CELL),
+            max_concurrency=data.get("max_concurrency", _DC_MAX_CONCURRENCY),
+            vocab_sample_videos=data.get("vocab_sample_videos", _DC_VOCAB_SAMPLE_VIDEOS),
+            max_schema_facets=data.get("max_schema_facets", _DC_MAX_SCHEMA_FACETS),
+            init_facets=data.get("init_facets", _DC_INIT_FACETS),
+            metric_mode=data.get("metric_mode", _DC_METRIC_MODE),
+            eta_squared_weighting=data.get("eta_squared_weighting", _DC_ETA_SQUARED_WEIGHTING),
+            selection_mode=data.get("selection_mode", _DC_SELECTION_MODE),
+            refinement_threshold=data.get("refinement_threshold", _DC_REFINEMENT_THRESHOLD),
+            irr_sample_videos=data.get("irr_sample_videos", _DC_IRR_SAMPLE_VIDEOS),
+            irr_num_raters=data.get("irr_num_raters", _DC_IRR_NUM_RATERS),
+            irr_min_agreement=data.get("irr_min_agreement", _DC_IRR_MIN_AGREEMENT),
         )
 
 
