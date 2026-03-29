@@ -416,6 +416,9 @@ class IterativeSchemaDiscovery:
         - If pool < target_facets: add candidate directly
         - If pool >= target_facets: try replacing each member, keep best
 
+        Uses union precomputation: builds tree nodes once for {pool ∪ candidate},
+        then filters per trial instead of rebuilding from scratch each time.
+
         Returns True if pool changed.
         """
         pool_changed = False
@@ -437,15 +440,30 @@ class IterativeSchemaDiscovery:
                     candidate.id, len(current_pool), target,
                 )
             else:
-                # Phase 2: try replacing each member, keep best
+                # Phase 2: precompute on union, then filter per trial
+                union_pool = current_pool + [candidate]
+                union_ids = [f.id for f in union_pool]
+                union_ann = self._annotations.merge(new_annotations).filter_facets(union_ids)
+                all_nodes, h_memo = build_tree_nodes(
+                    focused_kb, union_pool, union_ann,
+                    max_schema_facets=self.config.max_schema_facets,
+                    metric_mode=self.config.metric_mode,
+                    eta_squared_weighting=self.config.eta_squared_weighting,
+                )
+                union_facets_by_id = {f.id: f for f in union_pool}
+
                 best_tree = self._tree  # baseline
                 best_idx = -1
 
                 for i in range(len(current_pool)):
-                    trial_pool = current_pool[:i] + [candidate] + current_pool[i+1:]
-                    trial_ids = [f.id for f in trial_pool]
-                    trial_ann = self._annotations.merge(new_annotations).filter_facets(trial_ids)
-                    trial_tree = self._build_tree(focused_kb, trial_pool, trial_ann)
+                    trial_ids = {f.id for f in current_pool[:i] + [candidate] + current_pool[i+1:]}
+                    trial_nodes = [n for n in all_nodes if set(n.facet_ids) <= trial_ids]
+                    trial_tree = prune_and_connect(
+                        trial_nodes, focused_kb,
+                        union_facets_by_id, union_ann, h_memo,
+                        refinement_threshold=self.config.refinement_threshold,
+                        metric_mode=self.config.metric_mode,
+                    )
 
                     if compare_tree_quality(trial_tree, best_tree) > 0:
                         best_tree = trial_tree
@@ -516,15 +534,36 @@ class IterativeSchemaDiscovery:
         })
 
         # Process remaining facets one by one as candidates
-        for idx, candidate in enumerate(all_facets[target:], start=target + 1):
+        remaining = all_facets[target:]
+        total_candidates = len(remaining)
+        for idx, candidate in enumerate(remaining, start=target + 1):
+            logger.info("Analyzing candidate %d/%d (budget=%d)...",
+                        idx - target, total_candidates, idx)
+
+            # Precompute on union {pool ∪ candidate}
+            union_pool = pool + [candidate]
+            union_ids = [f.id for f in union_pool]
+            union_ann = bank_ann.filter_facets(union_ids)
+            all_nodes, h_memo = build_tree_nodes(
+                focused_kb, union_pool, union_ann,
+                max_schema_facets=self.config.max_schema_facets,
+                metric_mode=self.config.metric_mode,
+                eta_squared_weighting=self.config.eta_squared_weighting,
+            )
+            union_facets_by_id = {f.id: f for f in union_pool}
+
             best_tree = tree
             best_replace_idx = -1
 
             for i in range(len(pool)):
-                trial_pool = pool[:i] + [candidate] + pool[i+1:]
-                trial_ids = [f.id for f in trial_pool]
-                trial_ann = bank_ann.filter_facets(trial_ids)
-                trial_tree = self._build_tree(focused_kb, trial_pool, trial_ann)
+                trial_ids = {f.id for f in pool[:i] + [candidate] + pool[i+1:]}
+                trial_nodes = [n for n in all_nodes if set(n.facet_ids) <= trial_ids]
+                trial_tree = prune_and_connect(
+                    trial_nodes, focused_kb,
+                    union_facets_by_id, union_ann, h_memo,
+                    refinement_threshold=self.config.refinement_threshold,
+                    metric_mode=self.config.metric_mode,
+                )
 
                 if compare_tree_quality(trial_tree, best_tree) > 0:
                     best_tree = trial_tree
@@ -532,7 +571,6 @@ class IterativeSchemaDiscovery:
 
             if best_replace_idx >= 0:
                 pool[best_replace_idx] = candidate
-                pool_ann = bank_ann.filter_facets([f.id for f in pool])
                 tree = best_tree
 
             unique_facets_in_tree = len({fid for n in tree.nodes for fid in n.facet_ids})
