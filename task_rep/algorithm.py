@@ -302,25 +302,30 @@ class IterativeSchemaDiscovery:
         return cache_dir / f"run_result_{self.config.cache_suffix()}.json"
 
     def _get_facet_bank_path(self, cache_dir: str | Path) -> Path:
-        """Cache path for the facet bank.
+        """Cache path for the facet bank, separated by selection mode.
 
-        Keyed only by models + item scope so that facets can be reused across
-        different target_facets / max_facets / max_iterations / selection_mode.
+        one_shot and refinement_tree use fundamentally different discovery
+        methods (bulk init vs. iterative propose/revise), so their banks are
+        kept separate.
 
-        **Important caveat**: facets in the bank were discovered under specific
-        algorithm parameters (metric_mode, refinement_threshold, k_schemas_to_sample,
-        etc.) that influence which schemas are sampled and which collisions are
-        found. Reusing the bank with different parameters is a practical shortcut
-        — the vocab and labels are still valid — but the *set of facets* may not
-        be the same set that would have been discovered under the new parameters.
-        The bank file stores the discovery config of each contributing run so
-        this provenance is visible.
+        Within a mode, the bank is keyed by models + item scope so that facets
+        can be reused across different target_facets / max_facets / max_iterations.
+
+        **Caveat**: for refinement_tree, facets were discovered under specific
+        parameters (metric_mode, refinement_threshold, k_schemas_to_sample, etc.)
+        that influence which schemas are sampled and which collisions are found.
+        Reusing the bank with different parameters is a practical shortcut — the
+        vocab and labels are still valid — but the *set of facets* may not be the
+        same set that would have been discovered under the new parameters. The bank
+        file stores the discovery config of each contributing run so this provenance
+        is visible.
         """
         item_scope = self.config.item_scope.cache_suffix()
         discovery = self.config.discovery_model.cache_suffix()
         vocab = self.config.vocab_model.cache_suffix()
         labeling = self.config.labeling_model.cache_suffix()
-        return Path(cache_dir) / f"facet_bank_{item_scope}_{discovery}_{vocab}_{labeling}.json"
+        mode = self.config.selection_mode
+        return Path(cache_dir) / f"facet_bank_{mode}_{item_scope}_{discovery}_{vocab}_{labeling}.json"
 
     def _save_facet_bank(self, cache_dir: str | Path):
         path = self._get_facet_bank_path(cache_dir)
@@ -550,9 +555,6 @@ class IterativeSchemaDiscovery:
                     logger.info("No facets generated.")
                     return
 
-                if len(all_facets) > max_facets:
-                    all_facets = all_facets[:max_facets]
-
                 # IRR check
                 if self.config.irr_sample_videos > 0:
                     irr = compute_irr(
@@ -741,9 +743,6 @@ class IterativeSchemaDiscovery:
             total_proposed = len(self._bank_facets)
             logger.info("Candidate new facets: %d (total proposed: %d/%d)",
                         len(unique_new), total_proposed, max_facets)
-
-            if total_proposed + len(unique_new) > max_facets:
-                unique_new = unique_new[:max_facets-total_proposed]
 
             # IRR check
             if self.config.irr_sample_videos > 0 and unique_new:
