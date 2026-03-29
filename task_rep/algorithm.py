@@ -628,8 +628,8 @@ class IterativeSchemaDiscovery:
         vocab_sample_videos = self.config.vocab_sample_videos
         metric_mode = self.config.metric_mode
 
-        # Budget tracks all facets ever discovered (bank), not just pool
-        total_proposed = len(self._bank_facets)
+        # Budget tracks all facets ever discovered (bank), capped to current max_facets
+        total_proposed = min(len(self._bank_facets), max_facets)
         tries_with_no_improvement = 0
 
         # Build initial tree (may be empty if no facets yet)
@@ -641,11 +641,13 @@ class IterativeSchemaDiscovery:
             self._tree = RefinementTree(nodes=[], edges=[])
 
         # If bank has facets not yet tried for the pool, run greedy on them first
-        bank_untried = [f for fid, f in self._bank_facets.items() if fid not in self._facets]
+        # Respect max_facets budget: only consider bank facets within budget
+        bank_within_budget = list(self._bank_facets.values())[:max_facets]
+        bank_untried = [f for f in bank_within_budget if f.id not in self._facets]
         if bank_untried:
             logger.info(
-                "Bank has %d untried facet(s) — running greedy selection...",
-                len(bank_untried),
+                "Bank has %d untried facet(s) within budget (%d/%d) — running greedy selection...",
+                len(bank_untried), len(bank_within_budget), max_facets,
             )
             self._greedy_select_pool(bank_untried, focused_kb, self._bank_annotations)
             self._save_cache(cache_dir)
