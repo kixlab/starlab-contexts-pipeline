@@ -377,11 +377,25 @@ class IterativeSchemaDiscovery:
                 for p in provenance:
                     logger.info("  %s", p)
 
-    def _add_to_bank(self, facets: List[Facet], annotations: AnnotationTable):
-        """Add facets and their annotations to the bank."""
+    def _add_to_bank(self, facets: List[Facet], annotations: Optional[AnnotationTable] = None):
+        """Add facets to the bank. If annotations provided, also store them.
+
+        Called without annotations to reserve IDs for dedup/budget tracking
+        (e.g. before IRR pruning). Called again with annotations for survivors.
+        """
         for f in facets:
             self._bank_facets[f.id] = f
-        self._bank_annotations.update(annotations)
+        if annotations is not None:
+            self._bank_annotations.update(annotations)
+
+    def _usable_bank_facets(self) -> List[Facet]:
+        """Bank facets that have annotations (passed IRR).
+
+        Facets reserved for budget tracking but pruned by IRR have no
+        annotations and are excluded.
+        """
+        annotated_ids = self._bank_annotations.facet_ids()
+        return [f for f in self._bank_facets.values() if f.id in annotated_ids]
 
     def _build_tree(
         self,
@@ -516,29 +530,54 @@ class IterativeSchemaDiscovery:
             return []
 
         target = self.config.target_facets
-        all_facets = list(self._bank_facets.values())
+        annotated_ids = self._bank_annotations.facet_ids()
+        all_bank = list(self._bank_facets.values())
         bank_ann = self._bank_annotations
+        logger.info("Bank: %d total, %d usable (passed IRR).",
+                     len(all_bank), len(annotated_ids))
 
-        # Initialize pool with first target_facets
-        pool = all_facets[:target]
+        # Seed pool with first target usable facets
+        pool: List[Facet] = []
+        budget_used = 0
+        for f in all_bank:
+            budget_used += 1
+            if f.id in annotated_ids:
+                pool.append(f)
+            if len(pool) >= target:
+                break
+
         pool_ann = bank_ann.filter_facets([f.id for f in pool])
         tree = self._build_tree(focused_kb, pool, pool_ann)
         unique_facets_in_tree = len({fid for n in tree.nodes for fid in n.facet_ids})
 
         rows: List[Dict[str, Any]] = []
         rows.append({
-            "budget": target,
+            "budget": budget_used,
             "pool_ids": [f.id for f in pool],
             "tree_nodes": len(tree.nodes),
             "unique_facets_in_tree": unique_facets_in_tree,
         })
 
-        # Process remaining facets one by one as candidates
-        remaining = all_facets[target:]
-        total_candidates = len(remaining)
-        for idx, candidate in enumerate(remaining, start=target + 1):
+        # Process remaining bank facets: skip IRR-pruned, but count towards budget
+        remaining = all_bank[budget_used:]
+        total_remaining = len(remaining)
+        for i, facet in enumerate(remaining):
+            budget_used += 1
+
+            if facet.id not in annotated_ids:
+                # IRR-pruned — burns budget but not evaluated
+                unique_facets_in_tree = len({fid for n in tree.nodes for fid in n.facet_ids})
+                rows.append({
+                    "budget": budget_used,
+                    "pool_ids": [f.id for f in pool],
+                    "tree_nodes": len(tree.nodes),
+                    "unique_facets_in_tree": unique_facets_in_tree,
+                })
+                continue
+
+            candidate = facet
             logger.info("Analyzing candidate %d/%d (budget=%d)...",
-                        idx - target, total_candidates, idx)
+                        i + 1, total_remaining, budget_used)
 
             # Precompute on union {pool ∪ candidate}
             union_pool = pool + [candidate]
@@ -555,8 +594,8 @@ class IterativeSchemaDiscovery:
             best_tree = tree
             best_replace_idx = -1
 
-            for i in range(len(pool)):
-                trial_ids = {f.id for f in pool[:i] + [candidate] + pool[i+1:]}
+            for j in range(len(pool)):
+                trial_ids = {f.id for f in pool[:j] + [candidate] + pool[j+1:]}
                 trial_nodes = [n for n in all_nodes if set(n.facet_ids) <= trial_ids]
                 trial_tree = prune_and_connect(
                     trial_nodes, focused_kb,
@@ -567,7 +606,7 @@ class IterativeSchemaDiscovery:
 
                 if compare_tree_quality(trial_tree, best_tree) > 0:
                     best_tree = trial_tree
-                    best_replace_idx = i
+                    best_replace_idx = j
 
             if best_replace_idx >= 0:
                 pool[best_replace_idx] = candidate
@@ -575,7 +614,7 @@ class IterativeSchemaDiscovery:
 
             unique_facets_in_tree = len({fid for n in tree.nodes for fid in n.facet_ids})
             rows.append({
-                "budget": idx,
+                "budget": budget_used,
                 "pool_ids": [f.id for f in pool],
                 "tree_nodes": len(tree.nodes),
                 "unique_facets_in_tree": unique_facets_in_tree,
@@ -655,7 +694,7 @@ class IterativeSchemaDiscovery:
                     "Facet bank has %d facets (need %d) — skipping generation.",
                     len(self._bank_facets), max_facets,
                 )
-                all_facets = list(self._bank_facets.values())[:max_facets]
+                all_facets = self._usable_bank_facets()[:max_facets]
                 all_annotations = self._bank_annotations
             else:
                 logger.info("Generating %d facet(s) for one_shot...", max_facets)
@@ -670,6 +709,9 @@ class IterativeSchemaDiscovery:
                 if not all_facets:
                     logger.info("No facets generated.")
                     return
+
+                # Reserve all discovered facets in bank for budget tracking
+                self._add_to_bank(all_facets)
 
                 # IRR check
                 if self.config.irr_sample_videos > 0:
@@ -757,8 +799,11 @@ class IterativeSchemaDiscovery:
             self._tree = RefinementTree(nodes=[], edges=[])
 
         # If bank has facets not yet tried for the pool, run greedy on them first
-        # Respect max_facets budget: only consider bank facets within budget
-        bank_within_budget = list(self._bank_facets.values())[:max_facets]
+        # Respect max_facets budget, but only use usable facets (passed IRR)
+        bank_within_budget = [
+            f for f in list(self._bank_facets.values())[:max_facets]
+            if f.id in self._bank_annotations.facet_ids()
+        ]
         bank_untried = [f for f in bank_within_budget if f.id not in self._facets]
         if bank_untried:
             logger.info(
@@ -846,11 +891,9 @@ class IterativeSchemaDiscovery:
                 continue
 
             # Deduplicate by id against the bank (all previously discovered facets)
-            unique_new = []
-            for f in all_new_facets:
-                if f.id not in self._bank_facets:
-                    self._bank_facets[f.id] = f  # reserve the id to avoid dupes within batch
-                    unique_new.append(f)
+            unique_new = [f for f in all_new_facets if f.id not in self._bank_facets]
+            if unique_new:
+                self._add_to_bank(unique_new)  # reserve IDs for dedup/budget (no annotations yet)
 
             if not unique_new:
                 logger.info("All proposed facets already in bank.")
