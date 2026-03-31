@@ -694,7 +694,10 @@ class IterativeSchemaDiscovery:
                     "Facet bank has %d facets (need %d) — skipping generation.",
                     len(self._bank_facets), max_facets,
                 )
-                all_facets = self._usable_bank_facets()[:max_facets]
+                all_facets = [
+                    f for f in list(self._bank_facets.values())[:max_facets]
+                    if f.id in self._bank_annotations.facet_ids()
+                ]
                 all_annotations = self._bank_annotations
             else:
                 logger.info("Generating %d facet(s) for one_shot...", max_facets)
@@ -709,6 +712,9 @@ class IterativeSchemaDiscovery:
                 if not all_facets:
                     logger.info("No facets generated.")
                     return
+
+                if len(all_facets) > max_facets:
+                    all_facets = all_facets[:max_facets]
 
                 # Reserve all discovered facets in bank for budget tracking
                 self._add_to_bank(all_facets)
