@@ -486,8 +486,10 @@ def _budget_analysis(name: str) -> None:
         return
 
     # Print progression table
-    header = f"{'budget':>7} {'t_nodes':>8} {'t_ufacets':>10} {'pool':>50}"
-    print(f"\n=== Budget Analysis: {name} (target_facets={config.discovery.target_facets}) ===\n")
+    tau = config.discovery.refinement_threshold
+    target = config.discovery.target_facets
+    header = f"{'tau':>6} {'budget':>7} {'usable':>7} {'target':>7} {'u_facets':>9} {'t_nodes':>8}"
+    print(f"\n=== Budget Analysis: {name} ===\n")
     print(header)
     print("-" * len(header))
 
@@ -497,13 +499,10 @@ def _budget_analysis(name: str) -> None:
         if prev_nodes is not None and row["tree_nodes"] != prev_nodes:
             marker = " *"
         prev_nodes = row["tree_nodes"]
-        pool_str = ", ".join(row["pool_ids"])
-        if len(pool_str) > 50:
-            pool_str = pool_str[:47] + "..."
-        print(f"{row['budget']:>7} {row['tree_nodes']:>8} {row['unique_facets_in_tree']:>10} {pool_str:>50}{marker}")
+        print(f"{tau:>6.2f} {row['budget']:>7} {row['usable']:>7} {target:>7} {row['unique_facets_in_tree']:>9} {row['tree_nodes']:>8}{marker}")
 
     print(f"\n* = tree_nodes changed from previous row")
-    print(f"Bank size: {rows[-1]['budget']}  |  Final tree: {rows[-1]['tree_nodes']} nodes\n")
+    print(f"Bank size: {rows[-1]['budget']}  |  Usable: {rows[-1]['usable']}  |  Final tree: {rows[-1]['tree_nodes']} nodes\n")
 
 
 def main() -> None:
@@ -526,7 +525,8 @@ def main() -> None:
     parser.add_argument(
         "--budget-analysis",
         metavar="NAME",
-        help="Show how tree quality changes as max_facets increases (uses facet bank).",
+        nargs="+",
+        help="Show how tree quality changes as max_facets increases (uses facet bank). Accepts multiple experiment names.",
     )
     args = parser.parse_args()
 
@@ -548,7 +548,8 @@ def main() -> None:
         return
 
     if args.budget_analysis:
-        _budget_analysis(args.budget_analysis)
+        for name in args.budget_analysis:
+            _budget_analysis(name)
         return
 
     if args.run:

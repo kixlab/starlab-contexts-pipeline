@@ -550,9 +550,11 @@ class IterativeSchemaDiscovery:
         tree = self._build_tree(focused_kb, pool, pool_ann)
         unique_facets_in_tree = len({fid for n in tree.nodes for fid in n.facet_ids})
 
+        usable_so_far = len(pool)
         rows: List[Dict[str, Any]] = []
         rows.append({
             "budget": budget_used,
+            "usable": usable_so_far,
             "pool_ids": [f.id for f in pool],
             "tree_nodes": len(tree.nodes),
             "unique_facets_in_tree": unique_facets_in_tree,
@@ -569,15 +571,17 @@ class IterativeSchemaDiscovery:
                 unique_facets_in_tree = len({fid for n in tree.nodes for fid in n.facet_ids})
                 rows.append({
                     "budget": budget_used,
+                    "usable": usable_so_far,
                     "pool_ids": [f.id for f in pool],
                     "tree_nodes": len(tree.nodes),
                     "unique_facets_in_tree": unique_facets_in_tree,
                 })
                 continue
 
+            usable_so_far += 1
             candidate = facet
-            logger.info("Analyzing candidate %d/%d (budget=%d)...",
-                        i + 1, total_remaining, budget_used)
+            logger.info("Analyzing candidate %d/%d (budget=%d, usable=%d)...",
+                        i + 1, total_remaining, budget_used, usable_so_far)
 
             # Precompute on union {pool ∪ candidate}
             union_pool = pool + [candidate]
@@ -615,6 +619,7 @@ class IterativeSchemaDiscovery:
             unique_facets_in_tree = len({fid for n in tree.nodes for fid in n.facet_ids})
             rows.append({
                 "budget": budget_used,
+                "usable": usable_so_far,
                 "pool_ids": [f.id for f in pool],
                 "tree_nodes": len(tree.nodes),
                 "unique_facets_in_tree": unique_facets_in_tree,
