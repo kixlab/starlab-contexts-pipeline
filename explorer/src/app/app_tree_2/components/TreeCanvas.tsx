@@ -166,7 +166,7 @@ export function TreeCanvas({
   }
 
   return (
-    <div ref={containerRef} className="w-full h-full relative overflow-auto">
+    <div ref={containerRef} className="w-full h-full relative overflow-auto select-none">
       {/* Row stripes */}
       <div className="absolute inset-0 pointer-events-none" style={{ height: svgHeight, width: svgWidth }}>
         {layers.map((l, i) => (
@@ -188,7 +188,7 @@ export function TreeCanvas({
             <path d="M 0 0 L 10 4 L 0 8 z" fill="#facc15" />
           </marker>
           <marker id="t2-arrow-sel" viewBox="0 0 10 8" refX="10" refY="4" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 4 L 0 8 z" fill="#f59e0b" />
+            <path d="M 0 0 L 10 4 L 0 8 z" fill="#e879f9" />
           </marker>
         </defs>
 
@@ -216,10 +216,10 @@ export function TreeCanvas({
                 onMouseLeave={() => setTooltip(null)}
               />
               <path d={edgePath(e)} fill="none"
-                stroke={isSel ? "#f59e0b" : color}
+                stroke={isSel ? "#e879f9" : color}
                 strokeWidth={isSel ? 2.5 : 1 + e.refinementScore * 2}
                 strokeOpacity={isSel ? 1 : 0.7}
-                strokeDasharray={isSel ? "6 3" : dash}
+                strokeDasharray={isSel ? "none" : dash}
                 markerEnd={`url(#t2-arrow-${isSel ? "sel" : e.edgeType})`}
                 className="pointer-events-none"
               />
