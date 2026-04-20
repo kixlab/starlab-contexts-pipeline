@@ -44,6 +44,7 @@ All paths are relative to the task_rep/ directory.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import time
 import uuid
@@ -505,6 +506,76 @@ def _budget_analysis(name: str) -> None:
     print(f"Bank size: {rows[-1]['budget']}  |  Usable: {rows[-1]['usable']}  |  Final tree: {rows[-1]['tree_nodes']} nodes\n")
 
 
+def _dump_facets(name: str) -> None:
+    """Dump facets from an experiment result as a CSV file."""
+    if name not in EXPERIMENTS:
+        print(f"Unknown experiment '{name}'. Available: {list(EXPERIMENTS)}")
+        return
+
+    config = EXPERIMENTS[name]
+    manager = TaskManager(tasks_file=Config.TASKS_FILE)
+    task = manager.get_task(config.task_id)
+
+    cache_dir = task.get_cache_dir(Config.CACHE_DIR, config.constructor.cache_suffix())
+    result_path = cache_dir / f"run_result_{config.discovery.cache_suffix()}.json"
+
+    if not result_path.exists():
+        print(f"No result found for '{name}'. Run the experiment first.")
+        return
+
+    result = DiscoveryResult.from_dict(json.loads(result_path.read_text()))
+
+    if not result.facets:
+        print(f"No facets found in result for '{name}'.")
+        return
+
+    # Build item lookup for examples
+    items_by_id = {item.id: item for item in result.knowledge_base.items}
+
+    # Build per-facet, per-label example map: {facet_id: {label: [item_texts]}}
+    label_examples: Dict[str, Dict[str, List[str]]] = {}
+    for (item_id, facet_id), label in result.annotations.items():
+        item = items_by_id.get(item_id)
+        if item is None:
+            continue
+        label_examples.setdefault(facet_id, {}).setdefault(label, []).append(item.text)
+
+    # Write CSV
+    static_dir = Path(__file__).parent / "static"
+    static_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = static_dir / f"facets_{name}.csv"
+
+    max_examples = 3
+
+    with open(csv_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Facet ID", "Details"])
+        for facet in result.facets:
+            lines = []
+            lines.append(f"**{facet.title}** ({facet.scope})")
+            lines.append("")
+            lines.append(f"**Definition:** {facet.definition}")
+            lines.append("")
+            if facet.guidelines:
+                lines.append("**Guidelines:**")
+                for g in facet.guidelines:
+                    lines.append(f"- {g}")
+                lines.append("")
+            if facet.vocabulary:
+                examples_map = label_examples.get(facet.id, {})
+                lines.append("**Values:**")
+                for v in facet.vocabulary:
+                    lines.append(f"- **{v.label}**: {v.definition}")
+                    examples = examples_map.get(v.label, [])[:max_examples]
+                    if examples:
+                        for ex in examples:
+                            lines.append(f"    - e.g. \"{ex}\"")
+            detail_text = "\n".join(lines)
+            writer.writerow([facet.id, detail_text])
+
+    print(f"Wrote {len(result.facets)} facets to {csv_path}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run task schema discovery experiments.",
@@ -528,6 +599,11 @@ def main() -> None:
         nargs="+",
         help="Show how tree quality changes as max_facets increases (uses facet bank). Accepts multiple experiment names.",
     )
+    parser.add_argument(
+        "--dump-facets",
+        metavar="NAME",
+        help="Dump facets from an experiment result to a CSV file in static/.",
+    )
     args = parser.parse_args()
 
     if args.list:
@@ -550,6 +626,10 @@ def main() -> None:
     if args.budget_analysis:
         for name in args.budget_analysis:
             _budget_analysis(name)
+        return
+
+    if args.dump_facets:
+        _dump_facets(args.dump_facets)
         return
 
     if args.run:
