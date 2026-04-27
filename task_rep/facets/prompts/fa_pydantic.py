@@ -18,7 +18,7 @@ class RevisedFacetCandidate(BaseModel):
     title_plural: str = Field(description="Plural form")
     scope: str = Field(description="global, mid-level, or fine-grained")
     justification: str = Field(
-        description="Brief justification of changes and why this facet is (1) data-grounded, (2) consequential, (3) monolithic, (4) piecewise-stable, and (5) target-independent."
+        description="Brief justification of changes and why this facet is useful."
     )
     definition: str = Field(description="Updated definition")
     guidelines: List[str] = Field(description="Updated instructions for labeling")
@@ -34,39 +34,39 @@ class FacetRevisionResult(BaseModel):
 #----------------------------------------
 
 class SegmentationEntry(BaseModel):
-    """Single item-label assignment in a segmentation."""
+    """Single segment-label assignment in a segmentation."""
     model_config = ConfigDict(extra='forbid')
 
-    item_id: str = Field(description="ID of the knowledge item")
+    segment_id: str = Field(description="ID of the knowledge segment")
     label: str = Field(description="Label name from the vocabulary — the exact text inside the <name> tag")
 
 class Segmentation(BaseModel):
-    """A segmentation of items by a single facet."""
+    """A segmentation of segments by a single facet."""
     model_config = ConfigDict(extra='forbid')
 
-    segmentation: List[SegmentationEntry] = Field(description="Label assignment for each item")
+    segmentation: List[SegmentationEntry] = Field(description="Label assignment for each segment")
 
 
 #----------------------------------------
 
 class TargetAssignment(BaseModel):
-    """Label assignment for a target item."""
+    """Label assignment for a target segment."""
     model_config = ConfigDict(extra='forbid')
 
-    item_id: str = Field(description="ID of the target information unit")
+    segment_id: str = Field(description="ID of the target information unit")
     label: str = Field(description="Assigned label from the vocabulary")
     brief_reason: str = Field(
         description="One-sentence justification for why this label applies "
-        "based on the surrounding context, not the item content itself"
+        "based on the surrounding context, not the segment content itself"
     )
 
 
 class AnchorExample(BaseModel):
-    """A non-target item demonstrating that the factor applies broadly."""
+    """A non-target segment demonstrating that the factor applies broadly."""
     model_config = ConfigDict(extra='forbid')
 
-    item_id: str = Field(description="ID of a non-target item from the tutorial")
-    label: str = Field(description="Label that would apply to this item's context")
+    segment_id: str = Field(description="ID of a non-target segment from the tutorial")
+    label: str = Field(description="Label that would apply to this segment's context")
     brief_reason: str = Field(
         description="Why this anchor demonstrates the factor's breadth"
     )
@@ -81,18 +81,18 @@ class FacetCandidate(BaseModel):
     title_plural: str = Field(description="Plural form of the title")
     scope: str = Field(description="global, mid-level, or fine-grained")
     justification: str = Field(
-        description="Why this facet was chosen: (1) satisfies data-grounded, consequential, monolithic, piecewise-stable, and target-independent, (2) how it separates colliding items, (3) why it is distinct from previous factors"
+        description="Why this facet was chosen: (1) why is it a contextual factor, (2) how does it separates colliding segments, (3) why it is distinct from previous factors"
     )
     definition: str = Field(description="What this facet captures")
     guidelines: List[str] = Field(description="Instructions for labeling")
     segment_labels: list[SegmentLabel] = Field(description="Full vocabulary")
     target_assignments: list[TargetAssignment] = Field(
-        description="Label for each target item under this factor"
+        description="Label for each target segment under this factor"
     )
     anchor_examples: list[AnchorExample] = Field(
         min_length=2,
         max_length=4,
-        description="Non-target items showing the factor applies broadly "
+        description="Non-target segments showing the factor applies broadly "
         "across the tutorial with different labels used",
     )
 
@@ -105,7 +105,7 @@ class FacetDiscoveryResult(BaseModel):
         description="Proposed facet candidates. Empty list if no valid factors found."
     )
     refusal_reason: str = Field(
-        description="If no candidates are proposed, a brief explanation of why the target items cannot be meaningfully distinguished by contextual factors. Otherwise, leave it empty.",
+        description="If no candidates are proposed, a brief explanation of why the target segments cannot be meaningfully distinguished by contextual factors. Otherwise, leave it empty.",
     )
 
 #----------------------------------------
@@ -120,7 +120,7 @@ class FacetInitCandidate(BaseModel):
     title_plural: str = Field(description="Plural form of the title")
     scope: str = Field(description="global, mid-level, or fine-grained")
     justification: str = Field(
-        description="Why this facet was chosen: (1) satisfies data-grounded, consequential, monolithic, piecewise-stable, and target-independent, and (2) why it is distinct from previous factors"
+        description="Why this facet was chosen: (1) why is it a contextual factor, (2) why it is distinct from previous factors"
     )
     definition: str = Field(description="What this facet captures")
     guidelines: List[str] = Field(description="Instructions for labeling")

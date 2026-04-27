@@ -67,8 +67,9 @@ logger = logging.getLogger(__name__)
 # ---- DiscoveryConfig defaults (single source of truth) ----
 _DC_USE_CACHE = True
 _DC_MAX_ITERATIONS = 5
-_DC_MAX_FACETS = 60 ### let's try upper-bound and see how last 20 may improve the tree quality (if it does)
-_DC_TARGET_FACETS = 20 ### seems reasonable --> oneshot generates around 35 nodes
+_DC_MAX_FACETS = 50
+_DC_TARGET_FACETS = 50 # no greedy approach
+# _DC_TARGET_FACETS = 20 ### seems reasonable --> oneshot generates around 35 nodes
 _DC_K_SCHEMAS_TO_SAMPLE = 3
 _DC_MAX_SCHEMA_FACETS = 2
 _DC_MAX_CELLS_PER_ITERATION = 1
@@ -671,7 +672,7 @@ class IterativeSchemaDiscovery:
         elif selection_mode == "refinement_tree":
             self._run_refinement_tree(task, focused_kb, cache_dir)
         else:
-            raise ValueError(f"Unknown selection_mode: {selection_mode!r}. Use 'one_shot' or 'refinement_tree'.")
+            raise ValueError(f"Unknown selection_mode: {selection_mode}. Use 'one_shot' or 'refinement_tree'.")
 
         self._save_cache(cache_dir)
         return DiscoveryResult(

@@ -30,75 +30,95 @@ logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are a helpful assistant who can analyze and detect the contextual factors around the task: {task}."""
 
-USER_PROMPT = """You are given tutorial videos and target information units extracted from them. Your job is to discover candidate contextual factors (facets) that help differentiate the procedural situations in which these information units occur.
-
-You are also given a previous factor set under which all targets share the same signature. Proposed factors must be distinct from that set.
-
-CONTEXTUAL FACTOR DEFINITION
-A valid contextual factor is a variable describing the procedural situation at a given moment or span. It must be:
-
-- Domain-grounded: anchored in the task-world (e.g., procedural stage, material state, tool state, object configuration, environmental condition, operating mode, verification state, service context) — NOT in media, narration, editing, presentation, or social framing.
-- Consequential: changes what actions, constraints, interpretations, checks, or information apply.
-- Monolithic: captures one coherent semantic concept, not a bundle.
-- Piecewise-stable: remains constant over meaningful spans; changes at identifiable boundaries.
-- Target-independent: determined by the broader procedural context; removing the target item would not change the factor's value.
-
-Non-examples: video genre, tutorial format, presenter configuration, narration style, camera/editing style, entertainment framing, human skill level, subjective quality, labels restating target content.
-
-DESIDERATA
-Prefer factors that are:
-- easy to understand at a glance, even without deep domain familiarity
-- broadly useful across the tutorial
-- simple, intuitive, mid-level task-world distinctions over obscure or overly fine-grained ones
-
-PROCEDURE
-
-0. Exploratory search
-Generate 8-15 raw candidate factors spanning multiple families. For each, briefly note:
-- Title (2-3 words) and contextual family
-- One-sentence definition
-- Why it may separate some targets
-- Risks: overlap with previous or sibling candidates, ambiguity, low stability, too technical, target leakage
-
-1. Candidate selection
-Select the best 3-6 factors that jointly maximize: validity (all five criteria), interpretability, target discrimination, family diversity, and distinctness from the previous set and from each other.
-
-2. Final specification
-For each selected factor provide:
-- Context scope: global / mid-level / fine-grained
-- Title (2-3 words) and plain-language summary (one line a non-expert could understand)
-- Definition
-- Brief validity note: one sentence confirming it satisfies the five criteria
-- Why it separates at least some colliding targets
-- Why it is distinct from the previous set and from the other new factors
-- Segmentation guidelines: start/end rules, transcript or visual cues for label changes
-- Label vocabulary: finite, explicit, mutually exclusive, collectively exhaustive
-
-3. Target assignments
-Assign one label per target per factor. For each, give a brief reason grounded in procedural context, not item content.
-
-4. Anchor examples
-Per factor, provide 2-4 non-target items from the tutorial showing the factor applies broadly and multiple labels are used. Choose anchors with different labels from each other.
-
-5. Signature check
-State which targets are now separated. If collisions remain, explain which and why.
-
-REFUSAL RULE
-Do NOT force artificial or item-specific factors. Return an empty candidate list with a refusal reason if, after searching across families and abstraction levels, no factor can differentiate the targets without encoding target content, relying on subjective judgment, or being too brittle to generalize.
-
-OUTPUT
-Return: selected factors, target assignments, anchor examples, signature verification, refusal reason (if applicable).
+USER_PROMPT = """You are given a set of tutorial segments, a subset of target tutorial segments (i.e., targets), and previously identified contextual factors. Your task is to identify new contextual factors that can help distinguish the targets. The new factors should be different from the previous contextual factors and from each other.
+A contextual factor is an aspect of the procedural situation that helps characterize when a tutorial segment is applicable.
+For each factor:
+- provide a short title
+- provide a brief definition
+- explain why it helps distinguish at least some target tutorial segments
+- assign one label to each target tutorial segment under that factor
+Prefer factors that are interpretable, and useful across many tutorial segments. Do not use factors based on narration, editing, presentation style, or simple restatements of segment content. If no valid factors can be identified reliably, return none and briefly explain why.
 
 INPUTS
 - Previous contextual factors:
 {previous_facets}
-- Signature of the target information units under the previous set of factors:
+- Signature of targets under previous contextual factors:
 {signature}
-- Target information units:
+- Targets:
 {target_items}
 - Tutorials:
 {tutorials}
 """
+
+# USER_PROMPT = """You are given tutorial videos and target information units extracted from them. Your job is to discover candidate contextual factors (facets) that help differentiate the procedural situations in which these information units occur.
+
+# You are also given a previous factor set under which all targets share the same signature. Proposed factors must be distinct from that set.
+
+# CONTEXTUAL FACTOR DEFINITION
+# A valid contextual factor is a variable describing the procedural situation at a given moment or span. It must be:
+
+# - Domain-grounded: anchored in the task-world (e.g., procedural stage, material state, tool state, object configuration, environmental condition, operating mode, verification state, service context) — NOT in media, narration, editing, presentation, or social framing.
+# - Consequential: changes what actions, constraints, interpretations, checks, or information apply.
+# - Monolithic: captures one coherent semantic concept, not a bundle.
+# - Piecewise-stable: remains constant over meaningful spans; changes at identifiable boundaries.
+# - Target-independent: determined by the broader procedural context; removing the target item would not change the factor's value.
+
+# Non-examples: video genre, tutorial format, presenter configuration, narration style, camera/editing style, entertainment framing, human skill level, subjective quality, labels restating target content.
+
+# DESIDERATA
+# Prefer factors that are:
+# - easy to understand at a glance, even without deep domain familiarity
+# - broadly useful across the tutorial
+# - simple, intuitive, mid-level task-world distinctions over obscure or overly fine-grained ones
+
+# PROCEDURE
+
+# 0. Exploratory search
+# Generate 8-15 raw candidate factors spanning multiple families. For each, briefly note:
+# - Title (2-3 words) and contextual family
+# - One-sentence definition
+# - Why it may separate some targets
+# - Risks: overlap with previous or sibling candidates, ambiguity, low stability, too technical, target leakage
+
+# 1. Candidate selection
+# Select the best 3-6 factors that jointly maximize: validity (all five criteria), interpretability, target discrimination, family diversity, and distinctness from the previous set and from each other.
+
+# 2. Final specification
+# For each selected factor provide:
+# - Context scope: global / mid-level / fine-grained
+# - Title (2-3 words) and plain-language summary (one line a non-expert could understand)
+# - Definition
+# - Brief validity note: one sentence confirming it satisfies the five criteria
+# - Why it separates at least some colliding targets
+# - Why it is distinct from the previous set and from the other new factors
+# - Segmentation guidelines: start/end rules, transcript or visual cues for label changes
+# - Label vocabulary: finite, explicit, mutually exclusive, collectively exhaustive
+
+# 3. Target assignments
+# Assign one label per target per factor. For each, give a brief reason grounded in procedural context, not item content.
+
+# 4. Anchor examples
+# Per factor, provide 2-4 non-target items from the tutorial showing the factor applies broadly and multiple labels are used. Choose anchors with different labels from each other.
+
+# 5. Signature check
+# State which targets are now separated. If collisions remain, explain which and why.
+
+# REFUSAL RULE
+# Do NOT force artificial or item-specific factors. Return an empty candidate list with a refusal reason if, after searching across families and abstraction levels, no factor can differentiate the targets without encoding target content, relying on subjective judgment, or being too brittle to generalize.
+
+# OUTPUT
+# Return: selected factors, target assignments, anchor examples, signature verification, refusal reason (if applicable).
+
+# INPUTS
+# - Previous contextual factors:
+# {previous_facets}
+# - Signature of the target information units under the previous set of factors:
+# {signature}
+# - Target information units:
+# {target_items}
+# - Tutorials:
+# {tutorials}
+# """
 
 # USER_PROMPT = """You are given tutorial videos and target information units extracted from them. Identify `contextual factors` (facets) that would help differentiate when these information units appear in the videos.
 
@@ -224,7 +244,7 @@ def process_facet_discovery_response(
     for item in target_items:
         temp_id = id_map.get(item.id)
         if temp_id is None:
-            logger.error("Target item %r not found in id_map; skipping.", item.id)
+            logger.error("Target segment %r not found in id_map; skipping.", item.id)
         else:
             target_temp_ids.add(temp_id)
 
@@ -248,17 +268,17 @@ def process_facet_discovery_response(
             temp_annotations[temp_id][c_id] = "na"
 
         for assignment in candidate.get("target_assignments", []):
-            temp_id = assignment.get("item_id")  # LLM returns temp ID
+            temp_id = assignment.get("segment_id")  # LLM returns temp ID
             label = assignment.get("label")
             if temp_id not in rev_id_map:
                 logger.error(
-                    "Discovery hallucinated item_id %r in target_assignments. Skipping.",
+                    "Discovery hallucinated segment_id %r in target_assignments. Skipping.",
                     temp_id,
                 )
                 continue
             if label not in valid_labels:
                 logger.error(
-                    "Discovery hallucinated label %r for item %r. Skipping.",
+                    "Discovery hallucinated label %r for segment %r. Skipping.",
                     label,
                     temp_id,
                 )
