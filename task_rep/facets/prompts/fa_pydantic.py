@@ -56,8 +56,7 @@ class TargetAssignment(BaseModel):
     segment_id: str = Field(description="ID of the target information unit")
     label: str = Field(description="Assigned label from the vocabulary")
     brief_reason: str = Field(
-        description="One-sentence justification for why this label applies "
-        "based on the surrounding context, not the segment content itself"
+        description="One-sentence justification for why this label applies based on the surrounding context, not the segment content itself"
     )
 
 
@@ -81,7 +80,7 @@ class FacetCandidate(BaseModel):
     title_plural: str = Field(description="Plural form of the title")
     scope: str = Field(description="global, mid-level, or fine-grained")
     justification: str = Field(
-        description="Why this facet was chosen: (1) why is it a contextual factor, (2) how does it separates colliding segments, (3) why it is distinct from previous factors"
+        description="Why this facet was chosen: (1) why is it a contextual factor, (2) how does it separates colliding segments, (3) why is it distinct from previous factors"
     )
     definition: str = Field(description="What this facet captures")
     guidelines: List[str] = Field(description="Instructions for labeling")
@@ -120,7 +119,7 @@ class FacetInitCandidate(BaseModel):
     title_plural: str = Field(description="Plural form of the title")
     scope: str = Field(description="global, mid-level, or fine-grained")
     justification: str = Field(
-        description="Why this facet was chosen: (1) why is it a contextual factor, (2) why it is distinct from previous factors"
+        description="Why this facet was chosen: (1) why is it a contextual factor, (2) why is it is distinct from previous factors"
     )
     definition: str = Field(description="What this facet captures")
     guidelines: List[str] = Field(description="Instructions for labeling")

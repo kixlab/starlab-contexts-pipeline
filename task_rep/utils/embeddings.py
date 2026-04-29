@@ -48,23 +48,36 @@ def get_embeddings(
 
 
 def _get_gemini_embeddings(texts: List[str], model: str) -> np.ndarray:
-    """Get embeddings from Gemini API with automatic batching."""
+    """
+    Get embeddings from Gemini API.
+
+    gemini-embedding-2: produces one aggregated embedding per call, so each
+    text must be embedded individually.
+    gemini-embedding-001: returns one embedding per string in a batch call.
+    """
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY environment variable not set")
 
     client = genai.Client(api_key=api_key)
-
-    batch_size = 100
     embeddings = []
 
-    for i in range(0, len(texts), batch_size):
-        batch = texts[i:i + batch_size]
-        batch = [text.strip() if text.strip() else " " for text in batch]
-        batch = [text.replace("\n", " ") for text in batch]
+    def _clean(text: str) -> str:
+        t = text.strip() or " "
+        return t.replace("\n", " ")
 
-        response = client.models.embed_content(model=model, contents=batch)
-        embeddings.extend([emb.values for emb in response.embeddings])
+    if "gemini-embedding-2" in model:
+        # One call per text — multiple inputs produce a single aggregated embedding
+        for text in texts:
+            response = client.models.embed_content(model=model, contents=_clean(text))
+            embeddings.append(response.embeddings[0].values)
+    else:
+        # gemini-embedding-001: batch calls return one embedding per input string
+        batch_size = 100
+        for i in range(0, len(texts), batch_size):
+            batch = [_clean(t) for t in texts[i:i + batch_size]]
+            response = client.models.embed_content(model=model, contents=batch)
+            embeddings.extend([emb.values for emb in response.embeddings])
 
     return np.array(embeddings)
 

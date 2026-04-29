@@ -535,6 +535,7 @@ def get_response_pydantic_gemini(
         "max_output_tokens": get_max_tokens_for_model(model),
         "response_mime_type": "application/json",
         "response_json_schema": schema,
+        "automatic_function_calling": genai_types.AutomaticFunctionCallingConfig(disable=True),
     }
 
     ## Model-specific parameters
@@ -736,6 +737,9 @@ def _is_retryable_http_error(err: Exception) -> bool:
             "502",
             "504",
             "refusal",
+            # Gemini occasionally returns transient 403 SERVICE_DISABLED even
+            # on a properly enabled project; a retry with backoff resolves it.
+            "service_disabled",
         ]
     )
 

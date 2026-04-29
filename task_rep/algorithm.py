@@ -67,8 +67,8 @@ logger = logging.getLogger(__name__)
 # ---- DiscoveryConfig defaults (single source of truth) ----
 _DC_USE_CACHE = True
 _DC_MAX_ITERATIONS = 5
-_DC_MAX_FACETS = 50
-_DC_TARGET_FACETS = 50 # no greedy approach
+_DC_MAX_FACETS = 10
+_DC_TARGET_FACETS = 10 # no greedy approach
 # _DC_TARGET_FACETS = 20 ### seems reasonable --> oneshot generates around 35 nodes
 _DC_K_SCHEMAS_TO_SAMPLE = 3
 _DC_MAX_SCHEMA_FACETS = 2
