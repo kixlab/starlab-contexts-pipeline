@@ -11,6 +11,7 @@ from typing import List
 
 import numpy as np
 from openai import OpenAI
+from google import genai
 
 from .config import ModelConfig
 
@@ -40,8 +41,32 @@ def get_embeddings(
 
     if model_config.provider == "openai":
         return _get_openai_embeddings(texts, model_config.model)
+    elif model_config.provider == "gemini":
+        return _get_gemini_embeddings(texts, model_config.model)
     else:
         raise ValueError(f"Unsupported embedding provider: {model_config.provider}")
+
+
+def _get_gemini_embeddings(texts: List[str], model: str) -> np.ndarray:
+    """Get embeddings from Gemini API with automatic batching."""
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY environment variable not set")
+
+    client = genai.Client(api_key=api_key)
+
+    batch_size = 100
+    embeddings = []
+
+    for i in range(0, len(texts), batch_size):
+        batch = texts[i:i + batch_size]
+        batch = [text.strip() if text.strip() else " " for text in batch]
+        batch = [text.replace("\n", " ") for text in batch]
+
+        response = client.models.embed_content(model=model, contents=batch)
+        embeddings.extend([emb.values for emb in response.embeddings])
+
+    return np.array(embeddings)
 
 
 def _get_openai_embeddings(texts: List[str], model: str) -> np.ndarray:

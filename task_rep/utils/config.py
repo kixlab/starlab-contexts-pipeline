@@ -6,7 +6,7 @@ from typing import Any, Dict, Literal, Optional
 class ModelConfig:
     """VLM/Embedding provider + model config."""
     category: Literal["vlm", "embedding"]
-    provider: Literal["openai", "anthropic"]
+    provider: Literal["openai", "anthropic", "gemini"]
     model: Optional[str] = None
 
     def __post_init__(self):
@@ -25,6 +25,11 @@ class ModelConfig:
                 self.model = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
             elif self.category == "embedding":
                 raise ValueError(f"Embedding models are not supported for Anthropic")
+        elif self.provider == "gemini":
+            if self.category == "vlm":
+                self.model = "gemini-2.5-flash"
+            elif self.category == "embedding":
+                self.model = "gemini-embedding-2"
         else:
             raise ValueError(f"Invalid provider: {self.provider}")
 
