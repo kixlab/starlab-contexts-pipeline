@@ -146,9 +146,11 @@ def process_facet_init_response(
     """Process facet init response, returning typed Facet objects."""
     result = response.get("response", {})
 
+    refusal_reason = result.get("refusal_reason", "")
     candidates = result.get("candidates", [])
+
     if not candidates:
-        logger.info("Initialization returned no facets.")
+        logger.info("Initialization proposal refused: %s", refusal_reason or "(no reason given)")
         return []
 
     logger.info("Initialization proposed %d facet(s).", len(candidates))

@@ -113,18 +113,29 @@ class VLMFacetVocabularyBuilder:
         # Re-group proposal results by facet
         proposals_by_facet: Dict[str, Dict[str, List[FacetLabel]]] = defaultdict(dict)
         for (facet_id, video_id), result in zip(request_keys, batch_results):
-            proposals_by_facet[facet_id][video_id] = result
+            if result:  # only store non-empty proposals
+                proposals_by_facet[facet_id][video_id] = result
 
         # Phase 2: Per-facet consolidation
         batch_id = f"vocab_consolidation_{random_uid()}"
 
         request_args = []
 
+        updated_facets = []
+
         for facet in facets:
+            proposals_by_video = proposals_by_facet.get(facet.id, {})
+            if not proposals_by_video:
+                logger.info(
+                    "No vocabulary proposals for facet %s; skipping consolidation.",
+                    facet.id,
+                )
+                updated_facets.append(facet)  # no proposals, return facet unchanged
+                continue
             request_args.append({
                 "task": task,
                 "facet": facet,
-                "proposals_by_video": proposals_by_facet.get(facet.id, {}),
+                "proposals_by_video": proposals_by_video,
             })
 
         batch_results = batch_run_llm_calls(
@@ -136,7 +147,6 @@ class VLMFacetVocabularyBuilder:
             model_config=self.model_config,
         )
 
-        updated_facets = []
         for facet, result in zip(facets, batch_results):
             updated_facets.append(replace(facet, vocabulary=result))
 

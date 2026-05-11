@@ -4,9 +4,10 @@ Iterative task schema discovery algorithm.
 The algorithm finds the best pool of `target_facets` facets that produces
 the highest-quality refinement tree, within a discovery budget of `max_facets`.
 
-Two selection modes share the same greedy pool-building logic:
-- one_shot: generates max_facets facets at once, then greedily selects best pool
-- refinement_tree: proposes facets iteratively, maintaining best pool via greedy replacement
+Three selection modes share the same greedy pool-building logic:
+- zero_shot: generates max_facets facets at once, then greedily selects best pool
+- collision: proposes facets iteratively based on collision sites, maintaining best pool via greedy replacement
+- iterative: proposes one facet at a time conditioned on the existing pool context
 
 Tree quality: more surviving nodes = better. Ties broken by fewer unique facets.
 
@@ -79,7 +80,8 @@ _DC_VOCAB_SAMPLE_VIDEOS = 0
 _DC_INIT_FACETS = 0
 _DC_METRIC_MODE = "entropy"
 _DC_ETA_SQUARED_WEIGHTING = "equal"
-_DC_SELECTION_MODE = "refinement_tree"
+_DC_SELECTION_MODE = "collision"
+_DC_ITERATIVE_CONTEXT = "facets"
 _DC_REFINEMENT_THRESHOLD = 0.60
 _DC_IRR_SAMPLE_VIDEOS = 3
 _DC_IRR_NUM_RATERS = 3
@@ -138,8 +140,16 @@ class DiscoveryConfig:
     # Eta-squared averaging mode (only used when metric_mode is coherence_*).
     eta_squared_weighting: str = _DC_ETA_SQUARED_WEIGHTING
 
-    # Selection mode — "one_shot" or "refinement_tree"
+    # Selection mode — "zero_shot", "collision", or "iterative"
     selection_mode: str = _DC_SELECTION_MODE
+
+    # Context fed to the LLM in iterative mode.
+    # Components are enabled by substring check ("facets" in iterative_context, etc.):
+    #   "facets" — existing facet pool (definitions + vocabularies)
+    #   "items"  — tutorial video segments
+    #   "tree"   — refinement-tree statistics
+    # Example: "facets+items" enables pool + segments.
+    iterative_context: str = _DC_ITERATIVE_CONTEXT
 
     # Refinement threshold tau for tree pruning.
     refinement_threshold: float = _DC_REFINEMENT_THRESHOLD
@@ -165,12 +175,13 @@ class DiscoveryConfig:
         eta_squared_weighting = self.eta_squared_weighting if self.metric_mode != "entropy" else "na"
         irr = f"irr{self.irr_sample_videos}x{self.irr_num_raters}a{self.irr_min_agreement}" if self.irr_sample_videos > 0 else "noirr"
         selection = self.selection_mode
+        iterative_ctx = self.iterative_context if self.selection_mode == "iterative" else "na"
         ref_tau = f"tau{self.refinement_threshold}"
 
         max_facets = str(self.max_facets) if self.max_facets > 0 else "inf"
         target_facets = str(self.target_facets) if self.target_facets > 0 else "inf"
 
-        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}_{max_schema_facets}_{init_facets}_{metric_mode}_{eta_squared_weighting}_{irr}_{selection}_{ref_tau}_{max_facets}_{target_facets}"
+        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}_{max_schema_facets}_{init_facets}_{metric_mode}_{eta_squared_weighting}_{irr}_{selection}_{iterative_ctx}_{ref_tau}_{max_facets}_{target_facets}"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -189,6 +200,7 @@ class DiscoveryConfig:
             "metric_mode": self.metric_mode,
             "eta_squared_weighting": self.eta_squared_weighting,
             "selection_mode": self.selection_mode,
+            "iterative_context": self.iterative_context,
             "refinement_threshold": self.refinement_threshold,
             "irr_sample_videos": self.irr_sample_videos,
             "irr_num_raters": self.irr_num_raters,
@@ -219,6 +231,7 @@ class DiscoveryConfig:
             metric_mode=data.get("metric_mode", _DC_METRIC_MODE),
             eta_squared_weighting=data.get("eta_squared_weighting", _DC_ETA_SQUARED_WEIGHTING),
             selection_mode=data.get("selection_mode", _DC_SELECTION_MODE),
+            iterative_context=data.get("iterative_context", _DC_ITERATIVE_CONTEXT),
             refinement_threshold=data.get("refinement_threshold", _DC_REFINEMENT_THRESHOLD),
             irr_sample_videos=data.get("irr_sample_videos", _DC_IRR_SAMPLE_VIDEOS),
             irr_num_raters=data.get("irr_num_raters", _DC_IRR_NUM_RATERS),
@@ -305,14 +318,14 @@ class IterativeSchemaDiscovery:
     def _get_facet_bank_path(self, cache_dir: str | Path) -> Path:
         """Cache path for the facet bank, separated by selection mode.
 
-        one_shot and refinement_tree use fundamentally different discovery
-        methods (bulk init vs. iterative propose/revise), so their banks are
-        kept separate.
+        zero_shot, collision, and iterative use fundamentally different discovery
+        methods (bulk init, collision-driven, and pool-conditioned), so their banks
+        are kept separate.
 
         Within a mode, the bank is keyed by models + item scope so that facets
         can be reused across different target_facets / max_facets / max_iterations.
 
-        **Caveat**: for refinement_tree, facets were discovered under specific
+        **Caveat**: for collision and iterative, facets were discovered under specific
         parameters (metric_mode, refinement_threshold, k_schemas_to_sample, etc.)
         that influence which schemas are sampled and which collisions are found.
         Reusing the bank with different parameters is a practical shortcut — the
@@ -326,7 +339,8 @@ class IterativeSchemaDiscovery:
         vocab = self.config.vocab_model.cache_suffix()
         labeling = self.config.labeling_model.cache_suffix()
         mode = self.config.selection_mode
-        return Path(cache_dir) / f"facet_bank_{mode}_{item_scope}_{discovery}_{vocab}_{labeling}.json"
+        iterative_ctx = self.config.iterative_context if self.config.selection_mode == "iterative" else "na"
+        return Path(cache_dir) / f"facet_bank_{mode}_{iterative_ctx}_{item_scope}_{discovery}_{vocab}_{labeling}.json"
 
     def _save_facet_bank(self, cache_dir: str | Path):
         path = self._get_facet_bank_path(cache_dir)
@@ -667,12 +681,14 @@ class IterativeSchemaDiscovery:
 
         selection_mode = self.config.selection_mode
 
-        if selection_mode == "one_shot":
-            self._run_one_shot(task, focused_kb, cache_dir)
-        elif selection_mode == "refinement_tree":
-            self._run_refinement_tree(task, focused_kb, cache_dir)
+        if selection_mode == "zero_shot":
+            self._run_zero_shot(task, focused_kb, cache_dir)
+        elif selection_mode == "collision":
+            self._run_collision(task, focused_kb, cache_dir)
+        elif selection_mode == "iterative":
+            self._run_iterative(task, focused_kb, cache_dir)
         else:
-            raise ValueError(f"Unknown selection_mode: {selection_mode}. Use 'one_shot' or 'refinement_tree'.")
+            raise ValueError(f"Unknown selection_mode: {selection_mode!r}. Use 'zero_shot', 'collision', or 'iterative'.")
 
         self._save_cache(cache_dir)
         return DiscoveryResult(
@@ -684,9 +700,9 @@ class IterativeSchemaDiscovery:
             discovery_calls=self._discovery_calls,
         )
 
-    def _run_one_shot(self, task: Task, focused_kb: KnowledgeBase, cache_dir: str | Path):
+    def _run_zero_shot(self, task: Task, focused_kb: KnowledgeBase, cache_dir: str | Path):
         """
-        one_shot: generate max_facets at once, then greedily select best target_facets pool.
+        zero_shot: generate max_facets at once, then greedily select best target_facets pool.
 
         Uses the facet bank: if the bank already has >= max_facets facets,
         skip generation entirely and just re-run greedy selection.
@@ -706,7 +722,7 @@ class IterativeSchemaDiscovery:
                 ]
                 all_annotations = self._bank_annotations
             else:
-                logger.info("Generating %d facet(s) for one_shot...", max_facets)
+                logger.info("Generating %d facet(s) for zero_shot...", max_facets)
                 videos = self._knowledge_base.by_video()
                 all_facets = self._extractor.init_facets(
                     task=task.name,
@@ -778,13 +794,13 @@ class IterativeSchemaDiscovery:
             self._greedy_select_pool(candidates, focused_kb, all_annotations)
 
         logger.info(
-            "one_shot complete: %d facet(s), tree: %d nodes.",
+            "zero_shot complete: %d facet(s), tree: %d nodes.",
             len(self._facets), len(self._tree.nodes) if self._tree else 0,
         )
 
-    def _run_refinement_tree(self, task: Task, focused_kb: KnowledgeBase, cache_dir: str | Path):
+    def _run_collision(self, task: Task, focused_kb: KnowledgeBase, cache_dir: str | Path):
         """
-        refinement_tree: propose facets iteratively, maintain best pool via greedy replacement.
+        collision: propose facets based on collision sites, maintain best pool via greedy replacement.
         Stops when budget (max_facets total proposed) exhausted or max_iterations non-improvements.
 
         The facet bank tracks ALL discovered facets (accepted or not) so the budget
@@ -969,7 +985,159 @@ class IterativeSchemaDiscovery:
                 logger.info("No improvement — discarding candidates.")
 
         logger.info(
-            "refinement_tree complete: %d iteration(s), %d facet(s), tree: %d nodes, bank: %d facets.",
+            "collision complete: %d iteration(s), %d facet(s), tree: %d nodes, bank: %d facets.",
+            self._iteration, len(self._facets),
+            len(self._tree.nodes) if self._tree else 0,
+            len(self._bank_facets),
+        )
+
+    def _get_tree_stats(self) -> Dict[str, Any]:
+        """Summarise the current tree for iterative context-c prompting."""
+        if self._tree is None:
+            return {"total_nodes": 0, "facets_used": [], "facets_unused": list(self._facets.keys())}
+        facets_in_tree = {fid for node in self._tree.nodes for fid in node.facet_ids}
+        facets_used_titles = [
+            self._facets[fid].title for fid in facets_in_tree if fid in self._facets
+        ]
+        facets_unused_titles = [
+            f.title for fid, f in self._facets.items() if fid not in facets_in_tree
+        ]
+        return {
+            "total_nodes": len(self._tree.nodes),
+            "facets_used": facets_used_titles,
+            "facets_unused": facets_unused_titles,
+        }
+
+    def _run_iterative(self, task: Task, focused_kb: KnowledgeBase, cache_dir: str | Path):
+        """
+        iterative: propose one facet per iteration conditioned on the existing pool context.
+        Stops when budget (max_facets total proposed) exhausted or max_iterations non-improvements.
+
+        What is fed to the LLM is controlled by config.iterative_context:
+        - "facets"           : current pool (definitions + vocabularies)
+        - "facets_and_items" : pool + tutorial video segments
+        - "facets_and_stats" : pool + refinement-tree statistics
+        """
+        max_facets = self.config.max_facets
+        max_iterations = self.config.max_iterations
+        vocab_sample_videos = self.config.vocab_sample_videos
+        iterative_context = self.config.iterative_context
+
+        total_proposed = min(len(self._bank_facets), max_facets)
+        tries_with_no_improvement = 0
+
+        if self._facets and self._tree is None:
+            self._tree = self._build_tree(focused_kb, list(self._facets.values()), self._annotations)
+        if self._tree is None:
+            self._tree = RefinementTree(nodes=[], edges=[])
+
+        # Replay any bank facets not yet in the pool
+        bank_within_budget = [
+            f for f in list(self._bank_facets.values())[:max_facets]
+            if f.id in self._bank_annotations.facet_ids()
+        ]
+        bank_untried = [f for f in bank_within_budget if f.id not in self._facets]
+        if bank_untried:
+            logger.info(
+                "Bank has %d untried facet(s) within budget (%d/%d) — running greedy selection...",
+                len(bank_untried), len(bank_within_budget), max_facets,
+            )
+            self._greedy_select_pool(bank_untried, focused_kb, self._bank_annotations)
+            self._save_cache(cache_dir)
+
+        videos = self._knowledge_base.by_video() if "items" in iterative_context else None
+
+        while total_proposed < max_facets and tries_with_no_improvement < max_iterations:
+            self._iteration += 1
+            logger.info(
+                "=== Iterative iteration %d (proposed: %d/%d, no-improve: %d/%d) ===",
+                self._iteration, total_proposed, max_facets,
+                tries_with_no_improvement, max_iterations,
+            )
+
+            current_facets = list(self._facets.values())
+            tree_stats = self._get_tree_stats() if "tree" in iterative_context else None
+
+            new_facets = self._extractor.propose_facet_iterative(
+                task=task.name,
+                facets=current_facets,
+                context=iterative_context,
+                videos=videos,
+                annotations=self._annotations,
+                tree_stats=tree_stats,
+            )
+            self._discovery_calls += 1
+
+            if not new_facets:
+                logger.info("Iterative proposal refused — no useful facet found.")
+                tries_with_no_improvement += 1
+                continue
+
+            # Dedup against bank
+            for new_facet in new_facets:
+                if new_facet.id in self._bank_facets:
+                    logger.info("Proposed facet already in bank — skipping.")
+                    tries_with_no_improvement += 1
+                    continue
+
+            self._add_to_bank(new_facets)
+            total_proposed = len(self._bank_facets)
+            logger.info("Proposed new facet (total proposed: %d/%d)", total_proposed, max_facets)
+
+            # IRR check
+            if self.config.irr_sample_videos > 0:
+                irr = compute_irr(
+                    task=task.name,
+                    facets=new_facets,
+                    knowledge_base=self._knowledge_base,
+                    labeler=self._labeler,
+                    sample_videos=self.config.irr_sample_videos,
+                    num_raters=self.config.irr_num_raters,
+                    min_agreement=self.config.irr_min_agreement,
+                )
+                for new_facet in new_facets:
+                    if new_facet.id in set(irr.get("low_irr_facet_ids", [])):
+                        logger.info("Facet pruned by IRR.")
+                        tries_with_no_improvement += 1
+                        continue
+
+            # Build vocabulary and label
+            facets_with_vocab = self._vocab_builder.build_vocabulary(
+                task=task.name,
+                facets=new_facets,
+                knowledge_base=self._knowledge_base,
+                sample_videos=vocab_sample_videos,
+            )
+            if not facets_with_vocab:
+                logger.info("Vocabulary building returned nothing — skipping.")
+                tries_with_no_improvement += 1
+                continue
+            new_facets = facets_with_vocab
+
+            new_annotations = self._labeler.label_batch(
+                task=task.name,
+                facets=new_facets,
+                knowledge_base=self._knowledge_base,
+            )
+
+            self._add_to_bank(new_facets, new_annotations)
+            self._save_facet_bank(cache_dir)
+
+            improved = self._greedy_select_pool(new_facets, focused_kb, new_annotations)
+
+            if improved:
+                tries_with_no_improvement = 0
+                self._save_cache(cache_dir)
+                logger.info(
+                    "Pool improved: %d facet(s), tree: %d nodes.",
+                    len(self._facets), len(self._tree.nodes) if self._tree else 0,
+                )
+            else:
+                tries_with_no_improvement += 1
+                logger.info("No improvement — discarding candidate.")
+
+        logger.info(
+            "iterative complete: %d iteration(s), %d facet(s), tree: %d nodes, bank: %d facets.",
             self._iteration, len(self._facets),
             len(self._tree.nodes) if self._tree else 0,
             len(self._bank_facets),

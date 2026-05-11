@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
-from typing import List
+from typing import List, Optional
 
 class SegmentLabel(BaseModel):
     """A label in a facet's vocabulary."""
@@ -56,7 +56,7 @@ class TargetAssignment(BaseModel):
     segment_id: str = Field(description="ID of the target information unit")
     label: str = Field(description="Assigned label from the vocabulary")
     brief_reason: str = Field(
-        description="One-sentence justification for why this label applies based on the surrounding context, not the segment content itself"
+        description="One-sentence justification for why this label applies based on the surrounding context, not the segment content only."
     )
 
 
@@ -65,7 +65,7 @@ class AnchorExample(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
     segment_id: str = Field(description="ID of a non-target segment from the tutorial")
-    label: str = Field(description="Label that would apply to this segment's context")
+    label: str = Field(description="The assigned label for this segment under the facet")
     brief_reason: str = Field(
         description="Why this anchor demonstrates the factor's breadth"
     )
@@ -73,46 +73,7 @@ class AnchorExample(BaseModel):
 #----------------------------------------
 
 class FacetCandidate(BaseModel):
-    """A proposed facet candidate with vocabulary and segmentations."""
-    model_config = ConfigDict(extra='forbid')
-
-    title: str = Field(description="Short name (2-3 words)")
-    title_plural: str = Field(description="Plural form of the title")
-    scope: str = Field(description="global, mid-level, or fine-grained")
-    justification: str = Field(
-        description="Why this facet was chosen: (1) why is it a contextual factor, (2) how does it separates colliding segments, (3) why is it distinct from previous factors"
-    )
-    definition: str = Field(description="What this facet captures")
-    guidelines: List[str] = Field(description="Instructions for labeling")
-    segment_labels: list[SegmentLabel] = Field(description="Full vocabulary")
-    target_assignments: list[TargetAssignment] = Field(
-        description="Label for each target segment under this factor"
-    )
-    anchor_examples: list[AnchorExample] = Field(
-        min_length=2,
-        max_length=4,
-        description="Non-target segments showing the factor applies broadly "
-        "across the tutorial with different labels used",
-    )
-
-
-class FacetDiscoveryResult(BaseModel):
-    """Result of facet discovery."""
-    model_config = ConfigDict(extra='forbid')
-
-    candidates: list[FacetCandidate] = Field(
-        description="Proposed facet candidates. Empty list if no valid factors found."
-    )
-    refusal_reason: str = Field(
-        description="If no candidates are proposed, a brief explanation of why the target segments cannot be meaningfully distinguished by contextual factors. Otherwise, leave it empty.",
-    )
-
-#----------------------------------------
-# Facet Initialization (bootstrap)
-#----------------------------------------
-
-class FacetInitCandidate(BaseModel):
-    """A facet candidate proposed during initialization (no target assignments)."""
+    """A facet candidate proposed."""
     model_config = ConfigDict(extra='forbid')
 
     title: str = Field(description="Short name (2-3 words)")
@@ -125,13 +86,46 @@ class FacetInitCandidate(BaseModel):
     guidelines: List[str] = Field(description="Instructions for labeling")
     segment_labels: list[SegmentLabel] = Field(description="Full vocabulary")
 
+class FacetCandidateWithAssignments(FacetCandidate):
+    """A proposed facet candidate with assignments."""
 
-class FacetInitResult(BaseModel):
-    """Result of facet initialization."""
+    target_assignments: list[TargetAssignment] = Field(
+        min_length=1,
+        description="Label for each target segment under this factor"
+    )
+    anchor_examples: list[AnchorExample] = Field(
+        min_length=2,
+        max_length=4,
+        description="Non-target segments showing the factor applies broadly across the tutorial with different labels used",
+    )
+
+
+class FacetDiscoveryResult(BaseModel):
+    """Result of facet discovery."""
     model_config = ConfigDict(extra='forbid')
 
-    candidates: list[FacetInitCandidate] = Field(
-        description="Proposed facet candidates for bootstrapping the algorithm."
+    candidates: list[FacetCandidateWithAssignments] = Field(
+        min_length=0,
+        description="Proposed facet candidates. Empty list if no valid factors found."
+    )
+    refusal_reason: str = Field(
+        description="If no candidates are proposed, a brief explanation of why the target segments cannot be meaningfully distinguished by contextual factors. Otherwise, leave it empty.",
+    )
+
+#----------------------------------------
+# Facet Initialization
+#----------------------------------------
+
+class FacetInitResult(BaseModel):
+    """Result of facet proposal."""
+    model_config = ConfigDict(extra='forbid')
+
+    candidates: list[FacetCandidate] = Field(
+        min_length=0,
+        description="Proposed facet candidates. Empty list if no valid factors found."
+    )
+    refusal_reason: str = Field(
+        description="If no candidates are proposed, a brief explanation of why. Otherwise, leave it empty.",
     )
 
 #----------------------------------------

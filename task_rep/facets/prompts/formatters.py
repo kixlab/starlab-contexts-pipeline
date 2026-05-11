@@ -6,11 +6,11 @@ for inclusion in LLM prompts. Formatting logic lives here (not on domain classes
 so that display IDs can be controlled independently of real object IDs.
 """
 
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from utils import MessageContent
 
-from facets.schema import Facet, FacetLabel
+from facets.schema import Facet, FacetLabel, AnnotationTable
 from knowledge_items.schema import KnowledgeItem
 
 
@@ -100,12 +100,17 @@ def facet_to_message_content(facet: Facet, display_id: Optional[str] = None) -> 
     """Format a single Facet as MessageContent."""
     return MessageContent(content=[{"type": "text", "text": format_facet(facet, display_id)}])
 
+def facet_display_id(index: int) -> str:
+    """Get the display ID for a facet given its index in the list."""
+    return f"F{index + 1}"
 
 def facets_to_message_content(facets: List[Facet]) -> MessageContent:
     """Format a list of Facets using sequential F1, F2 display IDs."""
     lines = []
     for i, facet in enumerate(facets):
-        lines.append(format_facet(facet, f"F{i + 1}"))
+        lines.append(format_facet(facet, facet_display_id(i)))
+    if len(lines) == 0:
+        lines.append("No existing facets.")
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
@@ -153,6 +158,63 @@ def videos_to_message_content(
         for item in items:
             display_id = id_map[item.id] if id_map else None
             lines.append(format_segment(item, display_id))
+    return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
+
+
+_ANNOTATED_SEGMENT_FORMAT = """<segment id="{display_id}">
+{text}
+<facet_labels>{labels}</facet_labels>
+</segment>"""
+
+def format_segment_annotated(
+    segment: KnowledgeItem,
+    facets: List[Facet],
+    annotations: AnnotationTable,
+    display_id: Optional[str] = None,
+    with_type: bool = True,
+) -> str:
+    """Format a KnowledgeItem with its pool annotation labels appended."""
+    did = display_id if display_id is not None else segment.id
+    text = segment.text
+    if with_type and segment.subtype:
+        subtype_val = segment.subtype.value if hasattr(segment.subtype, "value") else str(segment.subtype)
+        text = f"({subtype_val}) {text}"
+    labels_parts = [
+        f"{facet_display_id(idx)}: {annotations[segment.id, facet.id]}"
+        for idx, facet in enumerate(facets)
+        if (segment.id, facet.id) in annotations
+    ]
+    labels_str = ", ".join(labels_parts) if labels_parts else ""
+    return _ANNOTATED_SEGMENT_FORMAT.format(display_id=did, text=text, labels=labels_str)
+
+
+def annotated_videos_to_message_content(
+    videos: Dict[str, List[KnowledgeItem]],
+    facets: List[Facet],
+    annotations: AnnotationTable,
+    id_map: Optional[Dict[str, str]] = None,
+) -> MessageContent:
+    """Like videos_to_message_content but appends per-facet pool labels to each segment."""
+    lines = []
+    for video_id, items in videos.items():
+        lines.append(f"Video {video_id}:")
+        for item in items:
+            display_id = id_map[item.id] if id_map else None
+            lines.append(format_segment_annotated(item, facets, annotations, display_id))
+    if len(lines) == 0:
+        lines.append("No tutorial segments.")
+    return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
+
+
+def tree_stats_to_message_content(tree_stats: Dict[str, Any]) -> MessageContent:
+    """Format refinement-tree statistics as MessageContent."""
+    used = ", ".join(tree_stats.get("facets_used", [])) or "none"
+    unused = ", ".join(tree_stats.get("facets_unused", [])) or "none"
+    lines = [
+        f"Total nodes: {tree_stats.get('total_nodes', 0)}",
+        f"Facets used in tree: {used}",
+        f"Facets not in tree: {unused}",
+    ]
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 

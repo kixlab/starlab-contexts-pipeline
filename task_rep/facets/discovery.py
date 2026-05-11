@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 import random
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from utils import (
     ModelConfig,
@@ -29,9 +29,11 @@ from .prompts import (
     process_facet_init_response,
     form_facet_revision_request,
     process_facet_revision_response,
+    form_facet_iterative_request,
+    process_facet_iterative_response,
 )
 
-from .schema import Facet
+from .schema import Facet, AnnotationTable
 
 logger = logger = logging.getLogger(__name__)
 
@@ -156,6 +158,50 @@ class VLMFacetExtractor:
             request_args,
             form_facet_discovery_request,
             process_facet_discovery_response,
+            max_concurrency=self.max_concurrency,
+            model_config=self.model_config,
+        )
+
+        return [facet for result in batch_results for facet in result]
+
+    def propose_facet_iterative(
+        self,
+        task: str,
+        facets: List[Facet],
+        context: str,
+        videos: Optional[Dict[str, List[KnowledgeItem]]] = None,
+        annotations: Optional[AnnotationTable] = None,
+        tree_stats: Optional[Dict[str, Any]] = None,
+    ) -> List[Facet]:
+        """Propose exactly one new facet conditioned on the existing pool.
+
+        Args:
+            task: Task name/description
+            facets: Current facet pool (definitions + vocabularies shown to LLM)
+            context: Substring-checked string of components to include ("facets", "items", "tree")
+            videos: Video segments with their pool annotations (included when "items" in context)
+            annotations: Current pool annotations for the video segments
+            tree_stats: Tree summary dict (included when "tree" in context)
+
+        Returns:
+            A list of new Facets, or an empty list if the LLM refused.
+        """
+        batch_id = f"facet_iterative_{random_uid()}"
+
+        request_args = [{
+            "task": task,
+            "facets": facets,
+            "context": context,
+            "videos": videos,
+            "annotations": annotations,
+            "tree_stats": tree_stats,
+        }]
+
+        batch_results = batch_run_llm_calls(
+            batch_id,
+            request_args,
+            form_facet_iterative_request,
+            process_facet_iterative_response,
             max_concurrency=self.max_concurrency,
             model_config=self.model_config,
         )
