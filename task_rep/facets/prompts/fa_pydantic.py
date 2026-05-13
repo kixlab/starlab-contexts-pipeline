@@ -155,9 +155,24 @@ class ConsolidatedLabel(BaseModel):
     definition: str = Field(description="Refined definition")
     source_labels: List[str] = Field(description="Original proposed labels that were merged into this one")
 
-class VocabularyConsolidationResult(BaseModel):
-    """Result of consolidating vocabulary for a single facet."""
+class FacetConsolidationResult(BaseModel):
+    """Result of consolidating a single facet (definition, guidelines, and vocabulary).
+
+    The whole facet body is revised in one pass so that guidelines stay consistent with the consolidated vocabulary (and any sharpened definition).
+    """
     model_config = ConfigDict(extra='forbid')
 
+    revised_definition: str = Field(
+        description="Revised facet definition. May be identical to the input if no change is warranted."
+    )
+    revised_guidelines: List[str] = Field(
+        description="Revised labeling guidelines, kept consistent with the consolidated vocabulary."
+    )
     consolidated_labels: List[ConsolidatedLabel] = Field(description="Final deduplicated vocabulary labels")
-    consolidation_notes: str = Field(description="Brief explanation of merging decisions")
+    consolidation_notes: str = Field(
+        description="Brief explanation of merging decisions and any changes to definition/guidelines."
+    )
+
+
+# Back-compat alias (older name referred only to vocabulary).
+VocabularyConsolidationResult = FacetConsolidationResult

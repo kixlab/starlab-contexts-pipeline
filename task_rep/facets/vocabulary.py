@@ -14,7 +14,7 @@ from __future__ import annotations
 import logging
 import random
 from collections import defaultdict
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from typing import Dict, List
 
 from knowledge_items.schema import KnowledgeBase
@@ -116,12 +116,11 @@ class VLMFacetVocabularyBuilder:
             if result:  # only store non-empty proposals
                 proposals_by_facet[facet_id][video_id] = result
 
-        # Phase 2: Per-facet consolidation
+        # Phase 2: Per-facet consolidation (revises definition, guidelines, and vocabulary together)
         batch_id = f"vocab_consolidation_{random_uid()}"
 
         request_args = []
-
-        updated_facets = []
+        consolidated_facet_ids: List[str] = []  # facets that have a consolidation request, in request order
 
         for facet in facets:
             proposals_by_video = proposals_by_facet.get(facet.id, {})
@@ -130,8 +129,8 @@ class VLMFacetVocabularyBuilder:
                     "No vocabulary proposals for facet %s; skipping consolidation.",
                     facet.id,
                 )
-                updated_facets.append(facet)  # no proposals, return facet unchanged
                 continue
+            consolidated_facet_ids.append(facet.id)
             request_args.append({
                 "task": task,
                 "facet": facet,
@@ -147,7 +146,6 @@ class VLMFacetVocabularyBuilder:
             model_config=self.model_config,
         )
 
-        for facet, result in zip(facets, batch_results):
-            updated_facets.append(replace(facet, vocabulary=result))
-
-        return updated_facets
+        # process_vocabulary_consolidation_response returns a fully-revised Facet.
+        revised_by_id: Dict[str, Facet] = dict(zip(consolidated_facet_ids, batch_results))
+        return [revised_by_id.get(facet.id, facet) for facet in facets]
