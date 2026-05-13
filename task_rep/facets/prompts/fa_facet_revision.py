@@ -13,7 +13,7 @@ from typing import Any, Dict, List
 from utils.llm import MessageContent
 from utils import random_uid
 
-from .fa_pydantic import FacetRevisionResult
+from .fa_pydantic import ContextualFactorRevisionResult
 from .formatters import facets_to_message_content
 
 from facets.schema import Facet, FacetLabel
@@ -58,10 +58,22 @@ PROCEDURE
     - Check for a set of factors that could be merged into one monolithic factor.
     - Check for a an factor that could benefit from being split into a set of smaller, monolithic factors that contribute fewer labels in total.
 2) For each opportunity identified, propose a new factor that captures the merged/split factors. When defining the factor, do not refer to the merged/split factors, but formulate its own definition that describes what factor of the task context it captures.
-    - If there no opportunities identified, return an empty list.
+    - If there no opportunities identified, return an empty list of candidates.
     - For the "merging" opportunity, propose a new monolithic factor. Justify why merging is effective.
     - For the "splitting" opportunity, propose a set of new, monolithic factors. Justify why splitting is effective.
     - Justify why the proposed factor satisfies each part of the definition of a contextual factor.
+
+OUTPUT
+For each revised contextual factor, provide:
+- `title`: short name (1-3 words)
+- `title_plural`: plural form of the title
+- `scope`: one of "global", "mid-level", or "fine-grained"
+- `definition`: brief description of what this factor captures
+- `justification`: (1) why this is a valid contextual factor, and (2) why it is particularly proposed as a revision
+- `guidelines`: list of concise instructions for labeling tutorial segments under this factor, including when the label should change
+- `vocabulary`: finite list of mutually exclusive label values, each with `label` and `definition`
+
+Also provide a top-level `changes` field: a summary of what was merged, split, or otherwise changed and why. If no candidates are proposed, use `changes` to briefly explain why.
 
 List of existing factors:
 {existing_facets}
@@ -89,7 +101,7 @@ def form_facet_revision_request(
     ]
     return {
         "messages": messages,
-        "response_format": FacetRevisionResult,
+        "response_format": ContextualFactorRevisionResult,
     }
 
 
@@ -109,7 +121,7 @@ def process_facet_revision_response(
     for candidate in candidates:
         vocabulary = [
             FacetLabel(label=ld["label"].strip().lower(), definition=ld["definition"])
-            for ld in candidate.get("segment_labels", [])
+            for ld in candidate.get("vocabulary", [])
         ]
         facets.append(Facet(
             id=random_uid(),

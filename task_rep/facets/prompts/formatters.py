@@ -57,13 +57,13 @@ def format_vocabulary(vocabulary: List[FacetLabel]) -> str:
     return "\n".join([format_facet_label(label) for label in vocabulary])
 
 
-_FACET_FORMAT = """<facet id="{display_id}">
+_FACET_FORMAT = """<factor id="{display_id}">
 {title_plural}: {definition}
-**Guidelines for labeling segments**:
+**Guidelines for labeling tutorial segments**:
 {guidelines}
 **Vocabulary**:
 {vocabulary}
-</facet>"""
+</factor>"""
 
 def format_facet(facet: Facet, display_id: Optional[str] = None) -> str:
     """Format a Facet as text using display_id instead of facet.id."""
@@ -110,7 +110,7 @@ def facets_to_message_content(facets: List[Facet]) -> MessageContent:
     for i, facet in enumerate(facets):
         lines.append(format_facet(facet, facet_display_id(i)))
     if len(lines) == 0:
-        lines.append("No existing facets.")
+        lines.append("No existing contextual factors.")
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
@@ -163,7 +163,7 @@ def videos_to_message_content(
 
 _ANNOTATED_SEGMENT_FORMAT = """<segment id="{display_id}">
 {text}
-<facet_labels>{labels}</facet_labels>
+<factor_labels>{labels}</factor_labels>
 </segment>"""
 
 def format_segment_annotated(
@@ -212,8 +212,8 @@ def tree_stats_to_message_content(tree_stats: Dict[str, Any]) -> MessageContent:
     unused = ", ".join(tree_stats.get("facets_unused", [])) or "none"
     lines = [
         f"Total nodes: {tree_stats.get('total_nodes', 0)}",
-        f"Facets used in tree: {used}",
-        f"Facets not in tree: {unused}",
+        f"Contextual factors used in tree: {used}",
+        f"Contextual factors not in tree: {unused}",
     ]
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 

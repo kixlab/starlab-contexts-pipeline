@@ -15,7 +15,7 @@ from utils.llm import MessageContent
 
 from .fa_pydantic import (
     VocabularyProposalResult,
-    FacetConsolidationResult,
+    ContextualFactorConsolidationResult,
 )
 
 from dataclasses import replace
@@ -99,20 +99,19 @@ def process_vocabulary_proposal_response(
 
 # ============= Phase 2: Per-Facet Consolidation =============
 
-CONSOLIDATION_SYSTEM_PROMPT = """You are an expert at organizing and consolidating vocabulary labels for contextual factors related to the task: {task}. Inputs are structured with XML tags. Use tag names and id attributes to identify objects and boundaries."""
+CONSOLIDATION_SYSTEM_PROMPT = """You are an expert at organizing and consolidating vocabulary labels for contextual factors related to the task: {task}. Inputs are structured with XML tags."""
 
 CONSOLIDATION_USER_PROMPT = """You are given a contextual factor with its current definition, guidelines, and vocabulary, plus additional vocabulary labels proposed from multiple tutorials. Your task is to consolidate the vocabulary. Then, adjust the definition and guidelines to stay consistent with the consolidated vocabulary.
 
 CONSOLIDATE THE VOCABULARY
 - Merge semantically equivalent or near-duplicate labels into a single canonical label.
 - Prefer the most general stable vocabulary that preserves meaningful distinctions. Do not introduce new distinctions unless clearly supported by the evidence.
-- Prefer existing facet vocabulary when adequate, and revise it only to reduce redundancy, ambiguity, or inconsistency.
 - Keep the final labels mutually exclusive, interpretable, and at a single level of abstraction suitable for consistent segmentation.
 - Use concise canonical names and track provenance by listing the original proposed labels that map to each final label in `source_labels`.
-- When multiple valid vocabularies are possible, choose the one that is simplest, most reusable, and most consistent with the initial facet vocabulary.
+- When multiple valid vocabularies are possible, choose the one that is simplest, most reusable, and most consistent with the initial vocabulary.
 
 REALIGN DEFINITION AND GUIDELINES
-- Align the definition and guidelines with the consolidated vocabulary, while keeping the facet's scope and underlying meaning consistent. Make the minimal necessary revisions. 
+- Align the definition and guidelines with the consolidated vocabulary, while keeping the contextual factor's scope and underlying meaning consistent. Make the minimal necessary revisions. 
 OUTPUT
 - `consolidated_labels`: for each label include canonical `label`, `definition`, and `source_labels`
 - `revised_definition`: the (possibly unchanged) definition
@@ -150,7 +149,7 @@ def form_vocabulary_consolidation_request(
     ]
     return {
         "messages": messages,
-        "response_format": FacetConsolidationResult,
+        "response_format": ContextualFactorConsolidationResult,
     }
 
 

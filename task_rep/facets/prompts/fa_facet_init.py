@@ -11,7 +11,7 @@ from typing import Any, Dict, List
 from utils.llm import MessageContent
 from utils import random_uid
 
-from .fa_pydantic import FacetInitResult
+from .fa_pydantic import ContextualFactorInitResult
 from .formatters import (
     videos_to_message_content,
     build_item_id_map,
@@ -39,12 +39,17 @@ SYSTEM_PROMPT = """You are a helpful assistant who can analyze and detect the co
 
 USER_PROMPT = """You are given tutorial segments from tutorials. Identify exactly {num_facets} contextual factors that can be used to organize tutorial segments by differences in procedural context. The factors should capture important dimensions of variation across the tutorial segments and should be distinct from each other.
 A contextual factor is an aspect of the procedural situation that helps characterize when a tutorial segment is applicable.
-For each factor:
-- provide a short title
-- provide a brief definition
-- provide a finite set of labels
-- provide brief segmentation guidance for when labels change
 Prefer factors that are interpretable, and useful across many tutorial segments. Do not use factors based on narration, editing, presentation style, or simple restatements of segment content.
+
+OUTPUT
+For each proposed contextual factor, provide:
+- `title`: short name (1-3 words)
+- `title_plural`: plural form of the title
+- `scope`: one of "global", "mid-level", or "fine-grained"
+- `definition`: brief description of what this factor captures
+- `justification`: (1) why this is a valid contextual factor, and (2) why it is distinct from the previous contextual factors (if any)
+- `guidelines`: list of concise instructions for labeling tutorial segments under this factor, including when the label should change
+- `vocabulary`: finite list of mutually exclusive label values, each with `label` and `definition`
 
 INPUTS
 - Tutorial segments:
@@ -135,7 +140,7 @@ def form_facet_init_request(
     ]
     return {
         "messages": messages,
-        "response_format": FacetInitResult,
+        "response_format": ContextualFactorInitResult,
     }
 
 
@@ -159,7 +164,7 @@ def process_facet_init_response(
     for candidate in candidates:
         vocabulary = [
             FacetLabel(label=ld["label"].strip().lower(), definition=ld["definition"])
-            for ld in candidate.get("segment_labels", [])
+            for ld in candidate.get("vocabulary", [])
         ]
         facets.append(Facet(
             id=random_uid(),

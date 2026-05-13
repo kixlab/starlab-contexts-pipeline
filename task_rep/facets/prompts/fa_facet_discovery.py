@@ -13,7 +13,7 @@ from typing import Any, Dict, List
 from utils.llm import MessageContent
 from utils import random_uid
 
-from .fa_pydantic import FacetDiscoveryResult
+from .fa_pydantic import ContextualFactorDiscoveryResult
 from .formatters import (
     facets_to_message_content,
     target_items_to_message_content,
@@ -32,12 +32,19 @@ SYSTEM_PROMPT = """You are a helpful assistant who can analyze and detect the co
 
 USER_PROMPT = """You are given a set of tutorial segments, a subset of target tutorial segments (i.e., targets), and previously identified contextual factors. Your task is to identify new contextual factors that can help distinguish the targets. The new factors should be different from the previous contextual factors and from each other.
 A contextual factor is an aspect of the procedural situation that helps characterize when a tutorial segment is applicable.
-For each factor:
-- provide a short title
-- provide a brief definition
-- explain why it helps distinguish at least some target tutorial segments
-- assign one label to each target tutorial segment under that factor
-Prefer factors that are interpretable, and useful across many tutorial segments. Do not use factors based on narration, editing, presentation style, or simple restatements of segment content. If no valid factors can be identified reliably, return none and briefly explain why.
+Prefer factors that are interpretable, and useful across many tutorial segments. Do not use factors based on narration, editing, presentation style, or simple restatements of segment content. If no valid factors can be identified reliably, return an empty list of candidates and briefly explain why in `refusal_reason`.
+
+OUTPUT
+For each proposed contextual factor, provide:
+- `title`: short name (1-3 words)
+- `title_plural`: plural form of the title
+- `scope`: one of "global", "mid-level", or "fine-grained"
+- `definition`: brief description of what this factor captures
+- `justification`: (1) why this is a valid contextual factor, and (2) why it is distinct from the previous contextual factors (if any)
+- `guidelines`: list of concise instructions for labeling tutorial segments under this factor, including when the label should change
+- `vocabulary`: finite list of mutually exclusive label values, each with `label` and `definition`
+- `target_assignments`: one label assignment per target tutorial segment, each with a one-sentence reason grounded in the procedural context
+- `anchor_examples`: 2-4 non-target tutorial segments demonstrating that the factor applies broadly; choose anchors that receive DIFFERENT labels from each other to show the factor's range
 
 INPUTS
 - Previous contextual factors:
@@ -220,7 +227,7 @@ def form_facet_discovery_request(
     ]
     return {
         "messages": messages,
-        "response_format": FacetDiscoveryResult,
+        "response_format": ContextualFactorDiscoveryResult,
     }
 
 
@@ -263,7 +270,7 @@ def process_facet_discovery_response(
 
     for idx, candidate in enumerate(candidates):
         c_id = f"C{idx + 1}"
-        valid_labels = {ld["label"] for ld in candidate.get("segment_labels", [])}
+        valid_labels = {ld["label"] for ld in candidate.get("vocabulary", [])}
         for temp_id in target_temp_ids:
             temp_annotations[temp_id][c_id] = "na"
 
@@ -302,7 +309,7 @@ def process_facet_discovery_response(
     for candidate in candidates:
         vocabulary = [
             FacetLabel(label=ld["label"].strip().lower(), definition=ld["definition"])
-            for ld in candidate.get("segment_labels", [])
+            for ld in candidate.get("vocabulary", [])
         ]
         facets.append(Facet(
             id=random_uid(),

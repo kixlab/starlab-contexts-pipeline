@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional
 from utils.llm import MessageContent
 from utils import random_uid
 
-from .fa_pydantic import FacetInitResult
+from .fa_pydantic import ContextualFactorInitResult
 from .formatters import (
     build_item_id_map,
     facets_to_message_content,
@@ -40,11 +40,14 @@ The new factor must:
 - Not be based on narration, editing, presentation style, or simple restatements of segment content
 If no useful new factor can be identified, return an empty list and briefly explain why.
 
-For the proposed factor:
-- provide a short title (2-3 words) and its plural form
-- provide a brief definition and scope (global, mid-level, or fine-grained)
-- provide brief segmentation guidelines for when labels change
-- provide a finite, explicit label vocabulary
+For each proposed contextual factor, provide:
+- `title`: short name (1-3 words)
+- `title_plural`: plural form of the title
+- `scope`: one of "global", "mid-level", or "fine-grained"
+- `definition`: brief description of what this factor captures
+- `justification`: (1) why this is a valid contextual factor, and (2) why it is distinct from the previous contextual factors (if any)
+- `guidelines`: list of concise instructions for labeling tutorial segments under this factor, including when the label should change
+- `vocabulary`: finite list of mutually exclusive label values, each with `label` and `definition`
 
 INPUTS
 """
@@ -116,7 +119,7 @@ def form_facet_iterative_request(
     ]
     return {
         "messages": messages,
-        "response_format": FacetInitResult, 
+        "response_format": ContextualFactorInitResult, 
     }
 
 
@@ -144,7 +147,7 @@ def process_facet_iterative_response(
     for candidate in candidates:
         vocabulary = [
             FacetLabel(label=ld["label"].strip().lower(), definition=ld["definition"])
-            for ld in candidate.get("segment_labels", [])
+            for ld in candidate.get("vocabulary", [])
         ]
         facets.append(Facet(
             id=random_uid(),
