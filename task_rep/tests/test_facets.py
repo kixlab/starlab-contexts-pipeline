@@ -6,12 +6,22 @@ Run with: python -m pytest tests/test_facets.py -v
 
 import pytest
 
-from facets import Facet, FacetLabel, VLMFacetExtractor
+from facets import AnnotationTable, Facet, FacetLabel, VLMFacetExtractor
+from facets.prompts.fa_facet_iterative import form_facet_iterative_request
 from facets.prompts.formatters import (
     facet_to_message_content,
+    facets_to_message_content,
     format_guidelines,
     format_vocabulary,
+    schemas_to_message_content,
 )
+from knowledge_items.schema import (
+    KnowledgeBase,
+    KnowledgeItem,
+    KnowledgeItemType,
+    KnowledgeSource,
+)
+from optimization import AcceptedSchemaSummary, RejectedSchemaSummary
 from utils import ModelConfig
 
 
@@ -196,6 +206,145 @@ def test_facet_format_to_message_content(sample_facet):
     assert len(mc.content) == 1
     assert mc.content[0]["type"] == "text"
     assert "Difficulty Level" in mc.content[0]["text"]
+
+
+def test_facets_to_message_content_includes_label_frequencies(sample_facet):
+    kb = KnowledgeBase(items=[
+        KnowledgeItem(
+            id="i1",
+            type=KnowledgeItemType.ATOMIC,
+            text="Item 1",
+            source=KnowledgeSource(video_id="v1"),
+            unit_id="u1",
+        ),
+        KnowledgeItem(
+            id="i2",
+            type=KnowledgeItemType.ATOMIC,
+            text="Item 2",
+            source=KnowledgeSource(video_id="v1"),
+            unit_id="u2",
+        ),
+    ])
+    annotations = AnnotationTable({
+        ("i1", "f1"): "beginner",
+        ("i2", "f1"): "beginner",
+    })
+
+    mc = facets_to_message_content([sample_facet], annotations, kb)
+    text = mc.content[0]["text"]
+    assert "beginner" in text
+    assert "frequency: 2" in text
+    assert "intermediate" in text
+    assert "frequency: 0" in text
+
+
+def test_schemas_to_message_content_includes_signature_frequencies(sample_facet):
+    tool_facet = Facet(
+        id="f2",
+        title="Tool",
+        title_plural="Tools",
+        scope="global",
+        definition="The tool used for the technique",
+        justification="Testing",
+        guidelines=["Label based on the tool in use"],
+        vocabulary=[
+            FacetLabel(label="brush", definition="Brush tool"),
+            FacetLabel(label="sponge", definition="Sponge tool"),
+        ],
+    )
+    kb = KnowledgeBase(items=[
+        KnowledgeItem(
+            id="i1",
+            type=KnowledgeItemType.ATOMIC,
+            text="Item 1",
+            source=KnowledgeSource(video_id="v1"),
+            unit_id="u1",
+        ),
+        KnowledgeItem(
+            id="i2",
+            type=KnowledgeItemType.ATOMIC,
+            text="Item 2",
+            source=KnowledgeSource(video_id="v1"),
+            unit_id="u2",
+        ),
+    ])
+    annotations = AnnotationTable({
+        ("i1", "f1"): "beginner",
+        ("i2", "f1"): "advanced",
+        ("i1", "f2"): "brush",
+        ("i2", "f2"): "sponge",
+    })
+    accepted = [
+        AcceptedSchemaSummary(
+            id="", facet_ids=[], size=0, D=0.0, eta2=1.0, H=0.0,
+        ),
+        AcceptedSchemaSummary(
+            id="f2", facet_ids=["f2"], size=2, D=0.0, eta2=1.0, H=1.0,
+        ),
+    ]
+    rejected = [RejectedSchemaSummary(
+        id="f1|f2",
+        facet_ids=["f1", "f2"],
+        size=5,
+        D=0.0,
+        eta2=1.0,
+        H=1.0,
+        rejected_by_id="f2",
+        rejected_by_facet_ids=["f2"],
+        MI=1.0,
+        refinement_score=1.0,
+        refinement_threshold=0.7,
+    )]
+
+    mc = schemas_to_message_content(
+        accepted, rejected, [sample_facet, tool_facet], annotations, kb
+    )
+    text = mc.content[0]["text"]
+    assert "Accepted factors:" in text
+    assert "Rejected factors:" in text
+    accepted_text = text.split("Rejected factors:")[0]
+    assert "No factors." not in accepted_text
+    # F IDs are global to the full factor list, not local to each combination.
+    assert "Accepted factors:\n<factors>\n<factor id=\"F2\">" in text
+    assert "<factor id=\"F1\">" in text
+    assert "<factor id=\"F2\">" in text
+    assert "Difficulty Levels: The skill level required for this technique" in text
+    assert "Tools: The tool used for the technique" in text
+    assert "<Tool:brush>: 1" in text
+    assert '<rejected_by id="A1"/>' in text
+    assert "schema" not in text.lower()
+
+
+def test_iterative_prompt_assembles_factor_combinations(sample_facet):
+    kb = KnowledgeBase(items=[
+        KnowledgeItem(
+            id="i1",
+            type=KnowledgeItemType.ATOMIC,
+            text="Item 1",
+            source=KnowledgeSource(video_id="v1"),
+            unit_id="u1",
+        )
+    ])
+    annotations = AnnotationTable({("i1", "f1"): "beginner"})
+    accepted = [AcceptedSchemaSummary(
+        id="f1", facet_ids=["f1"], size=3, D=0.0, eta2=1.0, H=0.0,
+    )]
+
+    request = form_facet_iterative_request(
+        task="test task",
+        facets=[sample_facet],
+        context="schemas",
+        annotations=annotations,
+        knowledge_base=kb,
+        accepted_schemas=accepted,
+        rejected_schemas=[],
+    )
+    content = request["messages"][1]["content"].content
+    text = "\n".join(block["text"] for block in content if block["type"] == "text")
+    assert "frequency: 1" in text
+    assert "Accepted factors:" in text
+    assert "<factor id=\"F1\">" in text
+    assert "schema" not in text.lower()
 
 
 def test_facet_default_metadata():

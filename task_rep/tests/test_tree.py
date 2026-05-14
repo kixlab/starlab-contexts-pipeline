@@ -23,9 +23,11 @@ from optimization.tree import (
     TreeNode,
     TreeEdge,
     RefinementTree,
+    SchemaEvaluation,
     build_tree_nodes,
     compute_node_mi,
     compute_signature_entropy,
+    evaluate_schemas,
     prune_and_connect,
     sample_schemas_from_tree,
     compare_tree_quality,
@@ -377,6 +379,31 @@ class TestPruneAndConnect:
         )
         high_ids = {n.id for n in tree_high.nodes}
         assert "f2" in high_ids
+
+    def test_evaluate_schemas_records_rejections(
+        self, three_unit_kb, f1, f2, annotations_f1_f2
+    ):
+        """Schema evaluation exposes rejected schemas separately from the tree."""
+        nodes, h_memo = build_tree_nodes(
+            three_unit_kb, [f1, f2], annotations_f1_f2, max_schema_facets=2
+        )
+        evaluation = evaluate_schemas(
+            nodes, three_unit_kb, {"f1": f1, "f2": f2},
+            annotations_f1_f2, h_memo,
+            refinement_threshold=0.3,
+            metric_mode="entropy",
+        )
+        surviving_ids = {schema.id for schema in evaluation.accepted_schemas}
+        rejected_by_id = {
+            schema.id: schema.rejected_by_id
+            for schema in evaluation.rejected_schemas
+        }
+
+        assert {node.id for node in evaluation.tree.nodes} == surviving_ids
+        assert "f2" in rejected_by_id
+        assert rejected_by_id["f2"] in surviving_ids
+        assert rejected_by_id["f2"] == "f1"
+        assert evaluation.rejected_schemas[0].refinement_threshold == 0.3
 
     def test_independent_nodes_survive(self, three_unit_kb, f1, f2, annotations_f1_f2):
         """
@@ -830,6 +857,21 @@ class TestSerialization:
         assert len(restored.nodes) == 1
         assert len(restored.edges) == 1
         assert restored.nodes[0].id == "f1"
+
+    def test_schema_evaluation_roundtrip(self):
+        tree = RefinementTree(
+            nodes=[make_tree_node(["f1"], size=2, D=0.5, H=1.0)],
+            edges=[],
+        )
+        evaluation = SchemaEvaluation(
+            tree=tree,
+            accepted_schemas=[],
+            rejected_schemas=[],
+        )
+        restored = SchemaEvaluation.from_dict(evaluation.to_dict())
+        assert restored.tree.nodes[0].id == "f1"
+        assert restored.accepted_schemas == []
+        assert restored.rejected_schemas == []
 
     def test_discriminativeness_property(self):
         """TreeNode.discriminativeness should return D."""

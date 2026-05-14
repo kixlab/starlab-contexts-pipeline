@@ -3,9 +3,10 @@ Prompts for iterative facet proposal: one facet at a time, conditioned on
 the current pool.
 
 Context components are enabled by substring check on the `context` string:
-  "facets" — include existing pool (definitions + vocabularies)
+  "facets" — include existing pool (definitions + vocabularies + label frequencies)
   "items"  — include tutorial video segments with their current pool labels
   "tree"   — include refinement-tree statistics
+  "schemas" — include accepted/rejected factor combinations with signature frequencies
 Any combination is valid (e.g. "facets+items+tree").
 """
 
@@ -21,10 +22,11 @@ from .formatters import (
     facets_to_message_content,
     annotated_videos_to_message_content,
     tree_stats_to_message_content,
+    schemas_to_message_content,
 )
 
 from facets.schema import Facet, FacetLabel, AnnotationTable
-from knowledge_items.schema import KnowledgeItem
+from knowledge_items.schema import KnowledgeBase, KnowledgeItem
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +66,10 @@ _SECTION_TREE = """- Refinement tree statistics:
 {tree_stats}
 """
 
+_SECTION_SCHEMAS = """- Accepted and rejected factors:
+{factor_combinations}
+"""
+
 
 def form_facet_iterative_request(
     task: str,
@@ -71,7 +77,10 @@ def form_facet_iterative_request(
     context: str,
     videos: Optional[Dict[str, List[KnowledgeItem]]] = None,
     annotations: Optional[AnnotationTable] = None,
+    knowledge_base: Optional[KnowledgeBase] = None,
     tree_stats: Optional[Dict[str, Any]] = None,
+    accepted_schemas: Optional[List[Any]] = None,
+    rejected_schemas: Optional[List[Any]] = None,
     **kwargs,
 ) -> Dict[str, Any]:
     """Form a request to propose one new facet given the configured context components."""
@@ -80,7 +89,11 @@ def form_facet_iterative_request(
     if "facets" in context:
         mc = MessageContent.from_template(
             _SECTION_FACETS,
-            facets=facets_to_message_content(facets),
+            facets=facets_to_message_content(
+                facets,
+                annotations=annotations,
+                knowledge_base=knowledge_base,
+            ),
         )
         content_blocks.extend(mc.content)
 
@@ -99,6 +112,19 @@ def form_facet_iterative_request(
         mc = MessageContent.from_template(
             _SECTION_TREE,
             tree_stats=tree_stats_to_message_content(tree_stats),
+        )
+        content_blocks.extend(mc.content)
+
+    if "schemas" in context and knowledge_base is not None:
+        mc = MessageContent.from_template(
+            _SECTION_SCHEMAS,
+            factor_combinations=schemas_to_message_content(
+                accepted_schemas or [],
+                rejected_schemas or [],
+                facets,
+                annotations or AnnotationTable(),
+                knowledge_base,
+            ),
         )
         content_blocks.extend(mc.content)
 

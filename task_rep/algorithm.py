@@ -57,8 +57,12 @@ from optimization import (
     compute_irr,
 
     RefinementTree,
+    AcceptedSchemaSummary,
+    RejectedSchemaSummary,
+    SchemaEvaluation,
     build_tree_nodes,
     prune_and_connect,
+    evaluate_schemas,
     sample_schemas_from_tree,
     compare_tree_quality,
 )
@@ -68,11 +72,11 @@ logger = logging.getLogger(__name__)
 # ---- DiscoveryConfig defaults (single source of truth) ----
 _DC_USE_CACHE = True
 _DC_MAX_ITERATIONS = 5
-_DC_MAX_FACETS = 10
-_DC_TARGET_FACETS = 10 # no greedy approach
+_DC_MAX_FACETS = 30
+_DC_TARGET_FACETS = 30 # no greedy approach
 # _DC_TARGET_FACETS = 20 ### seems reasonable --> oneshot generates around 35 nodes
 _DC_K_SCHEMAS_TO_SAMPLE = 3
-_DC_MAX_SCHEMA_FACETS = 2
+_DC_MAX_SCHEMA_FACETS = 1
 _DC_MAX_CELLS_PER_ITERATION = 1
 _DC_MAX_ITEMS_PER_CELL = 5
 _DC_MAX_CONCURRENCY = 32
@@ -82,7 +86,7 @@ _DC_METRIC_MODE = "entropy"
 _DC_ETA_SQUARED_WEIGHTING = "equal"
 _DC_SELECTION_MODE = "collision"
 _DC_ITERATIVE_CONTEXT = "facets"
-_DC_REFINEMENT_THRESHOLD = 0.75
+_DC_REFINEMENT_THRESHOLD = 0.20
 _DC_IRR_SAMPLE_VIDEOS = 3
 _DC_IRR_NUM_RATERS = 3
 _DC_IRR_MIN_AGREEMENT = 0.8
@@ -145,10 +149,11 @@ class DiscoveryConfig:
 
     # Context fed to the LLM in iterative mode.
     # Components are enabled by substring check ("facets" in iterative_context, etc.):
-    #   "facets" — existing facet pool (definitions + vocabularies)
+    #   "facets" — existing facet pool (definitions + vocabularies + frequencies)
     #   "items"  — tutorial video segments
     #   "tree"   — refinement-tree statistics
-    # Example: "facets+items" enables pool + segments.
+    #   "schemas" — accepted/rejected schemas with signature frequencies
+    # Example: "facets+items+schemas" enables pool + segments + schema stats.
     iterative_context: str = _DC_ITERATIVE_CONTEXT
 
     # Refinement threshold tau for tree pruning.
@@ -248,6 +253,8 @@ class DiscoveryResult:
     knowledge_base: KnowledgeBase
     iterations: int
     tree: Optional[RefinementTree] = None
+    accepted_schemas: Optional[List[AcceptedSchemaSummary]] = None
+    rejected_schemas: Optional[List[RejectedSchemaSummary]] = None
     discovery_calls: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
@@ -257,22 +264,36 @@ class DiscoveryResult:
             "knowledge_base": self.knowledge_base.to_dict(),
             "iterations": self.iterations,
             "discovery_calls": self.discovery_calls,
+            "tree": (
+                self.tree.to_dict()
+                if self.tree is not None
+                else RefinementTree(nodes=[], edges=[]).to_dict()
+            ),
         }
-        if self.tree is not None:
-            d["tree"] = self.tree.to_dict()
+        d["accepted_schemas"] = [
+            s.to_dict() for s in (self.accepted_schemas or [])
+        ]
+        d["rejected_schemas"] = [
+            s.to_dict() for s in (self.rejected_schemas or [])
+        ]
         return d
 
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> DiscoveryResult:
-        tree = None
-        if "tree" in data and data["tree"] is not None:
-            tree = RefinementTree.from_dict(data["tree"])
         return DiscoveryResult(
             facets=[Facet.from_dict(f) for f in data["facets"]],
             annotations=AnnotationTable.from_list(data["annotations"]),
             knowledge_base=KnowledgeBase.from_dict(data["knowledge_base"]),
             iterations=data["iterations"],
-            tree=tree,
+            tree=RefinementTree.from_dict(data["tree"]),
+            accepted_schemas=[
+                AcceptedSchemaSummary.from_dict(s)
+                for s in data["accepted_schemas"]
+            ],
+            rejected_schemas=[
+                RejectedSchemaSummary.from_dict(s)
+                for s in data["rejected_schemas"]
+            ],
             discovery_calls=data.get("discovery_calls", 0),
         )
 
@@ -305,6 +326,8 @@ class IterativeSchemaDiscovery:
         self._facets: Dict[str, Facet] = {}
         self._annotations: AnnotationTable = AnnotationTable()
         self._tree: Optional[RefinementTree] = None
+        self._accepted_schemas: List[AcceptedSchemaSummary] = []
+        self._rejected_schemas: List[RejectedSchemaSummary] = []
         self._knowledge_base: KnowledgeBase = KnowledgeBase(items=[])
         self._iteration: int = 0
         self._discovery_calls: int = 0
@@ -412,26 +435,41 @@ class IterativeSchemaDiscovery:
         annotated_ids = self._bank_annotations.facet_ids()
         return [f for f in self._bank_facets.values() if f.id in annotated_ids]
 
-    def _build_tree(
+    def _evaluate_schema_pool(
         self,
         focused_kb: KnowledgeBase,
         facets: List[Facet],
         annotations: AnnotationTable,
-    ) -> RefinementTree:
-        """Build a refinement tree from the given facets and annotations."""
+    ) -> SchemaEvaluation:
+        """Evaluate schemas from the given facets and annotations."""
         nodes, h_memo = build_tree_nodes(
             focused_kb, facets, annotations,
             max_schema_facets=self.config.max_schema_facets,
             metric_mode=self.config.metric_mode,
             eta_squared_weighting=self.config.eta_squared_weighting,
         )
-        return prune_and_connect(
+        return evaluate_schemas(
             nodes, focused_kb,
             {f.id: f for f in facets},
             annotations, h_memo,
             refinement_threshold=self.config.refinement_threshold,
             metric_mode=self.config.metric_mode,
         )
+
+    def _apply_schema_evaluation(self, evaluation: SchemaEvaluation):
+        """Store the current pool's tree and prompt-facing schema summaries."""
+        self._tree = evaluation.tree
+        self._accepted_schemas = evaluation.accepted_schemas
+        self._rejected_schemas = evaluation.rejected_schemas
+
+    def _build_tree(
+        self,
+        focused_kb: KnowledgeBase,
+        facets: List[Facet],
+        annotations: AnnotationTable,
+    ) -> RefinementTree:
+        """Build only the refinement tree for analysis code that does not mutate state."""
+        return self._evaluate_schema_pool(focused_kb, facets, annotations).tree
 
     def _greedy_select_pool(
         self,
@@ -462,7 +500,10 @@ class IterativeSchemaDiscovery:
                 self._annotations = self._annotations.merge(new_annotations).filter_facets(
                     list(self._facets.keys())
                 )
-                self._tree = self._build_tree(focused_kb, current_pool, self._annotations)
+                evaluation = self._evaluate_schema_pool(
+                    focused_kb, current_pool, self._annotations
+                )
+                self._apply_schema_evaluation(evaluation)
                 pool_changed = True
                 logger.info(
                     "Added facet %s to pool (%d/%d).",
@@ -482,20 +523,23 @@ class IterativeSchemaDiscovery:
                 union_facets_by_id = {f.id: f for f in union_pool}
 
                 best_tree = self._tree  # baseline
+                best_evaluation: Optional[SchemaEvaluation] = None
                 best_idx = -1
 
                 for i in range(len(current_pool)):
                     trial_ids = {f.id for f in current_pool[:i] + [candidate] + current_pool[i+1:]}
                     trial_nodes = [n for n in all_nodes if set(n.facet_ids) <= trial_ids]
-                    trial_tree = prune_and_connect(
+                    trial_evaluation = evaluate_schemas(
                         trial_nodes, focused_kb,
                         union_facets_by_id, union_ann, h_memo,
                         refinement_threshold=self.config.refinement_threshold,
                         metric_mode=self.config.metric_mode,
                     )
+                    trial_tree = trial_evaluation.tree
 
                     if compare_tree_quality(trial_tree, best_tree) > 0:
                         best_tree = trial_tree
+                        best_evaluation = trial_evaluation
                         best_idx = i
 
                 if best_idx >= 0:
@@ -505,7 +549,8 @@ class IterativeSchemaDiscovery:
                     self._annotations = self._annotations.merge(new_annotations).filter_facets(
                         list(self._facets.keys())
                     )
-                    self._tree = best_tree
+                    if best_evaluation is not None:
+                        self._apply_schema_evaluation(best_evaluation)
                     pool_changed = True
                     logger.info(
                         "Replaced facet %s with %s (tree: %d nodes).",
@@ -697,6 +742,8 @@ class IterativeSchemaDiscovery:
             knowledge_base=self._knowledge_base,
             iterations=self._iteration,
             tree=self._tree,
+            accepted_schemas=self._accepted_schemas,
+            rejected_schemas=self._rejected_schemas,
             discovery_calls=self._discovery_calls,
         )
 
@@ -783,8 +830,10 @@ class IterativeSchemaDiscovery:
                 self._facets[f.id] = f
             self._annotations = all_annotations.filter_facets(list(self._facets.keys()))
 
-            # Build initial tree
-            self._tree = self._build_tree(focused_kb, list(self._facets.values()), self._annotations)
+            # Build initial schema evaluation
+            self._apply_schema_evaluation(self._evaluate_schema_pool(
+                focused_kb, list(self._facets.values()), self._annotations
+            ))
             logger.info(
                 "Initial pool: %d facet(s), tree: %d nodes. Trying %d candidate(s)...",
                 len(initial_pool), len(self._tree.nodes), len(candidates),
@@ -820,11 +869,15 @@ class IterativeSchemaDiscovery:
 
         # Build initial tree (may be empty if no facets yet)
         if self._facets and self._tree is None:
-            self._tree = self._build_tree(focused_kb, list(self._facets.values()), self._annotations)
+            self._apply_schema_evaluation(self._evaluate_schema_pool(
+                focused_kb, list(self._facets.values()), self._annotations
+            ))
 
         # If no tree yet, create an empty one
         if self._tree is None:
             self._tree = RefinementTree(nodes=[], edges=[])
+            self._accepted_schemas = []
+            self._rejected_schemas = []
 
         # If bank has facets not yet tried for the pool, run greedy on them first
         # Respect max_facets budget, but only use usable facets (passed IRR)
@@ -1014,9 +1067,10 @@ class IterativeSchemaDiscovery:
         Stops when budget (max_facets total proposed) exhausted or max_iterations non-improvements.
 
         What is fed to the LLM is controlled by config.iterative_context:
-        - "facets"           : current pool (definitions + vocabularies)
-        - "facets_and_items" : pool + tutorial video segments
-        - "facets_and_stats" : pool + refinement-tree statistics
+        - "facets"  : current pool (definitions + vocabularies + frequencies)
+        - "items"   : tutorial video segments
+        - "tree"    : refinement-tree statistics
+        - "schemas" : accepted/rejected schemas with signature frequencies
         """
         max_facets = self.config.max_facets
         max_iterations = self.config.max_iterations
@@ -1027,9 +1081,13 @@ class IterativeSchemaDiscovery:
         tries_with_no_improvement = 0
 
         if self._facets and self._tree is None:
-            self._tree = self._build_tree(focused_kb, list(self._facets.values()), self._annotations)
+            self._apply_schema_evaluation(self._evaluate_schema_pool(
+                focused_kb, list(self._facets.values()), self._annotations
+            ))
         if self._tree is None:
             self._tree = RefinementTree(nodes=[], edges=[])
+            self._accepted_schemas = []
+            self._rejected_schemas = []
 
         # Replay any bank facets not yet in the pool
         bank_within_budget = [
@@ -1064,7 +1122,10 @@ class IterativeSchemaDiscovery:
                 context=iterative_context,
                 videos=videos,
                 annotations=self._annotations,
+                knowledge_base=focused_kb,
                 tree_stats=tree_stats,
+                accepted_schemas=self._accepted_schemas,
+                rejected_schemas=self._rejected_schemas,
             )
             self._discovery_calls += 1
 
@@ -1154,6 +1215,8 @@ class IterativeSchemaDiscovery:
             knowledge_base=self._knowledge_base,
             iterations=self._iteration,
             tree=self._tree,
+            accepted_schemas=self._accepted_schemas,
+            rejected_schemas=self._rejected_schemas,
             discovery_calls=self._discovery_calls,
         )
 
@@ -1175,6 +1238,8 @@ class IterativeSchemaDiscovery:
                 self._facets = {f.id: f for f in result.facets}
                 self._annotations = result.annotations
                 self._tree = result.tree
+                self._accepted_schemas = result.accepted_schemas or []
+                self._rejected_schemas = result.rejected_schemas or []
                 self._discovery_calls = result.discovery_calls
                 self._iteration = result.iterations
                 logger.info("Restored cache from %s (%d facets, %d annotations).", result_path, len(result.facets), len(result.annotations))

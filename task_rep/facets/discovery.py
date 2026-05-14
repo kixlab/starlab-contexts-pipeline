@@ -171,7 +171,10 @@ class VLMFacetExtractor:
         context: str,
         videos: Optional[Dict[str, List[KnowledgeItem]]] = None,
         annotations: Optional[AnnotationTable] = None,
+        knowledge_base: Optional[Any] = None,
         tree_stats: Optional[Dict[str, Any]] = None,
+        accepted_schemas: Optional[List[Any]] = None,
+        rejected_schemas: Optional[List[Any]] = None,
     ) -> List[Facet]:
         """Propose exactly one new facet conditioned on the existing pool.
 
@@ -181,7 +184,10 @@ class VLMFacetExtractor:
             context: Substring-checked string of components to include ("facets", "items", "tree")
             videos: Video segments with their pool annotations (included when "items" in context)
             annotations: Current pool annotations for the video segments
+            knowledge_base: Active optimization scope for frequency statistics
             tree_stats: Tree summary dict (included when "tree" in context)
+            accepted_schemas: Surviving schema summaries (included when "schemas" in context)
+            rejected_schemas: Rejected schema summaries (included when "schemas" in context)
 
         Returns:
             A list of new Facets, or an empty list if the LLM refused.
@@ -194,7 +200,10 @@ class VLMFacetExtractor:
             "context": context,
             "videos": videos,
             "annotations": annotations,
+            "knowledge_base": knowledge_base,
             "tree_stats": tree_stats,
+            "accepted_schemas": accepted_schemas,
+            "rejected_schemas": rejected_schemas,
         }]
 
         batch_results = batch_run_llm_calls(
