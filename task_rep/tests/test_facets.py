@@ -87,6 +87,7 @@ def sample_facet():
         scope="global",
         definition="The skill level required for this technique",
         justification="Different techniques require different skill levels",
+        user_question="How hard is this technique?",
         guidelines=["Label based on required expertise", "Consider tool complexity"],
         vocabulary=[
             FacetLabel(label="beginner", definition="Basic techniques", id="l1"),
@@ -101,6 +102,7 @@ def test_facet_creation(sample_facet):
     assert sample_facet.id == "f1"
     assert sample_facet.title == "Difficulty Level"
     assert sample_facet.scope == "global"
+    assert sample_facet.user_question == "How hard is this technique?"
     assert len(sample_facet.vocabulary) == 3
     assert len(sample_facet.guidelines) == 2
 
@@ -113,6 +115,7 @@ def test_facet_valid_scopes():
             id="f1", title="Test", title_plural="Tests",
             scope=scope,
             definition="Test", justification="Test",
+            user_question="What test value applies?",
             guidelines=[], vocabulary=[],
         )
         assert facet.scope == scope
@@ -124,6 +127,7 @@ def test_facet_to_dict(sample_facet):
     assert data["id"] == "f1"
     assert data["title"] == "Difficulty Level"
     assert data["scope"] == "global"
+    assert data["user_question"] == "How hard is this technique?"
     assert len(data["vocabulary"]) == 3
     assert data["vocabulary"][0]["label"] == "beginner"
 
@@ -136,6 +140,7 @@ def test_facet_from_dict(sample_facet):
     assert restored.title == sample_facet.title
     assert restored.scope == sample_facet.scope
     assert restored.definition == sample_facet.definition
+    assert restored.user_question == sample_facet.user_question
     assert restored.justification == sample_facet.justification
     assert restored.guidelines == sample_facet.guidelines
     assert len(restored.vocabulary) == len(sample_facet.vocabulary)
@@ -156,15 +161,15 @@ def test_facet_hash_and_eq():
     """Test Facet __hash__ and __eq__ are based on id."""
     f1 = Facet(
         id="same_id", title="A", title_plural="As", scope="global",
-        definition="d", justification="j", guidelines=[], vocabulary=[],
+        definition="d", justification="j", user_question="What is A?", guidelines=[], vocabulary=[],
     )
     f2 = Facet(
         id="same_id", title="B", title_plural="Bs", scope="mid-level",
-        definition="e", justification="k", guidelines=[], vocabulary=[],
+        definition="e", justification="k", user_question="What is B?", guidelines=[], vocabulary=[],
     )
     f3 = Facet(
         id="different_id", title="A", title_plural="As", scope="global",
-        definition="d", justification="j", guidelines=[], vocabulary=[],
+        definition="d", justification="j", user_question="What is A?", guidelines=[], vocabulary=[],
     )
 
     assert f1 == f2  # Same id
@@ -206,6 +211,7 @@ def test_facet_format_to_message_content(sample_facet):
     assert len(mc.content) == 1
     assert mc.content[0]["type"] == "text"
     assert "Difficulty Level" in mc.content[0]["text"]
+    assert "How hard is this technique?" in mc.content[0]["text"]
 
 
 def test_facets_to_message_content_includes_label_frequencies(sample_facet):
@@ -233,9 +239,9 @@ def test_facets_to_message_content_includes_label_frequencies(sample_facet):
     mc = facets_to_message_content([sample_facet], annotations, kb)
     text = mc.content[0]["text"]
     assert "beginner" in text
-    assert "frequency: 2" in text
+    assert "<frequency>2</frequency>" in text
     assert "intermediate" in text
-    assert "frequency: 0" in text
+    assert "<frequency>0</frequency>" in text
 
 
 def test_schemas_to_message_content_includes_signature_frequencies(sample_facet):
@@ -246,6 +252,7 @@ def test_schemas_to_message_content_includes_signature_frequencies(sample_facet)
         scope="global",
         definition="The tool used for the technique",
         justification="Testing",
+        user_question="What tool is being used?",
         guidelines=["Label based on the tool in use"],
         vocabulary=[
             FacetLabel(label="brush", definition="Brush tool"),
@@ -300,19 +307,21 @@ def test_schemas_to_message_content_includes_signature_frequencies(sample_facet)
         accepted, rejected, [sample_facet, tool_facet], annotations, kb
     )
     text = mc.content[0]["text"]
-    assert "Accepted factors:" in text
-    assert "Rejected factors:" in text
-    accepted_text = text.split("Rejected factors:")[0]
+    assert "Accepted facet combinations:" in text
+    assert "Rejected facet combinations:" in text
+    accepted_text = text.split("Rejected facet combinations:")[0]
     assert "No factors." not in accepted_text
     # F IDs are global to the full factor list, not local to each combination.
-    assert "Accepted factors:\n<factors>\n<factor id=\"F2\">" in text
+    assert '<facet_combination id="A1" status="accepted">' in text
+    assert '<facet_combination id="R1" status="rejected">' in text
     assert "<factor id=\"F1\">" in text
     assert "<factor id=\"F2\">" in text
-    assert "Difficulty Levels: The skill level required for this technique" in text
-    assert "Tools: The tool used for the technique" in text
-    assert "<Tool:brush>: 1" in text
+    assert "<title>Difficulty Levels</title>" in text
+    assert "<title>Tools</title>" in text
+    assert "<user_question>What tool is being used?</user_question>" in text
+    assert "<value><Tool:brush></value><frequency>1</frequency>" in text
     assert '<rejected_by id="A1"/>' in text
-    assert "schema" not in text.lower()
+    assert "Redundant with accepted facet combination A1" in text
 
 
 def test_iterative_prompt_assembles_factor_combinations(sample_facet):
@@ -341,10 +350,12 @@ def test_iterative_prompt_assembles_factor_combinations(sample_facet):
     )
     content = request["messages"][1]["content"].content
     text = "\n".join(block["text"] for block in content if block["type"] == "text")
-    assert "frequency: 1" in text
-    assert "Accepted factors:" in text
+    assert "<frequency>1</frequency>" in text
+    assert "Accepted facet combinations:" in text
     assert "<factor id=\"F1\">" in text
-    assert "schema" not in text.lower()
+    assert "learner's situation" in request["messages"][0]["content"].content[0]["text"]
+    assert "Show me the segments for when" in text
+    assert "`user_question`" in text
 
 
 def test_facet_default_metadata():
@@ -352,6 +363,7 @@ def test_facet_default_metadata():
     facet = Facet(
         id="f1", title="Test", title_plural="Tests", scope="global",
         definition="Test", justification="Test",
+        user_question="What test value applies?",
         guidelines=[], vocabulary=[],
     )
     assert facet.metadata == {}
@@ -362,6 +374,7 @@ def test_facet_with_metadata():
     facet = Facet(
         id="f1", title="Test", title_plural="Tests", scope="global",
         definition="Test", justification="Test",
+        user_question="What test value applies?",
         guidelines=[], vocabulary=[],
         metadata={"iteration": 3, "source": "discovery"},
     )

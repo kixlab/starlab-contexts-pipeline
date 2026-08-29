@@ -28,16 +28,49 @@ from knowledge_items.schema import KnowledgeItem
 logger = logging.getLogger(__name__)
 
 
-SYSTEM_PROMPT = """You are a helpful assistant who can analyze and detect the contextual factors around the task: {task}."""
+SYSTEM_PROMPT = """You design user-facing metadata for tutorial videos about: {task}.
+
+You propose contextual factors: dimensions of a learner's situation that determine which tutorial segments apply to them. A learner's situation consists of their goal, materials, equipment, and progress through the task.
+
+Your audience is novice and intermediate learners of {task}. Factors become filter menus, timeline labels, and search options. Learners use them to find useful segments before watching, so every factor must be something a learner can state about their own situation without seeing the footage."""
 
 USER_PROMPT = """You are given a set of tutorial segments, a subset of target tutorial segments (i.e., targets), and previously identified contextual factors. Your task is to identify new contextual factors that can help distinguish the targets. The new factors should be different from the previous contextual factors and from each other.
-A contextual factor is an aspect of the procedural situation that helps characterize when a tutorial segment is applicable.
-Prefer factors that are interpretable, and useful across many tutorial segments. Do not use factors based on narration, editing, presentation style, or simple restatements of segment content. If no valid factors can be identified reliably, return an empty list of candidates and briefly explain why in `refusal_reason`.
+A contextual factor is a dimension of the learner's situation that helps characterize when a tutorial segment applies. If no valid factors can be identified reliably, return an empty list of candidates and briefly explain why in `refusal_reason`.
+
+WHAT QUALIFIES AS A CONTEXTUAL FACTOR
+Each vocabulary value must be a situation a learner could truthfully claim before watching. Test every value with this sentence:
+
+    "Show me the segments for when ___."
+
+- If a value can only be determined by observing how the instructor moves, holds, paces, presents, or what the camera shows, it describes the footage, not a learner's situation.
+- A factor is useful only if learners in different situations need different segments. Before proposing it, identify two concrete learners whose situations differ on this factor and who would retrieve different segments.
+- Values must use the words of {task}, not vocabulary from robotics, motor control, cinematography, or another discipline.
+- If the factor and vocabulary would transfer unchanged to an unrelated manual task such as pottery, knitting, surgery, or furniture assembly, reject it.
+
+VALIDITY REQUIREMENTS
+- Distinct from existing factors and not largely predictable from their combination.
+- Grounded in the provided segments, with at least two values that would be used.
+- Not based on narration, editing, camera framing, viewer visibility, visual occlusion, or segment presentation.
+
+EXPRESSION REQUIREMENTS
+- `title`: 1-3 everyday words; a concrete noun phrase a learner would recognize.
+- `user_question`: the learner-facing question this factor answers, e.g. "What kind of roll are you making?" or "What tool do you have?"
+- `vocabulary`: 3-8 values when possible. Labels are 1-3 common words and distinguishable by a first-time learner. One "other" or "not applicable" value is allowed.
+- `definition` and value definitions: one plain sentence, roughly 15 words or fewer.
+- `guidelines`: annotator-facing edge cases, tie-breakers, boundary conditions, and label-change triggers.
+
+STOPPING RULE
+If every candidate fails the "Show me the segments for when ___" test, the two-learners test, or the redundancy requirement, return an empty candidate list and state which candidates you considered and why each failed.
+
+EXAMPLE (different domain: pottery)
+BAD: title="Prehension Patterns", user_question="How is the object grasped?", vocabulary=["precision pinch", "power grasp"].
+GOOD: title="Clay Stage", user_question="How firm is your clay right now?", vocabulary=["wet", "leather-hard", "bone-dry", "fired"].
 
 OUTPUT
 For each proposed contextual factor, provide:
 - `title`: short name (1-3 words)
 - `title_plural`: plural form of the title
+- `user_question`: a learner-facing question used to choose the factor value
 - `scope`: one of "global", "mid-level", or "fine-grained"
 - `definition`: brief description of what this factor captures
 - `justification`: (1) why this is a valid contextual factor, and (2) why it is distinct from the previous contextual factors (if any)
@@ -55,6 +88,12 @@ INPUTS
 {target_items}
 - Tutorials:
 {tutorials}
+
+Before answering, verify:
+1. Could each value complete "Show me the segments for when ___"?
+2. Can two concrete learners differ on this factor and need different segments?
+3. Is the factor a learner situation, not footage behavior or segment content?
+If the only remaining options are obscure, subjective, redundant, footage-derived, or item-restating, return no candidates.
 """
 
 # USER_PROMPT = """You are given tutorial videos and target information units extracted from them. Your job is to discover candidate contextual factors (facets) that help differentiate the procedural situations in which these information units occur.
@@ -218,6 +257,7 @@ def form_facet_discovery_request(
             "role": "user",
             "content": MessageContent.from_template(
                 USER_PROMPT,
+                task=task,
                 previous_facets=facets_to_message_content(facets),
                 tutorials=videos_to_message_content(videos, id_map),
                 target_items=target_items_to_message_content(target_items, id_map),
@@ -315,6 +355,7 @@ def process_facet_discovery_response(
             id=random_uid(),
             title=candidate["title"],
             title_plural=candidate["title_plural"],
+            user_question=candidate.get("user_question", ""),
             scope=candidate["scope"],
             definition=candidate["definition"],
             justification=candidate["justification"],

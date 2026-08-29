@@ -1079,6 +1079,7 @@ class IterativeSchemaDiscovery:
 
         total_proposed = min(len(self._bank_facets), max_facets)
         tries_with_no_improvement = 0
+        consecutive_refusals = 0
 
         if self._facets and self._tree is None:
             self._apply_schema_evaluation(self._evaluate_schema_pool(
@@ -1130,9 +1131,19 @@ class IterativeSchemaDiscovery:
             self._discovery_calls += 1
 
             if not new_facets:
-                logger.info("Iterative proposal refused — no useful facet found.")
-                tries_with_no_improvement += 1
+                consecutive_refusals += 1
+                if consecutive_refusals >= max_iterations:
+                    logger.info(
+                        "Iterative proposal refused %d time(s) in a row — stopping early "
+                        "(budget %d/%d).", consecutive_refusals, total_proposed, max_facets,
+                    )
+                    break
+                logger.info(
+                    "Iterative proposal refused (%d/%d consecutive) — continuing toward budget %d/%d.",
+                    consecutive_refusals, max_iterations, total_proposed, max_facets,
+                )
                 continue
+            consecutive_refusals = 0
 
             # Dedup against bank
             for new_facet in new_facets:

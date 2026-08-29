@@ -70,6 +70,7 @@ class Facet:
     justification: str
     guidelines: List[str]
     vocabulary: List[FacetLabel]
+    user_question: str = ""
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def __hash__(self):
@@ -91,6 +92,7 @@ class Facet:
             "justification": self.justification,
             "guidelines": self.guidelines,
             "vocabulary": [label.to_dict() for label in self.vocabulary],
+            "user_question": self.user_question,
             "metadata": self.metadata,
         }
 
@@ -107,6 +109,7 @@ class Facet:
             justification=data["justification"],
             guidelines=data["guidelines"],
             vocabulary=vocabulary,
+            user_question=data.get("user_question", ""),
             metadata=data.get("metadata", {}),
         )
 

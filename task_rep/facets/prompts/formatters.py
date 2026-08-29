@@ -103,6 +103,7 @@ def facet_label_frequencies(
 
 _FACET_FORMAT = """<factor id="{display_id}">
 <title>{title_plural}</title>
+<user_question>{user_question}</user_question>
 <definition>{definition}</definition>
 <guidelines>
 {guidelines}
@@ -122,6 +123,7 @@ def format_facet(
     return _FACET_FORMAT.format(
         display_id=did,
         title_plural=facet.title_plural,
+        user_question=facet.user_question or "No user-facing question is available.",
         definition=facet.definition,
         guidelines=format_guidelines(facet.guidelines),
         vocabulary=format_vocabulary(facet.vocabulary, label_frequencies),
@@ -283,8 +285,40 @@ def tree_stats_to_message_content(tree_stats: Dict[str, Any]) -> MessageContent:
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
-def _format_combined_factors(
+_SIGNATURE_WITH_FREQUENCY_STR_FORMAT = """<signature><value>{signature}</value><frequency>{frequency}</frequency></signature>"""
+
+def _format_signature_frequencies(
     schema: Any,
+    facets: List[Facet],
+    annotations: AnnotationTable,
+    knowledge_base: KnowledgeBase,
+) -> str:
+    schema_facet_ids = set(getattr(schema, "facet_ids", []))
+    schema_facets = [facet for facet in facets if facet.id in schema_facet_ids]
+    if not schema_facets:
+        return "No facet labels."
+
+    counts = Counter()
+    for item in knowledge_base:
+        if item.unit_id is None:
+            continue
+        counts[annotations.signature(item.id, schema_facets)] += 1
+
+    if not counts:
+        return "No labeled segments."
+
+    return "\n".join(
+        _SIGNATURE_WITH_FREQUENCY_STR_FORMAT.format(
+            signature=signature,
+            frequency=frequency,
+        )
+        for signature, frequency in sorted(counts.items())
+    )
+
+def _format_facet_combination(
+    schema: Any,
+    schema_label: str,
+    status: str,
     facets: List[Facet],
     facet_display_ids: Dict[str, str],
     annotations: AnnotationTable,
@@ -292,7 +326,15 @@ def _format_combined_factors(
     rejected_by_label: Optional[str] = None,
 ) -> str:
     lines = []
-    lines.append("<factor>")
+    lines.append(f'<facet_combination id="{schema_label}" status="{status}">')
+    lines.append(
+        "<metrics "
+        f"size=\"{getattr(schema, 'size', 0)}\" "
+        f"D=\"{getattr(schema, 'D', 0.0):.4f}\" "
+        f"eta2=\"{getattr(schema, 'eta2', 0.0):.4f}\" "
+        f"H=\"{getattr(schema, 'H', 0.0):.4f}\"/>"
+    )
+    lines.append("<facets>")
     schema_facet_ids = set(getattr(schema, "facet_ids", []))
     if not schema_facet_ids:
         lines.append("No factors.")
@@ -304,18 +346,23 @@ def _format_combined_factors(
             display_id=facet_display_ids[facet.id],
             label_frequencies=facet_label_frequencies(facet, knowledge_base, annotations),
         ))
+    lines.append("</facets>")
+    lines.append("<signature_frequencies>")
+    lines.append(_format_signature_frequencies(schema, facets, annotations, knowledge_base))
+    lines.append("</signature_frequencies>")
     
     if rejected_by_label is not None:
         lines.append(
             f'<rejected_by id="{rejected_by_label}"/>'
         )
         lines.append(
-            "<rejection>"
-            f"refinement_score={getattr(schema, 'refinement_score', 0.0):.4f}, "
-            f"threshold={getattr(schema, 'refinement_threshold', 0.0):.4f}"
-            "</rejection>"
+            "<rejection_reason>"
+            f"Redundant with accepted facet combination {rejected_by_label}: "
+            f"refinement_score={getattr(schema, 'refinement_score', 0.0):.4f} "
+            f"exceeded threshold={getattr(schema, 'refinement_threshold', 0.0):.4f}."
+            "</rejection_reason>"
         )
-    lines.append("</factor>")
+    lines.append("</facet_combination>")
     return "\n".join(lines)
 
 def schemas_to_message_content(
@@ -325,11 +372,15 @@ def schemas_to_message_content(
     annotations: AnnotationTable,
     knowledge_base: KnowledgeBase,
 ) -> MessageContent:
-    """Format accepted/rejected factor combinations with signature frequencies."""
+    """Format accepted/rejected facet combinations with signature frequencies."""
     accepted_schemas = [
         schema for schema in accepted_schemas
         if getattr(schema, "facet_ids", [])
     ]
+    facet_display_ids = {
+        facet.id: facet_display_id(idx)
+        for idx, facet in enumerate(facets)
+    }
     accepted_label_by_id = {
         getattr(schema, "id", ""): f"A{idx}"
         for idx, schema in enumerate(accepted_schemas, start=1)
@@ -338,25 +389,38 @@ def schemas_to_message_content(
         getattr(schema, "id", ""): f"R{idx}"
         for idx, schema in enumerate(rejected_schemas, start=1)
     }
-    lines = ["Accepted factors:"]
+    lines = ["Accepted facet combinations:"]
     if accepted_schemas:
         for schema in accepted_schemas:
-            lines.append(_format_combined_factors(
-                schema, facets, accepted_label_by_id, annotations, knowledge_base
+            lines.append(_format_facet_combination(
+                schema,
+                accepted_label_by_id.get(getattr(schema, "id", ""), "A?"),
+                "accepted",
+                facets,
+                facet_display_ids,
+                annotations,
+                knowledge_base,
             ))
     else:
-        lines.append("No accepted factors.")
+        lines.append("No accepted facet combinations.")
 
-    lines.append("Rejected factors:")
+    lines.append("Rejected facet combinations:")
     if rejected_schemas:
         for schema in rejected_schemas:
             rejected_by_id = getattr(schema, "rejected_by_id", "")
-            rejected_by_label = accepted_label_by_id.get(rejected_by_id, "")
-            lines.append(_format_combined_factors(
-                schema, facets, rejected_label_by_id, annotations, knowledge_base, rejected_by_label=rejected_by_label
+            rejected_by_label = accepted_label_by_id.get(rejected_by_id, "unknown")
+            lines.append(_format_facet_combination(
+                schema,
+                rejected_label_by_id.get(getattr(schema, "id", ""), "R?"),
+                "rejected",
+                facets,
+                facet_display_ids,
+                annotations,
+                knowledge_base,
+                rejected_by_label=rejected_by_label,
             ))
     else:
-        lines.append("No rejected factors.")
+        lines.append("No rejected facet combinations.")
 
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 

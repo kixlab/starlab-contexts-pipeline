@@ -55,6 +55,9 @@ class ContextualFactorCandidate(BaseModel):
 
     title: str = Field(description="Short name (1-3 words)")
     title_plural: str = Field(description="Plural form of the title")
+    user_question: str = Field(
+        description="A natural question a novice learner would ask to choose this factor's value, e.g. 'What tool is being used?'"
+    )
     scope: str = Field(description="global, mid-level, or fine-grained")
     justification: str = Field(
         description="Why this factor was chosen: (1) why it is a valid contextual factor, (2) why it is distinct from previously identified contextual factors"
