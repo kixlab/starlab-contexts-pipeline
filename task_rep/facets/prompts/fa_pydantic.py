@@ -26,29 +26,6 @@ class Segmentation(BaseModel):
 
 #----------------------------------------
 
-class TargetAssignment(BaseModel):
-    """Label assignment for a target tutorial segment."""
-    model_config = ConfigDict(extra='forbid')
-
-    segment_id: str = Field(description="ID of the target tutorial segment")
-    label: str = Field(description="Assigned label from the vocabulary")
-    brief_reason: str = Field(
-        description="One-sentence justification for why this label applies based on the proceudral context."
-    )
-
-
-class AnchorExample(BaseModel):
-    """A non-target tutorial segment demonstrating that the contextual factor applies broadly."""
-    model_config = ConfigDict(extra='forbid')
-
-    segment_id: str = Field(description="ID of a non-target tutorial segment")
-    label: str = Field(description="The assigned label for this tutorial segment under the contextual factor")
-    brief_reason: str = Field(
-        description="Why this anchor demonstrates the contextual factor's breadth"
-    )
-
-#----------------------------------------
-
 class ContextualFactorCandidate(BaseModel):
     """A proposed contextual factor."""
     model_config = ConfigDict(extra='forbid')
@@ -66,45 +43,6 @@ class ContextualFactorCandidate(BaseModel):
     guidelines: List[str] = Field(description="Instructions for labeling tutorial segments under this contextual factor")
     vocabulary: list[VocabularyEntry] = Field(description="Vocabulary for this contextual factor (list of possible label values)")
 
-
-#----------------------------------------
-
-class ContextualFactorCandidateWithAssignments(ContextualFactorCandidate):
-    """A proposed contextual factor with assignments to target tutorial segments."""
-
-    target_assignments: list[TargetAssignment] = Field(
-        min_length=1,
-        description="Label for each target tutorial segment under this contextual factor"
-    )
-    anchor_examples: list[AnchorExample] = Field(
-        min_length=2,
-        max_length=4,
-        description="Non-target tutorial segments showing the contextual factor applies broadly, with different labels used",
-    )
-
-
-class ContextualFactorDiscoveryResult(BaseModel):
-    """Result of contextual factor discovery."""
-    model_config = ConfigDict(extra='forbid')
-
-    candidates: list[ContextualFactorCandidateWithAssignments] = Field(
-        min_length=0,
-        description="Proposed contextual factors. Empty list if none are valid."
-    )
-    refusal_reason: str = Field(
-        description="If no candidates are proposed, a brief explanation of why the target tutorial segments cannot be meaningfully distinguished by contextual factors. Otherwise, leave it empty.",
-    )
-
-#----------------------------------------
-# Contextual Factor Revision
-#----------------------------------------
-
-class ContextualFactorRevisionResult(BaseModel):
-    """Result of contextual factor revision."""
-    model_config = ConfigDict(extra='forbid')
-
-    candidates: List[ContextualFactorCandidate] = Field(description="Revised contextual factors")
-    changes: str = Field(description="Summary of what was changed and why. If no changes are proposed, a brief explanation of why.")
 
 #----------------------------------------
 # Contextual Factor Initialization

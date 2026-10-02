@@ -1,11 +1,11 @@
 """
 Refinement tree construction for task schema evaluation.
 
-Alternative to the Pareto frontier approach. Builds a tree/DAG of schemas
-where edges represent refinement relationships based on mutual information.
+Builds a tree/DAG of schemas where edges represent refinement relationships
+based on mutual information.
 
 The algorithm:
-1. Enumerate all facet subsets (same as Pareto), compute per-node metrics.
+1. Enumerate all facet subsets up to max_schema_facets, compute per-node metrics.
 2. Greedy survival: process nodes by increasing size, reject if an
    already-accepted node captures the candidate (ref > tau at <= size).
 3. Edge building: connect survivors where ref(A->B) > tau and size(A) < size(B).
@@ -15,7 +15,6 @@ The algorithm:
 from __future__ import annotations
 
 import math
-import random
 from collections import defaultdict
 from dataclasses import dataclass, field
 from itertools import combinations
@@ -50,7 +49,7 @@ class TreeNode:
 
     @property
     def discriminativeness(self) -> float:
-        """Compatibility with FrontierPoint interface used in main loop."""
+        """Alias for D (conditional entropy H(U|C), lower is better)."""
         return self.D
 
     def to_dict(self) -> Dict[str, Any]:
@@ -380,8 +379,8 @@ def build_tree_nodes(
     """
     Enumerate all facet subsets and compute per-node metrics.
 
-    Same brute-force enumeration as compute_frontier, but computes D, eta2,
-    and H for each subset.
+    Brute-force enumeration of subsets up to ``max_schema_facets``; computes
+    D, eta2, and H for each subset.
 
     Args:
         knowledge_base: Items with unit_ids assigned.
@@ -661,49 +660,6 @@ def _transitive_reduction(
         return False
 
     return [e for e in edges if not _is_reachable_without_direct(e.source_id, e.target_id)]
-
-
-# ---------------------------------------------------------------------------
-# Sampling
-# ---------------------------------------------------------------------------
-
-def sample_schemas_from_tree(
-    tree: RefinementTree,
-    facets_by_id: Dict[str, Facet],
-    k: int = 2,
-) -> List[Tuple[List[Facet], TreeNode]]:
-    """
-    Sample k schemas from leaf nodes of the tree.
-
-    A leaf node has no outgoing edges (no child refines it).
-
-    Args:
-        tree: The refinement tree.
-        facets_by_id: Facet lookup.
-        k: Number of schemas to sample.
-
-    Returns:
-        List of (facet_list, tree_node) tuples.
-    """
-    if not tree.nodes:
-        return []
-
-    # Find nodes with outgoing edges
-    has_outgoing: Set[str] = {e.source_id for e in tree.edges}
-    leaves = [n for n in tree.nodes if n.id not in has_outgoing]
-
-    if not leaves:
-        return []
-
-    sampled = random.sample(leaves, min(k, len(leaves)))
-
-    return [
-        (
-            [facets_by_id[fid] for fid in node.facet_ids if fid in facets_by_id],
-            node,
-        )
-        for node in sampled
-    ]
 
 
 # ---------------------------------------------------------------------------
