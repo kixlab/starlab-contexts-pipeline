@@ -19,6 +19,7 @@ from typing import Optional
 from knowledge_items import KnowledgeBase
 
 from optimization import irr
+from utils.llm import SEED
 
 from .config import PipelineConfig
 from .models import PipelineState, PipelineResult
@@ -58,8 +59,8 @@ class PipelineStore:
             "kb": self.kb_fp,
             "prompt": self.prompt_fp,
             "config": self.config.semantic_dict(),
-            # Code-level sampling settings that change IRR outcomes.
-            "irr": {"temperature": irr.IRR_TEMPERATURE, "base_seed": irr.IRR_BASE_SEED},
+            # Code-level sampling settings (the run seed is in the config).
+            "sampling": {"irr_temperature": irr.IRR_TEMPERATURE, "seed_base": SEED},
         }
         blob = json.dumps(payload, sort_keys=True, ensure_ascii=False)
         return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:24]

@@ -12,6 +12,7 @@ from enum import Enum
 from typing import Any, Dict, FrozenSet, Iterable, Optional
 
 from utils import ModelConfig
+from utils.llm import SEED
 
 from knowledge_items import ItemScopeConfig
 
@@ -56,6 +57,23 @@ def parse_context(components: Iterable[Any]) -> FrozenSet[ContextComponent]:
     return frozenset(parsed)
 
 
+# Per-stage offsets keep the seeds of different call kinds apart.
+_STAGE_SEED_OFFSETS = {
+    "proposal": 0, "vocabulary": 100_000, "labeling": 200_000, "irr": 300_000,
+    "items": 400_000,  # ITEMS video sampling
+}
+
+
+def stage_seed(run_seed: int, stage: str, index: int = 0) -> int:
+    """Sampling seed for one call kind of one attempt in one run.
+
+    Distinct per run seed, stage, and attempt index, so an iterative run never
+    resends an identical prompt with an identical seed, and replicate runs
+    (run seeds 0, 1, 2, ...) sample independently.
+    """
+    return SEED + run_seed * 1_000_000 + _STAGE_SEED_OFFSETS[stage] + index
+
+
 # Settings that do not change what a run computes; excluded from the fingerprint.
 NON_SEMANTIC_FIELDS = frozenset({"use_cache", "max_concurrency"})
 
@@ -88,9 +106,10 @@ class PipelineConfig:
     refusal_patience: int = 5            # consecutive empty responses before stopping
 
     # ---- candidate lifecycle ----
-    max_concurrency: int = 32
+    max_concurrency: int = 150
     vocab_sample_videos: int = 0            # 0 = all videos
-    dedup_similarity_threshold: float = 0.90
+    items_sample_videos: int = 0            # ITEMS context: videos per attempt (0 = all)
+    dedup_similarity_threshold: float = 0.87
     irr_sample_videos: int = 3              # 0 = IRR disabled
     irr_num_raters: int = 3
     irr_min_agreement: float = 0.8
@@ -100,6 +119,9 @@ class PipelineConfig:
     eta_squared_weighting: str = "equal"
     refinement_threshold: float = 0.2
     max_schema_facets: int = 1
+
+    # ---- sampling ----
+    seed: int = 0  # run seed: replicates of a config differ only here
 
     # ---- caching ----
     use_cache: bool = True
@@ -126,6 +148,10 @@ class PipelineConfig:
             raise ValueError("attempt_limit must be > 0.")
         if self.no_improvement_patience <= 0 or self.refusal_patience <= 0:
             raise ValueError("patience values must be > 0.")
+        if self.seed < 0:
+            raise ValueError("seed must be >= 0.")
+        if self.vocab_sample_videos < 0 or self.items_sample_videos < 0:
+            raise ValueError("sample_videos settings must be >= 0.")
         if not 0.0 < self.dedup_similarity_threshold <= 1.0:
             raise ValueError("dedup_similarity_threshold must be in (0, 1].")
         if self.metric_mode not in ("entropy", "coherence_ordinal", "coherence_temporal"):
@@ -149,6 +175,7 @@ class PipelineConfig:
             "refusal_patience": self.refusal_patience,
             "max_concurrency": self.max_concurrency,
             "vocab_sample_videos": self.vocab_sample_videos,
+            "items_sample_videos": self.items_sample_videos,
             "dedup_similarity_threshold": self.dedup_similarity_threshold,
             "irr_sample_videos": self.irr_sample_videos,
             "irr_num_raters": self.irr_num_raters,
@@ -157,6 +184,7 @@ class PipelineConfig:
             "eta_squared_weighting": self.eta_squared_weighting,
             "refinement_threshold": self.refinement_threshold,
             "max_schema_facets": self.max_schema_facets,
+            "seed": self.seed,
             "use_cache": self.use_cache,
         }
 

@@ -8,6 +8,9 @@ class ModelConfig:
     category: Literal["vlm", "embedding"]
     provider: Literal["openai", "anthropic", "gemini"]
     model: Optional[str] = None
+    # Thinking / reasoning effort ("minimal" | "low" | "medium" | "high");
+    # None = utils.llm.REASONING_EFFORT. Not part of cache_suffix.
+    reasoning_effort: Optional[str] = None
 
     def __post_init__(self):
         """Initialize default model based on provider (only if not explicitly set)."""
@@ -38,7 +41,10 @@ class ModelConfig:
         return f"{model_name}"
 
     def to_dict(self) -> Dict[str, Any]:
-        return {"category": self.category, "provider": self.provider, "model": self.model}
+        data = {"category": self.category, "provider": self.provider, "model": self.model}
+        if self.reasoning_effort is not None:  # omitted when unset: stable identities
+            data["reasoning_effort"] = self.reasoning_effort
+        return data
 
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> "ModelConfig":
@@ -46,4 +52,5 @@ class ModelConfig:
             category=data["category"],
             provider=data["provider"],
             model=data.get("model"),
+            reasoning_effort=data.get("reasoning_effort"),
         )

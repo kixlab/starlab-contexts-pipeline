@@ -27,8 +27,9 @@ logger = logging.getLogger(__name__)
 # passes were identical, so kappa was always ~1.
 IRR_TEMPERATURE = None
 
-# Rater i labels with seed IRR_BASE_SEED + i, so passes are independent of each
-# other (and of the main labeling pass) yet reproducible.
+# Default IRR seed: rater i labels with seed + i, so passes are independent of
+# each other (and of the main labeling pass) yet reproducible. The pipeline
+# passes a seed derived from its run seed instead.
 IRR_BASE_SEED = 1000
 
 
@@ -98,6 +99,7 @@ def compute_irr(
     sample_videos: int = 3,
     num_raters: int = 3,
     min_agreement: float = 0.6,
+    seed: int = IRR_BASE_SEED,
 ) -> Dict[str, Any]:
     """
     Compute inter-rater reliability for facet labeling.
@@ -113,6 +115,7 @@ def compute_irr(
         sample_videos: Number of tutorials to sample.
         num_raters: Number of independent labeling passes.
         min_agreement: Kappa threshold below which a facet is flagged.
+        seed: Seeds video sampling; rater i labels with ``seed + i``.
 
     Returns:
         Dict with keys:
@@ -136,7 +139,7 @@ def compute_irr(
     # Sample videos
     all_video_ids = list(knowledge_base.by_video().keys())
     k = min(sample_videos, len(all_video_ids))
-    sampled_video_ids = random.sample(all_video_ids, k)
+    sampled_video_ids = random.Random(seed).sample(sorted(all_video_ids), k)
     logger.info("IRR: sampling %d videos: %s", k, sampled_video_ids)
 
     # Filter KB to sampled videos
@@ -152,7 +155,7 @@ def compute_irr(
         task=task,
         facets=facets,
         knowledge_base=sampled_kb,
-        seeds=[IRR_BASE_SEED + i for i in range(num_raters)],
+        seeds=[seed + i for i in range(num_raters)],
         temperature=IRR_TEMPERATURE,
     )
 
@@ -167,13 +170,14 @@ def compute_irr(
         all_categories: Set[str] = set()
         ratings: List[List[str]] = []
 
+        # Only items every rater labeled count: a missing label means a failed
+        # request (or an omitted item), not a disagreement.
         for item_id in item_ids:
-            item_labels = []
-            for anno in passes:
-                key = (item_id, facet.id)
-                label = anno[key] if key in anno else "na"
-                item_labels.append(label)
-                all_categories.add(label)
+            key = (item_id, facet.id)
+            if not all(key in anno for anno in passes):
+                continue
+            item_labels = [anno[key] for anno in passes]
+            all_categories.update(item_labels)
             ratings.append(item_labels)
 
         if not ratings:

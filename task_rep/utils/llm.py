@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import contextlib
+import contextvars
 import json
 import os
 import random
@@ -20,7 +22,7 @@ import re
 import logging
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional
 
@@ -40,6 +42,97 @@ class LLMParseError(Exception):
     """Raised when an LLM response cannot be parsed. Treated as retryable."""
 
 
+class LLMBatchOutage(RuntimeError):
+    """Every request in a batch failed and at least one failure was a service
+    error (rate limit, network, server): treat as an outage, not as a property
+    of the requests."""
+
+
+@dataclass
+class LLMRequestFailed:
+    """Placeholder result for a request that failed permanently (allow_errors).
+
+    ``kind`` is "service" (rate limit / network / server errors exhausted) or
+    "request" (unparseable responses or a non-retryable request error).
+    """
+
+    errors: List[str]
+    kind: str
+
+
+# ============== Token usage ==============
+
+# Providers attach usage to their parsed result under this key; the batch worker
+# removes it before the result reaches response processing.
+USAGE_KEY = "__usage__"
+
+
+@dataclass
+class TokenUsage:
+    input_tokens: int = 0
+    output_tokens: int = 0    # visible output (excludes thinking where reported)
+    thinking_tokens: int = 0  # reasoning/thinking tokens (0 where not reported)
+    requests: int = 0
+
+    def add(self, usage: Dict[str, Any]) -> None:
+        self.input_tokens += int(usage.get("input_tokens") or 0)
+        self.output_tokens += int(usage.get("output_tokens") or 0)
+        self.thinking_tokens += int(usage.get("thinking_tokens") or 0)
+        self.requests += 1
+
+    def to_dict(self) -> Dict[str, int]:
+        return {
+            "input_tokens": self.input_tokens,
+            "output_tokens": self.output_tokens,
+            "thinking_tokens": self.thinking_tokens,
+            "requests": self.requests,
+        }
+
+
+_usage_stage: contextvars.ContextVar[str] = contextvars.ContextVar(
+    "llm_usage_stage", default="other",
+)
+
+
+@contextlib.contextmanager
+def usage_stage(name: str):
+    """Attribute token usage of batches run inside this block to ``name``."""
+    token = _usage_stage.set(name)
+    try:
+        yield
+    finally:
+        _usage_stage.reset(token)
+
+
+@dataclass
+class UsageTracker:
+    """Process-wide token totals per usage stage (successful requests only)."""
+
+    totals: Dict[str, TokenUsage] = field(default_factory=dict)
+
+    def add(self, stage: str, usage: Dict[str, Any]) -> None:
+        self.totals.setdefault(stage, TokenUsage()).add(usage)
+
+    def snapshot(self) -> Dict[str, Dict[str, int]]:
+        return {stage: u.to_dict() for stage, u in self.totals.items()}
+
+
+USAGE = UsageTracker()
+
+
+def usage_delta(
+    after: Dict[str, Dict[str, int]], before: Dict[str, Dict[str, int]],
+) -> Dict[str, Dict[str, int]]:
+    """Per-stage difference of two ``USAGE.snapshot()`` results (non-zero only)."""
+    delta = {}
+    for stage, totals in after.items():
+        prev = before.get(stage, {})
+        diff = {k: v - prev.get(k, 0) for k, v in totals.items()}
+        if any(diff.values()):
+            delta[stage] = diff
+    return delta
+
+
 # ============== Configuration ==============
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -56,7 +149,7 @@ DEFAULT_MODEL_GEMINI = "gemini-2.5-flash"
 # Generation parameters
 SEED = 13774
 TEMPERATURE = 0.0
-REASONING_EFFORT = "medium"  # For GPT-5 models: "minimal", "low", "medium", "high"
+REASONING_EFFORT = "medium"  # Default effort/thinking level; ModelConfig.reasoning_effort overrides
 
 # Model-specific max completion tokens
 MODEL_MAX_TOKENS = {
@@ -372,6 +465,7 @@ def get_response_pydantic_openai(
     model: Optional[str] = None,
     temperature: Optional[float] = None,
     seed: Optional[int] = None,
+    reasoning_effort: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Call OpenAI API with structured output. ``seed`` defaults to SEED."""
     if model is None:
@@ -406,7 +500,7 @@ def get_response_pydantic_openai(
     # Model-specific parameters
     variable_args = {}
     if "gpt-5" in model:
-        variable_args["reasoning_effort"] = REASONING_EFFORT
+        variable_args["reasoning_effort"] = reasoning_effort or REASONING_EFFORT
     else:
         variable_args["temperature"] = temperature if temperature is not None else TEMPERATURE
 
@@ -424,9 +518,19 @@ def get_response_pydantic_openai(
     response_text = completion.choices[0].message.content
 
     try:
-        return json.loads(response_text)
+        result = json.loads(response_text)
     except json.JSONDecodeError:
         raise LLMParseError(f"Failed to parse response as JSON: {response_text}")
+    usage = completion.usage
+    if usage is not None and isinstance(result, dict):
+        details = getattr(usage, "completion_tokens_details", None)
+        reasoning = getattr(details, "reasoning_tokens", 0) or 0
+        result[USAGE_KEY] = {
+            "input_tokens": usage.prompt_tokens,
+            "output_tokens": usage.completion_tokens - reasoning,
+            "thinking_tokens": reasoning,
+        }
+    return result
 
 
 def get_response_pydantic_anthropic(
@@ -435,6 +539,7 @@ def get_response_pydantic_anthropic(
     model: Optional[str] = None,
     temperature: Optional[float] = None,
     seed: Optional[int] = None,
+    reasoning_effort: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Call Anthropic (via Bedrock) with structured output. ``seed`` is ignored (not supported)."""
     if model is None:
@@ -480,7 +585,7 @@ def get_response_pydantic_anthropic(
         }
         variable_args["output_config"] = {
             **variable_args["output_config"],
-            "effort": REASONING_EFFORT
+            "effort": reasoning_effort or REASONING_EFFORT
         }
 
     completion = client.messages.create(
@@ -491,9 +596,18 @@ def get_response_pydantic_anthropic(
     response_text = completion.content[0].text
 
     try:
-        return json.loads(response_text)
+        result = json.loads(response_text)
     except (json.JSONDecodeError, IndexError):
         raise LLMParseError(f"Failed to extract JSON from response: {response_text}")
+    usage = getattr(completion, "usage", None)
+    if usage is not None and isinstance(result, dict):
+        # Thinking tokens are included in output_tokens and not reported apart.
+        result[USAGE_KEY] = {
+            "input_tokens": usage.input_tokens,
+            "output_tokens": usage.output_tokens,
+            "thinking_tokens": 0,
+        }
+    return result
 
 
 def get_response_pydantic_gemini(
@@ -502,6 +616,7 @@ def get_response_pydantic_gemini(
     model: Optional[str] = None,
     temperature: Optional[float] = None,
     seed: Optional[int] = None,
+    reasoning_effort: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Call Gemini API with structured output. ``seed`` defaults to SEED."""
     if model is None:
@@ -544,7 +659,9 @@ def get_response_pydantic_gemini(
     ## Model-specific parameters
     variable_args = {}
     if "gemini-3" in model:
-        variable_args["thinking_config"] = genai_types.ThinkingConfig(thinking_level=REASONING_EFFORT)
+        variable_args["thinking_config"] = genai_types.ThinkingConfig(
+            thinking_level=reasoning_effort or REASONING_EFFORT,
+        )
     if temperature is not None:
         variable_args["temperature"] = temperature
 
@@ -562,9 +679,17 @@ def get_response_pydantic_gemini(
     response_text = response.text
 
     try:
-        return json.loads(response_text)
+        result = json.loads(response_text)
     except (json.JSONDecodeError, TypeError):
         raise LLMParseError(f"Failed to parse response as JSON: {response_text}")
+    usage = getattr(response, "usage_metadata", None)
+    if usage is not None and isinstance(result, dict):
+        result[USAGE_KEY] = {
+            "input_tokens": usage.prompt_token_count,
+            "output_tokens": usage.candidates_token_count,
+            "thinking_tokens": usage.thoughts_token_count,
+        }
+    return result
 
 # ============== Batch Processing ==============
 
@@ -658,8 +783,14 @@ def llm_get_response(batch_id: str, request_id: str) -> Dict[str, Any]:
     raise ValueError(f"Request ID not found: {request_id}")
 
 
-def llm_get_responses(batch_id: str) -> Dict[str, Dict[str, Any]]:
-    """Get all responses for a batch as a dict mapping request_id -> response data."""
+def llm_get_responses(
+    batch_id: str, raise_on_error: bool = True,
+) -> Dict[str, Dict[str, Any]]:
+    """Get all responses for a batch as a dict mapping request_id -> response data.
+
+    A permanently failed request raises ``ValueError``, or — with
+    ``raise_on_error=False`` — is returned with ``"failed": LLMRequestFailed``.
+    """
     path = llm_get_responses_path(batch_id)
     responses = {}
     with open(path, "r", encoding="utf-8") as f:
@@ -669,13 +800,19 @@ def llm_get_responses(batch_id: str) -> Dict[str, Dict[str, Any]]:
             record = json.loads(line)
             request_json = record[0]
             result = record[1]
-            if "errors" in result:
-                raise ValueError(f"Request failed with errors: {result['errors']}")
-            # Return both options (from request) and response (from result)
-            responses[request_json["request_id"]] = {
+            usage = record[2] if len(record) > 2 else None
+            entry = {
                 "options": request_json.get("options", {}),
-                "response": result
+                "response": result,
+                "usage": usage,
             }
+            if "errors" in result:
+                if raise_on_error:
+                    raise ValueError(f"Request failed with errors: {result['errors']}")
+                entry["failed"] = LLMRequestFailed(
+                    errors=result["errors"], kind=result.get("error_kind", "service"),
+                )
+            responses[request_json["request_id"]] = entry
     return responses
 
 
@@ -965,16 +1102,22 @@ async def process_api_requests(
                         return call_function(
                             processed_messages, response_format, model_config.model,
                             temperature=temperature, seed=seed,
+                            reasoning_effort=model_config.reasoning_effort,
                         )
 
                     result = await asyncio.to_thread(_call)
-                    _append_jsonl(responses_path, [req.request_json, result])
+                    usage = result.pop(USAGE_KEY, None) if isinstance(result, dict) else None
+                    _append_jsonl(responses_path, [req.request_json, result, usage])
                     status.num_tasks_succeeded += 1
                     status.num_tasks_in_progress -= 1
                     break
                 except Exception as e:
                     errors.append(str(e))
                     kind = _classify_error(e)
+                    # Service failures say nothing about the request itself.
+                    error_kind = ("service" if kind == "rate" or (
+                        kind == "retryable" and not isinstance(e, LLMParseError))
+                        else "request")
 
                     if kind == "rate":
                         logger.warning(
@@ -997,7 +1140,8 @@ async def process_api_requests(
                         )
                         status.num_other_errors += 1
                         _append_jsonl(
-                            responses_path, [req.request_json, {"errors": errors}]
+                            responses_path,
+                            [req.request_json, {"errors": errors, "error_kind": error_kind}],
                         )
                         status.num_tasks_failed += 1
                         status.num_tasks_in_progress -= 1
@@ -1012,7 +1156,8 @@ async def process_api_requests(
                             req.request_json.get("request_id", "?"), errors,
                         )
                         _append_jsonl(
-                            responses_path, [req.request_json, {"errors": errors}]
+                            responses_path,
+                            [req.request_json, {"errors": errors, "error_kind": error_kind}],
                         )
                         status.num_tasks_failed += 1
                         status.num_tasks_in_progress -= 1
@@ -1040,11 +1185,20 @@ def batch_run_llm_calls(
     model_config: ModelConfig,
     temperature: Optional[float] = None,
     seeds: Optional[List[Optional[int]]] = None,
+    allow_errors: bool = False,
 ):
     """Run one request per ``request_args`` entry concurrently.
 
     ``seeds``, if given, is aligned with ``request_args`` and sets each request's
     sampling seed (None = provider default SEED).
+
+    A request that fails permanently raises ``ValueError`` unless
+    ``allow_errors`` is set; then its result is an ``LLMRequestFailed``. Even
+    with ``allow_errors``, a batch where every request failed and any failure
+    was a service error raises ``LLMBatchOutage``.
+
+    Token usage of successful requests is added to ``USAGE`` under the current
+    ``usage_stage``.
     """
     logger.info(f"Batch ID for {func_request.__name__}: {batch_id}")
     if len(request_args) == 0:
@@ -1065,13 +1219,28 @@ def batch_run_llm_calls(
         model_config=model_config,
         temperature=temperature,
     ))
-    batch_responses = llm_get_responses(batch_id)
+    batch_responses = llm_get_responses(batch_id, raise_on_error=not allow_errors)
+
+    stage = _usage_stage.get()
+    for response in batch_responses.values():
+        if response.get("usage"):
+            USAGE.add(stage, response["usage"])
+
+    failures = [r["failed"] for r in batch_responses.values() if "failed" in r]
+    if failures and len(failures) == len(req_ids) \
+            and any(f.kind == "service" for f in failures):
+        raise LLMBatchOutage(
+            f"All {len(req_ids)} requests of batch {batch_id} failed: {failures[0].errors[-1]}"
+        )
 
     batch_results = []
     for request_arg, req_id in zip(request_args, req_ids):
         if req_id not in batch_responses:
             raise ValueError(f"Request ID not found: {req_id}")
         response = batch_responses[req_id]
+        if "failed" in response:
+            batch_results.append(response["failed"])
+            continue
         result = func_response(response=response, **request_arg)
         batch_results.append(result)
     return batch_results

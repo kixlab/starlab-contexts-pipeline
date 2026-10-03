@@ -114,10 +114,11 @@ def test_non_semantic_settings_do_not_change_fingerprint(tmp_path):
     assert base.fingerprint == other.fingerprint
 
 
-def test_irr_sampling_settings_change_fingerprint(tmp_path, monkeypatch):
+def test_sampling_settings_change_fingerprint(tmp_path, monkeypatch):
     from optimization import irr
     before = _store(tmp_path).fingerprint
-    monkeypatch.setattr(irr, "IRR_BASE_SEED", irr.IRR_BASE_SEED + 1)
+    assert _store(tmp_path, config=make_config(seed=1)).fingerprint != before
+    monkeypatch.setattr(irr, "IRR_TEMPERATURE", 0.5)
     assert _store(tmp_path).fingerprint != before
 
 

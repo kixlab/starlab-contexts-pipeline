@@ -9,8 +9,9 @@ Follows the same architectural pattern as VLMFacetVocabularyBuilder.
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 from knowledge_items.schema import KnowledgeBase
 
@@ -19,6 +20,7 @@ from utils import (
     batch_run_llm_calls,
     random_uid,
 )
+from utils.llm import LLMRequestFailed
 
 from .prompts import (
     form_labeling_request,
@@ -28,6 +30,8 @@ from .schema import (
     AnnotationTable,
     Facet,
 )
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class VLMFacetLabeler:
@@ -49,22 +53,31 @@ class VLMFacetLabeler:
         facets: List[Facet],
         knowledge_base: KnowledgeBase,
         temperature: Optional[float] = None,
+        seed: Optional[int] = None,
     ) -> AnnotationTable:
         """
         Label knowledge items with facet vocabulary labels.
+
+        A facet with any permanently failed request is left out of the result
+        entirely (never partially labeled).
 
         Args:
             facets: Facets with vocabulary to label against.
             knowledge_base: Knowledge items to label.
             temperature: Optional temperature override for LLM calls.
                          None = provider default.
+            seed: Sampling seed (None = provider default).
 
         Returns:
             AnnotationTable mapping (item_id, facet_id) -> label.
         """
-        return self.label_batch_multi(
-            task, facets, knowledge_base, seeds=[None], temperature=temperature,
-        )[0]
+        passes, failed = self._label(task, facets, knowledge_base, [seed], temperature)
+        failed_facets = {facet_id for _, facet_id in failed}
+        if failed_facets:
+            logger.warning("Labeling failed for facet(s) %s.", sorted(failed_facets))
+        return passes[0].filter_facets(
+            [f.id for f in facets if f.id not in failed_facets]
+        )
 
     def label_batch_multi(
         self,
@@ -78,7 +91,8 @@ class VLMFacetLabeler:
         Label knowledge items once per seed, all in a single batch.
 
         Used for independent labeling passes (e.g. IRR raters): every
-        (seed, facet, video) request runs concurrently.
+        (seed, facet, video) request runs concurrently. Items of permanently
+        failed requests are simply missing from that pass.
 
         Args:
             seeds: One sampling seed per pass (None = provider default).
@@ -87,12 +101,26 @@ class VLMFacetLabeler:
         Returns:
             One AnnotationTable per seed, in ``seeds`` order.
         """
+        passes, _ = self._label(task, facets, knowledge_base, seeds, temperature)
+        return passes
+
+    def _label(
+        self,
+        task: str,
+        facets: List[Facet],
+        knowledge_base: KnowledgeBase,
+        seeds: List[Optional[int]],
+        temperature: Optional[float],
+    ) -> Tuple[List[AnnotationTable], Set[Tuple[int, str]]]:
+        """Run all (pass, facet, video) requests; return passes and failed (pass, facet)."""
+        passes = [AnnotationTable() for _ in seeds]
+        failed: Set[Tuple[int, str]] = set()
         if not facets:
-            return [AnnotationTable() for _ in seeds]
+            return passes, failed
 
         videos = knowledge_base.by_video()
         if not videos:
-            return [AnnotationTable() for _ in seeds]
+            return passes, failed
 
         # One request per (pass, facet, video), flattened into a single batch
         batch_id = f"facet_labeling_{random_uid()}"
@@ -120,15 +148,17 @@ class VLMFacetLabeler:
             model_config=self.model_config,
             temperature=temperature,
             seeds=request_seeds,
+            allow_errors=True,
         )
 
-        # Collect results into one AnnotationTable per pass
-        passes = [AnnotationTable() for _ in seeds]
         for (pass_idx, facet_id), result in zip(request_keys, batch_results):
+            if isinstance(result, LLMRequestFailed):
+                failed.add((pass_idx, facet_id))
+                continue
             for entry in result:
                 item_id = entry["item_id"]
                 label = entry["label"]
                 if item_id and label:
                     passes[pass_idx][(item_id, facet_id)] = label
 
-        return passes
+        return passes, failed

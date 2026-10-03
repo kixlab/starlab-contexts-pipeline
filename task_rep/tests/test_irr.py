@@ -10,6 +10,7 @@ from facets.label import VLMFacetLabeler
 from knowledge_items.schema import KnowledgeBase, KnowledgeItem, KnowledgeItemType, KnowledgeSource
 from optimization.irr import IRR_BASE_SEED, IRR_TEMPERATURE, compute_irr
 from utils import ModelConfig
+from utils.llm import LLMRequestFailed
 
 
 def _kb() -> KnowledgeBase:
@@ -75,7 +76,8 @@ def test_label_batch_multi_groups_requests_by_seed(monkeypatch):
     seen = {}
 
     def fake_batch(batch_id, request_args, func_request, func_response, *,
-                   max_concurrency, model_config, temperature=None, seeds=None):
+                   max_concurrency, model_config, temperature=None, seeds=None,
+                   allow_errors=False):
         seen["seeds"] = seeds
         seen["temperature"] = temperature
         # Label every item with the request's seed, so passes are distinguishable.
@@ -98,3 +100,70 @@ def test_label_batch_multi_groups_requests_by_seed(monkeypatch):
     single = labeler.label_batch("t", [_facet("f")], _kb())
     assert seen["seeds"] == [None, None]  # provider default seed
     assert set(single.values()) == {"sNone"}
+
+
+# ---- permanent request failures ----
+
+def _failing_batch(fail_when):
+    """Fake batch runner: requests matching ``fail_when(args, seed)`` fail."""
+    def fake_batch(batch_id, request_args, func_request, func_response, *,
+                   max_concurrency, model_config, temperature=None, seeds=None,
+                   allow_errors=False):
+        assert allow_errors
+        out = []
+        for args, seed in zip(request_args, seeds):
+            if fail_when(args, seed):
+                out.append(LLMRequestFailed(errors=["boom"], kind="request"))
+            else:
+                out.append([{"item_id": i.id, "label": "a"} for i in args["video_items"]])
+        return out
+    return fake_batch
+
+
+def _first_video(args):
+    return args["video_items"][0].source.video_id == "v1"
+
+
+def test_label_batch_drops_facet_with_any_failed_request(monkeypatch):
+    monkeypatch.setattr(label_mod, "batch_run_llm_calls", _failing_batch(
+        lambda args, seed: args["facet"].id == "f" and _first_video(args)))
+    labeler = VLMFacetLabeler(model_config=ModelConfig("vlm", "gemini", "x"))
+    table = labeler.label_batch("t", [_facet("f"), _facet("g")], _kb())
+    assert set(table.facet_ids()) == {"g"}  # f is not partially labeled
+
+
+def test_label_batch_multi_keeps_partial_passes(monkeypatch):
+    monkeypatch.setattr(label_mod, "batch_run_llm_calls", _failing_batch(
+        lambda args, seed: seed == 2 and _first_video(args)))
+    labeler = VLMFacetLabeler(model_config=ModelConfig("vlm", "gemini", "x"))
+    p1, p2 = labeler.label_batch_multi("t", [_facet("f")], _kb(), seeds=[1, 2])
+    assert len(p1) == 6 and len(p2) == 3  # pass 2 lost only v1's items
+
+
+class PartialLabeler(SeedLabeler):
+    """Rater 0 is missing labels for the first ``missing`` items."""
+
+    def __init__(self, missing):
+        super().__init__(flip=set())
+        self.missing = missing
+
+    def label_batch_multi(self, task, facets, knowledge_base, seeds, temperature=None):
+        passes = super().label_batch_multi(task, facets, knowledge_base, seeds, temperature)
+        missing_ids = {item.id for item in list(knowledge_base)[: self.missing]}
+        passes[0] = AnnotationTable(
+            {key: label for key, label in passes[0].items() if key[0] not in missing_ids}
+        )
+        return passes
+
+
+def test_irr_ignores_items_missing_a_rater():
+    result = compute_irr(task="t", facets=[_facet("f")], knowledge_base=_kb(),
+                         labeler=PartialLabeler(missing=2), sample_videos=2, num_raters=3)
+    assert result["per_facet_kappa"]["f"] == 1.0  # gaps are not disagreements
+
+
+def test_irr_with_no_fully_rated_items_flags_facet():
+    result = compute_irr(task="t", facets=[_facet("f")], knowledge_base=_kb(),
+                         labeler=PartialLabeler(missing=6), sample_videos=2, num_raters=3,
+                         min_agreement=0.8)
+    assert result["low_irr_facet_ids"] == ["f"]

@@ -8,7 +8,8 @@ import json
 import pytest
 
 from pipeline import cli as cli_mod
-from pipeline.cli import budget_rows, main
+from pipeline.cli import budget_rows, main, tau_sweep
+from pipeline.models import PipelineResult
 from pipeline.runner import PipelineRunner
 from pipeline.store import PipelineStore
 
@@ -17,6 +18,7 @@ from tests.pipeline.helpers import (
     ScriptedProposer,
     ScriptedVocabBuilder,
     TableEmbedder,
+    label_book,
     make_config,
     make_facet,
     make_kb,
@@ -98,3 +100,48 @@ def test_unknown_target_exits(tmp_path):
     (tmp_path / "a.json").write_text(json.dumps(spec_dict("a")))
     with pytest.raises(SystemExit):
         main(["show", "nope"], experiments_dir=tmp_path)
+
+
+# ---- tau sweep and usage display ----
+
+def _pool_result(fids, usage=None):
+    return PipelineResult(
+        pool=[make_facet(f) for f in fids], annotations=label_book(fids), tree=None,
+        accepted_schemas=[], rejected_schemas=[], ledger=[], stop_reason=None,
+        attempts=0, proposals=0, iterations=0, fingerprint="x", usage=usage or {},
+    )
+
+
+def test_tau_sweep_rebuilds_tree_per_threshold():
+    rows = tau_sweep(_pool_result(["A", "A2", "B"]), make_kb(), make_config(), [0.2, 1.0])
+    # tau 0.2: A2 is redundant with A -> root, A, B. tau 1.0: nothing exceeds it.
+    assert [r["tree_nodes"] for r in rows] == [3, 4]
+    assert [r["rejected_schemas"] for r in rows] == [1, 0]
+
+
+def test_tree_command(monkeypatch, capsys, tmp_path):
+    spec = cli_mod.ExperimentSpec.from_dict(spec_dict("exp"))
+    monkeypatch.setattr(cli_mod, "resolve",
+                        lambda target, d: ("exp", _pool_result(["A", "A2", "B"]), spec))
+    monkeypatch.setattr(cli_mod, "cached_knowledge_base", lambda s: make_kb())
+    main(["tree", "exp", "--tau", "0.2", "1.0"], experiments_dir=tmp_path)
+    out = capsys.readouterr().out
+    assert "Tree by refinement threshold: exp (3 pool facets)" in out
+    assert " 0.20       3" in out and " 1.00       4" in out
+
+
+def test_tree_command_needs_cached_kb(monkeypatch, tmp_path):
+    spec = cli_mod.ExperimentSpec.from_dict(spec_dict("exp"))
+    monkeypatch.setattr(cli_mod, "resolve", lambda t, d: ("exp", _pool_result(["A"]), spec))
+    monkeypatch.setattr(cli_mod, "cached_knowledge_base", lambda s: None)
+    with pytest.raises(SystemExit):
+        main(["tree", "exp"], experiments_dir=tmp_path)
+
+
+def test_show_reports_usage(saved_result, capsys):
+    result = PipelineStore.load_result(saved_result)
+    result.usage = {"proposal": {"input_tokens": 1500, "output_tokens": 10,
+                                 "thinking_tokens": 7, "requests": 2}}
+    print(cli_mod.format_summary("x", result))
+    out = capsys.readouterr().out
+    assert "proposal" in out and "1,500" in out and "total" in out

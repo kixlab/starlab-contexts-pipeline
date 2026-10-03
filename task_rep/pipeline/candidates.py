@@ -21,7 +21,9 @@ from facets import Facet, AnnotationTable
 
 from optimization import compute_irr
 
-from .config import PipelineConfig
+from utils.llm import usage_stage
+
+from .config import PipelineConfig, stage_seed
 from .models import CandidateStatus
 
 logger = logging.getLogger(__name__)
@@ -40,7 +42,7 @@ class Embedder(Protocol):
 class VocabularyBuilder(Protocol):
     def build_vocabulary(
         self, task: str, facets: List[Facet], knowledge_base: KnowledgeBase,
-        sample_videos: int = 0,
+        sample_videos: int = 0, seed: Optional[int] = None,
     ) -> List[Facet]: ...
 
 
@@ -48,7 +50,7 @@ class VocabularyBuilder(Protocol):
 class Labeler(Protocol):
     def label_batch(
         self, task: str, facets: List[Facet], knowledge_base: KnowledgeBase,
-        temperature: Optional[float] = None,
+        temperature: Optional[float] = None, seed: Optional[int] = None,
     ) -> AnnotationTable: ...
 
     def label_batch_multi(
@@ -72,6 +74,7 @@ class ProcessedCandidate:
     embedding: List[float]
     nearest_id: Optional[str] = None
     nearest_similarity: Optional[float] = None
+    note: str = ""
 
 
 @dataclass
@@ -171,18 +174,22 @@ class CandidateProcessor:
 
     def process(
         self, facet: Facet, existing_embeddings: Dict[str, List[float]],
+        index: int = 0,
     ) -> CandidateOutcome:
         """Run one candidate through the lifecycle."""
-        return self.process_batch([facet], existing_embeddings)[0]
+        return self.process_batch([facet], existing_embeddings, index=index)[0]
 
     def process_batch(
         self, facets: List[Facet], existing_embeddings: Dict[str, List[float]],
+        index: int = 0,
     ) -> List[CandidateOutcome]:
         """Validate -> dedup -> IRR -> vocabulary -> labeling.
 
         ``existing_embeddings`` holds candidates that already entered the
-        lifecycle; it is not mutated. Returns one outcome per input, in order.
+        lifecycle; it is not mutated. ``index`` (the attempt number) selects the
+        sampling seeds. Returns one outcome per input, in order.
         """
+        run_seed = self.config.seed
         outcomes: List[Optional[CandidateOutcome]] = [None] * len(facets)
 
         # 1. validation + sequential dedup against prior and earlier-in-batch
@@ -212,13 +219,15 @@ class CandidateProcessor:
 
         # 2. IRR (optional)
         if survivors and self.config.irr_sample_videos > 0:
-            irr = compute_irr(
-                task=self.task, facets=[s.facet for s in survivors],
-                knowledge_base=self.knowledge_base, labeler=self.labeler,
-                sample_videos=self.config.irr_sample_videos,
-                num_raters=self.config.irr_num_raters,
-                min_agreement=self.config.irr_min_agreement,
-            )
+            with usage_stage("irr"):
+                irr = compute_irr(
+                    task=self.task, facets=[s.facet for s in survivors],
+                    knowledge_base=self.knowledge_base, labeler=self.labeler,
+                    sample_videos=self.config.irr_sample_videos,
+                    num_raters=self.config.irr_num_raters,
+                    min_agreement=self.config.irr_min_agreement,
+                    seed=stage_seed(run_seed, "irr", index),
+                )
             low = set(irr.get("low_irr_facet_ids", []))
             for s in survivors:
                 if s.facet.id in low:
@@ -227,11 +236,13 @@ class CandidateProcessor:
 
         # 3. vocabulary
         if survivors:
-            built = {f.id: f for f in self.vocab_builder.build_vocabulary(
-                task=self.task, facets=[s.facet for s in survivors],
-                knowledge_base=self.knowledge_base,
-                sample_videos=self.config.vocab_sample_videos,
-            )}
+            with usage_stage("vocabulary"):
+                built = {f.id: f for f in self.vocab_builder.build_vocabulary(
+                    task=self.task, facets=[s.facet for s in survivors],
+                    knowledge_base=self.knowledge_base,
+                    sample_videos=self.config.vocab_sample_videos,
+                    seed=stage_seed(run_seed, "vocabulary", index),
+                )}
             kept = []
             for s in survivors:
                 facet = built.get(s.facet.id)
@@ -244,21 +255,26 @@ class CandidateProcessor:
 
         # 4. labeling
         if survivors:
-            annotations = self.labeler.label_batch(
-                task=self.task, facets=[s.facet for s in survivors],
-                knowledge_base=self.knowledge_base,
-            )
+            with usage_stage("labeling"):
+                annotations = self.labeler.label_batch(
+                    task=self.task, facets=[s.facet for s in survivors],
+                    knowledge_base=self.knowledge_base,
+                    seed=stage_seed(run_seed, "labeling", index),
+                )
             labeled = set(annotations.facet_ids())
             for s in survivors:
                 if s.facet.id not in labeled:
                     outcomes[s.index] = s.fail(CandidateStatus.LABELING_FAILED)
                 else:
+                    gaps = s.facet.metadata.get("vocab_proposal_failures", 0)
                     outcomes[s.index] = ProcessedCandidate(
                         facet=s.facet,
                         annotations=annotations.filter_facets([s.facet.id]),
                         embedding=s.embedding,
                         nearest_id=s.nearest_id,
                         nearest_similarity=s.nearest_similarity,
+                        note=(f"vocabulary proposals failed for {gaps} video(s)"
+                              if gaps else ""),
                     )
 
         return outcomes  # type: ignore[return-value]
