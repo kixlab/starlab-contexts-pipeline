@@ -109,6 +109,13 @@ class ReplayLabeler:
     ) -> AnnotationTable:
         return self._annotations.filter_facets([f.id for f in facets])
 
+    def label_batch_multi(
+        self, task: str, facets: List[Facet], knowledge_base: KnowledgeBase,
+        seeds: List[Optional[int]], temperature: Optional[float] = None,
+    ) -> List[AnnotationTable]:
+        """Replay is deterministic: every pass gets the cached labels."""
+        return [self.label_batch(task, facets, knowledge_base) for _ in seeds]
+
 
 # ---------------------------------------------------------------------------
 # Proposer

@@ -192,6 +192,9 @@ class ScriptedLabeler:
                 out[(item_id, fid)] = label
         return out
 
+    def label_batch_multi(self, task, facets, knowledge_base, seeds, temperature=None):
+        return [self.label_batch(task, facets, knowledge_base) for _ in seeds]
+
 
 class TableEmbedder:
     """Embeds by facet title.

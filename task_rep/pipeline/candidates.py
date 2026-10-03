@@ -51,6 +51,13 @@ class Labeler(Protocol):
         temperature: Optional[float] = None,
     ) -> AnnotationTable: ...
 
+    def label_batch_multi(
+        self, task: str, facets: List[Facet], knowledge_base: KnowledgeBase,
+        seeds: List[Optional[int]], temperature: Optional[float] = None,
+    ) -> List[AnnotationTable]:
+        """One independent labeling pass per seed (used by IRR)."""
+        ...
+
 
 # ---------------------------------------------------------------------------
 # Lifecycle outcomes

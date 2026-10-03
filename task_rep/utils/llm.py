@@ -371,8 +371,9 @@ def get_response_pydantic_openai(
     response_format: Any,
     model: Optional[str] = None,
     temperature: Optional[float] = None,
+    seed: Optional[int] = None,
 ) -> Dict[str, Any]:
-    """Call OpenAI API with structured output."""
+    """Call OpenAI API with structured output. ``seed`` defaults to SEED."""
     if model is None:
         model = DEFAULT_MODEL_OPENAI
 
@@ -396,7 +397,7 @@ def get_response_pydantic_openai(
 
     basic_args = {
         "model": model,
-        "seed": SEED,
+        "seed": SEED if seed is None else seed,
         "messages": messages,
         "max_completion_tokens": get_max_tokens_for_model(model),
         "response_format": response_format_dict,
@@ -433,8 +434,9 @@ def get_response_pydantic_anthropic(
     response_format: Any,
     model: Optional[str] = None,
     temperature: Optional[float] = None,
+    seed: Optional[int] = None,
 ) -> Dict[str, Any]:
-    """Call Anthropic (via Bedrock) with structured output."""
+    """Call Anthropic (via Bedrock) with structured output. ``seed`` is ignored (not supported)."""
     if model is None:
         model = DEFAULT_MODEL_ANTHROPIC
 
@@ -499,8 +501,9 @@ def get_response_pydantic_gemini(
     response_format: Any,
     model: Optional[str] = None,
     temperature: Optional[float] = None,
+    seed: Optional[int] = None,
 ) -> Dict[str, Any]:
-    """Call Gemini API with structured output."""
+    """Call Gemini API with structured output. ``seed`` defaults to SEED."""
     if model is None:
         model = DEFAULT_MODEL_GEMINI
 
@@ -531,7 +534,7 @@ def get_response_pydantic_gemini(
 
     basic_args = {
         "system_instruction": system_prompt,
-        "seed": SEED,
+        "seed": SEED if seed is None else seed,
         "max_output_tokens": get_max_tokens_for_model(model),
         "response_mime_type": "application/json",
         "response_json_schema": schema,
@@ -958,7 +961,11 @@ async def process_api_requests(
                                     content = msg_content.to_anthropic_content()
                             processed_messages.append({"role": msg["role"], "content": content})
 
-                        return call_function(processed_messages, response_format, model_config.model, temperature=temperature)
+                        seed = (r.get("options") or {}).get("seed")
+                        return call_function(
+                            processed_messages, response_format, model_config.model,
+                            temperature=temperature, seed=seed,
+                        )
 
                     result = await asyncio.to_thread(_call)
                     _append_jsonl(responses_path, [req.request_json, result])
@@ -1032,14 +1039,24 @@ def batch_run_llm_calls(
     max_concurrency: int,
     model_config: ModelConfig,
     temperature: Optional[float] = None,
+    seeds: Optional[List[Optional[int]]] = None,
 ):
+    """Run one request per ``request_args`` entry concurrently.
+
+    ``seeds``, if given, is aligned with ``request_args`` and sets each request's
+    sampling seed (None = provider default SEED).
+    """
     logger.info(f"Batch ID for {func_request.__name__}: {batch_id}")
     if len(request_args) == 0:
         return []
+    if seeds is not None and len(seeds) != len(request_args):
+        raise ValueError("seeds must align with request_args.")
     req_ids = []
-    for request_arg in request_args:
+    for i, request_arg in enumerate(request_args):
         api_args = func_request(**request_arg)
-        req_id = llm_enqueue_request(batch_id, **api_args)
+        seed = seeds[i] if seeds is not None else None
+        options = {"seed": seed} if seed is not None else None
+        req_id = llm_enqueue_request(batch_id, **api_args, options=options)
         req_ids.append(req_id)
 
     asyncio.run(process_api_requests(

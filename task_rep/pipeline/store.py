@@ -4,8 +4,8 @@ Versioned result and checkpoint persistence.
 A checkpoint is restored only when the complete fingerprint matches: KB content
 hash, pipeline config (minus settings that cannot change the outcome, such as
 ``use_cache``), model identities (already inside the config), rendered-prompt
-hash, and serialization version. No mutable facet bank is shared across
-prompt or config versions.
+hash, IRR sampling settings, and serialization version. No mutable facet bank
+is shared across prompt or config versions.
 """
 
 from __future__ import annotations
@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Optional
 
 from knowledge_items import KnowledgeBase
+
+from optimization import irr
 
 from .config import PipelineConfig
 from .models import PipelineState, PipelineResult
@@ -56,6 +58,8 @@ class PipelineStore:
             "kb": self.kb_fp,
             "prompt": self.prompt_fp,
             "config": self.config.semantic_dict(),
+            # Code-level sampling settings that change IRR outcomes.
+            "irr": {"temperature": irr.IRR_TEMPERATURE, "base_seed": irr.IRR_BASE_SEED},
         }
         blob = json.dumps(payload, sort_keys=True, ensure_ascii=False)
         return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:24]

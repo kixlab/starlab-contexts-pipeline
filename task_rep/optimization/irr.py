@@ -1,12 +1,11 @@
 """
 Inter-Rater Reliability (IRR) diagnostic for facet labeling.
 
-Measures labeling consistency by re-labeling a sample of tutorials
-multiple times with non-zero temperature and computing agreement
-across the independent passes.
+Measures labeling consistency by re-labeling a sample of tutorials several
+times — each pass with its own sampling seed at the model's default
+temperature — and computing agreement across the independent passes.
 
-This is a diagnostic metric — it does not drive the optimization loop.
-Facets with low agreement can optionally be pruned from the pool.
+Facets with low agreement are pruned by the pipeline's candidate lifecycle.
 """
 
 from __future__ import annotations
@@ -22,10 +21,15 @@ from facets.label import VLMFacetLabeler
 
 logger = logging.getLogger(__name__)
 
-# Default temperature for IRR re-labeling passes.
-# Moderate temperature to introduce meaningful variation without
-# hallucinating labels outside the vocabulary.
-IRR_TEMPERATURE = 0.2
+# Temperature for IRR re-labeling passes: None = the provider's default.
+# A fixed low temperature (formerly 0.2) made Gemini 3 thinking run away
+# (~63k thinking tokens, ~190 s per call), and with the shared request seed the
+# passes were identical, so kappa was always ~1.
+IRR_TEMPERATURE = None
+
+# Rater i labels with seed IRR_BASE_SEED + i, so passes are independent of each
+# other (and of the main labeling pass) yet reproducible.
+IRR_BASE_SEED = 1000
 
 
 def _fleiss_kappa(
@@ -98,8 +102,8 @@ def compute_irr(
     """
     Compute inter-rater reliability for facet labeling.
 
-    Samples a subset of tutorials, re-labels them ``num_raters`` times
-    with non-zero temperature, and computes Fleiss' kappa per facet.
+    Samples a subset of tutorials, re-labels them ``num_raters`` times (one
+    seed per rater, in a single batch), and computes Fleiss' kappa per facet.
 
     Args:
         task: Task name.
@@ -142,17 +146,15 @@ def compute_irr(
     ]
     sampled_kb = KnowledgeBase(items=sampled_items)
 
-    # Collect N independent labeling passes
-    passes: List[AnnotationTable] = []
-    for rater_idx in range(num_raters):
-        logger.info("IRR: labeling pass %d/%d", rater_idx + 1, num_raters)
-        anno = labeler.label_batch(
-            task=task,
-            facets=facets,
-            knowledge_base=sampled_kb,
-            temperature=IRR_TEMPERATURE,
-        )
-        passes.append(anno)
+    # Collect N independent labeling passes in one batch
+    logger.info("IRR: %d labeling passes", num_raters)
+    passes: List[AnnotationTable] = labeler.label_batch_multi(
+        task=task,
+        facets=facets,
+        knowledge_base=sampled_kb,
+        seeds=[IRR_BASE_SEED + i for i in range(num_raters)],
+        temperature=IRR_TEMPERATURE,
+    )
 
     # Compute per-facet agreement
     per_facet_kappa: Dict[str, float] = {}
