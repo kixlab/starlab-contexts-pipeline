@@ -8,10 +8,11 @@ import json
 import pytest
 
 from pipeline import cli as cli_mod
-from pipeline.cli import budget_rows, main, tau_sweep
-from pipeline.models import PipelineResult
+from contextual.reporting import budget_rows, tau_sweep
+from pipeline.cli import main
+from contextual.models import RunResult
 from pipeline.runner import PipelineRunner
-from pipeline.store import PipelineStore
+from contextual.store import RunStore
 
 from tests.pipeline.helpers import (
     ScriptedLabeler,
@@ -44,7 +45,7 @@ def saved_result(tmp_path):
 
 
 def test_budget_rows_replay_ledger(saved_result):
-    rows = budget_rows(PipelineStore.load_result(saved_result))
+    rows = budget_rows(RunStore.load_result(saved_result))
     assert [r["status"] for r in rows] == [
         "accepted", "accepted", "vocabulary_failed", "refused", "replaced",
     ]
@@ -105,7 +106,7 @@ def test_unknown_target_exits(tmp_path):
 # ---- tau sweep and usage display ----
 
 def _pool_result(fids, usage=None):
-    return PipelineResult(
+    return RunResult(
         pool=[make_facet(f) for f in fids], annotations=label_book(fids), tree=None,
         accepted_schemas=[], rejected_schemas=[], ledger=[], stop_reason=None,
         attempts=0, proposals=0, iterations=0, fingerprint="x", usage=usage or {},
@@ -139,7 +140,7 @@ def test_tree_command_needs_cached_kb(monkeypatch, tmp_path):
 
 
 def test_show_reports_usage(saved_result, capsys):
-    result = PipelineStore.load_result(saved_result)
+    result = RunStore.load_result(saved_result)
     result.usage = {"proposal": {"input_tokens": 1500, "output_tokens": 10,
                                  "thinking_tokens": 7, "requests": 2}}
     print(cli_mod.format_summary("x", result))

@@ -1,10 +1,9 @@
 """
-Outer experiment adapter.
+Experiment adapter for the prompt-based pipeline.
 
-The only layer that couples ``ConstructKnowledgeBase`` to the pipeline. Loads
-experiment JSON files, obtains a knowledge base through the existing
-constructor, runs the pipeline with real (VLM) or injected services, and
-computes a concise summary.
+Loads experiment JSON files with a ``pipeline`` block, obtains the knowledge
+base through ``contextual.kb``, and runs the pipeline with real (VLM) or
+injected services.
 
 Experiment file schema::
 
@@ -22,33 +21,21 @@ block are rejected (see ``LegacyExperimentError``).
 from __future__ import annotations
 
 import json
-from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
-
-from config import Config
-
-from construct import ConstructKnowledgeBase, ConstructorConfig
-
-from data_prep import TaskManager
-
-from facets import VLMFacetLabeler, VLMFacetVocabularyBuilder
+from construct import ConstructorConfig
 
 from knowledge_items import KnowledgeItemType, KnowledgeBase
-from knowledge_items.io import get_clustering_cache_path, load_knowledge_items
 
-from optimization import compute_tree_depth
-
-from utils import ModelConfig
-from utils.embeddings import get_embeddings
+from contextual import kb as kb_access
+from contextual.kb import load_knowledge_base, lifecycle_services
+from contextual.lifecycle import Embedder, VocabularyBuilder, Labeler
+from contextual.models import RunResult
 
 from .config import PipelineConfig
-from .candidates import Embedder, VocabularyBuilder, Labeler
 from .proposal import FacetProposer, VLMFacetProposer
-from .models import PipelineResult
 from .runner import PipelineRunner
 
 EXPERIMENTS_DIR = Path(__file__).parent.parent / "experiments"
@@ -147,88 +134,26 @@ def load_experiments_dir(
 
 
 # ---------------------------------------------------------------------------
-# Knowledge base + result locations
+# Knowledge base, results, services
 # ---------------------------------------------------------------------------
 
-def _constructor(constructor_config: ConstructorConfig) -> ConstructKnowledgeBase:
-    return ConstructKnowledgeBase(
-        config=constructor_config,
-        task_datasets_dir=Config.TASK_DATASETS_DIR,
-        cache_dir=Config.CACHE_DIR,
-    )
-
-
-def load_knowledge_base(
-    task_id: str,
-    constructor_config: ConstructorConfig,
-    item_type: KnowledgeItemType,
-) -> tuple[Any, KnowledgeBase, Path]:
-    """Load a task + its knowledge base via the existing constructor.
-
-    May run extraction/clustering (VLM and embedding calls) when the
-    constructor cache is missing.
-    """
-    constructor = _constructor(constructor_config)
-    task = TaskManager(tasks_file=Config.TASKS_FILE).get_task(task_id)
-    cache_dir = constructor.get_cache_dir(task)
-    kb = constructor.get_knowledge_base(task, item_type)
-    return task, kb, cache_dir
+RESULT_PREFIX = "pipeline"
 
 
 def results_dir(spec: ExperimentSpec) -> Path:
     """Where the experiment's checkpoints and results live (no KB load)."""
-    task = TaskManager(tasks_file=Config.TASKS_FILE).get_task(spec.task_id)
-    return _constructor(spec.constructor).get_cache_dir(task)
+    return kb_access.results_dir(spec.task_id, spec.constructor)
 
 
 def cached_knowledge_base(spec: ExperimentSpec) -> Optional[KnowledgeBase]:
     """The experiment's knowledge base if already cached; never calls a model."""
-    path = get_clustering_cache_path(
-        cache_dir=results_dir(spec), item_type=spec.item_type,
-        cluster_config=spec.constructor.cluster_config,
-    )
-    if not path.exists():
-        return None
-    return KnowledgeBase(items=load_knowledge_items(path=path))
+    return kb_access.cached_knowledge_base(spec.task_id, spec.constructor, spec.item_type)
 
 
 def find_result(spec: ExperimentSpec, directory: str | Path | None = None) -> Optional[Path]:
-    """Newest saved result in ``directory`` whose config matches ``spec``.
-
-    Saved configs are normalized through ``PipelineConfig`` first, so a result
-    written before a config field existed matches that field's default.
-    Results for the same config under older prompts or knowledge bases also
-    match; the newest one wins.
-    """
-    directory = Path(directory) if directory is not None else results_dir(spec)
-    wanted = spec.pipeline.semantic_dict()
-    matches = []
-    for path in directory.glob("pipeline_result_*.json"):
-        if _normalized_config(json.loads(path.read_text()).get("config", {})) == wanted:
-            matches.append(path)
-    return max(matches, key=lambda p: p.stat().st_mtime) if matches else None
-
-
-def _normalized_config(saved: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """A saved semantic config with defaults filled in (None if unreadable)."""
-    try:
-        return PipelineConfig.from_dict(saved).semantic_dict()
-    except (KeyError, TypeError, ValueError):
-        return None
-
-
-# ---------------------------------------------------------------------------
-# Services
-# ---------------------------------------------------------------------------
-
-class ModelEmbedder:
-    """Embedder backed by ``utils.embeddings.get_embeddings``."""
-
-    def __init__(self, model_config: ModelConfig):
-        self.model_config = model_config
-
-    def embed(self, texts: List[str]) -> np.ndarray:
-        return get_embeddings(texts, model_config=self.model_config)
+    """Newest saved pipeline result whose config matches ``spec``."""
+    directory = directory if directory is not None else results_dir(spec)
+    return kb_access.find_result(directory, RESULT_PREFIX, spec.pipeline)
 
 
 @dataclass
@@ -241,15 +166,12 @@ class Services:
 
 def vlm_services(config: PipelineConfig) -> Services:
     """Real model-backed services for a pipeline config."""
+    lifecycle = lifecycle_services(config)
     return Services(
         proposer=VLMFacetProposer(config.proposal_model, config.max_concurrency),
-        vocab_builder=VLMFacetVocabularyBuilder(
-            model_config=config.vocab_model, max_concurrency=config.max_concurrency,
-        ),
-        labeler=VLMFacetLabeler(
-            model_config=config.labeling_model, max_concurrency=config.max_concurrency,
-        ),
-        embedder=ModelEmbedder(config.embedding_model),
+        vocab_builder=lifecycle.vocab_builder,
+        labeler=lifecycle.labeler,
+        embedder=lifecycle.embedder,
     )
 
 
@@ -268,7 +190,7 @@ def run_pipeline(
     labeler: Labeler,
     embedder: Embedder,
     output_dir: str | Path | None = None,
-) -> PipelineResult:
+) -> RunResult:
     """Invoke the contextual-unit runner with the given (real or fake) services.
 
     Checkpoints and results are written under ``output_dir`` (defaults to
@@ -293,7 +215,7 @@ def run_experiment(
     *,
     services: Optional[Services] = None,
     output_dir: str | Path | None = None,
-) -> PipelineResult:
+) -> RunResult:
     """Load the experiment's knowledge base and run its pipeline.
 
     ``services`` defaults to the real VLM-backed services.
@@ -305,51 +227,4 @@ def run_experiment(
         proposer=services.proposer, vocab_builder=services.vocab_builder,
         labeler=services.labeler, embedder=services.embedder,
         output_dir=output_dir,
-    )
-
-
-# ---------------------------------------------------------------------------
-# Summary
-# ---------------------------------------------------------------------------
-
-@dataclass
-class PipelineExperimentSummary:
-    """Key metrics for quick comparison across runs."""
-
-    num_units: int
-    pool_facets: int
-    iterations: int
-    attempts: int
-    proposals: int
-    tree_nodes: int
-    tree_depth: int
-    stop_reason: str
-    status_counts: Dict[str, int]
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "num_units": self.num_units,
-            "pool_facets": self.pool_facets,
-            "iterations": self.iterations,
-            "attempts": self.attempts,
-            "proposals": self.proposals,
-            "tree_nodes": self.tree_nodes,
-            "tree_depth": self.tree_depth,
-            "stop_reason": self.stop_reason,
-            "status_counts": self.status_counts,
-        }
-
-
-def summarize(result: PipelineResult) -> PipelineExperimentSummary:
-    counts = Counter(r.status.value for r in result.ledger)
-    return PipelineExperimentSummary(
-        num_units=result.num_units,
-        pool_facets=len(result.pool),
-        iterations=result.iterations,
-        attempts=result.attempts,
-        proposals=result.proposals,
-        tree_nodes=len(result.tree.nodes) if result.tree else 0,
-        tree_depth=compute_tree_depth(result.tree) if result.tree else 0,
-        stop_reason=result.stop_reason.value if result.stop_reason else "none",
-        status_counts=dict(counts),
     )

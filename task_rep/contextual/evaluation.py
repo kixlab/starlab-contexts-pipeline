@@ -23,9 +23,9 @@ from optimization import (
     compare_tree_quality,
 )
 
-from .config import PipelineConfig
-from .candidates import ProcessedCandidate
-from .models import CandidateStatus, PipelineState, TreeQualitySnapshot
+from .settings import RunSettings
+from .lifecycle import ProcessedCandidate
+from .models import CandidateStatus, RunState, TreeQualitySnapshot
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class SelectionDecision:
     replaced_facet_id: Optional[str] = None
 
 
-def _snapshot(state: PipelineState) -> TreeQualitySnapshot:
+def _snapshot(state: RunState) -> TreeQualitySnapshot:
     tree = state.tree
     nodes = len(tree.nodes) if tree else 0
     unique = len({fid for n in (tree.nodes if tree else []) for fid in n.facet_ids})
@@ -52,7 +52,7 @@ def _snapshot(state: PipelineState) -> TreeQualitySnapshot:
 class PoolEvaluator:
     """Builds schemas and decides pool membership for a focused knowledge base."""
 
-    def __init__(self, config: PipelineConfig, focused_kb: KnowledgeBase):
+    def __init__(self, config: RunSettings, focused_kb: KnowledgeBase):
         self.config = config
         self.focused_kb = focused_kb
 
@@ -72,12 +72,12 @@ class PoolEvaluator:
             metric_mode=self.config.metric_mode,
         )
 
-    def apply_evaluation(self, state: PipelineState, evaluation: SchemaEvaluation):
+    def apply_evaluation(self, state: RunState, evaluation: SchemaEvaluation):
         state.tree = evaluation.tree
         state.accepted_schemas = evaluation.accepted_schemas
         state.rejected_schemas = evaluation.rejected_schemas
 
-    def initialize(self, state: PipelineState):
+    def initialize(self, state: RunState):
         """Compute the schema evaluation for the current (possibly empty) pool."""
         if state.pool:
             self.apply_evaluation(
@@ -85,7 +85,7 @@ class PoolEvaluator:
             )
 
     def consider(
-        self, state: PipelineState, candidate: ProcessedCandidate,
+        self, state: RunState, candidate: ProcessedCandidate,
     ) -> SelectionDecision:
         """Try to place ``candidate`` into the pool, mutating ``state`` on success.
 

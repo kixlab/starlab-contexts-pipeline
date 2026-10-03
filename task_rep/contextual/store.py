@@ -1,8 +1,9 @@
 """
 Versioned result and checkpoint persistence.
 
-A checkpoint is restored only when the complete fingerprint matches: KB content
-hash, pipeline config (minus settings that cannot change the outcome, such as
+Shared by all runners; each uses its own file prefix (e.g. "pipeline",
+"agentic"). A checkpoint is restored only when the complete fingerprint
+matches: KB content hash, run config (minus settings that cannot change the outcome, such as
 ``use_cache``), model identities (already inside the config), rendered-prompt
 hash, IRR sampling settings, and serialization version. No mutable facet bank
 is shared across prompt or config versions.
@@ -21,8 +22,8 @@ from knowledge_items import KnowledgeBase
 from optimization import irr
 from utils.llm import SEED
 
-from .config import PipelineConfig
-from .models import PipelineState, PipelineResult
+from .settings import RunSettings
+from .models import RunState, RunResult
 
 logger = logging.getLogger(__name__)
 
@@ -37,17 +38,19 @@ def kb_fingerprint(kb: KnowledgeBase) -> str:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
 
 
-class PipelineStore:
+class RunStore:
     """Owns checkpoint/result paths and the exact-run fingerprint."""
 
     def __init__(
         self,
         cache_dir: str | Path,
-        config: PipelineConfig,
+        config: RunSettings,
         kb_fp: str,
         prompt_fp: str,
+        prefix: str,
     ):
         self.cache_dir = Path(cache_dir)
+        self.prefix = prefix
         self.config = config
         self.kb_fp = kb_fp
         self.prompt_fp = prompt_fp
@@ -66,14 +69,14 @@ class PipelineStore:
         return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:24]
 
     def checkpoint_path(self) -> Path:
-        return self.cache_dir / f"pipeline_ckpt_{self.fingerprint}.json"
+        return self.cache_dir / f"{self.prefix}_ckpt_{self.fingerprint}.json"
 
     def result_path(self) -> Path:
-        return self.cache_dir / f"pipeline_result_{self.fingerprint}.json"
+        return self.cache_dir / f"{self.prefix}_result_{self.fingerprint}.json"
 
     # ---- checkpoints ----
 
-    def save_checkpoint(self, state: PipelineState) -> None:
+    def save_checkpoint(self, state: RunState) -> None:
         state.fingerprint = self.fingerprint
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         path = self.checkpoint_path()
@@ -81,7 +84,7 @@ class PipelineStore:
             json.dump({"fingerprint": self.fingerprint, "state": state.to_dict()},
                       f, ensure_ascii=False, indent=2)
 
-    def restore_checkpoint(self) -> Optional[PipelineState]:
+    def restore_checkpoint(self) -> Optional[RunState]:
         path = self.checkpoint_path()
         if not path.exists():
             logger.info("No checkpoint at %s.", path)
@@ -92,11 +95,11 @@ class PipelineStore:
             logger.info("Checkpoint fingerprint mismatch — ignoring %s.", path)
             return None
         logger.info("Restored checkpoint from %s.", path)
-        return PipelineState.from_dict(data["state"])
+        return RunState.from_dict(data["state"])
 
     # ---- results ----
 
-    def save_result(self, result: PipelineResult) -> Path:
+    def save_result(self, result: RunResult) -> Path:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         path = self.result_path()
         with open(path, "w", encoding="utf-8") as f:
@@ -105,6 +108,6 @@ class PipelineStore:
         return path
 
     @staticmethod
-    def load_result(path: str | Path) -> PipelineResult:
+    def load_result(path: str | Path) -> RunResult:
         data = json.loads(Path(path).read_text())
-        return PipelineResult.from_dict(data)
+        return RunResult.from_dict(data)

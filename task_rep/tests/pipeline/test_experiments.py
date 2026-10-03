@@ -12,6 +12,7 @@ from knowledge_items import KnowledgeItemType
 
 from pipeline import experiments as experiments_mod
 from pipeline.config import A2_CONTEXT, ProposalStrategy
+from contextual.reporting import summarize
 from pipeline.experiments import (
     EXPERIMENTS_DIR,
     ExperimentSpec,
@@ -20,7 +21,6 @@ from pipeline.experiments import (
     find_result,
     load_experiments_dir,
     run_experiment,
-    summarize,
 )
 
 from tests.pipeline.helpers import (

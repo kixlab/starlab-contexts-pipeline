@@ -6,10 +6,11 @@ import pytest
 
 from facets import Facet
 
-from pipeline import candidates as candidates_mod
-from pipeline.config import A2_CONTEXT, ContextComponent, ProposalStrategy, stage_seed
-from pipeline.candidates import ProcessedCandidate
-from pipeline.models import CandidateStatus, PipelineState, StopReason
+from contextual import lifecycle as candidates_mod
+from contextual.settings import stage_seed
+from pipeline.config import A2_CONTEXT, ContextComponent, ProposalStrategy
+from contextual.lifecycle import ProcessedCandidate
+from contextual.models import CandidateStatus, RunState, StopReason
 from pipeline.runner import PipelineRunner
 from utils import llm as llm_mod
 
@@ -134,7 +135,7 @@ def _setup_outcome(tmp_path, monkeypatch, status):
     overrides = dict(proposal_budget=20, pool_size=20, refusal_patience=50,
                      no_improvement_patience=50, attempt_limit=60)
     facet = make_facet("C")
-    state = PipelineState()
+    state = RunState()
 
     if status == CandidateStatus.REFUSED:
         script = [[]]
@@ -220,7 +221,7 @@ def test_duplicates_do_not_join_the_dedup_set(tmp_path):
     emb = TableEmbedder({"A": [1, 0], "A2": [1, 0]})
     script = [[make_facet("A")], [make_facet("A2")]]
     runner = _runner(tmp_path, ScriptedProposer(script), embedder=emb)
-    state = PipelineState()
+    state = RunState()
     runner.run_iteration(state)
     runner.run_iteration(state)
     assert _statuses(state) == [CandidateStatus.ACCEPTED, CandidateStatus.DUPLICATE]
