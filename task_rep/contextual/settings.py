@@ -58,6 +58,10 @@ class RunSettings:
     # ---- item scope ----
     item_scope: ItemScopeConfig
 
+    # ---- corpus (see contextual.corpus) ----
+    corpus_sample_videos: int = 0  # restrict the KB to this many videos (0 = all)
+    corpus_seed: int = 0           # fixes the sample; independent of the run seed
+
     # ---- budget / stopping (independent controls) ----
     proposal_budget: int = 30            # max unique candidates entering the lifecycle
     pool_size: int = 30                  # ceiling on selected facets (not a guarantee)
@@ -106,8 +110,8 @@ class RunSettings:
             raise ValueError("patience values must be > 0.")
         if self.seed < 0:
             raise ValueError("seed must be >= 0.")
-        if self.vocab_sample_videos < 0:
-            raise ValueError("vocab_sample_videos must be >= 0.")
+        if self.vocab_sample_videos < 0 or self.corpus_sample_videos < 0:
+            raise ValueError("sample_videos settings must be >= 0.")
         if not 0.0 < self.dedup_similarity_threshold <= 1.0:
             raise ValueError("dedup_similarity_threshold must be in (0, 1].")
         if self.metric_mode not in ("entropy", "coherence_ordinal", "coherence_temporal"):

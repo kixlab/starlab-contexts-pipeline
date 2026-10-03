@@ -19,6 +19,7 @@ from knowledge_items import KnowledgeBase
 
 from optimization import compute_tree_depth
 
+from .corpus import select_corpus
 from .evaluation import PoolEvaluator
 from .models import RunResult
 from .settings import RunSettings
@@ -153,10 +154,13 @@ DEFAULT_TAUS = [0.2, 0.3, 0.4, 0.5, 0.6]
 
 def tau_sweep(result: RunResult, knowledge_base: KnowledgeBase,
               config: RunSettings, taus: List[float]) -> List[Dict[str, Any]]:
-    """Rebuild the result's tree at each refinement threshold (no model calls)."""
-    focused = knowledge_base
+    """Rebuild the result's tree at each refinement threshold (no model calls).
+
+    Applies the run's corpus selection, so the tree covers the same videos.
+    """
+    focused = select_corpus(knowledge_base, config)
     if config.item_scope.atomic_subtype.subtypes:
-        focused = knowledge_base.filter_subtypes(config.item_scope.atomic_subtype.subtypes)
+        focused = focused.filter_subtypes(config.item_scope.atomic_subtype.subtypes)
     rows = []
     for tau in taus:
         evaluator = PoolEvaluator(

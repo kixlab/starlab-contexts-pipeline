@@ -21,6 +21,7 @@ from utils.llm import USAGE, usage_delta, usage_stage
 from optimization import count_unique_units
 
 from contextual import bookkeeping
+from contextual.corpus import select_corpus
 from contextual.evaluation import PoolEvaluator
 from contextual.lifecycle import CandidateProcessor, Embedder, VocabularyBuilder, Labeler
 from contextual.models import RunState, RunResult, CandidateStatus, StopReason
@@ -57,6 +58,7 @@ class PipelineRunner:
     ):
         self.config = config
         self.task = task
+        knowledge_base = select_corpus(knowledge_base, config)
         self.knowledge_base = knowledge_base
 
         # Focused KB for optimization scope (subtype filter); proposal context,
