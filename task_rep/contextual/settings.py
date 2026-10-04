@@ -63,7 +63,7 @@ class RunSettings:
     corpus_seed: int = 0           # fixes the sample; independent of the run seed
 
     # ---- budget / stopping (independent controls) ----
-    proposal_budget: int = 30            # max unique candidates entering the lifecycle
+    proposal_budget: int = 30            # max parseable proposals (duplicates included)
     pool_size: int = 30                  # ceiling on selected facets (not a guarantee)
     attempt_limit: Optional[int] = None  # hard bound on attempts; None -> 3 x budget
     no_improvement_patience: int = 5     # consecutive processed candidates without gain
@@ -72,7 +72,7 @@ class RunSettings:
     # ---- candidate lifecycle ----
     max_concurrency: int = 150
     vocab_sample_videos: int = 0            # 0 = all videos
-    dedup_similarity_threshold: float = 0.87
+    dedup_similarity_threshold: float = 0.93
     irr_sample_videos: int = 3              # 0 = IRR disabled
     irr_num_raters: int = 3
     irr_min_agreement: float = 0.8

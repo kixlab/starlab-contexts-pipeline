@@ -20,9 +20,9 @@ from .models import (
 )
 from .settings import RunSettings
 
-# Statuses that mean the candidate entered the lifecycle (counts against budget).
-# Their embeddings join the dedup set.
-BUDGET_STATUSES = {
+# Statuses whose candidate entered the lifecycle (passed dedup). Their
+# embeddings join the dedup set; duplicates never do, so near-copies cannot chain.
+LIFECYCLE_STATUSES = {
     CandidateStatus.IRR_PRUNED,
     CandidateStatus.VOCABULARY_FAILED,
     CandidateStatus.LABELING_FAILED,
@@ -30,6 +30,10 @@ BUDGET_STATUSES = {
     CandidateStatus.ACCEPTED,
     CandidateStatus.REPLACED,
 }
+# Statuses that count against the proposal budget: every parseable proposal,
+# however early it is dropped. Refusals (nothing proposed), invalid
+# (unparseable) proposals, and a0 truncation surplus do not count.
+BUDGET_STATUSES = LIFECYCLE_STATUSES | {CandidateStatus.DUPLICATE}
 # Statuses that increment the no-improvement streak (processed but no gain).
 NO_IMPROVE_STATUSES = {
     CandidateStatus.DUPLICATE,
@@ -112,7 +116,7 @@ def apply_outcome(
         )
 
     failure: CandidateFailure = outcome
-    if failure.status in BUDGET_STATUSES and failure.embedding is not None:
+    if failure.status in LIFECYCLE_STATUSES and failure.embedding is not None:
         state.embeddings[failure.facet.id] = failure.embedding
     return record(
         state, failure.status, increment_attempts=increment_attempts,

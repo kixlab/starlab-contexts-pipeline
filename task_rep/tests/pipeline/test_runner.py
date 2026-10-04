@@ -117,7 +117,7 @@ def test_stop_precedence_attempts_over_refusals(tmp_path):
 COUNTER_TABLE = {
     CandidateStatus.REFUSED: (1, 0, +1, 0),
     CandidateStatus.INVALID: (1, 0, "reset", 0),
-    CandidateStatus.DUPLICATE: (1, 0, "reset", +1),
+    CandidateStatus.DUPLICATE: (1, 1, "reset", +1),   # a parseable proposal: uses budget
     CandidateStatus.IRR_PRUNED: (1, 1, "reset", +1),
     CandidateStatus.VOCABULARY_FAILED: (1, 1, "reset", +1),
     CandidateStatus.LABELING_FAILED: (1, 1, "reset", +1),
@@ -356,7 +356,7 @@ def test_a0_truncates_before_dedup(tmp_path):
         CandidateStatus.ACCEPTED, CandidateStatus.TRUNCATED,
     ]
     assert result.ledger[3].facet_id == "C"
-    assert result.proposals == 2  # duplicate cost no budget; C was cut
+    assert result.proposals == 3  # A, the duplicate, and B all use budget; C was cut
     assert result.attempts == 1
     assert result.stop_reason == StopReason.BATCH_COMPLETE
 
