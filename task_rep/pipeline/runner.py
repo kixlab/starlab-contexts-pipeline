@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 import random
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from knowledge_items import KnowledgeBase
 

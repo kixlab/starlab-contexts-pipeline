@@ -766,23 +766,6 @@ def llm_enqueue_request(
     return req_id
 
 
-def llm_get_response(batch_id: str, request_id: str) -> Dict[str, Any]:
-    """Get a specific response by request ID."""
-    path = llm_get_responses_path(batch_id)
-    with open(path, "r", encoding="utf-8") as f:
-        for line in f:
-            if not line.strip():
-                continue
-            record = json.loads(line)
-            request_json = record[0]
-            result = record[1]
-            if request_json["request_id"] == request_id:
-                if "errors" in result:
-                    raise ValueError(f"Request failed with errors: {result['errors']}")
-                return result
-    raise ValueError(f"Request ID not found: {request_id}")
-
-
 def llm_get_responses(
     batch_id: str, raise_on_error: bool = True,
 ) -> Dict[str, Dict[str, Any]]:

@@ -18,7 +18,7 @@ import math
 from collections import defaultdict
 from dataclasses import dataclass, field
 from itertools import combinations
-from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
+from typing import Any, Dict, FrozenSet, List, Set, Tuple
 
 from knowledge_items import KnowledgeBase
 from facets import Facet, AnnotationTable
@@ -28,7 +28,6 @@ from .metrics import (
     compute_compactness,
     compute_discriminativeness,
     compute_eta_squared,
-    compute_quality_metric,
 )
 
 
@@ -374,14 +373,6 @@ def node_quality(node: TreeNode, metric_mode: str) -> float:
         return -node.eta2
 
 
-def _node_quality_value(node: TreeNode, metric_mode: str) -> float:
-    """Raw quality metric value (lower is better)."""
-    if metric_mode == "entropy":
-        return node.D
-    else:
-        return node.eta2
-
-
 # ---------------------------------------------------------------------------
 # Build tree nodes
 # ---------------------------------------------------------------------------
@@ -443,7 +434,6 @@ def build_tree_nodes(
         )
         return [node], h_memo
 
-    facet_by_id = {f.id: f for f in facets}
     max_size = min(max_schema_facets, len(facets))
     nodes: List[TreeNode] = []
 
@@ -600,7 +590,6 @@ def evaluate_schemas(
             accepted.append(candidate)
 
     # Phase B: edge building among survivors
-    node_by_id = {n.id: n for n in accepted}
     edges: List[TreeEdge] = []
     for i in range(len(accepted)):
         for j in range(i + 1, len(accepted)):

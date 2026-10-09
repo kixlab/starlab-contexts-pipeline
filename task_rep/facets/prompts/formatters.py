@@ -199,18 +199,6 @@ def knowledge_items_to_message_content(
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
-def target_items_to_message_content(
-    items: List[KnowledgeItem],
-    id_map: Optional[Dict[str, str]] = None,
-) -> MessageContent:
-    """Format target KnowledgeItems as MessageContent.
-
-    Args:
-        id_map: Optional real_id → temp_id mapping for reliable LLM reproduction.
-    """
-    return knowledge_items_to_message_content(items, id_map)
-
-
 def videos_to_message_content(
     videos: Dict[str, List[KnowledgeItem]],
     id_map: Optional[Dict[str, str]] = None,

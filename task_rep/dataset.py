@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 """
-CLI script to prepare datasets.
+CLI to prepare task datasets (run from task_rep/; see data_prep/README.md).
 
 Usage:
     # List all tasks
-    python -m task_rep.scripts.prepare_dataset list
+    python -m dataset list
 
     # Show task info
-    python -m task_rep.scripts.prepare_dataset info sushi_v1
+    python -m dataset info sushi_v1
 
     # Build dataset (OpenAI transcripts by default)
-    python -m task_rep.scripts.prepare_dataset build sushi_v1 --fps 1.0
+    python -m dataset build sushi_v1 --fps 1.0
 
     # Build all datasets at once
-    python -m task_rep.scripts.prepare_dataset build-all --fps 1.0
+    python -m dataset build-all --fps 1.0
 
     # Build only specific tasks
-    python -m task_rep.scripts.prepare_dataset build-some makeup caramel_apples --fps 1.0
+    python -m dataset build-some makeup caramel_apples --fps 1.0
 
     # Use YouTube transcripts when available
-    python -m task_rep.scripts.prepare_dataset build sushi_v1 --transcript-source youtube-or-openai
+    python -m dataset build sushi_v1 --transcript-source youtube-or-openai
 
     # Force rebuild everything
-    python -m task_rep.scripts.prepare_dataset build sushi_v1 --force-all
+    python -m dataset build sushi_v1 --force-all
 """
 
 import argparse

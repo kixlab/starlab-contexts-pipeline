@@ -8,10 +8,9 @@ from server/helpers/cim_scripts.py into the task_rep data model.
 from __future__ import annotations
 
 import logging
-import json
 import math
 from collections import defaultdict
-from typing import Dict, List, Set, Union
+from typing import Dict, List
 
 from knowledge_items import (
     KnowledgeBase,

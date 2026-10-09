@@ -1,0 +1,549 @@
+<title>__TITLE__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a working inspector. Summary table first, then one condition at a
+   time (facets, candidates, transcript), switched by a sticky tab strip. */
+:root {
+  --bg: #f3f5f2;          /* rice paper, cool */
+  --surface: #ffffff;
+  --sunk: #e8ece7;
+  --ink: #1b2622;         /* nori */
+  --ink-soft: #4d5b55;
+  --line: #d3dad5;
+  --accent: #d4553f;      /* salmon */
+  --accent-soft: #f6ddd6;
+  --wasabi: #6b8f3a;
+  --ok: #2f7d4f;    --ok-bg: #dcefe2;
+  --swap: #2c64a8;  --swap-bg: #dbe7f6;
+  --warn: #9a6a12;  --warn-bg: #f5e8c8;
+  --bad: #b23a3a;   --bad-bg: #f6dcdc;
+  --dup: #6a4f99;   --dup-bg: #e7def4;
+  --mute: #5e6863;  --mute-bg: #e4e8e5;
+  --bar: #c9d5cd;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --step--1: 0.8125rem; --step-0: 0.9375rem; --step-1: 1.125rem; --step-2: 1.5rem; --step-3: 2.125rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121a17; --surface: #1a2420; --sunk: #222e29; --ink: #e6ece8; --ink-soft: #a7b4ad;
+    --line: #2f3d37; --accent: #ef7a62; --accent-soft: #3a2621; --wasabi: #9cc06a;
+    --ok: #7fd09c; --ok-bg: #1d3527; --swap: #8fb6ea; --swap-bg: #1b2a3d;
+    --warn: #e2b964; --warn-bg: #352b16; --bad: #f08d8d; --bad-bg: #3a1f1f;
+    --dup: #c0a8ea; --dup-bg: #2c2340; --mute: #a3aea8; --mute-bg: #26302c; --bar: #3a4a43;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121a17; --surface: #1a2420; --sunk: #222e29; --ink: #e6ece8; --ink-soft: #a7b4ad;
+  --line: #2f3d37; --accent: #ef7a62; --accent-soft: #3a2621; --wasabi: #9cc06a;
+  --ok: #7fd09c; --ok-bg: #1d3527; --swap: #8fb6ea; --swap-bg: #1b2a3d;
+  --warn: #e2b964; --warn-bg: #352b16; --bad: #f08d8d; --bad-bg: #3a1f1f;
+  --dup: #c0a8ea; --dup-bg: #2c2340; --mute: #a3aea8; --mute-bg: #26302c; --bar: #3a4a43;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: var(--step-0); line-height: 1.55; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: max(16px, 3vw); padding-block: 28px 64px; display: grid; gap: 40px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: var(--step-3); letter-spacing: -0.01em; }
+h2 { font-size: var(--step-2); }
+h3 { font-size: var(--step-1); }
+p { margin: 0; }
+.mono, code { font-family: var(--font-mono); font-size: 0.86em; }
+.eyebrow { font-family: var(--font-mono); font-size: var(--step--1); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.soft { color: var(--ink-soft); }
+header.top { display: grid; gap: 10px; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 18px; font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-soft); }
+.facts b { color: var(--ink); font-weight: 600; }
+.lede { max-width: 72ch; }
+section { display: grid; gap: 16px; min-width: 0; }
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--font-mono); font-size: var(--step--1); font-weight: 600; color: var(--ink-soft); white-space: nowrap; background: var(--sunk); }
+tr:last-child td { border-bottom: 0; }
+td.num { text-align: right; white-space: nowrap; }
+tr.pick { cursor: pointer; }
+tr.pick:hover td, tr.pick.on td { background: var(--accent-soft); }
+.cond { display: grid; gap: 2px; }
+.cond .k { font-family: var(--font-mono); font-weight: 600; }
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; font-family: var(--font-mono); font-size: 0.75rem; white-space: nowrap; }
+.s-accepted { color: var(--ok); background: var(--ok-bg); }
+.s-replaced { color: var(--swap); background: var(--swap-bg); }
+.s-schema_rejected { color: var(--warn); background: var(--warn-bg); }
+.s-irr_pruned { color: var(--bad); background: var(--bad-bg); }
+.s-duplicate { color: var(--dup); background: var(--dup-bg); }
+.s-other { color: var(--mute); background: var(--mute-bg); }
+.pills { display: flex; flex-wrap: wrap; gap: 4px; }
+.nodes { display: flex; gap: 6px; align-items: flex-end; }
+.nodes span { display: grid; justify-items: center; font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-soft); }
+.nodes i { display: block; width: 14px; background: var(--wasabi); border-radius: 2px 2px 0 0; }
+.nodes b { color: var(--ink); font-weight: 600; font-size: 0.8rem; }
+.matrix { display: grid; gap: 10px; }
+.mrow { display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.mrow .chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.chip { border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; font-size: var(--step--1); background: var(--bg); color: var(--ink); cursor: pointer; font-family: var(--font-body); }
+.chip.kept { border-color: var(--wasabi); }
+.chip.redundant { border-style: dashed; color: var(--ink-soft); }
+.chip:hover, .chip:focus-visible { border-color: var(--accent); outline: none; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: var(--step--1); color: var(--ink-soft); }
+.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+.tabs .grp { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tabs .grp > span { font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-soft); margin-right: 2px; }
+.tab { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 5px 12px; font-family: var(--font-mono); font-size: var(--step--1); cursor: pointer; }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.tab:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.panelhead { display: grid; gap: 6px; }
+.subnav { display: flex; flex-wrap: wrap; gap: 6px; }
+.subnav a { color: var(--accent); font-size: var(--step--1); font-family: var(--font-mono); }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.card.redundant { background: var(--sunk); }
+.card .head { display: grid; gap: 4px; }
+.card .meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tag { font-family: var(--font-mono); font-size: 0.72rem; padding: 1px 7px; border-radius: 4px; background: var(--sunk); color: var(--ink-soft); }
+.tag.kept { color: var(--ok); background: var(--ok-bg); }
+.tag.redundant { color: var(--warn); background: var(--warn-bg); }
+.q { font-style: italic; color: var(--ink-soft); }
+.values { display: grid; gap: 4px; }
+.val { display: grid; gap: 4px; }
+.val > button { all: unset; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 4px 6px; border-radius: 6px; }
+.val > button:hover { background: var(--sunk); }
+.val > button:focus-visible { outline: 2px solid var(--accent); }
+.vlabel { display: grid; gap: 3px; min-width: 0; }
+.vlabel strong { font-weight: 700; }
+.vbar { height: 5px; border-radius: 3px; background: var(--sunk); overflow: hidden; }
+.vbar i { display: block; height: 100%; background: var(--accent); }
+.vcount { font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-soft); white-space: nowrap; }
+.vdetail { margin: 0 6px 6px; padding: 8px 10px; border-left: 2px solid var(--accent); background: var(--bg); display: grid; gap: 6px; font-size: var(--step--1); }
+.vdetail ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+details > summary { cursor: pointer; font-size: var(--step--1); color: var(--ink-soft); font-family: var(--font-mono); }
+details[open] > summary { margin-bottom: 6px; }
+details ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; font-size: var(--step--1); }
+.ledger td.def { min-width: 260px; max-width: 46ch; }
+.why { font-size: var(--step--1); color: var(--ink-soft); }
+.dag { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: var(--font-mono); font-size: 0.78rem; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; max-height: 420px; overflow: auto; }
+.chartbox { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.chartbox svg { width: 100%; height: auto; display: block; }
+.chartbox .axis { stroke: var(--line); }
+.chartbox text { fill: var(--ink-soft); font-family: var(--font-mono); font-size: 11px; }
+.seglegend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-family: var(--font-mono); font-size: var(--step--1); margin-top: 8px; }
+.seglegend i { display: inline-block; width: 18px; height: 0; border-top: 3px solid; vertical-align: middle; margin-right: 6px; }
+.seglegend i.dash { border-top-style: dashed; }
+.metricpick { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.metricpick button { border: 0; background: var(--surface); color: var(--ink); padding: 4px 10px; font-family: var(--font-mono); font-size: var(--step--1); cursor: pointer; }
+.metricpick button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.sweep { display: flex; flex-wrap: wrap; gap: 10px; }
+.sweep div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-family: var(--font-mono); font-size: var(--step--1); }
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-size: var(--step--1); }
+.convo { display: grid; gap: 8px; }
+.msg { border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; background: var(--surface); display: grid; gap: 4px; min-width: 0; }
+.msg .who { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+.msg.user { border-left: 3px solid var(--accent); }
+.msg.agent { border-left: 3px solid var(--wasabi); }
+.msg.tool.submit { border-left: 3px solid var(--swap); }
+.msg pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: var(--font-mono); font-size: 0.78rem; max-height: 340px; overflow: auto; }
+.call { font-family: var(--font-mono); font-size: 0.8rem; }
+.call b { color: var(--accent); }
+.empty { color: var(--ink-soft); font-style: italic; }
+.notice { border: 1px solid var(--warn); background: var(--warn-bg); color: var(--ink); border-radius: 10px; padding: 10px 14px; display: grid; gap: 6px; font-size: var(--step--1); }
+.notice b { color: var(--warn); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.72rem; }
+.notice ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
+.tag.rescored { color: var(--warn); background: var(--warn-bg); }
+.tag.kind { color: var(--swap); background: var(--swap-bg); }
+.tag.lowcov { color: var(--bad); background: var(--bad-bg); }
+.delta { font-family: var(--font-mono); font-size: 0.82rem; white-space: nowrap; }
+.delta .up { color: var(--ok); font-weight: 600; }
+.delta .down { color: var(--bad); font-weight: 600; }
+.delta .old { color: var(--ink-soft); }
+.versions { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.versions button { border: 0; background: var(--surface); color: var(--ink); padding: 5px 12px; font-family: var(--font-mono); font-size: var(--step--1); cursor: pointer; }
+.versions button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.chip .k { font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-soft); margin-left: 4px; }
+@media (max-width: 560px) {
+  .mrow { grid-template-columns: 1fr; }
+  .cards { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .val > button, .tab, .chip { transition: background-color .15s, border-color .15s; }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">__EYEBROW__</span>
+    <h1>__TITLE__</h1>
+    <div class="facts" id="facts"></div>
+__INTRO__
+  </header>
+
+  <section aria-labelledby="cmp" id="cmpsec">
+    <h2 id="cmp"></h2>
+    <div class="scroll"><table id="comparison"></table></div>
+    <p class="soft" style="font-size: var(--step--1)">Coverage is the share of segments a factor labels with a real value (not "not applicable", "unspecified", or "none"), averaged over the run's pool. Tree nodes count the root plus every factor that survives redundancy pruning at τ 0.2.</p>
+  </section>
+
+  <section aria-labelledby="dagcmp">
+    <h2 id="dagcmp">Design space (latest version)</h2>
+    <div class="scroll"><table id="dagtable"></table></div>
+    <p class="soft" style="font-size: var(--step--1)" id="dagnote"></p>
+  </section>
+
+  <section aria-labelledby="ov">
+    <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between">
+      <h2 id="ov">Runs at a glance</h2>
+      <div class="versions" id="versions" role="group" aria-label="Prompt version"></div>
+    </div>
+    <div class="scroll"><table id="overview"></table></div>
+    <p class="soft" style="font-size: var(--step--1)">Tree nodes count the root plus every combination that survives redundancy pruning at the given threshold τ; a higher τ tolerates more overlap. The first two versions count single factors only; DAG feedback also counts pairs. Click a row to open that run.</p>
+  </section>
+
+  <section aria-labelledby="ms">
+    <h2 id="ms">Measures (selected version)</h2>
+    <p class="soft" style="font-size: var(--step--1)">All runs scored the same way (<span id="msettings"></span>), no model calls. <b>Vendi</b> is a diversity score over the pool's partitions with normalized mutual information as similarity: it equals the number of factors when they split the segments independently and 1 when they all split them the same way; it does not depend on τ. <b>Null</b> is the same score after shuffling each factor's labels across segments (20 shuffles): the ceiling for this pool. <b>Junk</b> adds three meaningless but consistent factors (random per video, or per segment) and counts how many survive pruning. <b>Unit coverage</b> is the share of each knowledge unit's segments that get a real value, averaged over units and factors. <b>Granularity</b> is each factor's entropy over only the segments where it applies. <b>Definition spread</b> is a Vendi score over the definition embeddings (cosine similarity).</p>
+    <div class="scroll"><table id="measures"></table></div>
+    <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; margin-top: 18px">
+      <h3>Saturation curves</h3>
+      <div style="display:flex; flex-wrap:wrap; gap:8px">
+        <div class="metricpick" id="xpick" role="group" aria-label="Horizontal axis"></div>
+        <div class="metricpick" id="metricpick" role="group" aria-label="Metric"></div>
+      </div>
+    </div>
+    <div class="chartbox"><div id="satchart"></div><div class="seglegend" id="satlegend"></div></div>
+  </section>
+
+  <section aria-labelledby="fx">
+    <h2 id="fx">Factors by run</h2>
+    <div class="legend"><span><span class="chip kept" tabindex="-1">solid</span> kept as a single node at the run's τ</span><span><span class="chip redundant" tabindex="-1">dashed</span> redundant with another factor</span><span>Click a factor to open it.</span></div>
+    <div class="matrix" id="matrix"></div>
+  </section>
+
+  <section aria-labelledby="detail-title">
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Runs"></nav>
+    <div id="panel" class="panel" style="display: grid; gap: 28px;"></div>
+  </section>
+</div>
+
+<script type="application/json" id="pilot-data">__DATA__</script>
+<script>
+(function () {
+  const data = JSON.parse(document.getElementById("pilot-data").textContent);
+  const versions = data.versions;
+  let vi = versions.length - 1;
+  let current = null;
+  const runsOf = () => versions[vi].runs;
+  const byKey = () => Object.fromEntries(runsOf().map(r => [r.key, r]));
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const fmtK = n => n >= 1e6 ? (n / 1e6).toFixed(2) + "M" : Math.round(n / 1e3) + "k";
+  const pct = x => Math.round(100 * x) + "%";
+  const STATUS_LABEL = { accepted: "accepted", replaced: "replaced", schema_rejected: "no gain", irr_pruned: "IRR-pruned", duplicate: "duplicate", invalid: "invalid", vocabulary_failed: "vocab failed", labeling_failed: "label failed", refused: "refused", truncated: "truncated" };
+  const pill = (status, n) => {
+    const cls = ["accepted","replaced","schema_rejected","irr_pruned","duplicate"].includes(status) ? "s-" + status : "s-other";
+    return `<span class="pill ${cls}">${esc(STATUS_LABEL[status] || status)}${n != null ? " " + n : ""}</span>`;
+  };
+  const condDesc = r => r.kind === "pipeline"
+    ? (r.strategy === "batch" ? "one request proposes all 10 factors from the segments" : `one factor per request; prompt shows ${esc((r.context || []).join(" + "))}`)
+    : ({ none: "agent explores tools; submissions only acknowledged", outcome: "agent sees each submission's outcome", pool: "agent sees outcome + current pool with value frequencies" + (r.sees_history ? " + tried factors not kept" : ""), schemas: "agent sees outcome + the design space (kept and pruned factor combinations)" + (r.sees_history ? ", what its last submission changed, and tried factors not kept" : "") }[r.feedback] || "");
+
+  // ---- header facts
+  const c = data.corpus;
+  document.getElementById("facts").innerHTML =
+    `<span><b>${c.videos}</b> of ${c.total_videos} tutorials</span><span><b>${c.segments}</b> segments</span><span><b>${c.units}</b> knowledge units</span><span>budget <b>${data.budget}</b> proposals</span><span>run seed <b>${data.seed}</b></span><span>proposals <b>${esc(data.models.proposal)}</b>, labels <b>${esc(data.models.labeling)}</b></span>`;
+
+  // ---- comparison (original vs revised)
+  const delta = (a, b, fmt, higherIsBetter = true) => {
+    if (a == null || b == null) return "—";
+    const better = higherIsBetter ? b > a : b < a, worse = higherIsBetter ? b < a : b > a;
+    return `<span class="delta"><span class="old">${fmt(a)}</span> → <span class="${better ? "up" : worse ? "down" : ""}">${fmt(b)}</span></span>`;
+  };
+  (function comparison() {
+    const sec = document.getElementById("cmpsec");
+    const cmp = data.compare, i1 = cmp ? versions.findIndex(v => v.id === cmp.from) : -1, i2 = cmp ? versions.findIndex(v => v.id === cmp.to) : -1;
+    if (i1 < 0 || i2 < 0) { sec.hidden = true; return; }
+    document.getElementById("cmp").textContent = cmp.title || `${versions[i1].label} vs ${versions[i2].label}`;
+    const v1 = versions[i1], v2 = versions[i2];
+    const old = Object.fromEntries(v1.runs.map(r => [r.key, r]));
+    let h = `<thead><tr><th>Run</th><th>Pool</th><th>Tree nodes τ 0.2</th><th>Mean coverage</th><th>Factors under 20% coverage</th><th>Kinds (revised)</th><th>IRR-pruned</th></tr></thead><tbody>`;
+    for (const r of v2.runs) {
+      const o = old[r.key];
+      const kinds = Object.entries(r.kinds).map(([k, n]) => `<span class="tag kind">${esc(k)} ${n}</span>`).join(" ");
+      h += `<tr class="pick" data-key="${r.key}" tabindex="0"><td><div class="cond"><span class="k">${esc(r.short)}</span><span class="soft" style="font-size:var(--step--1)">${esc(r.label)}</span></div></td>
+        <td>${delta(o.pool, r.pool, String)}</td><td>${delta(o.taus[0].tree_nodes, r.taus[0].tree_nodes, String)}</td>
+        <td>${delta(o.mean_coverage, r.mean_coverage, pct)}</td><td>${delta(o.low_coverage, r.low_coverage, String, false)}</td>
+        <td><div class="pills">${kinds}</div></td><td>${delta(o.statuses.irr_pruned || 0, r.statuses.irr_pruned || 0, String, false)}</td></tr>`;
+    }
+    const t = document.getElementById("comparison");
+    t.innerHTML = h + "</tbody>";
+    t.addEventListener("click", e => { const tr = e.target.closest("tr.pick"); if (tr) { setVersion(i2); select(tr.dataset.key, true); } });
+  })();
+
+  // ---- DAG table (latest version)
+  (function dagTable() {
+    const last = versions[versions.length - 1], prev = versions[versions.length - 2];
+    const old = Object.fromEntries(prev.runs.map(r => [r.key, r]));
+    let h = `<thead><tr><th>Run</th><th class="num">Pool</th><th class="num">Kept singles</th><th class="num">Kept pairs</th><th class="num">Refines edges</th><th class="num">Pruned</th><th>Mean coverage (vs previous version)</th><th>Run</th></tr></thead><tbody>`;
+    const tau = last.runs.length ? last.runs[0].run_tau : null, lim = tau == null ? "the limit" : pct(tau);
+    document.getElementById("dagcmp").textContent = `Design space (latest version${tau == null ? "" : ", τ " + tau})`;
+    document.getElementById("dagnote").textContent = `The design space holds every single factor and, if enabled, every pair of factors. A combination is pruned when a kept combination with no more values already carries more than ${lim} of its information; a kept combination refines another when it carries more than ${lim} of that one's information and splits the segments more finely. Open a run to read its design space in the format the schema-feedback conditions see.`;
+    for (const r of last.runs) {
+      const o = old[r.key] || r;
+      const fresh = !r.rescored;
+      h += `<tr class="pick" data-key="${r.key}" tabindex="0"><td><div class="cond"><span class="k">${esc(r.short)}</span><span class="soft" style="font-size:var(--step--1)">${esc(r.label)}</span></div></td>
+        <td class="num">${r.pool}</td><td class="num">${r.kept_singles}</td><td class="num">${r.kept_pairs}</td><td class="num">${r.edges}</td><td class="num">${r.pruned}</td>
+        <td>${delta(o.mean_coverage, r.mean_coverage, pct)}</td><td>${fresh ? `<span class="tag kind">new run</span>` : `<span class="soft" style="font-size:var(--step--1)">re-scored</span>`}</td></tr>`;
+    }
+    const t = document.getElementById("dagtable");
+    t.innerHTML = h + "</tbody>";
+    t.addEventListener("click", e => { const tr = e.target.closest("tr.pick"); if (tr) { setVersion(versions.length - 1); select(tr.dataset.key, true); } });
+  })();
+
+  // ---- version switch
+  const vbox = document.getElementById("versions");
+  vbox.innerHTML = versions.map((v, i) => `<button type="button" data-i="${i}" aria-pressed="${i === vi}">${esc(v.label)}</button>`).join("");
+  vbox.addEventListener("click", e => { const b = e.target.closest("button"); if (b) { setVersion(+b.dataset.i); select(current, false); } });
+  function setVersion(i) {
+    vi = i;
+    vbox.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.i === vi)));
+    renderOverview(); renderMeasures(); renderChart(); renderMatrix(); renderTabs();
+  }
+
+  // ---- overview (current version)
+  const tauIdx = data.taus.map((_, i) => i);
+  const ov = document.getElementById("overview");
+  function renderOverview() {
+    const runs = runsOf();
+    const maxNodes = Math.max(...versions.flatMap(v => v.runs.flatMap(r => tauIdx.map(i => r.taus[i].tree_nodes))));
+    let html = `<thead><tr><th>Run</th><th class="num">Proposals</th><th class="num">Pool</th><th>Tree nodes τ ${tauIdx.map(i => data.taus[i]).join(" · ")}</th><th class="num">Coverage</th><th>Outcomes</th><th class="num">Input</th><th class="num">Thinking</th><th>Stopped by</th></tr></thead><tbody>`;
+    for (const r of runs) {
+      const bars = tauIdx.map(i => {
+        const n = r.taus[i].tree_nodes;
+        return `<span><b>${n}</b><i style="height:${Math.round(6 + 26 * n / maxNodes)}px"></i>${data.taus[i]}</span>`;
+      }).join("");
+      const outs = Object.entries(r.statuses).map(([s, n]) => pill(s, n)).join("");
+      html += `<tr class="pick${r.key === current ? " on" : ""}" data-key="${r.key}" tabindex="0"><td><div class="cond"><span class="k">${esc(r.short)}</span><span class="soft" style="font-size:var(--step--1)">${esc(r.label)}</span>${r.rescored ? `<span class="tag rescored" style="justify-self:start">re-scored</span>` : ""}</div></td>
+        <td class="num">${r.proposals}</td><td class="num">${r.pool}</td><td><div class="nodes">${bars}</div></td><td class="num mono">${pct(r.mean_coverage)}</td>
+        <td><div class="pills">${outs}</div></td><td class="num mono">${fmtK(r.usage.input_tokens)}</td><td class="num mono">${fmtK(r.usage.thinking_tokens)}</td>
+        <td class="mono" style="font-size:var(--step--1)">${esc(r.stop.replace(/_/g, " "))}</td></tr>`;
+    }
+    ov.innerHTML = html + "</tbody>";
+  }
+  ov.addEventListener("click", e => { const tr = e.target.closest("tr.pick"); if (tr) select(tr.dataset.key, true); });
+  ov.addEventListener("keydown", e => { const tr = e.target.closest("tr.pick"); if (tr && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); select(tr.dataset.key, true); } });
+
+  document.getElementById("msettings").textContent = Object.entries(data.measure_settings || {}).map(([k, v]) => `${k.replace(/_/g, " ")} ${v}`).join(", ");
+
+  // ---- measures (current version)
+  const f2 = x => (x == null ? "—" : x.toFixed(2));
+  function renderMeasures() {
+    let h = `<thead><tr><th>Run</th><th class="num">Pool</th><th class="num">Kept singles</th><th class="num">Kept pairs</th><th class="num">Vendi</th><th class="num">Null</th><th class="num">Junk kept</th><th class="num">Vendi + junk</th><th class="num">Unit coverage</th><th class="num">Granularity</th><th class="num">Definition spread</th></tr></thead><tbody>`;
+    for (const r of runsOf()) {
+      const m = r.measures, a = m.at_run_tau, n = m.shuffled_null, j = m.junk_control, g = m.granularity.applicable_entropy;
+      h += `<tr class="pick" data-key="${r.key}" tabindex="0"><td><div class="cond"><span class="k">${esc(r.short)}</span><span class="soft" style="font-size:var(--step--1)">${esc(r.label)}</span></div></td>
+        <td class="num">${r.pool}</td><td class="num">${a.kept_singles}</td><td class="num">${a.kept_pairs}</td>
+        <td class="num mono">${f2(a.vendi_nmi)}</td><td class="num mono soft">${f2(n.vendi_nmi.mean)}</td>
+        <td class="num mono">${j.junk_kept_singles}/3</td><td class="num mono">${f2(j.vendi_nmi)}</td>
+        <td class="num mono">${pct(m.unit_coverage.mean)}</td><td class="num mono">${f2(g.mean)} ± ${f2(g.sd)}</td>
+        <td class="num mono">${f2(m.embedding_dispersion.vendi_cosine)}</td></tr>`;
+    }
+    const t = document.getElementById("measures");
+    t.innerHTML = h + "</tbody>";
+  }
+  document.getElementById("measures").addEventListener("click", e => { const tr = e.target.closest("tr.pick"); if (tr) select(tr.dataset.key, true); });
+
+  // ---- saturation chart (current version)
+  const SERIES = { a0: "--accent", a1: "--warn", a2: "--bad", g0: "--mute", goutcome: "--wasabi", g1: "--swap", g2: "--dup" };
+  const METRICS = [["vendi_nmi", "Vendi"], ["gain", "Vendi gain per factor"], ["kept_singles", "Kept singles"], ["kept_pairs", "Kept pairs"], ["mean_nmi", "Mean NMI"], ["pool", "Pool size"]];
+  const XS = [["factor", "Factor index"], ["attempt", "Proposal number"]];
+  let metric = "vendi_nmi", xmode = "factor";
+  const xpick = document.getElementById("xpick");
+  xpick.innerHTML = XS.map(([k, l]) => `<button type="button" data-x="${k}" aria-pressed="${k === xmode}">${l}</button>`).join("");
+  xpick.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; xmode = b.dataset.x; xpick.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.x === xmode))); renderChart(); });
+  // points for one run: by factor index, one point per pool size (state after the k-th factor);
+  // "gain" = Vendi(k) - Vendi(k-1)
+  function points(r) {
+    const rows = r.measures.saturation;
+    let pts;
+    if (xmode === "factor") {
+      const byK = new Map();
+      for (const p of rows) if (p.pool > 0) byK.set(p.pool, p);
+      pts = [...byK.entries()].sort((a, b) => a[0] - b[0]).map(([k, p]) => ({ x: k, p }));
+    } else {
+      pts = rows.map(p => ({ x: p.attempt, p }));
+    }
+    let prev = 0;
+    return pts.map(({ x, p }) => { const gain = p.vendi_nmi - prev; prev = p.vendi_nmi; return { x, y: metric === "gain" ? gain : p[metric] }; });
+  }
+  const mpick = document.getElementById("metricpick");
+  mpick.innerHTML = METRICS.map(([k, l]) => `<button type="button" data-m="${k}" aria-pressed="${k === metric}">${l}</button>`).join("");
+  mpick.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; metric = b.dataset.m; mpick.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.m === metric))); renderChart(); });
+  function renderChart() {
+    const runs = runsOf();
+    const W = 640, H = 240, L = 40, R = 12, T = 12, B = 30;
+    const series = runs.map(r => [r, points(r)]);
+    const maxX = Math.max(...series.flatMap(([, ps]) => ps.map(p => p.x)), 1);
+    const maxY = Math.max(...series.flatMap(([, ps]) => ps.map(p => p.y)), metric === "mean_nmi" ? 0.1 : 1);
+    const x = a => L + (W - L - R) * (a - 1) / Math.max(maxX - 1, 1);
+    const y = v => T + (H - T - B) * (1 - v / maxY);
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(METRICS.find(m => m[0] === metric)[1])} after each proposal, per run">`;
+    const ticks = 4;
+    for (let i = 0; i <= ticks; i++) {
+      const v = maxY * i / ticks;
+      svg += `<line class="axis" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${Number.isInteger(v) ? v : v.toFixed(1)}</text>`;
+    }
+    for (let a = 1; a <= maxX; a++) svg += `<text x="${x(a)}" y="${H - 10}" text-anchor="middle">${a}</text>`;
+    if (xmode === "factor" && ["vendi_nmi", "kept_singles", "pool"].includes(metric))
+      svg += `<line x1="${x(1)}" y1="${y(1)}" x2="${x(Math.min(maxX, maxY))}" y2="${y(Math.min(maxX, maxY))}" stroke="var(--ink-soft)" stroke-dasharray="2 4"><title>y = k (every factor fully independent)</title></line>`;
+    if (metric === "gain")
+      svg += `<line x1="${x(1)}" y1="${y(1)}" x2="${x(maxX)}" y2="${y(1)}" stroke="var(--ink-soft)" stroke-dasharray="2 4"><title>gain 1 (fully independent factor)</title></line>`;
+    for (const [r, ps] of series) {
+      const pts = ps.map(p => `${x(p.x).toFixed(1)},${y(p.y).toFixed(1)}`).join(" ");
+      const dash = r.kind === "pipeline" ? ` stroke-dasharray="6 4"` : "";
+      svg += `<polyline fill="none" stroke="var(${SERIES[r.key] || "--ink"})" stroke-width="2.2"${dash} points="${pts}"><title>${esc(r.short)}</title></polyline>`;
+    }
+    svg += `</svg>`;
+    document.getElementById("satchart").innerHTML = svg;
+    document.getElementById("satlegend").innerHTML = runs.map(r => `<span><i class="${r.kind === "pipeline" ? "dash" : ""}" style="border-color: var(${SERIES[r.key] || "--ink"})"></i>${esc(r.short)}</span>`).join("") + `<span class="soft">x: ${xmode === "factor" ? "number of factors in the pool" : "proposal number"} · dashed line: prompt pipeline · dotted: ${metric === "gain" ? "gain 1" : "y = k"}</span>`;
+  }
+
+  // ---- facet matrix (current version)
+  const matrix = document.getElementById("matrix");
+  const KIND_LETTER = { situation: "S", progress: "P", moment: "M" };
+  function renderMatrix() {
+    matrix.innerHTML = runsOf().map(r => `<div class="mrow"><div class="cond"><span class="k mono">${esc(r.short)}</span><span class="soft" style="font-size:var(--step--1)">${esc(r.label)}</span></div>
+      <div class="chips">${r.facets.map(f => `<button class="chip ${f.tree}" data-key="${r.key}" data-facet="${esc(f.id)}" title="${esc((f.kind ? f.kind + ": " : "") + f.definition + " (coverage " + pct(f.coverage) + ")")}">${esc(f.title)}${f.kind ? `<span class="k">${KIND_LETTER[f.kind] || ""}</span>` : ""}</button>`).join("")}</div></div>`).join("");
+  }
+  matrix.addEventListener("click", e => {
+    const b = e.target.closest("button.chip");
+    if (!b) return;
+    select(b.dataset.key, true);
+    const card = document.getElementById("f-" + b.dataset.facet);
+    if (card) { card.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); card.focus({ preventScroll: true }); }
+  });
+
+  // ---- tabs (current version)
+  const tabs = document.getElementById("tabs");
+  function renderTabs() {
+    const runs = runsOf();
+    const group = (name, kind) => `<div class="grp"><span>${name}</span>${runs.filter(r => r.kind === kind).map(r => `<button class="tab" role="tab" id="tab-${r.key}" data-key="${r.key}" aria-selected="${r.key === current}" aria-controls="panel">${esc(r.short)}</button>`).join("")}</div>`;
+    tabs.innerHTML = `<div class="grp"><span>${esc(versions[vi].label)}</span></div>` + group("Prompt pipeline", "pipeline") + group("Agent", "agentic");
+  }
+  tabs.addEventListener("click", e => { const b = e.target.closest("button.tab"); if (b) select(b.dataset.key, false); });
+
+  // ---- panel
+  function facetCard(f) {
+    const max = Math.max(1, ...f.values.map(v => v.count));
+    const vals = f.values.map((v, i) => {
+      const id = `v-${f.id}-${i}`;
+      const share = f.labeled ? Math.round(100 * v.count / f.labeled) : 0;
+      const ex = v.examples.length ? `<ul>${v.examples.map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : `<span class="empty">No segment was labeled with this value.</span>`;
+      return `<div class="val"><button aria-expanded="false" aria-controls="${id}"><span class="vlabel"><strong>${esc(v.label)}</strong><span class="vbar"><i style="width:${(100 * v.count / max).toFixed(1)}%"></i></span></span><span class="vcount">${v.count} · ${share}%</span></button>
+        <div class="vdetail" id="${id}" hidden><span class="soft">${esc(v.definition)}</span>${ex}</div></div>`;
+    }).join("");
+    const treeTag = f.tree === "kept" ? `<span class="tag kept">kept in tree</span>`
+      : f.tree === "redundant" ? `<span class="tag redundant">redundant with ${esc(f.redundant_with.by.join(", "))} · overlap ${f.redundant_with.score}</span>` : "";
+    const kindTag = f.kind ? `<span class="tag kind">${esc(f.kind)}</span>` : "";
+    const covTag = `<span class="tag${f.coverage < 0.2 ? " lowcov" : ""}">coverage ${pct(f.coverage)}</span>`;
+    return `<article class="card ${f.tree}" id="f-${esc(f.id)}" tabindex="-1">
+      <div class="head"><div class="meta">${kindTag}<span class="tag">${esc(f.scope)}</span>${covTag}${treeTag}</div>
+      <h3>${esc(f.title)}</h3><p class="q">${esc(f.question)}</p><p>${esc(f.definition)}</p></div>
+      <div class="values">${vals}</div>
+      <span class="soft" style="font-size:var(--step--1)">${f.labeled} of ${data.corpus.segments} segments labeled · click a value for examples</span>
+      <details><summary>Labeling guidelines (${f.guidelines.length})</summary><ul>${f.guidelines.map(g => `<li>${esc(g)}</li>`).join("")}</ul></details>
+      <details><summary>Justification</summary><p style="font-size:var(--step--1)">${esc(f.justification)}</p></details>
+    </article>`;
+  }
+
+  function ledgerTable(r) {
+    const rows = r.ledger.map(e => {
+      const why = [];
+      if (e.duplicate_of) why.push(`duplicate of “${esc(e.duplicate_of)}”`);
+      if (e.replaced) why.push(`replaced “${esc(e.replaced)}”`);
+      if (e.status === "accepted" && !e.in_pool) why.push("later replaced");
+      if (e.status === "schema_rejected") why.push("did not improve the tree");
+      if (e.status === "irr_pruned") why.push("independent labelers disagreed");
+      if (e.note) why.push(esc(e.note));
+      if (e.nearest && e.similarity != null) why.push(`closest earlier: “${esc(e.nearest)}” (${e.similarity})`);
+      return `<tr><td class="num">${e.attempt}</td><td>${pill(e.status)}</td><td><strong>${esc(e.title || "—")}</strong><br><span class="soft mono" style="font-size:0.72rem">${esc(e.scope || "")}</span></td>
+        <td class="def">${esc(e.definition || "")}</td><td class="why">${why.join("<br>")}</td><td class="num">${e.tree_nodes ?? ""}</td></tr>`;
+    }).join("");
+    return `<div class="scroll"><table class="ledger"><thead><tr><th class="num">#</th><th>Outcome</th><th>Factor</th><th>Definition</th><th>Notes</th><th class="num">Tree after</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
+  function transcript(r) {
+    if (!r.transcript.length) return "";
+    const msgs = r.transcript.map(m => {
+      if (m.role === "user") return `<div class="msg user"><span class="who">Prompt</span><p>${esc(m.text)}</p></div>`;
+      if (m.role === "agent") {
+        const calls = m.calls.map(cl => {
+          const args = cl.name === "submit_candidate" ? `“${esc(cl.args.title)}” ${cl.args.kind ? `[${esc(cl.args.kind)}] ` : ""}— ${esc(cl.args.definition)}`
+            : esc(JSON.stringify(cl.args));
+          return `<div class="call"><b>${esc(cl.name)}</b> ${args}</div>`;
+        }).join("");
+        return `<div class="msg agent"><span class="who">Agent</span>${m.text ? `<p>${esc(m.text)}</p>` : ""}${calls}</div>`;
+      }
+      const submit = m.name === "submit_candidate";
+      const first = m.text.split("\n")[0];
+      const body = submit && m.text.indexOf("\n") < 0 ? `<pre>${esc(m.text)}</pre>`
+        : `<details${submit ? " open" : ""}><summary>${esc(first.slice(0, 120))}${first.length > 120 ? "…" : ""}</summary><pre>${esc(m.text)}</pre></details>`;
+      return `<div class="msg tool${submit ? " submit" : ""}" data-tool="${esc(m.name)}"><span class="who">${esc(m.name)}</span>${body}</div>`;
+    }).join("");
+    return `<section aria-labelledby="t-${r.key}"><h3 id="t-${r.key}">Agent transcript</h3>
+      <div class="toolbar"><label><input type="checkbox" id="only-submits"> Show only submissions and feedback</label><span class="soft">${r.turns} turns · ${r.tool_calls} tool calls · long tool outputs are shortened</span></div>
+      <div class="convo" id="convo">${msgs}</div></section>`;
+  }
+
+  function render(r) {
+    const sweep = r.taus.map(t => `<div>τ ${t.tau.toFixed(2)}: <b>${t.tree_nodes}</b> nodes · ${t.rejected_schemas} redundant</div>`).join("");
+    const stages = Object.entries(r.usage_by_stage).map(([s, u]) => `${s} ${fmtK(u.input_tokens)} in / ${fmtK(u.thinking_tokens)} thinking`).join(" · ");
+    document.getElementById("panel").innerHTML = `
+      <div class="panelhead"><span class="eyebrow">${esc(versions[vi].label)} · ${r.kind === "pipeline" ? "Prompt pipeline" : "Agent"}</span>
+        <h2 id="detail-title">${esc(r.short)} · ${esc(r.label)}</h2>
+        <p class="soft">${condDesc(r)}. ${r.proposals} proposals, ${r.pool} factors in the pool, mean coverage ${pct(r.mean_coverage)}, stopped by ${esc(r.stop.replace(/_/g, " "))}.</p>
+        <p class="mono soft" style="font-size:0.75rem">${esc(stages)}</p>
+        ${r.rescored ? `<div class="notice"><b>Re-scored ${esc(r.rescored.date || "")}</b>${r.rescored.rules ? `<span>${esc(r.rescored.rules)}</span>` : ""}${(r.rescored.changes || []).length ? `<ul>${r.rescored.changes.map(c => `<li>${esc(c)}</li>`).join("")}</ul>` : ""}${r.rescored.note || r.rescored.caveat ? `<span>${esc(r.rescored.note || r.rescored.caveat)}</span>` : ""}</div>` : ""}
+        <div class="subnav"><a href="#facets-${r.key}">Pool factors</a><a href="#ledger-${r.key}">All candidates</a>${r.dag ? `<a href="#dag-${r.key}">Design space</a>` : ""}<a href="#tree-${r.key}">Tree by τ</a>${r.transcript.length ? `<a href="#t-${r.key}">Transcript</a>` : ""}</div></div>
+      <section><h3 id="facets-${r.key}">Pool factors (${r.facets.length})</h3><div class="cards">${r.facets.map(facetCard).join("")}</div></section>
+      <section><h3 id="ledger-${r.key}">All candidates, in order</h3>${ledgerTable(r)}</section>
+      ${r.dag ? `<section><h3 id="dag-${r.key}">Design space at τ ${r.run_tau} (${r.max_schema_facets === 2 ? "singles and pairs" : "single factors"})</h3><p class="soft" style="font-size:var(--step--1)">${r.feedback === "schemas" || (r.context || []).includes("schemas") ? "This is the design-space part of the feedback this run saw, re-rendered on its final pool in the latest format." : "Rendered on this run's final pool for comparison; this run never saw it."} F numbers follow the pool order above.</p><pre class="dag">${esc(r.dag)}</pre></section>` : ""}
+      <section><h3 id="tree-${r.key}">Tree by redundancy threshold</h3><div class="sweep">${sweep}</div></section>
+      ${transcript(r)}`;
+    const only = document.getElementById("only-submits");
+    if (only) only.addEventListener("change", () => {
+      document.querySelectorAll("#convo .msg").forEach(m => {
+        const keep = m.classList.contains("submit") || (m.classList.contains("agent") && m.textContent.includes("submit_candidate"));
+        m.hidden = only.checked && !keep;
+      });
+    });
+  }
+
+  document.getElementById("panel").addEventListener("click", e => {
+    const b = e.target.closest(".val > button");
+    if (!b) return;
+    const d = document.getElementById(b.getAttribute("aria-controls"));
+    const open = b.getAttribute("aria-expanded") === "true";
+    b.setAttribute("aria-expanded", String(!open));
+    d.hidden = open;
+  });
+
+  function select(key, scroll) {
+    const r = byKey()[key];
+    if (!r) return;
+    current = key;
+    document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.key === key)));
+    document.querySelectorAll("#overview tr.pick").forEach(t => t.classList.toggle("on", t.dataset.key === key));
+    render(r);
+    try { history.replaceState(null, "", "#" + versions[vi].id + "-" + key); } catch (_) {}
+    if (scroll) document.getElementById("tabs").scrollIntoView({ block: "start" });
+  }
+
+  const m = /^#?(v\d)-(.+)$/.exec(location.hash || "");
+  if (m) { const i = versions.findIndex(v => v.id === m[1]); if (i >= 0) vi = i; }
+  current = m && byKey()[m[2]] ? m[2] : "g1";
+  setVersion(vi);
+  select(current, false);
+})();
+</script>

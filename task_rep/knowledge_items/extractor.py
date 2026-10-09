@@ -35,13 +35,9 @@ from .schema import (
     KnowledgeItemType,
     Video,
 )
-from .taxonomy import AtomicType, TYPE_DESCRIPTIONS
+from .taxonomy import TYPE_DESCRIPTIONS
 
-from .chunk_sampling import (
-    ChunkConfig,
-    FINE_CHUNK_CONFIG,
-    COARSE_CHUNK_CONFIG,
-)
+from .chunk_sampling import ChunkConfig, FINE_CHUNK_CONFIG
 
 @dataclass
 class VLMKnowledgeExtractor:
