@@ -139,7 +139,13 @@ class RefinementTree:
 
 @dataclass
 class AcceptedSchemaSummary:
-    """Prompt-facing summary of a schema that survived pruning."""
+    """Prompt-facing summary of a schema that survived pruning.
+
+    ``closest_*`` name the earlier-kept schema (no larger) with the highest
+    overlap MI/H(this), which stayed at or below tau; empty if none.
+    ``member_overlaps`` gives, for a multi-facet schema, H(facet)/H(this): how
+    much of it each of its facets carries alone.
+    """
 
     id: str
     facet_ids: List[str]
@@ -147,6 +153,10 @@ class AcceptedSchemaSummary:
     D: float
     eta2: float
     H: float
+    closest_id: str = ""
+    closest_facet_ids: List[str] = field(default_factory=list)
+    closest_overlap: float = 0.0
+    member_overlaps: Dict[str, float] = field(default_factory=dict)
 
     @staticmethod
     def from_node(node: TreeNode) -> "AcceptedSchemaSummary":
@@ -167,6 +177,10 @@ class AcceptedSchemaSummary:
             "D": self.D,
             "eta2": self.eta2,
             "H": self.H,
+            "closest_id": self.closest_id,
+            "closest_facet_ids": self.closest_facet_ids,
+            "closest_overlap": self.closest_overlap,
+            "member_overlaps": self.member_overlaps,
         }
 
     @staticmethod
@@ -178,6 +192,10 @@ class AcceptedSchemaSummary:
             D=data["D"],
             eta2=data["eta2"],
             H=data["H"],
+            closest_id=data.get("closest_id", ""),
+            closest_facet_ids=list(data.get("closest_facet_ids", [])),
+            closest_overlap=data.get("closest_overlap", 0.0),
+            member_overlaps=dict(data.get("member_overlaps", {})),
         )
 
 
@@ -531,7 +549,9 @@ def evaluate_schemas(
 
     def _get_H_union(node_a: TreeNode, node_b: TreeNode) -> float:
         """Get H of the union of two nodes' facet sets."""
-        union_ids = frozenset(node_a.facet_ids) | frozenset(node_b.facet_ids)
+        return _get_H_union_ids(frozenset(node_a.facet_ids) | frozenset(node_b.facet_ids))
+
+    def _get_H_union_ids(union_ids: FrozenSet[str]) -> float:
         if union_ids in h_memo:
             return h_memo[union_ids]
         # Compute on the fly
@@ -556,11 +576,16 @@ def evaluate_schemas(
     # Phase A: greedy survival
     accepted: List[TreeNode] = []
     rejected: List[RejectedSchemaSummary] = []
+    closest: Dict[str, Tuple[TreeNode, float]] = {}
     for candidate in sorted_nodes:
         dominated = False
         for keeper in accepted:
             mi = _compute_mi(keeper, candidate)
             ref_from_candidate = mi / candidate.H if candidate.H > 0 else 0.0
+            if keeper.size <= candidate.size and keeper.facet_ids and (
+                candidate.id not in closest or ref_from_candidate > closest[candidate.id][1]
+            ):
+                closest[candidate.id] = (keeper, ref_from_candidate)
             if ref_from_candidate > tau and keeper.size <= candidate.size:
                 rejected.append(RejectedSchemaSummary.from_nodes(
                     rejected=candidate,
@@ -621,11 +646,21 @@ def evaluate_schemas(
     edges = _transitive_reduction(accepted, edges)
 
     tree = RefinementTree(nodes=accepted, edges=edges)
-    return SchemaEvaluation(
-        tree=tree,
-        accepted_schemas=[AcceptedSchemaSummary.from_node(node) for node in accepted],
-        rejected_schemas=rejected,
-    )
+    summaries = []
+    for node in accepted:
+        summary = AcceptedSchemaSummary.from_node(node)
+        if node.id in closest:
+            keeper, overlap = closest[node.id]
+            summary.closest_id = keeper.id
+            summary.closest_facet_ids = list(keeper.facet_ids)
+            summary.closest_overlap = overlap
+        if len(node.facet_ids) > 1 and node.H > 0:
+            # MI(single, superset) = H(single)
+            summary.member_overlaps = {
+                fid: _get_H_union_ids(frozenset([fid])) / node.H for fid in node.facet_ids
+            }
+        summaries.append(summary)
+    return SchemaEvaluation(tree=tree, accepted_schemas=summaries, rejected_schemas=rejected)
 
 
 def _transitive_reduction(

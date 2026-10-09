@@ -62,7 +62,11 @@ def record(
     tree_quality: Optional[TreeQualitySnapshot] = None,
     note: str = "",
 ) -> CandidateRecord:
-    """Update counters for one outcome and append its ledger record."""
+    """Update counters for one outcome and append its ledger record.
+
+    Callers that change the pool set ``state.schema_ids_before_last`` first;
+    every other outcome leaves the design space unchanged.
+    """
     if status == CandidateStatus.TRUNCATED:
         # a0 surplus: recorded for completeness, touches no counter.
         increment_attempts = False
@@ -74,6 +78,9 @@ def record(
         elif status in NO_IMPROVE_STATUSES:
             state.no_improve_streak += 1
         # REFUSED / INVALID leave no_improve_streak unchanged
+    if status not in (CandidateStatus.ACCEPTED, CandidateStatus.REPLACED,
+                      CandidateStatus.SCHEMA_REJECTED):
+        state.schema_ids_before_last = [s.id for s in state.accepted_schemas]
     if increment_attempts:
         state.attempts += 1
     counts = status in BUDGET_STATUSES
@@ -104,6 +111,7 @@ def apply_outcome(
     increment_attempts: bool,
 ) -> CandidateRecord:
     """Run pool selection for a processed candidate; record any outcome."""
+    state.schema_ids_before_last = [s.id for s in state.accepted_schemas]
     if isinstance(outcome, ProcessedCandidate):
         state.embeddings[outcome.facet.id] = outcome.embedding
         decision = evaluator.consider(state, outcome)

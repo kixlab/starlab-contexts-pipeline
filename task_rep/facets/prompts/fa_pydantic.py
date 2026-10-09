@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 class VocabularyEntry(BaseModel):
     """A single entry in a contextual factor's vocabulary (one possible value of the factor)."""
@@ -36,6 +36,9 @@ class ContextualFactorCandidate(BaseModel):
         description="A natural question a novice learner would ask to choose this factor's value, e.g. 'What tool is being used?'"
     )
     scope: str = Field(description="global, mid-level, or fine-grained")
+    kind: Literal["situation", "progress", "moment"] = Field(
+        description="situation: holds for the learner's whole attempt; progress: where the learner is in the task; moment: what is happening in a particular step"
+    )
     justification: str = Field(
         description="Why this factor was chosen: (1) why it is a valid contextual factor, (2) why it is distinct from previously identified contextual factors"
     )

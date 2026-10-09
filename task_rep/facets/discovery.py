@@ -104,6 +104,9 @@ class VLMFacetExtractor:
         knowledge_base: Optional[Any] = None,
         accepted_schemas: Optional[List[Any]] = None,
         rejected_schemas: Optional[List[Any]] = None,
+        refinement_edges: Optional[List[Any]] = None,
+        refinement_threshold: Optional[float] = None,
+        last_submission: Optional[Any] = None,
         history: Optional[List[Any]] = None,
         seed: Optional[int] = None,
     ) -> List[Facet]:
@@ -118,6 +121,10 @@ class VLMFacetExtractor:
             knowledge_base: Active optimization scope for frequency statistics
             accepted_schemas: Surviving schema summaries (included with "schemas")
             rejected_schemas: Rejected schema summaries (included with "schemas")
+            refinement_edges: (source_id, target_id) pairs among accepted schemas;
+                the target refines the source (included with "schemas")
+            refinement_threshold: Pruning threshold tau, explained with "schemas"
+            last_submission: What the latest submission did (included with "schemas")
             history: Previously tried, non-kept candidates (included with "history")
             seed: Sampling seed for the request (None = provider default)
 
@@ -135,6 +142,9 @@ class VLMFacetExtractor:
             "knowledge_base": knowledge_base,
             "accepted_schemas": accepted_schemas,
             "rejected_schemas": rejected_schemas,
+            "refinement_edges": refinement_edges,
+            "refinement_threshold": refinement_threshold,
+            "last_submission": last_submission,
             "history": history,
         }]
 

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, FrozenSet, Iterable
+from typing import Any, Dict, FrozenSet, Iterable
 
 from contextual.settings import RunSettings
 
@@ -27,14 +27,16 @@ class ContextComponent(str, Enum):
 
     FACETS = "facets"    # current pool: definitions, vocabularies, label frequencies
     ITEMS = "items"      # tutorial segments with current pool labels
-    SCHEMAS = "schemas"  # accepted/rejected schema combinations with metrics
+    SCHEMAS = "schemas"  # design space (DAG) of factor combinations + last submission
     HISTORY = "history"  # prior non-accepted candidates and their outcomes
 
 
 A1_CONTEXT: FrozenSet[ContextComponent] = frozenset(
-    {ContextComponent.FACETS, ContextComponent.ITEMS}
+    {ContextComponent.FACETS, ContextComponent.ITEMS, ContextComponent.HISTORY}
 )
-A2_CONTEXT: FrozenSet[ContextComponent] = frozenset({ContextComponent.SCHEMAS})
+A2_CONTEXT: FrozenSet[ContextComponent] = frozenset(
+    {ContextComponent.SCHEMAS, ContextComponent.HISTORY}
+)
 
 
 def parse_context(components: Iterable[Any]) -> FrozenSet[ContextComponent]:
@@ -71,6 +73,12 @@ class PipelineConfig(RunSettings):
             self.strategy = ProposalStrategy(self.strategy)
         self.context = parse_context(self.context)
         super().__post_init__()
+
+    def semantic_dict(self) -> Dict[str, Any]:
+        data = super().semantic_dict()
+        if self.strategy == ProposalStrategy.BATCH:
+            data.pop("context", None)  # a0 never uses context components
+        return data
 
     def validate(self) -> None:
         super().validate()
