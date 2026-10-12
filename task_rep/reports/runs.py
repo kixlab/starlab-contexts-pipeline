@@ -15,7 +15,8 @@ from typing import Any, Dict, Optional
 import agentic.experiments as aexp
 import pipeline.experiments as pexp
 from agentic.fingerprint import prompt_fingerprint as agentic_fingerprint
-from contextual.corpus import select_corpus
+from contextual.corpus import evaluated_segments, select_corpus
+from contextual.kb import task_name
 from contextual.models import RunResult, RunState
 from contextual.settings import RunSettings
 from contextual.store import RunStore, kb_fingerprint
@@ -33,6 +34,7 @@ class LoadedRun:
     result: RunResult
     path: Path                 # result file
     knowledge_base: KnowledgeBase   # full cached KB (before corpus selection)
+    task: str = ""             # task name, as the prompts use it
 
     @property
     def corpus(self) -> KnowledgeBase:
@@ -41,10 +43,8 @@ class LoadedRun:
 
     @property
     def focused(self) -> KnowledgeBase:
-        """The items the run was scored on (corpus sampling + subtype focus)."""
-        kb = self.corpus
-        subtypes = self.settings.item_scope.atomic_subtype.subtypes
-        return kb.filter_subtypes(subtypes) if subtypes else kb
+        """The segments the run was scored on (``evaluated_segments``)."""
+        return evaluated_segments(self.corpus, self.settings)
 
     def state(self) -> Optional[RunState]:
         """The run's final checkpoint state, if it is still on disk."""
@@ -75,11 +75,14 @@ def load_run(kind: str, experiment: str, result_file: Optional[str] = None) -> L
     if kb is None:
         raise FileNotFoundError(f"knowledge base for {experiment} is not cached")
     result = RunStore.load_result(path)
-    # score with the settings the run was made with (they may differ from the file now)
+    # score with the settings the run was made with (they may differ from the file now);
+    # the condition (context / feedback) never affects scoring, and older runs may
+    # use condition values that are no longer valid, so it is read from result.config
     settings = settings.__class__.from_dict({**settings.to_dict(), **{
-        k: v for k, v in result.config.items() if k in settings.to_dict()}})
+        k: v for k, v in result.config.items()
+        if k in settings.to_dict() and k not in ("context", "feedback")}})
     return LoadedRun(kind=kind, settings=settings, result=result, path=Path(path),
-                     knowledge_base=kb)
+                     knowledge_base=kb, task=task_name(spec.task_id))
 
 
 def save_run(kind: str, settings: RunSettings, corpus: KnowledgeBase, results_dir: Path,

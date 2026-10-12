@@ -59,3 +59,42 @@ def test_render_fills_placeholders_and_escapes():
     assert "A &lt;b&gt; page" in page
     assert '<p class="lede soft"><strong>Bold</strong> &amp; more</p>' in page
     assert "<\\/script>" in page  # data cannot close the script tag
+
+
+# ---- reports.transcripts ----
+
+def test_outline_splits_headings_videos_and_factors():
+    from facets.prompts.fa_facet_iterative import SECTION_SCHEMAS
+    from reports.transcripts import outline
+
+    text = "\n".join([
+        "Opening line.",
+        "TUTORIALS",
+        "Every segment, grouped by video.",
+        "Video v1:", '<segment id="S1">', "a", "</segment>",
+        "Video v2:", '<segment id="S2">', "b", "</segment>",
+        "- Contextual factors in the pool:",
+        '<factor id="F1">', "<title>Roll Type</title>", "</factor>",
+        SECTION_SCHEMAS.split("\n", 1)[0],
+        "Design space: kept 1 of 1 single factors and 0 of 0 pairs.",
+        "", "Kept combinations:", "- C1: F1 (Roll Type), 2 cells",
+        "", "Pruned single factors:", "- none",
+    ])
+    sections = outline(text)
+    assert [s["title"] for s in sections] == [
+        None, "TUTORIALS", "Contextual factors in the pool",
+        "The current design space of factor combinations",
+        "Design space: kept 1 of 1 single factors and 0 of 0 pairs."]
+    tutorials, pool, heading, space = sections[1:]
+    assert tutorials["text"] == "Every segment, grouped by video."
+    assert [c["title"] for c in tutorials["children"]] == ["Video v1 · 1 segments",
+                                                           "Video v2 · 1 segments"]
+    assert [c["title"] for c in pool["children"]] == ["F1 · Roll Type"]
+    assert heading["text"].startswith("A pruned combination does not make")
+    assert [c["title"] for c in space["children"]] == ["Kept combinations (1)",
+                                                       "Pruned single factors"]
+    # headings become titles; every other line stays in a section or child text
+    texts = [t for s in sections for t in [s["text"]] + [c["text"] for c in s.get("children", [])]]
+    for line in ("Opening line.", "a", "b", "<title>Roll Type</title>",
+                 "- C1: F1 (Roll Type), 2 cells", "- none"):
+        assert any(line in t.split("\n") for t in texts), line

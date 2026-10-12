@@ -61,6 +61,11 @@ def load_knowledge_base(
     return task, kb, cache_dir
 
 
+def task_name(task_id: str) -> str:
+    """The task's display name, as the prompts use it."""
+    return TaskManager(tasks_file=Config.TASKS_FILE).get_task(task_id).name
+
+
 def results_dir(task_id: str, constructor_config: ConstructorConfig) -> Path:
     """Where a task's checkpoints and results live (no KB load)."""
     task = TaskManager(tasks_file=Config.TASKS_FILE).get_task(task_id)

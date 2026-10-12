@@ -76,11 +76,12 @@ def test_embedding_model_comes_from_cluster_config():
 
 
 def test_spec_round_trip():
-    data = spec_dict(context=["schemas"], strategy="batch")
+    data = spec_dict(context=["facets", "schemas"], strategy="batch")
     spec = ExperimentSpec.from_dict(data)
     again = ExperimentSpec.from_dict(spec.to_dict())
     assert again.to_dict() == spec.to_dict()
-    assert again.pipeline.context == frozenset({ContextComponent.SCHEMAS})
+    assert again.pipeline.context == frozenset({ContextComponent.FACETS,
+                                                ContextComponent.SCHEMAS})
     assert again.pipeline.strategy == ProposalStrategy.BATCH
     assert "embedding_model" not in spec.to_dict()["pipeline"]
 

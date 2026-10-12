@@ -27,11 +27,12 @@ from tests.pipeline.helpers import (
 )
 
 
-def _runner(tmp_path, proposer, *, embedder=None, vocab=None, labeler=None, **overrides):
+def _runner(tmp_path, proposer, *, embedder=None, vocab=None, labeler=None, kb=None,
+            **overrides):
     return PipelineRunner(
         config=make_config(**overrides),
         task="test task",
-        knowledge_base=make_kb(),
+        knowledge_base=kb or make_kb(),
         proposer=proposer,
         vocab_builder=vocab or ScriptedVocabBuilder(),
         labeler=labeler or ScriptedLabeler(),
@@ -285,39 +286,35 @@ def test_a1_context_has_items_and_pool(tmp_path):
 
     first, second = proposer.iterative_contexts
     assert first.components == frozenset({ContextComponent.FACETS, ContextComponent.ITEMS, ContextComponent.HISTORY})
-    assert first.pool == [] and first.videos  # empty-pool cold start, segments shown
-    assert [f.id for f in second.pool] == ["A"]
+    assert first.pool == [] and sorted(first.corpus) == ["v1", "v2"]
+    assert first.item_video_ids is None  # ITEMS shows every video
+    assert [f.id for f in second.pool] == ["A"] and second.ids == {"A": "F1"}
     assert first.history == [] and second.history == []  # nothing failed yet
-    assert first.last_submission is None and second.last_submission is None  # SCHEMAS only
 
 
-def test_a2_context_has_no_segments(tmp_path):
+def test_a2_context_has_schemas_and_pool(tmp_path):
     proposer = ScriptedProposer([[make_facet("A")], [make_facet("B")]])
     _runner(tmp_path, proposer, context=A2_CONTEXT, proposal_budget=2,
             pool_size=2).run()
 
     first, second = proposer.iterative_contexts
-    assert first.components == frozenset({ContextComponent.SCHEMAS, ContextComponent.HISTORY})
-    assert first.videos is None
+    assert first.components == A2_CONTEXT
     assert first.pool == [] and first.accepted_schemas == []
-    assert first.last_submission is None
+    assert sorted(first.corpus) == ["v1", "v2"]  # every condition gets the tutorials
     assert second.accepted_schemas  # schema feedback after the first facet
     assert second.refinement_threshold == 0.2
-    last = second.last_submission
-    assert last.title == "A" and last.entered and last.outcome == "accepted into the pool"
-    assert last.previous_schema_ids == []  # empty pool before A
 
 
-def test_a2_last_submission_reports_failures(tmp_path):
-    proposer = ScriptedProposer([[make_facet("A")], [make_facet("V")], [make_facet("B")]])
+def test_factor_ids_are_stable_across_replacement(tmp_path):
+    # A, A2 enter (F1, F2); V fails; B replaces A in its pool slot and becomes F3.
+    script = [[make_facet("A")], [make_facet("A2")], [make_facet("V")],
+              [make_facet("B")], [make_facet("Z")]]
+    proposer = ScriptedProposer(script)
     _runner(tmp_path, proposer, vocab=ScriptedVocabBuilder(fail_ids={"V"}),
-            context=A2_CONTEXT, proposal_budget=3, pool_size=3).run()
-    third = proposer.iterative_contexts[2]
-    assert third.last_submission.title == "V" and not third.last_submission.entered
-    assert "vocabulary" in third.last_submission.outcome
-    # the failure did not change the design space
-    assert third.last_submission.previous_schema_ids == [s.id for s in third.accepted_schemas]
-    assert [h.title for h in third.history] == ["V"]
+            proposal_budget=5, pool_size=2).run()
+    fifth = proposer.iterative_contexts[4]
+    assert [f.id for f in fifth.pool] == ["B", "A2"]
+    assert fifth.ids == {"A": "F1", "A2": "F2", "B": "F3"}
 
 
 def test_history_lists_non_accepted_candidates_when_enabled(tmp_path):
@@ -331,7 +328,8 @@ def test_history_lists_non_accepted_candidates_when_enabled(tmp_path):
     # Before the 5th proposal: A, A2 accepted; V vocabulary-failed; B replaced A.
     history = proposer.iterative_contexts[4].history
     outcomes = {h.title: h.outcome for h in history}
-    assert outcomes == {"V": "vocabulary_failed", "A": "replaced_out"}
+    assert outcomes == {"V": "no usable values could be built from the tutorials",
+                        "A": 'was F1; replaced in the pool by F3 ("B")'}
     entry = next(h for h in history if h.title == "V")
     assert entry.scope == "global" and entry.definition == "Definition of V"
 
@@ -561,7 +559,8 @@ def test_items_sampling_draws_per_attempt_and_leaves_other_components(tmp_path):
     proposer = ScriptedProposer([[make_facet("A")], [make_facet("B")]])
     _runner(tmp_path, proposer, items_sample_videos=1, proposal_budget=2, pool_size=2).run()
     for ctx in proposer.iterative_contexts:
-        assert len(ctx.videos) == 1                 # 1 of the 2 videos
+        assert len(ctx.item_video_ids) == 1         # labels of 1 of the 2 videos
+        assert len(ctx.corpus) == 2                 # the tutorials are never sampled
         assert len(ctx.knowledge_base.by_video()) == 2  # frequencies use the whole KB
 
 
@@ -571,12 +570,12 @@ def test_items_sampling_is_reproducible_and_off_by_default(tmp_path):
         proposer = ScriptedProposer([[make_facet("A")], [make_facet("B")]])
         _runner(tmp_path / sub, proposer, items_sample_videos=1, proposal_budget=2,
                 pool_size=2).run()
-        picks.append([sorted(c.videos) for c in proposer.iterative_contexts])
+        picks.append([c.item_video_ids for c in proposer.iterative_contexts])
     assert picks[0] == picks[1]
 
     proposer = ScriptedProposer([[make_facet("A")]])
     _runner(tmp_path / "c", proposer, proposal_budget=1, pool_size=1).run()
-    assert sorted(proposer.iterative_contexts[0].videos) == ["v1", "v2"]
+    assert proposer.iterative_contexts[0].item_video_ids is None
 
 
 def test_corpus_sampling_restricts_what_the_runner_sees(tmp_path):
@@ -585,5 +584,35 @@ def test_corpus_sampling_restricts_what_the_runner_sees(tmp_path):
                      pool_size=1)
     result = runner.run()
     assert len(runner.knowledge_base.by_video()) == 1
-    assert len(proposer.iterative_contexts[0].videos) == 1
+    assert len(proposer.iterative_contexts[0].corpus) == 1
     assert result.num_units == 4
+
+
+def test_segments_outside_the_evaluated_set_are_never_shown(tmp_path):
+    kb = make_kb()
+    kb.items[0].unit_id = None  # i1 belongs to no knowledge unit
+    proposer = ScriptedProposer([[make_facet("A")]])
+    runner = _runner(tmp_path, proposer, kb=kb, proposal_budget=1, pool_size=1)
+    runner.run()
+    shown = [i.id for items in proposer.iterative_contexts[0].corpus.values() for i in items]
+    assert "i1" not in shown and len(shown) == 7
+    assert "i1" in [i.id for i in runner.knowledge_base]  # still labeled, for context
+
+
+class LoggedProposer(ScriptedProposer):
+    """Notes a request-log id per proposal, like ``VLMFacetProposer``."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.last_batch_id = None
+
+    def propose_one(self, context):
+        self.last_batch_id = f"facet_iterative_{len(self.iterative_contexts) + 1}"
+        return super().propose_one(context)
+
+
+def test_runner_records_each_proposal_request_log(tmp_path):
+    proposer = LoggedProposer([[make_facet("A")], [], [make_facet("B")]])
+    result = _runner(tmp_path, proposer, proposal_budget=2, pool_size=2).run()
+    assert result.runner_state["proposal_batches"] == [
+        "facet_iterative_1", "facet_iterative_2", "facet_iterative_3"]

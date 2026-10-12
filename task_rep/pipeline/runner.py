@@ -21,9 +21,9 @@ from utils.llm import USAGE, usage_delta, usage_stage
 from optimization import count_unique_units
 
 from contextual import bookkeeping
-from contextual.corpus import select_corpus
+from contextual.corpus import evaluated_segments, select_corpus
 from contextual.evaluation import PoolEvaluator
-from contextual.feedback import history_entries, last_submission
+from contextual.feedback import factor_ids, history_entries
 from contextual.lifecycle import CandidateProcessor, Embedder, VocabularyBuilder, Labeler
 from contextual.models import RunState, RunResult, CandidateStatus, StopReason, refinement_edges
 from contextual.settings import stage_seed
@@ -55,20 +55,17 @@ class PipelineRunner:
         knowledge_base = select_corpus(knowledge_base, config)
         self.knowledge_base = knowledge_base
 
-        # Focused KB for optimization scope (subtype filter); proposal context,
-        # vocabulary, and labeling still see the full knowledge base.
-        focused = knowledge_base
-        subtype_filter = config.item_scope.atomic_subtype
-        if subtype_filter.subtypes:
-            focused = knowledge_base.filter_subtypes(subtype_filter.subtypes)
-        self.focused_kb = focused
+        # Evaluated segments: every prompt block and the design space use them;
+        # vocabulary and labeling see the whole selected corpus.
+        self.focused_kb = evaluated_segments(knowledge_base, config)
+        self.corpus = self.focused_kb.by_video()
 
         self.proposer = proposer
         self.processor = CandidateProcessor(
             config=config, task=task, knowledge_base=knowledge_base,
             vocab_builder=vocab_builder, labeler=labeler, embedder=embedder,
         )
-        self.evaluator = PoolEvaluator(config=config, focused_kb=focused)
+        self.evaluator = PoolEvaluator(config=config, focused_kb=self.focused_kb)
 
         self.kb_fp = kb_fingerprint(knowledge_base)
         self.prompt_fp = prompt_fingerprint(config)
@@ -120,6 +117,7 @@ class PipelineRunner:
         attempt = state.attempts + 1  # the attempt being made
         with usage_stage("proposal"):
             proposed = self.proposer.propose_one(self._build_iterative_context(state, attempt))
+        self._record_request(state)
         if not proposed:
             bookkeeping.record(state, CandidateStatus.REFUSED)
         else:
@@ -127,19 +125,26 @@ class PipelineRunner:
             bookkeeping.apply_outcome(state, self.evaluator, outcome, increment_attempts=True)
         state.add_usage(usage_delta(USAGE.snapshot(), before))
 
+    def _record_request(self, state: RunState) -> None:
+        """Note the proposal request's log id, so reports can show the full
+        request and response (``reports.transcripts``)."""
+        batch_id = getattr(self.proposer, "last_batch_id", None)
+        if batch_id:
+            state.runner_state.setdefault("proposal_batches", []).append(batch_id)
+
     # ---- a0 ----
 
     def _run_batch(self, state: RunState) -> None:
         """One batch request; atomic (no mid-run checkpoint)."""
         before = USAGE.snapshot()
         state.iteration += 1
-        videos = self.knowledge_base.by_video()
         budget = self.config.proposal_budget
         with usage_stage("proposal"):
             proposed = self.proposer.propose_batch(
-                BatchContext(task=self.task, videos=videos, num_facets=budget,
+                BatchContext(task=self.task, videos=self.corpus, num_facets=budget,
                              seed=stage_seed(self.config.seed, "proposal"))
             )
+        self._record_request(state)
         if not proposed:
             bookkeeping.record(state, CandidateStatus.REFUSED)
             state.add_usage(usage_delta(USAGE.snapshot(), before))
@@ -164,33 +169,32 @@ class PipelineRunner:
 
     # ---- a1 / a2 ----
 
-    def _items_videos(self, attempt: int):
-        """Tutorial segments for the ITEMS component: all videos, or a sample
-        of ``items_sample_videos`` drawn per attempt from the run seed."""
-        videos = self.knowledge_base.by_video()
+    def _items_video_ids(self, attempt: int):
+        """Videos whose labels ITEMS shows: all (None), or a sample of
+        ``items_sample_videos`` drawn per attempt from the run seed."""
         n = self.config.items_sample_videos
-        if n <= 0 or n >= len(videos):
-            return videos
+        if n <= 0 or n >= len(self.corpus):
+            return None
         rng = random.Random(stage_seed(self.config.seed, "items", attempt))
-        chosen = set(rng.sample(sorted(videos), n))
-        return {vid: items for vid, items in videos.items() if vid in chosen}
+        return sorted(rng.sample(sorted(self.corpus), n))
 
     def _build_iterative_context(self, state: RunState, attempt: int) -> IterativeContext:
         components = self.config.context
         return IterativeContext(
             task=self.task,
             components=components,
+            corpus=self.corpus,
             pool=list(state.pool),
+            ids=factor_ids(state),
             annotations=state.annotations,
             knowledge_base=self.focused_kb,
-            videos=(self._items_videos(attempt)
-                    if ContextComponent.ITEMS in components else None),
+            item_video_ids=(self._items_video_ids(attempt)
+                            if ContextComponent.ITEMS in components else None),
             accepted_schemas=list(state.accepted_schemas),
             rejected_schemas=list(state.rejected_schemas),
             refinement_edges=refinement_edges(state),
             refinement_threshold=self.config.refinement_threshold,
-            last_submission=(last_submission(state)
-                             if ContextComponent.SCHEMAS in components else None),
+            max_schema_facets=self.config.max_schema_facets,
             history=(history_entries(state)
                      if ContextComponent.HISTORY in components else []),
             seed=stage_seed(self.config.seed, "proposal", attempt),

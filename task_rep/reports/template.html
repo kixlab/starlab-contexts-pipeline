@@ -148,6 +148,25 @@ details ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; font-size: 
 .msg.tool.submit { border-left: 3px solid var(--swap); }
 .msg pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: var(--font-mono); font-size: 0.78rem; max-height: 340px; overflow: auto; }
 .call { font-family: var(--font-mono); font-size: 0.8rem; }
+/* full transcripts: every block collapsible, nothing truncated */
+.tx { display: grid; gap: 8px; }
+.tx pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: var(--font-mono); font-size: 0.78rem; max-height: none; }
+.tx .block { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 8px 12px; min-width: 0; }
+.tx .block > summary { font-family: var(--font-body); font-size: var(--step-0); color: var(--ink); display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.tx .block.step[open] > summary { border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.tx .sec, .tx .child, .tx .cand { border-left: 2px solid var(--line); padding: 2px 0 2px 10px; margin: 6px 0; min-width: 0; }
+.tx .child { border-left-color: var(--sunk); }
+.tx .cand { border-left-color: var(--swap); }
+.tx .sec > summary, .tx .child > summary, .tx .cand > summary { display: flex; flex-wrap: wrap; gap: 4px 10px; justify-content: space-between; color: var(--ink); }
+.tx .size { color: var(--ink-soft); font-family: var(--font-mono); font-size: 0.72rem; white-space: nowrap; }
+.tx .size.same { color: var(--wasabi); }
+.tx .label { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin-top: 6px; }
+.tx .factor { display: grid; gap: 6px; font-size: var(--step--1); padding: 4px 0; }
+.tx .factor p { margin: 0; }
+.tx .factor ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
+.tx .foot { color: var(--ink-soft); font-family: var(--font-mono); font-size: 0.72rem; margin: 6px 0 0; word-break: break-all; }
+.tx .msg > details.cand { margin: 2px 0; }
+.toolbar button { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 2px 10px; font-family: var(--font-mono); font-size: var(--step--1); cursor: pointer; }
 .call b { color: var(--accent); }
 .empty { color: var(--ink-soft); font-style: italic; }
 .notice { border: 1px solid var(--warn); background: var(--warn-bg); color: var(--ink); border-radius: 10px; padding: 10px 14px; display: grid; gap: 6px; font-size: var(--step--1); }
@@ -473,27 +492,105 @@ __INTRO__
     return `<div class="scroll"><table class="ledger"><thead><tr><th class="num">#</th><th>Outcome</th><th>Factor</th><th>Definition</th><th>Notes</th><th class="num">Tree after</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
 
-  function transcript(r) {
-    if (!r.transcript.length) return "";
-    const msgs = r.transcript.map(m => {
-      if (m.role === "user") return `<div class="msg user"><span class="who">Prompt</span><p>${esc(m.text)}</p></div>`;
-      if (m.role === "agent") {
-        const calls = m.calls.map(cl => {
-          const args = cl.name === "submit_candidate" ? `“${esc(cl.args.title)}” ${cl.args.kind ? `[${esc(cl.args.kind)}] ` : ""}— ${esc(cl.args.definition)}`
-            : esc(JSON.stringify(cl.args));
-          return `<div class="call"><b>${esc(cl.name)}</b> ${args}</div>`;
-        }).join("");
-        return `<div class="msg agent"><span class="who">Agent</span>${m.text ? `<p>${esc(m.text)}</p>` : ""}${calls}</div>`;
-      }
-      const submit = m.name === "submit_candidate";
-      const first = m.text.split("\n")[0];
-      const body = submit && m.text.indexOf("\n") < 0 ? `<pre>${esc(m.text)}</pre>`
-        : `<details${submit ? " open" : ""}><summary>${esc(first.slice(0, 120))}${first.length > 120 ? "…" : ""}</summary><pre>${esc(m.text)}</pre></details>`;
-      return `<div class="msg tool${submit ? " submit" : ""}" data-tool="${esc(m.name)}"><span class="who">${esc(m.name)}</span>${body}</div>`;
+  // ---- full transcripts (progressive disclosure, nothing truncated)
+  const nLines = t => (t || "").split("\n").length;
+  const size = t => nLines(t) > 1 ? `${nLines(t)} lines` : `${(t || "").length} chars`;
+  const chars = n => n >= 1000 ? `${(n / 1000).toFixed(1)}k chars` : `${n} chars`;
+  const pre = t => t ? `<pre>${esc(t)}</pre>` : "";
+  const SHORT = 2500;   // feedback sections up to this size start open
+  const secKey = s => JSON.stringify([s.title, s.text, (s.children || []).map(c => c.text)]);
+  // mark sections already shown: same title and content as in `before` (a Set of keys)
+  const markSeen = (sections, before, label) => (sections || []).map(s => s.title != null && before.has(secKey(s)) ? { ...s, same: label } : s);
+
+  function outlineHTML(sections, openShort) {
+    return (sections || []).map(s => {
+      const kids = s.children || [];
+      if (s.title == null) return s.text.length > SHORT
+        ? `<details class="sec"><summary><span>Opening text</span><span class="size">${size(s.text)}</span></summary>${pre(s.text)}</details>` : pre(s.text);
+      if (!kids.length && !s.text) return `<div class="label">${esc(s.title)}</div>`;
+      const total = s.text.length + kids.reduce((a, c) => a + c.text.length, 0);
+      const meta = (kids.length ? `${kids.length} item${kids.length > 1 ? "s" : ""} · ` : "") + chars(total);
+      const open = openShort && !s.same && total <= SHORT;
+      const body = pre(s.text) + kids.map(c => `<details class="child"${open && kids.length === 1 ? " open" : ""}><summary><span>${esc(c.title)}</span><span class="size">${size(c.text)}</span></summary>${pre(c.text)}</details>`).join("");
+      return `<details class="sec"${open ? " open" : ""}><summary><span>${esc(s.title)}</span><span class="size${s.same ? " same" : ""}">${s.same ? esc(s.same) + " · " : ""}${meta}</span></summary>${body}</details>`;
     }).join("");
-    return `<section aria-labelledby="t-${r.key}"><h3 id="t-${r.key}">Agent transcript</h3>
-      <div class="toolbar"><label><input type="checkbox" id="only-submits"> Show only submissions and feedback</label><span class="soft">${r.turns} turns · ${r.tool_calls} tool calls · long tool outputs are shortened</span></div>
-      <div class="convo" id="convo">${msgs}</div></section>`;
+  }
+
+  function factorHTML(f) {
+    const vals = (f.vocabulary || []).map(v => `<li><b>${esc(v.label)}</b> — ${esc(v.definition)}</li>`).join("");
+    const gl = (f.guidelines || []).map(g => `<li>${esc(g)}</li>`).join("");
+    const known = new Set(["title", "title_plural", "user_question", "scope", "kind", "definition", "vocabulary", "guidelines", "justification"]);
+    const extra = Object.entries(f).filter(([k, v]) => !known.has(k) && v != null && v !== "")
+      .map(([k, v]) => `<p><span class="label">${esc(k)}</span> ${esc(typeof v === "string" ? v : JSON.stringify(v))}</p>`).join("");
+    return `<div class="factor">
+      <div class="meta">${f.scope ? `<span class="tag">${esc(f.scope)}</span>` : ""}${f.title_plural ? `<span class="soft mono">plural: ${esc(f.title_plural)}</span>` : ""}</div>
+      ${f.user_question ? `<p class="q">${esc(f.user_question)}</p>` : ""}${f.definition ? `<p>${esc(f.definition)}</p>` : ""}
+      ${vals ? `<div><div class="label">Values</div><ul>${vals}</ul></div>` : ""}
+      ${gl ? `<details><summary>Labeling guidelines (${f.guidelines.length})</summary><ul>${gl}</ul></details>` : ""}
+      ${f.justification ? `<details><summary>Justification</summary><p>${esc(f.justification)}</p></details>` : ""}${extra}</div>`;
+  }
+  const candHTML = (f, status, open) => `<details class="cand"${open ? " open" : ""}><summary><span><b>${esc(f.title || "(untitled)")}</b> ${f.kind ? `<span class="tag kind">${esc(f.kind)}</span>` : ""}</span>${status ? pill(status) : ""}</summary>${factorHTML(f)}</details>`;
+
+  function systemBlock(T, what, note) {
+    if (!T.system) return note ? `<p class="notice">${esc(note)}</p>` : "";
+    return `<details class="block"><summary><span class="label" style="margin:0">${what}</span><span class="size">${chars(T.system_chars)} · tutorials collapsed by video</span></summary>${note ? `<p class="soft" style="font-size:var(--step--1)">${esc(note)}</p>` : ""}${outlineHTML(T.system, false)}</details>`;
+  }
+
+  function pipelineTx(T) {
+    let before = new Set();
+    const steps = T.steps.map(s => {
+      if (s.missing) return `<div class="block empty">Request ${s.n}: log ${esc(s.batch)} was not found.</div>`;
+      const user = markSeen(s.user, before, `same as request ${s.n - 1}`);
+      before = new Set(s.user.filter(x => x.title != null).map(secKey));
+      const outcome = s.candidates.length
+        ? s.candidates.map(c => `${c.status ? pill(c.status) : ""} <span>${esc(c.factor.title)}</span>`).join(" ")
+        : `<span class="empty">no candidate (refusal)</span>`;
+      const other = Object.entries(s.other).filter(([, v]) => v != null && v !== "" && !(Array.isArray(v) && !v.length))
+        .map(([k, v]) => `<p style="margin:0;font-size:var(--step--1)"><span class="label">${esc(k.replace(/_/g, " "))}</span> ${esc(typeof v === "string" ? v : JSON.stringify(v))}</p>`).join("");
+      const u = s.usage || {};
+      return `<details class="block step"${T.steps.length === 1 ? " open" : ""}><summary><b>Request ${s.n}</b>${outcome}</summary>
+        ${s.system ? `<details class="sec"><summary><span>System message</span></summary>${outlineHTML(s.system, false)}</details>` : ""}
+        <details class="sec"><summary><span>User message</span><span class="size">${chars(s.user_chars)}</span></summary>${outlineHTML(user, false)}</details>
+        <div class="label">Response${s.candidates.length > 1 ? ` · ${s.candidates.length} factors` : ""}</div>${other}
+        ${s.candidates.map(c => candHTML(c.factor, c.status, s.candidates.length === 1)).join("")}
+        <details class="sec"><summary><span>Raw response</span><span class="size">${size(s.raw)}</span></summary>${pre(s.raw)}</details>
+        <p class="foot">seed ${esc(s.seed)} · ${fmtK(u.input_tokens || 0)} in / ${fmtK(u.output_tokens || 0)} out / ${fmtK(u.thinking_tokens || 0)} thinking · log ${esc(s.batch)}</p></details>`;
+    }).join("");
+    return systemBlock(T, "System message", "") + `<div class="tx">${steps}</div>`;
+  }
+
+  function agentTx(T) {
+    const tools = T.tools.length ? `<details class="block"><summary><span class="label" style="margin:0">Tools</span><span class="size">${T.tools.map(t => esc(t.name)).join(", ")}</span></summary>${T.tools.map(t => `<details class="sec" open><summary><span>${esc(t.name)}</span></summary><p style="margin:0 0 6px;font-size:var(--step--1)">${esc(t.description)}</p><details class="child"><summary><span>Parameters (JSON schema)</span></summary>${pre(JSON.stringify(t.parameters, null, 2))}</details></details>`).join("")}</details>` : "";
+    const seen = new Set();
+    let turn = 0;
+    const msgs = T.messages.map((m, i) => {
+      if (m.role === "user") return `<div class="msg user"><span class="who">${i === 0 ? "Kickoff" : "User"}</span><p>${esc(m.text)}</p></div>`;
+      if (m.role === "agent") {
+        turn += 1;
+        const calls = m.calls.map(cl => cl.name === "submit_candidate"
+          ? `<div class="call"><b>submit_candidate</b></div>${candHTML(cl.args, null, false)}`
+          : `<div class="call"><b>${esc(cl.name)}</b> ${esc(JSON.stringify(cl.args))}</div>`).join("");
+        return `<div class="msg agent"><span class="who">Agent · turn ${turn}</span>${m.text ? `<p>${esc(m.text)}</p>` : ""}${calls || (m.text ? "" : `<p class="empty">Empty reply: no text and no tool call.</p>`)}</div>`;
+      }
+      const sections = markSeen(m.sections, seen, "same as before");
+      m.sections.filter(x => x.title != null).forEach(x => seen.add(secKey(x)));
+      const submit = m.name === "submit_candidate";
+      return `<div class="msg tool${submit ? " submit" : ""}" data-tool="${esc(m.name)}"><span class="who">${esc(m.name)} result</span>${outlineHTML(sections, true)}</div>`;
+    }).join("");
+    return systemBlock(T, "System prompt", T.note) + tools + `<div class="tx convo" id="convo">${msgs}</div>`;
+  }
+
+  function transcript(r) {
+    const T = data.transcripts[r.result_file];
+    const head = `<h3 id="t-${r.key}">Transcript</h3>`;
+    if (!T) return `<section aria-labelledby="t-${r.key}">${head}<p class="empty">${r.kind === "pipeline" ? "This run's requests were not recorded (older runs did not note their request logs)." : "No transcript stored for this run."}</p></section>`;
+    const pipeline = T.kind === "pipeline";
+    const facts = pipeline ? `${T.steps.length} request${T.steps.length > 1 ? "s" : ""}; each holds the prompt the model saw and its full response`
+      : `${r.turns} turns · ${r.tool_calls} tool calls`;
+    return `<section aria-labelledby="t-${r.key}" class="tx">${head}
+      <div class="toolbar"><button type="button" data-tx="open">Expand all</button><button type="button" data-tx="close">Collapse all</button>${pipeline ? "" : `<label><input type="checkbox" id="only-submits"> Show only submissions and feedback</label>`}<span class="soft">${facts}. Sections marked “same as …” repeat an earlier message.</span></div>
+      ${T.note && pipeline ? `<p class="notice">${esc(T.note)}</p>` : ""}
+      ${pipeline ? pipelineTx(T) : agentTx(T)}</section>`;
   }
 
   function render(r) {
@@ -505,12 +602,15 @@ __INTRO__
         <p class="soft">${condDesc(r)}. ${r.proposals} proposals, ${r.pool} factors in the pool, mean coverage ${pct(r.mean_coverage)}, stopped by ${esc(r.stop.replace(/_/g, " "))}.</p>
         <p class="mono soft" style="font-size:0.75rem">${esc(stages)}</p>
         ${r.rescored ? `<div class="notice"><b>Re-scored ${esc(r.rescored.date || "")}</b>${r.rescored.rules ? `<span>${esc(r.rescored.rules)}</span>` : ""}${(r.rescored.changes || []).length ? `<ul>${r.rescored.changes.map(c => `<li>${esc(c)}</li>`).join("")}</ul>` : ""}${r.rescored.note || r.rescored.caveat ? `<span>${esc(r.rescored.note || r.rescored.caveat)}</span>` : ""}</div>` : ""}
-        <div class="subnav"><a href="#facets-${r.key}">Pool factors</a><a href="#ledger-${r.key}">All candidates</a>${r.dag ? `<a href="#dag-${r.key}">Design space</a>` : ""}<a href="#tree-${r.key}">Tree by τ</a>${r.transcript.length ? `<a href="#t-${r.key}">Transcript</a>` : ""}</div></div>
+        <div class="subnav"><a href="#facets-${r.key}">Pool factors</a><a href="#ledger-${r.key}">All candidates</a>${r.dag ? `<a href="#dag-${r.key}">Design space</a>` : ""}<a href="#tree-${r.key}">Tree by τ</a><a href="#t-${r.key}">Transcript</a></div></div>
       <section><h3 id="facets-${r.key}">Pool factors (${r.facets.length})</h3><div class="cards">${r.facets.map(facetCard).join("")}</div></section>
       <section><h3 id="ledger-${r.key}">All candidates, in order</h3>${ledgerTable(r)}</section>
       ${r.dag ? `<section><h3 id="dag-${r.key}">Design space at τ ${r.run_tau} (${r.max_schema_facets === 2 ? "singles and pairs" : "single factors"})</h3><p class="soft" style="font-size:var(--step--1)">${r.feedback === "schemas" || (r.context || []).includes("schemas") ? "This is the design-space part of the feedback this run saw, re-rendered on its final pool in the latest format." : "Rendered on this run's final pool for comparison; this run never saw it."} F numbers follow the pool order above.</p><pre class="dag">${esc(r.dag)}</pre></section>` : ""}
       <section><h3 id="tree-${r.key}">Tree by redundancy threshold</h3><div class="sweep">${sweep}</div></section>
       ${transcript(r)}`;
+    document.querySelectorAll("[data-tx]").forEach(b => b.addEventListener("click", () => {
+      b.closest("section").querySelectorAll("details").forEach(d => { d.open = b.dataset.tx === "open"; });
+    }));
     const only = document.getElementById("only-submits");
     if (only) only.addEventListener("change", () => {
       document.querySelectorAll("#convo .msg").forEach(m => {

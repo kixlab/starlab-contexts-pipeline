@@ -23,8 +23,11 @@ entry means the newest result under the experiment's current settings):
     }
 
 Each run gets: its factors (values, counts, example segments, coverage), the
-ledger, the agent transcript, the tree at each tau, its design space in the
-feedback format, and every measure from ``analysis.measures``.
+ledger, the full transcript (``reports.transcripts``), the tree at each tau,
+its design space in the feedback format, and every measure from
+``analysis.measures``. Pipeline transcripts come from the request logs the run
+recorded; for older runs, ``"proposal_batches": {"<result file>": [log ids]}``
+in the manifest names them.
 """
 
 from __future__ import annotations
@@ -46,16 +49,10 @@ from facets.prompts.formatters import schemas_to_message_content
 from optimization import count_unique_units
 
 from .runs import LoadedRun, load_run
+from .transcripts import transcript
 
 TEMPLATE = Path(__file__).parent / "template.html"
-TRANSCRIPT_CLIP = 1600   # characters kept per tool output in the transcript view
 EXAMPLES_PER_VALUE = 4
-
-
-def _clip(text: str) -> str:
-    if len(text) <= TRANSCRIPT_CLIP:
-        return text
-    return text[:TRANSCRIPT_CLIP] + f"\n… [{len(text) - TRANSCRIPT_CLIP:,} more characters]"
 
 
 def _facets(run: LoadedRun, titles: Dict[str, str]) -> List[Dict[str, Any]]:
@@ -109,20 +106,6 @@ def _ledger(run: LoadedRun, titles: Dict[str, str]) -> List[Dict[str, Any]]:
     } for r in run.result.ledger]
 
 
-def _transcript(run: LoadedRun) -> List[Dict[str, Any]]:
-    out = []
-    for m in run.result.runner_state.get("transcript", []):
-        if m["role"] == "user":
-            out.append({"role": "user", "text": m["text"]})
-        elif m["role"] == "assistant":
-            out.append({"role": "agent", "text": m.get("text", ""),
-                        "calls": [{"name": c["name"], "args": c["arguments"]}
-                                  for c in m.get("tool_calls", [])]})
-        else:
-            out.append({"role": "tool", "name": m["name"], "text": _clip(m["content"])})
-    return out
-
-
 def _design_space(run: LoadedRun) -> Dict[str, Any]:
     """The run's DAG re-evaluated at its own settings, rendered like the feedback."""
     result, settings = run.result, run.settings
@@ -145,7 +128,10 @@ def _sees_history(run: LoadedRun) -> bool:
     cfg = run.result.config
     if run.kind == "pipeline":
         return "history" in (cfg.get("context") or [])
-    return any(m["role"] == "tool" and "Tried factors that were not kept" in m.get("content", "")
+    # older runs pushed a full history section; since 2026-10-11 pool and
+    # schemas feedback push history changes ("Not added to the pool")
+    markers = ("Tried factors that were not kept", "Added to the pool:", "Not added to the pool")
+    return any(m["role"] == "tool" and any(k in m.get("content", "") for k in markers)
                for m in run.result.runner_state.get("transcript", []))
 
 
@@ -179,7 +165,7 @@ def collect_run(spec: Dict[str, Any], run: LoadedRun, taus: List[float],
         "run_tau": run.settings.refinement_threshold,
         "max_schema_facets": run.settings.max_schema_facets,
         **_design_space(run),
-        "facets": facets, "ledger": _ledger(run, titles), "transcript": _transcript(run),
+        "facets": facets, "ledger": _ledger(run, titles),
         "measures": measures, "result_file": run.path.name,
         "mean_coverage": round(sum(coverage) / len(coverage), 3) if coverage else 0,
         "low_coverage": sum(c < 0.2 for c in coverage),
@@ -190,7 +176,8 @@ def collect_run(spec: Dict[str, Any], run: LoadedRun, taus: List[float],
 def collect(manifest: Dict[str, Any]) -> Dict[str, Any]:
     taus = manifest.get("taus", [0.2, 0.4, 0.6])
     measure_settings = manifest.get("measure_settings", {})
-    versions, corpus, models = [], None, None
+    versions, corpus, models, transcripts = [], None, None, {}
+    batches = manifest.get("proposal_batches", {})
     for version in manifest["versions"]:
         runs = []
         for spec in manifest["runs"]:
@@ -205,10 +192,13 @@ def collect(manifest: Dict[str, Any]) -> Dict[str, Any]:
                 models = {"proposal": run.settings.proposal_model.model,
                           "labeling": run.settings.labeling_model.model}
             runs.append(collect_run(spec, run, taus, measure_settings))
+            if run.path.name not in transcripts:   # versions can share a result
+                transcripts[run.path.name] = transcript(run, batches.get(run.path.name))
         versions.append({"id": version["id"], "label": version["label"], "runs": runs})
     return {"corpus": corpus, "models": models, "budget": manifest.get("budget"),
             "seed": manifest.get("seed"), "taus": taus, "measure_settings": measure_settings,
-            "compare": manifest.get("compare"), "versions": versions}
+            "compare": manifest.get("compare"), "versions": versions,
+            "transcripts": transcripts}
 
 
 def _paragraphs(paragraphs: List[str]) -> str:
