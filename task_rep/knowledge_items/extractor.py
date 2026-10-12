@@ -39,6 +39,23 @@ from .taxonomy import TYPE_DESCRIPTIONS
 
 from .chunk_sampling import ChunkConfig, FINE_CHUNK_CONFIG
 
+
+def _information_taxonomy():
+    return [{"name": atomic_type.value, "definition": info.definition, "examples": info.examples}
+            for atomic_type, info in TYPE_DESCRIPTIONS.items()]
+
+
+def extraction_request(item_type: KnowledgeItemType, task: str, video: Video,
+                       use_vision: bool, chunk_config: ChunkConfig = FINE_CHUNK_CONFIG):
+    """The request ``VLMKnowledgeExtractor`` sends for one video."""
+    args = {"task": task, "video": video, "use_vision": use_vision, "chunk_config": chunk_config}
+    if item_type == KnowledgeItemType.ATOMIC:
+        return form_atomic_extraction_request(**args, information_taxonomy=_information_taxonomy())
+    if item_type == KnowledgeItemType.STEP:
+        return form_step_extraction_request_discovery(**args)
+    return form_tutorial_summary_request(**args)
+
+
 @dataclass
 class VLMKnowledgeExtractor:
     """
@@ -72,10 +89,7 @@ class VLMKnowledgeExtractor:
         """Extract atomic information from videos."""
         batch_id = f"atomic_extraction_{random_uid()}"
 
-        information_taxonomy = [
-            {"name": atomic_type.value, "definition": info.definition, "examples": info.examples}
-            for atomic_type, info in TYPE_DESCRIPTIONS.items()
-        ]
+        information_taxonomy = _information_taxonomy()
 
         request_args = [
             {

@@ -49,6 +49,4 @@ from .io import (  # noqa: F401
     save_knowledge_items,
     load_knowledge_items,
     load_task_dataset,
-    get_extraction_cache_path,
-    get_clustering_cache_path,
 )

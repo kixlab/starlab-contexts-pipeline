@@ -27,12 +27,6 @@ class ClusterConfig:
     model_config: ModelConfig
     similarity_threshold: float = 0.85
 
-    def cache_suffix(self) -> str:
-        """Generate cache suffix for this config."""
-        threshold_str = str(self.similarity_threshold).replace(".", "")
-        model_name = self.model_config.cache_suffix()
-        return f"sim{threshold_str}_{model_name}"
-
     def to_dict(self) -> Dict[str, Any]:
         return {
             "similarity_threshold": self.similarity_threshold,

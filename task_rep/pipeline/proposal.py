@@ -117,8 +117,3 @@ class VLMFacetProposer:
 
     def propose_one(self, context: IterativeContext) -> List[Facet]:
         return self._extractor.propose_facet_iterative(seed=context.seed, **context.request_args())
-
-    @property
-    def last_batch_id(self) -> Optional[str]:
-        """Log id (static/lm-batches) of the latest proposal request."""
-        return self._extractor.last_batch_id

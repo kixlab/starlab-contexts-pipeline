@@ -37,7 +37,7 @@ def _runner(tmp_path, proposer, *, embedder=None, vocab=None, labeler=None, kb=N
         vocab_builder=vocab or ScriptedVocabBuilder(),
         labeler=labeler or ScriptedLabeler(),
         embedder=embedder or TableEmbedder(),
-        cache_dir=tmp_path,
+        runs_dir=tmp_path,
     )
 
 
@@ -236,16 +236,11 @@ def test_duplicates_do_not_join_the_dedup_set(tmp_path):
 def test_checkpoint_after_every_iteration(tmp_path):
     script = [[make_facet("A")], [], [make_facet("B")]]
     runner = _runner(tmp_path, ScriptedProposer(script), attempt_limit=3)
-    saved = []
-    original = runner.store.save_checkpoint
-
-    def spy(state):
-        saved.append(len(state.ledger))
-        original(state)
-
-    runner.store.save_checkpoint = spy
     runner.run()
-    assert saved[:3] == [1, 2, 3]
+    steps = runner.folder.steps()       # one appended line per attempt
+    assert [len(s["ledger"]) for s in steps] == [1, 1, 1]
+    assert [s["counters"]["attempts"] for s in steps] == [1, 2, 3]
+    assert (runner.folder.path / "result.json").exists()
 
 
 def test_resume_after_crash_continues_ledger(tmp_path):
@@ -264,16 +259,39 @@ def test_resume_after_crash_continues_ledger(tmp_path):
     assert [f.id for f in second.iterative_contexts[0].pool] == ["A", "B"]
 
 
-def test_completed_run_is_restored_without_proposing(tmp_path):
-    script = [[make_facet("A")], [make_facet("B")]]
-    _runner(tmp_path, ScriptedProposer(script), proposal_budget=2, pool_size=2,
-            use_cache=True).run()
+class CtrlC(ScriptedProposer):
+    """Ctrl+C while the second proposal is being processed."""
 
-    again = ScriptedProposer([[make_facet("Z")]])
-    result = _runner(tmp_path, again, proposal_budget=2, pool_size=2,
-                     use_cache=True).run()
-    assert again.iterative_contexts == []
+    def propose_one(self, context):
+        if len(self.iterative_contexts) == 1:
+            raise KeyboardInterrupt
+        return super().propose_one(context)
+
+
+def test_interrupted_run_resumes_and_redoes_the_attempt_in_flight(tmp_path):
+    first = _runner(tmp_path, CtrlC([[make_facet("A")]]),
+                    proposal_budget=2, pool_size=2, use_cache=True)
+    with pytest.raises(KeyboardInterrupt):
+        first.run()
+    assert "Interrupted during attempt 2" in first.folder.log_path.read_text()
+
+    second = _runner(tmp_path, ScriptedProposer([[make_facet("B")]]), proposal_budget=2,
+                     pool_size=2, use_cache=True)
+    result = second.run()
+    assert second.folder.path == first.folder.path and second.folder.resumed
     assert [r.facet_id for r in result.ledger] == ["A", "B"]
+    assert "resumed after 1 step(s)" in second.folder.log_path.read_text()
+
+
+def test_finished_run_is_not_reused_by_a_new_run(tmp_path):
+    first = _runner(tmp_path, ScriptedProposer([[make_facet("A")], [make_facet("B")]]),
+                    proposal_budget=2, pool_size=2, use_cache=True)
+    first.run()
+    again = ScriptedProposer([[make_facet("Y")], [make_facet("Z")]])
+    second = _runner(tmp_path, again, proposal_budget=2, pool_size=2, use_cache=True)
+    result = second.run()
+    assert second.folder.path != first.folder.path and not second.folder.resumed
+    assert [r.facet_id for r in result.ledger] == ["Y", "Z"]
 
 
 # ---------------------------------------------------------------------------
@@ -418,11 +436,10 @@ def test_a0_lifecycle_is_batched(tmp_path):
 def test_a0_is_atomic(tmp_path):
     batch = [make_facet(f) for f in ["A", "B", "C"]]
     _, runner = _batch_runner(tmp_path, batch, proposal_budget=3, pool_size=3)
-    saved = []
-    original = runner.store.save_checkpoint
-    runner.store.save_checkpoint = lambda s: (saved.append(s.stop_reason), original(s))
     runner.run()
-    assert saved == [StopReason.BATCH_COMPLETE]
+    steps = runner.folder.steps()          # the whole batch is one step
+    assert [s["stop_reason"] for s in steps] == ["batch_complete"]
+    assert len(steps[0]["ledger"]) == 3
 
 
 # ---------------------------------------------------------------------------
@@ -534,7 +551,7 @@ def test_usage_is_accumulated_per_stage_and_checkpointed(tmp_path):
         "labeling": {"input_tokens": 20, "output_tokens": 4,
                      "thinking_tokens": 2, "requests": 2},
     }
-    assert runner.store.restore_checkpoint().usage == result.usage
+    assert runner.folder.steps()[-1]["usage"] == result.usage
 
 
 class GappyVocab(ScriptedVocabBuilder):
@@ -600,19 +617,20 @@ def test_segments_outside_the_evaluated_set_are_never_shown(tmp_path):
 
 
 class LoggedProposer(ScriptedProposer):
-    """Notes a request-log id per proposal, like ``VLMFacetProposer``."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.last_batch_id = None
+    """Runs one (empty) logged batch per proposal, like ``VLMFacetProposer``."""
 
     def propose_one(self, context):
-        self.last_batch_id = f"facet_iterative_{len(self.iterative_contexts) + 1}"
+        llm_mod.batch_run_llm_calls(f"facet_iterative_{len(self.iterative_contexts) + 1}",
+                                    [], lambda **_: {}, None, max_concurrency=1,
+                                    model_config=None)
         return super().propose_one(context)
 
 
-def test_runner_records_each_proposal_request_log(tmp_path):
-    proposer = LoggedProposer([[make_facet("A")], [], [make_facet("B")]])
-    result = _runner(tmp_path, proposer, proposal_budget=2, pool_size=2).run()
-    assert result.runner_state["proposal_batches"] == [
-        "facet_iterative_1", "facet_iterative_2", "facet_iterative_3"]
+def test_each_step_records_its_request_logs(tmp_path):
+    runner = _runner(tmp_path, LoggedProposer([[make_facet("A")], [], [make_facet("B")]]),
+                     proposal_budget=2, pool_size=2)
+    result = runner.run()
+    assert result.runner_state["batches"] == [
+        {"proposal": ["facet_iterative_1"]}, {"proposal": ["facet_iterative_2"]},
+        {"proposal": ["facet_iterative_3"]}]
+    assert "lm-batches proposal: facet_iterative_2" in runner.folder.log_path.read_text()

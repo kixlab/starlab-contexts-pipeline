@@ -144,16 +144,20 @@ def _services(script):
     )
 
 
+SOURCES = {"items": "items/i.jsonl", "units": "units/u.jsonl"}
+
+
 def test_run_experiment_uses_constructor_kb(tmp_path, monkeypatch):
     calls = []
 
     def fake_load(task_id, constructor_config, item_type):
         calls.append((task_id, item_type, constructor_config.cluster_config.similarity_threshold))
-        return FakeTask("sushi roll"), make_kb(), tmp_path
+        return FakeTask("sushi roll"), make_kb(), SOURCES
 
     monkeypatch.setattr(experiments_mod, "load_knowledge_base", fake_load)
     spec = ExperimentSpec.from_dict(spec_dict(proposal_budget=2, pool_size=2))
-    result = run_experiment(spec, services=_services([[make_facet("A")], [make_facet("B")]]))
+    result = run_experiment(spec, services=_services([[make_facet("A")], [make_facet("B")]]),
+                            output_dir=tmp_path)
 
     assert calls == [("sushi_roll", KnowledgeItemType.ATOMIC, 0.85)]
     assert [f.id for f in result.pool] == ["A", "B"]
@@ -161,40 +165,28 @@ def test_run_experiment_uses_constructor_kb(tmp_path, monkeypatch):
     assert result.num_units == 8
 
     found = find_result(spec, tmp_path)
-    assert found is not None and found.name.startswith("pipeline_result_")
+    assert found is not None and found.name.endswith(f"__{spec.name}")
+    info = json.loads((found / "run.json").read_text())
+    assert info["experiment"] == spec.name and info["sources"] == SOURCES
 
 
 def test_find_result_matches_config_only(tmp_path, monkeypatch):
     monkeypatch.setattr(experiments_mod, "load_knowledge_base",
-                        lambda *a: (FakeTask("t"), make_kb(), tmp_path))
+                        lambda *a: (FakeTask("t"), make_kb(), SOURCES))
     run_experiment(ExperimentSpec.from_dict(spec_dict(proposal_budget=1, pool_size=1)),
-                   services=_services([[make_facet("A")]]))
+                   services=_services([[make_facet("A")]]), output_dir=tmp_path)
 
     other = ExperimentSpec.from_dict(spec_dict(proposal_budget=2, pool_size=2))
     assert find_result(other, tmp_path) is None
 
 
-def test_find_result_fills_defaults_for_fields_added_later(tmp_path, monkeypatch):
-    monkeypatch.setattr(experiments_mod, "load_knowledge_base",
-                        lambda *a: (FakeTask("t"), make_kb(), tmp_path))
-    spec = ExperimentSpec.from_dict(spec_dict(proposal_budget=1, pool_size=1))
-    run_experiment(spec, services=_services([[make_facet("A")]]))
-
-    # Simulate a result saved before `items_sample_videos` existed.
-    path = find_result(spec, tmp_path)
-    data = json.loads(path.read_text())
-    del data["config"]["items_sample_videos"]
-    path.write_text(json.dumps(data))
-    assert find_result(spec, tmp_path) == path
-
-
 def test_summary(tmp_path, monkeypatch):
     monkeypatch.setattr(experiments_mod, "load_knowledge_base",
-                        lambda *a: (FakeTask("t"), make_kb(), tmp_path))
+                        lambda *a: (FakeTask("t"), make_kb(), SOURCES))
     spec = ExperimentSpec.from_dict(spec_dict(proposal_budget=2, pool_size=2))
     result = run_experiment(spec, services=_services(
         [[], [make_facet("A")], [make_facet("B")]]
-    ))
+    ), output_dir=tmp_path)
     s = summarize(result).to_dict()
     assert s == {
         "num_units": 8, "pool_facets": 2, "iterations": 3, "attempts": 3,

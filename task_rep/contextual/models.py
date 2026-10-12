@@ -267,6 +267,7 @@ class RunResult:
     num_units: int = 0
     usage: Dict[str, Dict[str, int]] = field(default_factory=dict)
     runner_state: Dict[str, Any] = field(default_factory=dict)
+    embeddings: Dict[str, List[float]] = field(default_factory=dict)   # dedup vectors
 
     @staticmethod
     def from_state(
@@ -294,6 +295,7 @@ class RunResult:
             num_units=num_units,
             usage={k: dict(v) for k, v in state.usage.items()},
             runner_state=dict(state.runner_state),
+            embeddings=dict(state.embeddings),
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -315,6 +317,7 @@ class RunResult:
             "num_units": self.num_units,
             "usage": self.usage,
             "runner_state": self.runner_state,
+            "embeddings": self.embeddings,
         }
 
     @staticmethod
@@ -344,4 +347,18 @@ class RunResult:
             num_units=data.get("num_units", 0),
             usage=data.get("usage", {}),
             runner_state=data.get("runner_state", {}),
+            embeddings=data.get("embeddings", {}),
+        )
+
+    def to_state(self) -> RunState:
+        """The final run state (the design space as saved), e.g. to re-score it."""
+        return RunState(
+            pool=list(self.pool), annotations=self.annotations, tree=self.tree,
+            accepted_schemas=list(self.accepted_schemas),
+            rejected_schemas=list(self.rejected_schemas), ledger=list(self.ledger),
+            embeddings=dict(self.embeddings), attempts=self.attempts,
+            proposals=self.proposals, iteration=self.iterations,
+            usage={k: dict(v) for k, v in self.usage.items()},
+            runner_state=dict(self.runner_state), fingerprint=self.fingerprint,
+            stop_reason=self.stop_reason,
         )

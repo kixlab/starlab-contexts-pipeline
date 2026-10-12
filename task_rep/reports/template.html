@@ -581,7 +581,7 @@ __INTRO__
   }
 
   function transcript(r) {
-    const T = data.transcripts[r.result_file];
+    const T = data.transcripts[r.run];
     const head = `<h3 id="t-${r.key}">Transcript</h3>`;
     if (!T) return `<section aria-labelledby="t-${r.key}">${head}<p class="empty">${r.kind === "pipeline" ? "This run's requests were not recorded (older runs did not note their request logs)." : "No transcript stored for this run."}</p></section>`;
     const pipeline = T.kind === "pipeline";

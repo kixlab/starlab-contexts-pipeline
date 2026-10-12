@@ -1,7 +1,7 @@
 """
 I/O utilities for knowledge items.
 
-Handles saving and loading knowledge items with caching support.
+Saving and loading knowledge items (JSONL) and task datasets.
 """
 
 from __future__ import annotations
@@ -10,8 +10,7 @@ import json
 from pathlib import Path
 from typing import List
 
-from .schema import KnowledgeItem, KnowledgeItemType, Video, VideoTranscriptSegment, VideoFrame
-from .clustering import ClusterConfig
+from .schema import KnowledgeItem, Video, VideoTranscriptSegment, VideoFrame
 
 
 def save_knowledge_items(
@@ -60,47 +59,6 @@ def load_knowledge_items(
                 items.append(KnowledgeItem.from_dict(data))
 
     return items
-
-
-def get_extraction_cache_path(
-    cache_dir: str | Path,
-    item_type: KnowledgeItemType,
-) -> Path:
-    """
-    Generate cache path for extracted knowledge items.
-
-    Args:
-        cache_dir: Path to cache directory
-        item_type: Knowledge item type (ATOMIC, STEP, TUTORIAL)
-
-    Returns:
-        Path to cache file
-    """
-    cache_dir = Path(cache_dir)
-    return cache_dir / f"extracted_{item_type.value}.jsonl"
-
-
-def get_clustering_cache_path(
-    cache_dir: str | Path,
-    item_type: KnowledgeItemType,
-    cluster_config: ClusterConfig,
-) -> Path:
-    """
-    Generate cache path for clustered knowledge items.
-
-    Includes clustering config in filename for different thresholds.
-
-    Args:
-        cache_dir: Path to cache directory
-        item_type: Knowledge item type
-        config: Clustering configuration
-
-    Returns:
-        Path to cache file
-    """
-    cache_dir = Path(cache_dir)
-    cluster_suffix = cluster_config.cache_suffix()
-    return cache_dir / f"clustered_{item_type.value}_{cluster_suffix}.jsonl"
 
 
 def load_task_dataset(path: str | Path) -> List[Video]:

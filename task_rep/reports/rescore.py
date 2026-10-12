@@ -8,7 +8,7 @@ Loads the newest result under the experiment file's current settings,
 re-evaluates its tree and per-decision snapshots under the overrides
 (``analysis.rescore``), and saves it as a new result under the new settings.
 Then update the experiment file to the new settings so ``find_result`` picks
-it up. Refuses runs whose pool filled up, or whose proposer saw the tree.
+it up (it is a new run folder; the original run is untouched). Refuses runs whose pool filled up, or whose proposer saw the tree.
 """
 
 from __future__ import annotations
@@ -40,15 +40,13 @@ def rescore(kind: str, experiment: str, overrides: dict, force: bool = False):
         raise SystemExit("the pool could fill up, so selection depended on the tree; re-run instead")
     if _sees_tree(kind, run.settings) and not force:
         raise SystemExit("this condition's proposer saw the tree; re-run instead")
-    state = run.state()
-    if state is None:
-        raise SystemExit(f"checkpoint for {run.path.name} is missing")
+    state = run.result.to_state()
     new = run.settings.__class__.from_dict({**run.settings.to_dict(), **overrides})
     note = {"date": datetime.date.today().isoformat(),
             "rules": ", ".join(f"{k} {getattr(run.settings, k)} -> {v}" for k, v in overrides.items()),
             "original_result": run.result.fingerprint}
     rescore_evaluation(state, run.focused, new, note)
-    path = save_run(kind, new, run.corpus, run.path.parent, state, run.focused)
+    path = save_run(kind, experiment, new, run.corpus, run.path.parent, state, run.focused)
     tree = state.tree
     print(f"{experiment}: tree {len(run.result.tree.nodes) if run.result.tree else 0} -> "
           f"{len(tree.nodes) if tree else 0} nodes; saved {path.name}")

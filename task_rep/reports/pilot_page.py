@@ -5,8 +5,8 @@ Build the inspector page for a set of runs (no model calls).
         --out static/reports/sushi_roll_pilot15.html
 
 The manifest names the runs (one experiment per condition) and the versions
-to show (which result file each condition used in that version; a missing
-entry means the newest result under the experiment's current settings):
+to show (which run folder each condition used in that version; a missing
+entry means the newest finished run under the experiment's current settings):
 
     {
       "title": "Sushi Roll Pilot Facets",
@@ -19,15 +19,13 @@ entry means the newest result under the experiment's current settings):
       "runs": [{"key": "a0", "kind": "pipeline", "experiment": "sushi_roll_step_pilot15_a0",
                 "label": "Batch, one request", "short": "a0"}, ...],
       "versions": [{"id": "v1", "label": "Original prompts",
-                    "results": {"a0": "pipeline_result_<fingerprint>.json", ...}}, ...]
+                    "results": {"a0": "2026-10-11_140210__sushi_roll_step_pilot15_a0", ...}}, ...]
     }
 
 Each run gets: its factors (values, counts, example segments, coverage), the
 ledger, the full transcript (``reports.transcripts``), the tree at each tau,
 its design space in the feedback format, and every measure from
-``analysis.measures``. Pipeline transcripts come from the request logs the run
-recorded; for older runs, ``"proposal_batches": {"<result file>": [log ids]}``
-in the manifest names them.
+``analysis.measures``.
 """
 
 from __future__ import annotations
@@ -139,11 +137,9 @@ def collect_run(spec: Dict[str, Any], run: LoadedRun, taus: List[float],
                 measure_settings: Dict[str, Any]) -> Dict[str, Any]:
     result = run.result
     titles = {r.facet_id: r.title for r in result.ledger if r.facet_id}
-    state = run.state()
     measures = run_measures(
         run.focused, result.pool, result.annotations, result.ledger,
-        dataclasses.replace(run.settings, **measure_settings),
-        embeddings=state.embeddings if state else None)
+        dataclasses.replace(run.settings, **measure_settings), embeddings=result.embeddings)
     by_id = {f.id: f.title for f in result.pool}
     measures["unit_coverage"]["per_factor"] = {
         by_id[fid]: round(c, 3) for fid, c in measures["unit_coverage"]["per_factor"].items()}
@@ -166,7 +162,7 @@ def collect_run(spec: Dict[str, Any], run: LoadedRun, taus: List[float],
         "max_schema_facets": run.settings.max_schema_facets,
         **_design_space(run),
         "facets": facets, "ledger": _ledger(run, titles),
-        "measures": measures, "result_file": run.path.name,
+        "measures": measures, "run": run.path.name,
         "mean_coverage": round(sum(coverage) / len(coverage), 3) if coverage else 0,
         "low_coverage": sum(c < 0.2 for c in coverage),
         "kinds": dict(Counter(f["kind"] or "unknown" for f in facets)),
@@ -177,7 +173,6 @@ def collect(manifest: Dict[str, Any]) -> Dict[str, Any]:
     taus = manifest.get("taus", [0.2, 0.4, 0.6])
     measure_settings = manifest.get("measure_settings", {})
     versions, corpus, models, transcripts = [], None, None, {}
-    batches = manifest.get("proposal_batches", {})
     for version in manifest["versions"]:
         runs = []
         for spec in manifest["runs"]:
@@ -192,8 +187,8 @@ def collect(manifest: Dict[str, Any]) -> Dict[str, Any]:
                 models = {"proposal": run.settings.proposal_model.model,
                           "labeling": run.settings.labeling_model.model}
             runs.append(collect_run(spec, run, taus, measure_settings))
-            if run.path.name not in transcripts:   # versions can share a result
-                transcripts[run.path.name] = transcript(run, batches.get(run.path.name))
+            if run.path.name not in transcripts:   # versions can share a run
+                transcripts[run.path.name] = transcript(run)
         versions.append({"id": version["id"], "label": version["label"], "runs": runs})
     return {"corpus": corpus, "models": models, "budget": manifest.get("budget"),
             "seed": manifest.get("seed"), "taus": taus, "measure_settings": measure_settings,
@@ -236,7 +231,7 @@ def main(argv: Optional[List[str]] = None) -> None:
         for r in version["runs"]:
             a = r["measures"]["at_run_tau"]
             print(f"{version['id']} {r['short']:<10} pool {r['pool']:>2}  singles {a['kept_singles']:>2} "
-                  f"pairs {a['kept_pairs']}  vendi {a['vendi_nmi']:.2f}  {r['result_file']}")
+                  f"pairs {a['kept_pairs']}  vendi {a['vendi_nmi']:.2f}  {r['run']}")
 
 
 if __name__ == "__main__":

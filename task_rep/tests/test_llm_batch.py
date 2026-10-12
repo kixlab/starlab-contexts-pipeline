@@ -169,4 +169,3 @@ def test_unset_reasoning_effort_keeps_model_identity():
     assert plain.to_dict() == {"category": "vlm", "provider": "gemini", "model": "m"}
     low = ModelConfig.from_dict({**plain.to_dict(), "reasoning_effort": "low"})
     assert low.to_dict()["reasoning_effort"] == "low"
-    assert low.cache_suffix() == plain.cache_suffix()  # KB cache paths unaffected

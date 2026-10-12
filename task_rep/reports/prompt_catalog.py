@@ -23,7 +23,7 @@ from typing import Dict, List, Optional, Tuple
 from contextual import bookkeeping
 from contextual.evaluation import PoolEvaluator
 from contextual.models import CandidateStatus, RunState
-from facets import AnnotationTable, Facet, FacetLabel
+from facets import Facet, FacetLabel
 from facets.prompts.fa_facet_init import form_facet_init_request
 from facets.prompts.fa_facet_iterative import form_facet_iterative_request
 from knowledge_items import ItemScopeConfig, KnowledgeItemType
@@ -36,7 +36,7 @@ from agentic.config import AgenticConfig, FeedbackLevel
 from agentic.feedback import render_feedback
 from agentic.prompts import ONE_AT_A_TIME, kickoff, nudge
 from agentic.runner import AgenticRunner
-from agentic.tools import READ_LABELS, SUBMIT
+from agentic.tools import READ_LABELS
 from pipeline.config import A1_CONTEXT, A2_CONTEXT, PipelineConfig, ProposalStrategy
 from pipeline.runner import PipelineRunner
 
@@ -190,13 +190,13 @@ def build() -> str:
     pipe = {name: PipelineRunner(
         config=PipelineConfig(**_settings(), strategy=strategy, context=context),
         task=TASK, knowledge_base=kb, proposer=None, vocab_builder=None, labeler=None,
-        embedder=None, cache_dir=tmp)
+        embedder=None, runs_dir=tmp)
         for name, strategy, context in (("a0", ProposalStrategy.BATCH, A1_CONTEXT),
                                         ("a1", ProposalStrategy.ITERATIVE, A1_CONTEXT),
                                         ("a2", ProposalStrategy.ITERATIVE, A2_CONTEXT))}
     agents = {level: AgenticRunner(
         config=AgenticConfig(**_settings(), feedback=level), task=TASK, knowledge_base=kb,
-        client=None, vocab_builder=None, labeler=None, embedder=None, cache_dir=tmp)
+        client=None, vocab_builder=None, labeler=None, embedder=None, runs_dir=tmp)
         for level in FeedbackLevel}
     states = play(kb, pipe["a1"].evaluator)
     final = states[-1]

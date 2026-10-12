@@ -2,13 +2,11 @@
 Full transcripts of finished runs, for reports (no model calls).
 
 Pipeline runs: every proposal request and its raw response, read from the
-request logs in ``static/lm-batches`` (``utils.llm.BATCH_PATH``). Runs record
-their log ids in ``runner_state["proposal_batches"]``; for older runs the
-report manifest names them.
+request logs in ``static/lm-batches`` (``utils.llm.BATCH_PATH``) that each
+step recorded (``runner_state["batches"]``).
 
 Agent runs: the stored conversation, untruncated, with the system prompt and
-tool specs the run recorded (or, for older runs whose prompt fingerprint still
-matches, rebuilt from the current prompts).
+tool specs the run recorded.
 
 Long texts are outlined into titled sections (prompt headings) and children
 (one per video, factor, or tried factor) so the page can disclose them
@@ -23,9 +21,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from agentic.feedback import SECTION_ADDED, SECTION_NOT_ADDED, SECTION_REPLACED
-from agentic.fingerprint import prompt_fingerprint as agentic_fingerprint
-from agentic.prompts import system_prompt
-from agentic.tools import tool_specs
 from facets.prompts.fa_facet_iterative import (
     SECTION_FACETS, SECTION_HISTORY, SECTION_ITEMS, SECTION_SCHEMAS)
 from utils.llm import llm_get_requests_path, llm_get_responses_path
@@ -151,11 +146,11 @@ def _request(batch_id: str) -> Dict[str, Any]:
     }
 
 
-def pipeline_transcript(run: LoadedRun, batches: Optional[List[str]] = None
-                        ) -> Optional[Dict[str, Any]]:
+def pipeline_transcript(run: LoadedRun) -> Optional[Dict[str, Any]]:
     """Every proposal request and response of a pipeline run, or None when the
-    run's request logs are unknown."""
-    batches = run.result.runner_state.get("proposal_batches") or batches
+    run recorded no request logs."""
+    batches = [batch for step in run.result.runner_state.get("batches", [])
+               for batch in step.get("proposal", [])]
     if not batches:
         return None
     requests = [_request(b) for b in batches]
@@ -164,7 +159,7 @@ def pipeline_transcript(run: LoadedRun, batches: Optional[List[str]] = None
     shared = systems.pop() if len(systems) == 1 else None
 
     unused = list(run.result.ledger)   # outcome of each proposed factor, by title
-    steps, mismatched = [], False
+    steps = []
     for n, r in enumerate(requests, 1):
         if r.get("missing"):
             steps.append({"n": n, "batch": r["batch"], "missing": True})
@@ -173,9 +168,7 @@ def pipeline_transcript(run: LoadedRun, batches: Optional[List[str]] = None
         candidates = []
         for c in response.get("candidates", []):
             match = next((x for x in unused if x.title == c.get("title")), None)
-            if match is None:
-                mismatched = True
-            else:
+            if match is not None:
                 unused.remove(match)
             candidates.append({"factor": c, "status": match.status.value if match else None})
         steps.append({
@@ -191,8 +184,7 @@ def pipeline_transcript(run: LoadedRun, batches: Optional[List[str]] = None
         "system": outline(shared) if shared is not None else None,
         "system_chars": len(shared) if shared is not None else None,
         "steps": steps,
-        "note": ("Some proposed factors do not match the run's ledger; the request "
-                 "logs may belong to another run." if mismatched else ""),
+        "note": "",
     }
 
 
@@ -205,16 +197,8 @@ def agentic_transcript(run: LoadedRun) -> Optional[Dict[str, Any]]:
     rs = run.result.runner_state
     if not rs.get("transcript"):
         return None
-    system, tools, note = rs.get("system"), rs.get("tools"), ""
-    if system is None:
-        if run.result.prompt_fingerprint == agentic_fingerprint(run.settings):
-            system = system_prompt(run.task, run.settings, run.focused.by_video())
-            tools = [t.to_dict() for t in tool_specs(run.settings.feedback)]
-            note = ("The run did not store its system prompt; it is rebuilt from the "
-                    "current prompts, which have not changed since the run.")
-        else:
-            note = ("The run did not store its system prompt, and the prompts have "
-                    "changed since, so it is not shown.")
+    system, tools = rs.get("system"), rs.get("tools")
+    note = "" if system else "This run did not record its system prompt."
     messages = []
     for m in rs["transcript"]:
         if m["role"] == "user":
@@ -236,8 +220,7 @@ def agentic_transcript(run: LoadedRun) -> Optional[Dict[str, Any]]:
     }
 
 
-def transcript(run: LoadedRun, batches: Optional[List[str]] = None
-               ) -> Optional[Dict[str, Any]]:
+def transcript(run: LoadedRun) -> Optional[Dict[str, Any]]:
     if run.kind == "pipeline":
-        return pipeline_transcript(run, batches)
+        return pipeline_transcript(run)
     return agentic_transcript(run)

@@ -45,8 +45,6 @@ class VLMFacetExtractor:
     """
     model_config: ModelConfig
     max_concurrency: int = 32
-    # id of the latest request's log in static/lm-batches (for transcripts)
-    last_batch_id: Optional[str] = None
 
     def init_facets(
         self,
@@ -67,7 +65,7 @@ class VLMFacetExtractor:
         Returns:
             List of initialized facets
         """
-        batch_id = self.last_batch_id = f"facet_init_{random_uid()}"
+        batch_id = f"facet_init_{random_uid()}"
 
         # Sample a (all) tutorials with a few items each for concrete examples
         sample_n_videos = len(videos)
@@ -103,7 +101,7 @@ class VLMFacetExtractor:
         (task, pool, context components, corpus, and the components' data).
         Returns a list with the new Facet, or an empty list if the LLM refused.
         """
-        batch_id = self.last_batch_id = f"facet_iterative_{random_uid()}"
+        batch_id = f"facet_iterative_{random_uid()}"
         request_args = [request]
 
         batch_results = batch_run_llm_calls(

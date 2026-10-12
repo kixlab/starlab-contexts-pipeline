@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 import random
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional
 
 from knowledge_items import KnowledgeBase
 
@@ -27,13 +27,15 @@ from contextual.feedback import factor_ids, history_entries
 from contextual.lifecycle import CandidateProcessor, Embedder, VocabularyBuilder, Labeler
 from contextual.models import RunState, RunResult, CandidateStatus, StopReason, refinement_edges
 from contextual.settings import stage_seed
-from contextual.store import RunStore, kb_fingerprint
+from contextual import cache
 
 from .config import PipelineConfig, ProposalStrategy, ContextComponent
 from .fingerprint import prompt_fingerprint
 from .proposal import FacetProposer, BatchContext, IterativeContext
 
 logger = logging.getLogger(__name__)
+
+KIND = "pipeline"
 
 
 class PipelineRunner:
@@ -48,7 +50,10 @@ class PipelineRunner:
         vocab_builder: VocabularyBuilder,
         labeler: Labeler,
         embedder: Embedder,
-        cache_dir: str | Path,
+        runs_dir: str | Path,
+        name: str = "run",
+        sources: Optional[Dict[str, str]] = None,
+        fresh: bool = False,
     ):
         self.config = config
         self.task = task
@@ -67,35 +72,43 @@ class PipelineRunner:
         )
         self.evaluator = PoolEvaluator(config=config, focused_kb=self.focused_kb)
 
-        self.kb_fp = kb_fingerprint(knowledge_base)
+        self.kb_fp = cache.kb_fingerprint(knowledge_base)
         self.prompt_fp = prompt_fingerprint(config)
-        self.store = RunStore(
-            cache_dir=cache_dir, config=config,
-            kb_fp=self.kb_fp, prompt_fp=self.prompt_fp, prefix="pipeline",
-        )
+        self.fingerprint = cache.run_fingerprint(config, self.kb_fp, self.prompt_fp)
+        # the run folder (contextual.cache): resumed if interrupted, else new
+        self.runs_dir, self.name, self.sources = Path(runs_dir), name, sources or {}
+        self.fresh = fresh or not config.use_cache
+        self.folder: Optional[cache.RunFolder] = None
 
     # ---- public entry points ----
 
     def run(self) -> RunResult:
-        state: Optional[RunState] = None
-        if self.config.use_cache:
-            state = self.store.restore_checkpoint()
-        if state is None:
-            state = RunState(fingerprint=self.store.fingerprint)
-
-        if state.stop_reason is not None:
-            logger.info("Run already complete (%s).", state.stop_reason.value)
-            return self._result(state)
-
-        if self.config.strategy == ProposalStrategy.BATCH:
-            self._run_batch(state)
-        else:
-            self._run_iterative(state)
-
-        self.store.save_checkpoint(state)
-        result = self._result(state)
-        self.store.save_result(result)
+        self.folder = cache.RunFolder.open(
+            self.runs_dir, self.name, KIND, self.fingerprint, fresh=self.fresh,
+            info={"config": self.config.semantic_dict(), "kb_fingerprint": self.kb_fp,
+                  "prompt_fingerprint": self.prompt_fp, "sources": self.sources})
+        with self.folder.logging():
+            state = cache.start(self.folder, KIND, self.config, self.fingerprint)
+            if state.pool:
+                self.evaluator.initialize(state)
+            try:
+                if state.stop_reason is None:
+                    if self.config.strategy == ProposalStrategy.BATCH:
+                        self._step(state, self._run_batch)
+                    else:
+                        self._run_iterative(state)
+            except KeyboardInterrupt:
+                logger.warning("Interrupted during attempt %d; running %s again resumes "
+                               "after attempt %d.", state.attempts + 1, self.name, state.attempts)
+                raise
+            result = self._result(state)
+            self.folder.finish(result)
+            cache.log_end(self.folder, result)
         return result
+
+    def _step(self, state: RunState, work) -> None:
+        cache.run_step(self.folder, state, work, lambda s: (
+            f"attempt {s.attempts} (proposals {s.proposals}/{self.config.proposal_budget})"))
 
     def _result(self, state: RunState) -> RunResult:
         return RunResult.from_state(
@@ -110,14 +123,13 @@ class PipelineRunner:
         """One iterative attempt: propose, process, select, record. No stop check.
 
         A failed proposal request or a stage-wide outage raises; nothing is
-        recorded for the attempt and the run resumes from the last checkpoint.
+        recorded for the attempt and rerunning resumes from the last completed one.
         """
         before = USAGE.snapshot()
         state.iteration += 1
         attempt = state.attempts + 1  # the attempt being made
         with usage_stage("proposal"):
             proposed = self.proposer.propose_one(self._build_iterative_context(state, attempt))
-        self._record_request(state)
         if not proposed:
             bookkeeping.record(state, CandidateStatus.REFUSED)
         else:
@@ -125,17 +137,10 @@ class PipelineRunner:
             bookkeeping.apply_outcome(state, self.evaluator, outcome, increment_attempts=True)
         state.add_usage(usage_delta(USAGE.snapshot(), before))
 
-    def _record_request(self, state: RunState) -> None:
-        """Note the proposal request's log id, so reports can show the full
-        request and response (``reports.transcripts``)."""
-        batch_id = getattr(self.proposer, "last_batch_id", None)
-        if batch_id:
-            state.runner_state.setdefault("proposal_batches", []).append(batch_id)
-
     # ---- a0 ----
 
     def _run_batch(self, state: RunState) -> None:
-        """One batch request; atomic (no mid-run checkpoint)."""
+        """One batch request; one checkpoint step (an interruption redoes it)."""
         before = USAGE.snapshot()
         state.iteration += 1
         budget = self.config.proposal_budget
@@ -144,7 +149,6 @@ class PipelineRunner:
                 BatchContext(task=self.task, videos=self.corpus, num_facets=budget,
                              seed=stage_seed(self.config.seed, "proposal"))
             )
-        self._record_request(state)
         if not proposed:
             bookkeeping.record(state, CandidateStatus.REFUSED)
             state.add_usage(usage_delta(USAGE.snapshot(), before))
@@ -201,9 +205,6 @@ class PipelineRunner:
         )
 
     def _run_iterative(self, state: RunState) -> None:
-        if state.pool and state.tree is None:
-            self.evaluator.initialize(state)
         while (stop := bookkeeping.stop_reason(state, self.config)) is None:
-            self.run_iteration(state)
-            self.store.save_checkpoint(state)
+            self._step(state, self.run_iteration)
         state.stop_reason = stop

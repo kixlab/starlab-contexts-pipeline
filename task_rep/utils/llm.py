@@ -104,6 +104,23 @@ def usage_stage(name: str):
         _usage_stage.reset(token)
 
 
+_batch_log: contextvars.ContextVar[Optional[Dict[str, List[str]]]] = contextvars.ContextVar(
+    "llm_batch_log", default=None,
+)
+
+
+@contextlib.contextmanager
+def logged_batches():
+    """Collect the ids of batches run inside this block (their request and
+    response logs are in ``BATCH_PATH``), grouped by ``usage_stage``."""
+    ids: Dict[str, List[str]] = {}
+    token = _batch_log.set(ids)
+    try:
+        yield ids
+    finally:
+        _batch_log.reset(token)
+
+
 @dataclass
 class UsageTracker:
     """Process-wide token totals per usage stage (successful requests only)."""
@@ -1184,6 +1201,8 @@ def batch_run_llm_calls(
     ``usage_stage``.
     """
     logger.info(f"Batch ID for {func_request.__name__}: {batch_id}")
+    if (log := _batch_log.get()) is not None:
+        log.setdefault(_usage_stage.get(), []).append(batch_id)
     if len(request_args) == 0:
         return []
     if seeds is not None and len(seeds) != len(request_args):
