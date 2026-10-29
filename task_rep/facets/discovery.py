@@ -66,8 +66,8 @@ class VLMFacetExtractor:
         """
         batch_id = f"facet_init_{random_uid()}"
 
-        # Sample a few tutorials with a few items each for concrete examples
-        sample_n_videos = 2
+        # Sample a (all) tutorials with a few items each for concrete examples
+        sample_n_videos = len(videos)
         video_ids = list(videos.keys())
         if len(video_ids) > sample_n_videos:
             video_ids = random.sample(video_ids, sample_n_videos)

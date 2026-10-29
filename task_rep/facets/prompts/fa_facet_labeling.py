@@ -25,29 +25,22 @@ from knowledge_items.schema import KnowledgeItem
 logger = logging.getLogger(__name__)
 
 
-LABELING_SYSTEM_PROMPT = """You are an expert at analyzing tutorial content and labeling knowledge items with contextual factors related to the task: {task}. Inputs are structured with XML tags — use the tag name and id attribute to identify each object and its boundaries."""
+LABELING_SYSTEM_PROMPT = """You are an expert at analyzing tutorial content and labeling tutorial segments with contextual factors related to the task: {task}. Inputs are structured with XML tags. Use tag names and id attributes to identify objects and boundaries."""
 
-LABELING_USER_PROMPT = """You are given a contextual factor (facet) with its vocabulary, and knowledge items extracted from a tutorial video. For each knowledge item, assign the single most appropriate label from the facet's vocabulary.
-
-DEFINITIONS
-- A valid contextual factor is a variable describing the procedural situation at a given moment or span. It must be:
-    - Domain-grounded: anchored in the task-world (e.g., procedural stage, material state, tool state, object configuration, environmental condition, operating mode, verification state, service context) — NOT in media, narration, editing, presentation, or social framing.
-    - Consequential: changes what actions, constraints, interpretations, checks, or information apply.
-    - Monolithic: captures one coherent semantic concept, not a bundle.
-    - Piecewise-stable: remains constant over meaningful spans; changes at identifiable boundaries.
-    - Target-independent: determined by the broader procedural context; removing the target item would not change the factor's value.
-- A vocabulary label is one possible value a facet can take.
+LABELING_USER_PROMPT = """You are given a contextual factor with its vocabulary, and tutorial segments extracted from a tutorial video. For each tutorial segment, assign the single most appropriate label from the factor's vocabulary. A vocabulary label is one possible value of the given contextual factor.
 
 REQUIREMENTS
-- Assign exactly one label to each knowledge item.
-- The label MUST be one of the labels in the facet's vocabulary (use the exact text inside the <name> tag, not the definition text).
+- Assign exactly one label to each tutorial segment.
+- The label must be one of the labels in the factor's vocabulary. Use the exact text inside the <name> tag.
+- Use the factor definition, label definitions, and segmentation guidance when choosing labels.
 - If none of the labels clearly apply, choose the closest match.
-- Every item must receive a label — do not skip any items.
+- Every segment must receive a label.
+- Consider neighboring segments for context when helpful.
 
 INPUTS
-- Facet:
+- Contextual factor:
 {facet}
-- Knowledge items from this video:
+- Tutorial segments from this video:
 {video_items}
 """
 
@@ -118,13 +111,13 @@ def process_labeling_response(
     entries = []
     labeled_temp_ids = set()
     for entry in segmentation:
-        temp_id = entry.get("item_id", "").strip()
+        temp_id = entry.get("segment_id", "").strip()
         label = entry.get("label", "").strip().lower()
 
         real_id = rev_map.get(temp_id)
         if real_id is None:
             logger.error(
-                "Labeling hallucinated item_id %r (facet=%r). Dropping.",
+                "Labeling hallucinated segment_id %r (facet=%r). Dropping.",
                 temp_id, facet.title,
             )
             continue
@@ -133,13 +126,13 @@ def process_labeling_response(
             recovered = _fuzzy_match_label(label, valid_labels)
             if recovered:
                 logger.warning(
-                    "Labeling fuzzy-matched label %r → %r for item %r (facet=%r).",
+                    "Labeling fuzzy-matched label %r → %r for segment %r (facet=%r).",
                     label, recovered, temp_id, facet.title,
                 )
                 label = recovered
             else:
                 logger.error(
-                    "Labeling hallucinated label %r for item %r (facet=%r). Dropping.",
+                    "Labeling hallucinated label %r for segment %r (facet=%r). Dropping.",
                     label, temp_id, facet.title,
                 )
                 continue
