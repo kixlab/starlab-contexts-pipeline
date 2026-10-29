@@ -1,7 +1,12 @@
-# Task representation pipeline
+# Contextual-unit discovery Pipeline
 
 Start with the [repository README](../README.md) for installation, an offline
-example, model-backed experiments, exports, and the web explorer.
+example, model-backed experiments, exports, and the design-space explorer.
+
+Knowledge items retain their source tutorials and timestamps; knowledge units
+group semantically related items. Contextual units describe items using canonical
+values. Candidate organizations combine contextual units for comparison and
+selection before TaskTailor configuration.
 
 `pipeline/` implements batch proposals and iterative feedback using selected
 context components: `facets`, `items`, `schemas`, and `history`. The shared

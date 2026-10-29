@@ -1,26 +1,30 @@
-# Shared interface bundle
+# Annotated tutorial bundle
 
 The graph explorer and three applications accept one JSON object with these
-keys. A contextual unit (CU) is stored as a facet; a schema is a set of facet IDs.
+keys. A contextual unit (CU) is stored as a facet; a schema is a set of CU IDs.
 The applications can also consume manually annotated or independently produced
 bundles; they do not require this pipeline to run.
 
 | Key | Contents |
 | --- | --- |
-| `context_schema` | Default schema; apps initially choose up to two of its CUs |
-| `facet_candidates` | Candidate facets available for schema selection |
-| `labeled_dataset` | Source tutorials and their timed knowledge pieces |
+| `context_schema` | Default contextual-unit selection; TaskTailor initially chooses up to two CUs |
+| `facet_candidates` | Available contextual units, stored as facet objects |
+| `labeled_dataset` | Source tutorials and their timed knowledge items |
 
-A facet contains `id`, `type`, `title`, `title_plural`, `definition`, optional
-`guidelines`, and `vocabulary` entries with `label` and `definition`.
+A contextual unit is serialized as a facet containing `id`, `type`, `title`, `title_plural`, `definition`, optional
+`guidelines`, and `vocabulary` entries with `label` and `definition` for its canonical values.
 
 A tutorial contains `id`, `url`, `title`, `original_title`, `content`,
 `transcript` (`text`, `start`, `end` entries), and `pieces`. A piece contains
 `piece_id`, `unit_id`, `item_type`, `content_type`, `start`, `end`, `content`,
 and `labels` (a facet-ID-to-string-array map). Times are seconds. `unit_id`
-links related knowledge across tutorials. Facet IDs in `labels` must match the
-candidate IDs; label values must match that facet's vocabulary. Every default
-schema facet must appear among the candidates.
+groups semantically related knowledge items into knowledge units across tutorials.
+It is distinct from a contextual-unit ID. CU IDs in `labels` must match the
+available CU IDs; assigned values must come from that CU's canonical vocabulary.
+Every CU in the default selection must also appear among the available CUs.
+The arrays normally contain one canonical value per CU, with N/A defined when an
+aspect does not apply; older multi-valued bundles remain supported. Field names
+such as `facets`, `pieces`, and `context_schema` retain their existing spellings.
 
 Video URLs may be YouTube URLs or local/self-hosted video URLs. Relative URLs
 are served from the web app's `public/` directory. The included sample uses

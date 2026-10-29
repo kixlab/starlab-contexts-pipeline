@@ -54,18 +54,18 @@ try {
     await expect.poll(() => requests.has(new URL(item.url, origin).pathname)).toBeTruthy();
   };
   await visit("/");
-  await expect(page.getByRole("heading", {level: 1})).toContainText("CIM Pipeline Explorer");
+  await expect(page.getByRole("heading", {level: 1})).toContainText("Contextual unit design space");
   await expect(page.getByRole("link", {name: "Inspect knowledge"})).toHaveCount(0);
   for (const path of ["/inspect", "/analysis_info"]) assert.equal((await fetch(origin + path)).status, 404);
   await visit("/space");
   const checkGraph = async item => {
-    await expect(page.getByRole("combobox", {name: "Dataset"})).toHaveValue(item.label);
+    await expect(page.getByRole("combobox", {name: "Tutorial corpus"})).toHaveValue(item.label);
     const build = page.getByRole("button", {name: "Build", exact: true});
     await expect(build).toBeEnabled();
     await build.click();
     await expect(page.getByText(/\d+\/\d+ nodes/)).toBeVisible({timeout: 120000});
     await fetched(item);
-    await page.getByRole("button", {name: /^Schema:/}).first().click({force: true});
+    await page.getByRole("button", {name: /^Candidate:/}).first().click();
     await page.getByRole("button", {name: "Copy IDs", exact: true}).first().click();
     const ids = await page.evaluate(() => navigator.clipboard.readText());
     const validIds = new Set(item.bundle.facet_candidates.map(f => f.id));
@@ -74,7 +74,7 @@ try {
   await checkGraph(cases[0]);
   if (cases.length > 1) for (const item of [...cases.slice(1), cases[0]]) {
     requests.clear();
-    await page.getByRole("combobox", {name: "Dataset"}).selectOption(item.label);
+    await page.getByRole("combobox", {name: "Tutorial corpus"}).selectOption(item.label);
     await checkGraph(item);
   }
   if (process.env.CIM_SMOKE_SCREENSHOT) await page.screenshot({path: process.env.CIM_SMOKE_SCREENSHOT, fullPage: true});

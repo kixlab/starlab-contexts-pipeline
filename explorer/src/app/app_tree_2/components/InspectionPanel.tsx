@@ -16,9 +16,9 @@ import {
 // ---------------------------------------------------------------------------
 
 const METRIC_TOOLTIPS: Record<string, string> = {
-  Size: "Number of values in the schema. More values enable finer annotations.",
-  Effectiveness: "How precisely the schema identifies content. Higher = viewers find specific content more easily.",
-  Refinement: "How much a child preserves its parent's organization. Higher = more consistent structure.",
+  Size: "Vocabulary cost: total canonical values across the selected contextual units, excluding N/A.",
+  Effectiveness: "How much the candidate's contextual-unit values distinguish knowledge content in this corpus. Higher values indicate less remaining uncertainty.",
+  Refinement: "Fraction of the parent's partition information preserved by the child candidate.",
 };
 
 // ---------------------------------------------------------------------------
@@ -201,7 +201,7 @@ function SingleNodeView({
   return (
     <>
       {/* Schema */}
-      <Section title="Schema" extra={<CopyFacetIdsButton facets={node.facetSubset} onCopy={onCopyId} />}>
+      <Section title="Candidate organization" extra={<CopyFacetIdsButton facets={node.facetSubset} onCopy={onCopyId} />}>
         <div className="flex flex-wrap gap-1.5">
           {node.facetSubset.map((f) => {
             const c = facetIdToChipColor(f.id);
@@ -222,7 +222,7 @@ function SingleNodeView({
       {/* Metrics */}
       <Section title="Metrics">
         <MetricGrid>
-          <MetricCell label="Size" value={node.size} tooltip={METRIC_TOOLTIPS.Size} />
+          <MetricCell label="Vocabulary cost" value={node.size} tooltip={METRIC_TOOLTIPS.Size} />
           <MetricCell label="Effectiveness" value={`${computeEffectiveness(node.D, numUniqueUnits).toFixed(0)}%`} tooltip={METRIC_TOOLTIPS.Effectiveness} />
         </MetricGrid>
       </Section>
@@ -247,7 +247,7 @@ function SingleNodeView({
 
       {/* Distributions */}
       {dists.length > 0 && (
-        <Section title="Definitions & Distributions" extra={<span className="text-[9px] text-neutral-600 font-normal normal-case tracking-normal">click facets to expand</span>}>
+        <Section title="Contextual units & canonical values" extra={<span className="text-[9px] text-neutral-600 font-normal normal-case tracking-normal">click a CU to expand</span>}>
           {dists.map((d) => (
             <FacetDistBar key={d.facet.id} dist={d} dataset={dataset} infoTypes={infoTypes}
               onExpand={onExpandDist ? () => onExpandDist(node.id, d.facet.id) : undefined} />
@@ -300,7 +300,7 @@ function ComparisonView({
   return (
     <>
       {/* Side-by-side schemas */}
-      <Section title="Schemas">
+      <Section title="Candidate organizations">
         <div className="grid grid-cols-2 gap-2">
           <SchemaCard node={nodeA} label="#1" color="#f59e0b" onCopyId={onCopyId} />
           <SchemaCard node={nodeB} label="#2" color="#22d3ee" onCopyId={onCopyId} />
@@ -308,7 +308,7 @@ function ComparisonView({
       </Section>
 
       {/* Facet overlap */}
-      <Section title="Facet Overlap">
+      <Section title="Shared contextual units">
         {shared.length > 0 && <FacetList label="Shared" facets={shared} />}
         {onlyA.length > 0 && <FacetList label="Only #1" facets={onlyA} />}
         {onlyB.length > 0 && <FacetList label="Only #2" facets={onlyB} />}
@@ -321,7 +321,7 @@ function ComparisonView({
           <span className="text-amber-400 text-right">#1</span>
           <span className="text-cyan-400 text-right">#2</span>
           <span className="text-neutral-400 text-right">Δ</span>
-          <CompRow label="Size" a={nodeA.size} b={nodeB.size} tooltip={METRIC_TOOLTIPS.Size} />
+          <CompRow label="Vocabulary cost" a={nodeA.size} b={nodeB.size} tooltip={METRIC_TOOLTIPS.Size} />
           <CompRow label="Effectiveness" a={computeEffectiveness(nodeA.D, numUniqueUnits)} b={computeEffectiveness(nodeB.D, numUniqueUnits)} fmt={0} suffix="%" tooltip={METRIC_TOOLTIPS.Effectiveness} />
         </div>
       </Section>
@@ -398,7 +398,7 @@ function EdgeView({
           </div>
         )}
         {edge.addedFacets.length === 0 && edge.removedFacets.length === 0 && (
-          <div className="text-xs text-neutral-500">No facet changes</div>
+          <div className="text-xs text-neutral-500">No contextual-unit changes</div>
         )}
       </Section>
 
@@ -420,7 +420,7 @@ function EdgeView({
           <span className="text-neutral-300 text-right">Parent</span>
           <span className="text-neutral-300 text-right">Child</span>
           <span className="text-neutral-400 text-right">Δ</span>
-          <CompRow label="Size" a={src.size} b={tgt.size} tooltip={METRIC_TOOLTIPS.Size} />
+          <CompRow label="Vocabulary cost" a={src.size} b={tgt.size} tooltip={METRIC_TOOLTIPS.Size} />
           <CompRow label="Effectiveness" a={computeEffectiveness(src.D, numUniqueUnits)} b={computeEffectiveness(tgt.D, numUniqueUnits)} fmt={0} suffix="%" tooltip={METRIC_TOOLTIPS.Effectiveness} />
         </div>
       </Section>
@@ -522,7 +522,7 @@ function SchemaCard({ node, label, color, onCopyId }: { node: TreeNode; label: s
   return (
     <div className="rounded border border-neutral-800 p-2 bg-neutral-900">
       <div className="flex items-center gap-1.5 mb-1">
-        <span className="text-xs font-medium" style={{ color }}>{label} · Size={node.size}</span>
+        <span className="text-xs font-medium" style={{ color }}>{label} · Cost={node.size}</span>
         <CopyFacetIdsButton facets={node.facetSubset} onCopy={onCopyId} />
       </div>
       <div className="flex flex-wrap gap-1">

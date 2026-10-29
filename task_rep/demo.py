@@ -63,7 +63,7 @@ def run_demo(output: Path) -> Path:
     bundle = export_bundle(result.to_dict(), source["knowledge_base"], source["dataset"])
     bundle_path = output / "demo-bundle.json"
     bundle_path.write_text(json.dumps(bundle, indent=2) + "\n")
-    print(f"Offline example: {len(result.pool)} factors, {len(bundle['labeled_dataset'])} tutorials")
+    print(f"Offline example: {len(result.pool)} contextual units, {len(bundle['labeled_dataset'])} tutorials")
     print(f"Result: {runner.folder.path / 'result.json'}")
     print(f"UI bundle: {bundle_path}")
     return bundle_path

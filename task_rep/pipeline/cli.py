@@ -147,7 +147,7 @@ def main(argv: Optional[List[str]] = None, experiments_dir: Path = EXPERIMENTS_D
                        help="start a new run even if the last one was interrupted")
     p_show = sub.add_parser("show", help="Show a saved result.")
     p_show.add_argument("target")
-    p_dump = sub.add_parser("dump", help="Dump a result's pool facets to static/*.csv.")
+    p_dump = sub.add_parser("dump", help="Export a result's contextual-unit pool to static/*.csv.")
     p_dump.add_argument("target")
     p_cmp = sub.add_parser("compare", help="Compare saved results.")
     p_cmp.add_argument("targets", nargs="+")
@@ -176,7 +176,7 @@ def main(argv: Optional[List[str]] = None, experiments_dir: Path = EXPERIMENTS_D
         label, result, spec = resolve(args.target, experiments_dir)
         kb = cached_knowledge_base(spec) if spec is not None else None
         path = write_facets_csv(result, STATIC_DIR / f"facets_{label}.csv", kb)
-        print(f"Wrote {len(result.pool)} facets to {path}")
+        print(f"Wrote {len(result.pool)} contextual units to {path}")
     elif args.command == "compare":
         entries = [resolve(t, experiments_dir)[:2] for t in args.targets]
         print(format_comparison(entries))

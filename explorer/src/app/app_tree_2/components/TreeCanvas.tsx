@@ -160,7 +160,7 @@ export function TreeCanvas({
   if (tree.nodes.length === 0) {
     return (
       <div ref={containerRef} className="w-full h-full flex items-center justify-center text-neutral-500 text-sm">
-        No schemas pass the current filters. Click Build to generate the tree.
+        No candidate organizations pass the current filters. Click Build to construct the refinement DAG.
       </div>
     );
   }
@@ -245,7 +245,7 @@ export function TreeCanvas({
               key={node.id}
               role="button"
               tabIndex={0}
-              aria-label={`Schema: ${node.facetSubset.map(f => f.title).join(" + ")}`}
+              aria-label={`Candidate: ${node.facetSubset.map(f => f.title).join(" + ")}`}
               aria-pressed={isSel}
               transform={`translate(${pos.x - NODE_WIDTH / 2}, ${pos.y - nh / 2})`}
               className="cursor-pointer"
@@ -337,7 +337,7 @@ export function TreeCanvas({
         {layers.map((l) => (
           <div key={`cl-${l.band}`} className="absolute" style={{ top: l.y - 10, left: 8 }}>
             <div className={`text-[10px] font-mono whitespace-nowrap px-1.5 py-0.5 rounded border border-neutral-800/60 ${l.count > 0 ? "text-neutral-400 bg-neutral-900/90 backdrop-blur-sm" : "text-neutral-600 bg-neutral-900/60"}`}>
-              Size={l.band}
+              Cost={l.band}
               <span className="text-neutral-600 ml-1">({l.count})</span>
             </div>
           </div>
