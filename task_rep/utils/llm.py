@@ -34,6 +34,10 @@ from .config import ModelConfig
 logger = logging.getLogger(__name__)
 
 
+class LLMParseError(Exception):
+    """Raised when an LLM response cannot be parsed. Treated as retryable."""
+
+
 # ============== Configuration ==============
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -366,7 +370,7 @@ def get_response_pydantic_openai(
     try:
         return json.loads(response_text)
     except json.JSONDecodeError:
-        raise Exception(f"Failed to parse response as JSON: {response_text}")
+        raise LLMParseError(f"Failed to parse response as JSON: {response_text}")
 
 
 def get_response_pydantic_anthropic(
@@ -411,7 +415,7 @@ def get_response_pydantic_anthropic(
         json_text = response_text.split("<response>")[1].split("</response>")[0]
         return json.loads(json_text)
     except (json.JSONDecodeError, IndexError):
-        raise Exception(f"Failed to extract JSON from response: {response_text}")
+        raise LLMParseError(f"Failed to extract JSON from response: {response_text}")
 
 # ============== Batch Processing ==============
 
@@ -595,6 +599,8 @@ def _classify_error(err: Exception) -> Literal["rate", "retryable", "fatal"]:
     """Classify error for retry logic."""
     if _is_rate_limit_error(err):
         return "rate"
+    if isinstance(err, LLMParseError):
+        return "retryable"
     if _is_retryable_http_error(err):
         return "retryable"
     return "fatal"
@@ -810,12 +816,24 @@ async def process_api_requests(
                     kind = _classify_error(e)
 
                     if kind == "rate":
+                        logger.warning(
+                            "Rate limit error (attempt %d, request %s): %s — pausing %.0fs",
+                            attempt + 1, req.request_json.get("request_id", "?"), e, seconds_to_pause_after_limit_error,
+                        )
                         status.num_rate_limit_errors += 1
                         status.time_of_last_rate_limit_error = time.time()
                         await asyncio.sleep(seconds_to_pause_after_limit_error)
                     elif kind == "retryable":
+                        logger.warning(
+                            "Retryable error (attempt %d, request %s): %s",
+                            attempt + 1, req.request_json.get("request_id", "?"), e,
+                        )
                         status.num_api_errors += 1
                     else:
+                        logger.warning(
+                            "Fatal error (attempt %d, request %s): %s — not retrying",
+                            attempt + 1, req.request_json.get("request_id", "?"), e,
+                        )
                         status.num_other_errors += 1
                         _append_jsonl(
                             responses_path, [req.request_json, {"errors": errors}]
@@ -828,6 +846,10 @@ async def process_api_requests(
                     req.attempts_left -= 1
                     attempt += 1
                     if req.attempts_left <= 0:
+                        logger.warning(
+                            "All attempts exhausted (request %s), errors: %s",
+                            req.request_json.get("request_id", "?"), errors,
+                        )
                         _append_jsonl(
                             responses_path, [req.request_json, {"errors": errors}]
                         )
