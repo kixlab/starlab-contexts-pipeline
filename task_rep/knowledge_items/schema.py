@@ -5,8 +5,8 @@ from enum import Enum
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Union
 
 from .taxonomy import AtomicType, AtomicCategory
-from ..utils.llm import MessageContent
-from ..utils.video import format_time
+from utils.llm import MessageContent
+from utils.video import format_time
 
 class KnowledgeItemType(str, Enum):
     """Types of knowledge items we can extract."""
@@ -45,10 +45,9 @@ class Video:
     id: str
     url: str
     title: str
-    original_title: str
-    content: str
     transcript: List[VideoTranscriptSegment]
     frames: List[VideoFrame]
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
     def format_to_message_content(
         self,
@@ -75,6 +74,11 @@ class Video:
             segment_groups = self._group_segments(self.transcript, target_chunks)
 
         content = []
+
+        content.append({
+            "type": "text",
+            "text": f"Title: {self.title}\n"
+        })
 
         for group in segment_groups:
             # Get time range for this group
@@ -157,9 +161,10 @@ class Video:
 
     def get_duration(self) -> float:
         """Get the duration of the video."""
-        transcript_end = self.transcript[-1].end if self.transcript and len(self.transcript) > 0 else 0
-        frames_end = self.frames[-1].time if self.frames and len(self.frames) > 0 else 0
-        return max(transcript_end, frames_end)
+        # transcript_end = self.transcript[-1].end if self.transcript and len(self.transcript) > 0 else 0
+        # frames_end = self.frames[-1].time if self.frames and len(self.frames) > 0 else 0
+        # return max(transcript_end, frames_end)
+        return self.metadata.get("duration", 0)
 
     def sample_frames(
         self,
@@ -184,7 +189,7 @@ class Video:
 
         # Sample evenly
         step = len(relevant_frames) / max_frames
-        indices = [int(i * step) for i in range(max_frames)]
+        indices = [int((i + 0.5) * step) for i in range(max_frames)]
 
         return [relevant_frames[i] for i in indices]
 
@@ -364,3 +369,30 @@ class KnowledgeBase:
             if relevant:
                 relevant_items.append(item)
         return KnowledgeBase(items=relevant_items)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "items": [item.to_dict() for item in self.items],
+        }
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> KnowledgeBase:
+        return KnowledgeBase(items=[KnowledgeItem.from_dict(item) for item in data["items"]])
+
+    def __eq__(self, other: KnowledgeBase) -> bool:
+        ### check if the items at the same ids are the same
+        item_id_to_item = {item.id: item for item in self.items}
+        other_item_id_to_item = {item.id: item for item in other.items}
+        if len(item_id_to_item) != len(other_item_id_to_item):
+            return False
+        for item_id in item_id_to_item.keys():
+            if item_id not in other_item_id_to_item:
+                return False
+            
+        for item_id, item in item_id_to_item.items():
+            other_item = other_item_id_to_item[item_id]
+            item_dict = item.to_dict()
+            other_item_dict = other_item.to_dict()
+            if item_dict != other_item_dict:
+                return False
+        return True

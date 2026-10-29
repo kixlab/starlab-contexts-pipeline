@@ -7,29 +7,37 @@ classified into a taxonomy (e.g., methods, tips, context, explanations).
 
 from typing import List, Dict, Any
 
-from ..utils.llm import MessageContent
+from utils.llm import MessageContent
 from .formatters import taxonomy_to_str
 
 from .ki_pydantic import AtomicExtractionResult
 
 SYSTEM_MESSAGE = """You are an expert at analyzing tutorial videos and extracting atomic pieces of information about the task: {task}. You excel at identifying atomic information from both visual and audio content. You understand how to classify information using taxonomies and can accurately identify the start and end times of each piece of information."""
 
-USER_MESSAGE = """You are given a taxonomy of atomic information and a tutorial with frames and transcript temporally aligned. Extract ALL atomic information from the tutorial.
+USER_MESSAGE = """You are given a taxonomy of atomic information and a tutorial with temporally aligned frames and transcript. Extract ALL atomic information pieces that are relevant to the task from the tutorial.
 
-For each atomic piece of information found in the tutorial:
-1. Classify it using the taxonomy above (atomic_type)
-2. Write a natural text description (content) that captures what is being communicated
-3. Provide the start and end times of the atomic information in the tutorial
-
-Use the visual frames to understand context and the transcript for detailed actions.
-Make sure that atomic information have a clear start and end time in the tutorial.
-Return ALL the atomic information found in the tutorial with their start and end times.
+PROCEDURE:
+1. Detect task-relevant information: Parse the transcript clause-by-clause and create one piece for each indivisible action, object, reason, or tip.
+    - Indivisible = removing any word breaks the meaning.
+    - If a sentence contains multiple actions (`whisk, then fold`) or multiple rationales, split them.
+    - Rewrite each piece so it is understandable standing alone—no dangling `it`,`they`, `this step`, etc.
+Examples:
+    `Whisk the eggs for 30 s, then fold in the flour.` -> `Whisk the eggs for 30 seconds.` (Method - Instruction), `Fold the eggs in the flour.` (Method - Instruction)
+    `Let the paint dry so it won't smudge.` -> `Let the paint dry.` (Method - Instruction), `Drying the paint prevents smudging.` (Explanation - Justification)
+    `Add the beaten eggs to the mixture and mix well.` -> `Add the beaten eggs to the mixture.` (Method - Instruction), `Mix beaten eggs well.` (Method - Instruction)
+    `Add 1 cup of white chocolate chips and stir until thoroughly combined.` -> `Add 1 cup of white chocolate chips.` (Method - Instruction), `Stir white chocolate chips until thoroughly combined.` (Method - Instruction)
+2. Assign `atomic_type` to each piece according to taxonomy below.
+3. Provide timestamps for each piece by copying the exact start and end (in seconds) that bracket the source text of the item.
+    - If no timing metadata exists, output null for both.
 
 INPUT:
 - Taxonomy of atomic information:
 {taxonomy}
 - Tutorial:
-{tutorial}"""
+{tutorial}
+
+OUTPUT:
+Return a list of atomic information pieces, classified based on the taxonomy."""
 
 def form_atomic_extraction_request(
     task: str,

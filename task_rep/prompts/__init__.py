@@ -12,18 +12,41 @@ Naming convention:
 Formatting helpers are in formatters.py.
 """
 
-from . import ki_atomic_extraction
-from . import ki_step_aggregation
-from . import ki_step_extraction
-from . import ki_tutorial_summary
-from . import fa_facet_discovery
-from . import fa_facet_revision
+from .ki_atomic_extraction import (
+    form_atomic_extraction_request,
+    process_atomic_extraction_response,
+)
+from .ki_step_aggregation import (
+    form_step_aggregation_request,
+    process_step_aggregation_response,
+)
+from .ki_step_extraction import (
+    form_step_extraction_request_discovery,
+    process_step_extraction_response_discovery,
+    form_step_extraction_request_extraction,
+    process_step_extraction_response_extraction,
+)
+from .ki_tutorial_summary import (
+    form_tutorial_summary_request,
+    process_tutorial_summary_response,
+)
+from .fa_facet_discovery import (
+    form_facet_discovery_request,
+    process_facet_discovery_response,
+)
+from .fa_facet_revision import (
+    form_facet_revision_request,
+    process_facet_revision_response,
+)
 
-__all__ = [
-    "ki_atomic_extraction",
-    "ki_step_aggregation",
-    "ki_step_extraction",
-    "ki_tutorial_summary",
-    "fa_facet_discovery",
-    "fa_facet_revision",
-]
+from .fa_facet_vocabulary import (
+    form_vocabulary_proposal_request,
+    process_vocabulary_proposal_response,
+    form_vocabulary_consolidation_request,
+    process_vocabulary_consolidation_response,
+)
+
+from .fa_facet_labeling import (
+    form_labeling_request,
+    process_labeling_response,
+)

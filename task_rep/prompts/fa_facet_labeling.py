@@ -7,7 +7,7 @@ vocabulary to each knowledge item in that video.
 
 from typing import Any, Dict, List
 
-from ..utils.llm import MessageContent
+from utils.llm import MessageContent
 
 from .fa_pydantic import Segmentation
 from .formatters import list_mc_to_str

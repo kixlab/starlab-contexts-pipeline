@@ -12,8 +12,14 @@ import random
 from collections import defaultdict
 from typing import Dict, List, Set, Tuple
 
-from ..knowledge_items.schema import KnowledgeBase, KnowledgeItem
-from ..facets.schema import Facet, AnnotationTable
+from knowledge_items import (
+    KnowledgeBase,
+    KnowledgeItem,
+)
+from facets import (
+    Facet,
+    AnnotationTable,
+)
 
 
 def find_colliding_cells(

@@ -12,9 +12,28 @@ Design principles:
 
 from __future__ import annotations
 
-from collections import defaultdict
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List
+
+from utils import (
+    ModelConfig,
+    batch_run_llm_calls,
+    random_uid,
+    MessageContent,
+)
+
+from prompts import (
+    form_atomic_extraction_request,
+    process_atomic_extraction_response,
+    form_step_aggregation_request,
+    process_step_aggregation_response,
+    form_step_extraction_request_discovery,
+    process_step_extraction_response_discovery,
+    form_step_extraction_request_extraction,
+    process_step_extraction_response_extraction,
+    form_tutorial_summary_request,
+    process_tutorial_summary_response,
+)
 
 from .schema import (
     KnowledgeItem,
@@ -23,20 +42,12 @@ from .schema import (
     Video,
 )
 from .taxonomy import AtomicType, TYPE_DESCRIPTIONS
+
 from .chunk_sampling import (
     ChunkConfig,
-    ATOMIC_CHUNK_CONFIG,
-    STEP_CHUNK_CONFIG,
-    TUTORIAL_CHUNK_CONFIG,
+    FINE_CHUNK_CONFIG,
+    COARSE_CHUNK_CONFIG,
 )
-from ..utils.llm import batch_run_llm_calls
-from ..utils.llm import random_uid
-from ..utils.llm import MessageContent
-
-from ..prompts.ki_atomic_extraction import form_atomic_extraction_request, process_atomic_extraction_response
-from ..prompts.ki_step_aggregation import form_step_aggregation_request, process_step_aggregation_response
-from ..prompts.ki_step_extraction import form_step_extraction_request_discovery, process_step_extraction_response_discovery, form_step_extraction_request_extraction, process_step_extraction_response_extraction
-from ..prompts.ki_tutorial_summary import form_tutorial_summary_request, process_tutorial_summary_response
 
 @dataclass
 class VLMKnowledgeExtractor:
@@ -55,39 +66,12 @@ class VLMKnowledgeExtractor:
     - STEP (with taxonomy): Extract step details using canonical taxonomy (segment-based)
     - TUTORIAL: Extract high-level tutorial summaries (chunk-based)
     """
-
-    task: str = ""
-    granularity: KnowledgeItemType = KnowledgeItemType.ATOMIC
+    model_config: ModelConfig
     use_vision: bool = True
-    provider: Optional[str] = None
-    model: Optional[str] = None
     max_concurrency: int = 32
+    chunk_config: ChunkConfig = FINE_CHUNK_CONFIG
 
-    # Chunk sampling config
-    chunk_config: ChunkConfig = ATOMIC_CHUNK_CONFIG
-
-    def __post_init__(self):
-        """Initialize chunk sampling configs and default model based on provider."""
-        # Set default model if not provided
-        if self.provider is None:
-            self.provider = "openai"
-        
-        if self.model is None:
-            if self.provider == "openai":
-                self.model = "gpt-4o-mini"
-            elif self.provider == "anthropic":
-                self.model = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
-
-        # Set chunk config based on granularity
-        if self.chunk_config is None:
-            if self.granularity == KnowledgeItemType.ATOMIC:
-                self.chunk_config = ATOMIC_CHUNK_CONFIG
-            elif self.granularity == KnowledgeItemType.STEP:
-                self.chunk_config = STEP_CHUNK_CONFIG
-            elif self.granularity == KnowledgeItemType.TUTORIAL:
-                self.chunk_config = TUTORIAL_CHUNK_CONFIG
-
-    def _extract_atomic(self, videos: List[Video]) -> List[KnowledgeItem]:
+    def _extract_atomic(self, task: str, videos: List[Video]) -> List[KnowledgeItem]:
         """Extract atomic information from videos."""
         batch_id = f"atomic_extraction_{random_uid()}"
 
@@ -107,7 +91,7 @@ class VLMKnowledgeExtractor:
                 target_chunks=self.chunk_config.size,
             )
             request_args.append({
-                "task": self.task,
+                "task": task,
                 "tutorial_content": video_content,
                 "information_taxonomy": information_taxonomy,
             })
@@ -118,8 +102,7 @@ class VLMKnowledgeExtractor:
             form_atomic_extraction_request,
             process_atomic_extraction_response,
             max_concurrency=self.max_concurrency,
-            provider=self.provider,
-            model=self.model,
+            model_config=self.model_config,
         )
         
         items = []
@@ -157,7 +140,7 @@ class VLMKnowledgeExtractor:
                 ))
         return items
 
-    def _extract_steps(self, videos: List[Video]) -> List[KnowledgeItem]:
+    def _extract_steps(self, task: str, videos: List[Video]) -> List[KnowledgeItem]:
         """Extract steps from videos with automatic two-phase discovery and extraction."""
 
         if len(videos) == 0:
@@ -173,7 +156,7 @@ class VLMKnowledgeExtractor:
                 target_chunks=self.chunk_config.size,
             )
             request_args.append({
-                "task": self.task,
+                "task": task,
                 "tutorial_content": video_content,
             })
 
@@ -183,8 +166,7 @@ class VLMKnowledgeExtractor:
             form_step_extraction_request_discovery,
             process_step_extraction_response_discovery,
             max_concurrency=self.max_concurrency,
-            provider=self.provider,
-            model=self.model,
+            model_config=self.model_config,
         )
 
         steps_by_video = {}
@@ -218,7 +200,7 @@ class VLMKnowledgeExtractor:
                 steps_by_video_content.append({"type": "text", "text": f"{idx+1}. [{step.get('name')}] {step.get('content')}"})
 
         request_args = [{
-            "task": self.task,
+            "task": task,
             "steps_by_tutorial": MessageContent(content=steps_by_video_content),
         }]
 
@@ -228,8 +210,7 @@ class VLMKnowledgeExtractor:
             form_step_aggregation_request,
             process_step_aggregation_response,
             max_concurrency=self.max_concurrency,
-            provider=self.provider,
-            model=self.model,
+            model_config=self.model_config,
         )
 
         # batch_results[0] is the single corpus-level result
@@ -256,7 +237,7 @@ class VLMKnowledgeExtractor:
             )
 
             request_args.append({
-                "task": self.task,
+                "task": task,
                 "tutorial_content": video_content,
                 "step_taxonomy": step_taxonomy,
             })
@@ -267,8 +248,7 @@ class VLMKnowledgeExtractor:
             form_step_extraction_request_extraction,
             process_step_extraction_response_extraction,
             max_concurrency=self.max_concurrency,
-            provider=self.provider,
-            model=self.model,
+            model_config=self.model_config,
         )
 
         items = []
@@ -294,7 +274,7 @@ class VLMKnowledgeExtractor:
                 ))
         return items
 
-    def _extract_tutorial(self, videos: List[Video]) -> List[KnowledgeItem]:
+    def _extract_tutorial(self, task: str, videos: List[Video]) -> List[KnowledgeItem]:
         """Extract tutorial summaries from videos."""
         batch_id = f"tutorial_extraction_{random_uid()}"
 
@@ -307,7 +287,7 @@ class VLMKnowledgeExtractor:
                 target_chunks=self.chunk_config.size,
             )
             request_args.append({
-                "task": self.task,
+                "task": task,
                 "tutorial_content": video_content,
             })
 
@@ -317,8 +297,7 @@ class VLMKnowledgeExtractor:
             form_tutorial_summary_request,
             process_tutorial_summary_response,
             max_concurrency=self.max_concurrency,
-            provider=self.provider,
-            model=self.model,
+            model_config=self.model_config,
         )
 
         items = []
@@ -341,11 +320,11 @@ class VLMKnowledgeExtractor:
             ))
         return items
 
-    def extract_batch(self, videos: List[Video]) -> List[KnowledgeItem]:
+    def extract_batch(self, task: str, videos: List[Video], item_type: KnowledgeItemType) -> List[KnowledgeItem]:
         """
         Extract knowledge from multiple videos in parallel (batch processing).
 
-        Automatically handles the appropriate extraction workflow for each granularity:
+        Automatically handles the appropriate extraction workflow for each item_type:
         - ATOMIC: Single-phase extraction
         - STEP: Three-phase (discovery → taxonomy aggregation → extraction)
         - TUTORIAL: Single-phase extraction
@@ -355,19 +334,9 @@ class VLMKnowledgeExtractor:
         if not videos:
             return []
 
-        if self.granularity == KnowledgeItemType.ATOMIC:
-            return self._extract_atomic(videos)
-        elif self.granularity == KnowledgeItemType.STEP:
-            return self._extract_steps(videos)
-        elif self.granularity == KnowledgeItemType.TUTORIAL:
-            return self._extract_tutorial(videos)
-
-        return []
-
-    def extract_from_video(self, video: Video) -> List[KnowledgeItem]:
-        """
-        Extract knowledge from a single video (for backward compatibility).
-
-        For efficient batch processing, use extract_batch() instead.
-        """
-        return self.extract_batch([video])
+        if item_type == KnowledgeItemType.ATOMIC:
+            return self._extract_atomic(task=task, videos=videos)
+        elif item_type == KnowledgeItemType.STEP:
+            return self._extract_steps(task=task, videos=videos)
+        elif item_type == KnowledgeItemType.TUTORIAL:
+            return self._extract_tutorial(task=task, videos=videos)

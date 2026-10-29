@@ -7,7 +7,7 @@ step extraction based on a step taxonomy.
 
 from typing import Any, Dict, List
 
-from ..utils.llm import MessageContent
+from utils.llm import MessageContent
 from .formatters import taxonomy_to_str
 
 from .ki_pydantic import StepExtractionResult

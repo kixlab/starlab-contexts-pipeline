@@ -10,10 +10,15 @@ from __future__ import annotations
 import math
 import random
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
-from ..knowledge_items.schema import KnowledgeBase
-from ..facets.schema import Facet, AnnotationTable
+from knowledge_items import (
+    KnowledgeBase,
+)
+from facets import (
+    Facet,
+    AnnotationTable,
+)
 
 from .metrics import (
     compute_cells,
@@ -35,6 +40,21 @@ class FrontierPoint:
     discriminativeness: float
     compactness: int
     facet_ids: List[str]
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "discriminativeness": self.discriminativeness,
+            "compactness": self.compactness,
+            "facet_ids": self.facet_ids,
+        }
+    
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> FrontierPoint:
+        return FrontierPoint(
+            discriminativeness=data["discriminativeness"],
+            compactness=data["compactness"],
+            facet_ids=data["facet_ids"],
+        )
 
 
 def compute_frontier(
@@ -128,7 +148,6 @@ def compute_frontier(
         if smoothed and smoothed[-1].discriminativeness <= point.discriminativeness:
             continue
         smoothed.append(point)
-
     return smoothed
 
 

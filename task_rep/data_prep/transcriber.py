@@ -3,9 +3,8 @@ from __future__ import annotations
 import os
 import subprocess
 from openai import OpenAI
-
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 # Whisper API has a 25 MB file size limit, use 24 MB to be safe
 MAX_FILE_SIZE_MB = 24
@@ -148,14 +147,7 @@ def _transcribe_large_audio(audio_path: Path) -> dict:
             except:
                 pass
 
-    # Build final content from all transcripts
-    content = " ".join(seg["text"] for seg in all_transcripts)
-
-    return {
-        "transcript": all_transcripts,
-        "content": content.strip(),
-        "transcript_source": "openai"
-    }
+    return all_transcripts
 
 def _parse_openai_response(response: dict, time_offset: float = 0.0) -> dict:
     """
@@ -166,7 +158,6 @@ def _parse_openai_response(response: dict, time_offset: float = 0.0) -> dict:
         time_offset: Time offset to add to all timestamps (for chunked audio)
     """
     transcript = []
-    content = ""
 
     if 'segments' in response:
         for segment in response['segments']:
@@ -177,17 +168,11 @@ def _parse_openai_response(response: dict, time_offset: float = 0.0) -> dict:
                     "start": segment.get('start', 0.0) + time_offset,
                     "end": segment.get('end', 0.0) + time_offset
                 })
-                content += text + " "
     elif 'text' in response:
         # Fallback if segments not available
-        content = response['text']
-        transcript = [{"text": content, "start": time_offset, "end": time_offset}]
+        transcript = [{"text": response['text'], "start": time_offset, "end": time_offset}]
 
-    return {
-        "transcript": transcript,
-        "content": content.strip(),
-        "transcript_source": "openai"
-    }
+    return transcript
 
 def _transcribe_audio_with_openai(audio_path: Path, prompt: Optional[str] = None):
     """

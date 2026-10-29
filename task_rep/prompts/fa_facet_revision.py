@@ -10,7 +10,7 @@ Revision can include:
 
 from typing import Any, Dict, List
 
-from ..utils.llm import MessageContent
+from utils.llm import MessageContent
 from .formatters import dict_mc_to_str
 
 from .fa_pydantic import FacetRevisionResult
@@ -45,11 +45,11 @@ List of existing factors:
 
 def form_facet_revision_request(
     task: str,
-    existing_facets: Dict[str, MessageContent],
+    facets: Dict[str, MessageContent],
     **kwargs,
 ) -> Dict[str, Any]:
     """Form request to revise existing facets."""
-    existing_facets_str = dict_mc_to_str(existing_facets)
+    facets_str = dict_mc_to_str(facets)
     messages = [
         {
             "role": "system",
@@ -62,7 +62,7 @@ def form_facet_revision_request(
             "role": "user",
             "content": MessageContent.from_template(
                 USER_PROMPT,
-                existing_facets=existing_facets_str,
+                existing_facets=facets_str,
             )
         }
     ]

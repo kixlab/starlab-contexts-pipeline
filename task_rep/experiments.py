@@ -27,51 +27,37 @@ import dataclasses
 import json
 import time
 import uuid
+import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .algorithm import DiscoveryConfig, DiscoveryResult, IterativeSchemaDiscovery, ModelConfig
-from .facets.io import load_annotations, save_annotations, save_facets
-from .knowledge_items.clustering import ClusterConfig
-from .knowledge_items.interface import extract_and_cluster_knowledge_items
-from .knowledge_items.io import load_dataset
-from .knowledge_items.schema import KnowledgeItemType
-from .optimization.metrics import count_unique_units
+from config import Config
+from utils import ModelConfig
 
+from algorithm import (
+    DiscoveryConfig,
+    DiscoveryResult,
+    IterativeSchemaDiscovery,
+)
 
-# ---------------------------------------------------------------------------
-# Config dataclasses
-# ---------------------------------------------------------------------------
+from knowledge_items import (
+    ClusterConfig,
+    KnowledgeItemType,
+)
+from construct import (
+    ConstructKnowledgeBase,
+    ConstructorConfig,
+)
 
+from data_prep import (
+    TaskManager,
+)
 
-@dataclass
-class DatasetConfig:
-    """Which dataset to use and how many videos to include."""
-
-    task_id: str
-    """Key in static/tasks.json (e.g. 'sushi_roll_3')."""
-
-    dataset_path: str
-    """Path to the built dataset JSON (e.g. 'task_rep/static/datasets/sushi_roll_3.json')."""
-
-    max_videos: Optional[int] = None
-    """Limit to first N videos. None = all videos in the file."""
-
-
-@dataclass
-class ExtractionConfig:
-    """Knowledge item extraction + clustering settings."""
-
-    granularity: KnowledgeItemType = KnowledgeItemType.ATOMIC
-    cluster_config: ClusterConfig = field(default_factory=ClusterConfig)
-    provider: Optional[str] = None
-    model: Optional[str] = None
-    max_concurrency: int = 32
-    base_dir: str = "task_rep/static/cache"
-    use_cache: bool = True
-
+from optimization import (
+    count_unique_units,
+)
 
 @dataclass
 class ExperimentConfig:
@@ -80,8 +66,10 @@ class ExperimentConfig:
     name: str
     """Short identifier used as a key in EXPERIMENTS and for file naming."""
 
-    dataset: DatasetConfig
-    extraction: ExtractionConfig
+    task_id: str
+    """Task ID to include in the experiment."""
+
+    constructor: ConstructorConfig
     discovery: DiscoveryConfig
 
     description: str = ""
@@ -90,6 +78,10 @@ class ExperimentConfig:
     tags: List[str] = field(default_factory=list)
     """Labels for filtering/grouping (e.g. ['baseline', 'sushi', 'atomic'])."""
 
+    def cache_suffix(self) -> str:
+        constructor_suffix = self.constructor.cache_suffix()
+        discovery_suffix = self.discovery.cache_suffix()
+        return f"{constructor_suffix}_{discovery_suffix}"
 
 # ---------------------------------------------------------------------------
 # Result dataclasses
@@ -109,11 +101,15 @@ class ExperimentSummary:
     frontier_size: int
     """Points on the final Pareto frontier."""
 
-    best_discriminativeness: float
-    """Lowest D value on the frontier (0 = perfect separation)."""
+    min_discriminativeness: float
+    """Minimum D value on the frontier."""
+    min_compactness: int
+    """Compactness at the minimum D value."""
 
-    best_compactness: int
-    """Vocabulary size of the schema with the best D."""
+    target_discriminativeness: float
+    """Target D value."""
+    target_compactness: int
+    """Compactness at the target D value."""
 
     iterations: int
     """How many algorithm iterations ran before convergence."""
@@ -130,7 +126,7 @@ class ExperimentResult:
     """ISO 8601 UTC timestamp of when the run started."""
 
     config: ExperimentConfig
-    discovery: DiscoveryResult
+    result: DiscoveryResult
     summary: ExperimentSummary
     elapsed_seconds: float
 
@@ -148,11 +144,6 @@ def run_experiment(
     """
     Run a full experiment end-to-end.
 
-    Pipeline:
-      1. Load dataset videos (optionally capped at max_videos).
-      2. Extract + cluster knowledge items → KnowledgeBase.
-      3. Run IterativeSchemaDiscovery.
-
     Args:
         config: Full experiment specification.
         verbose: Enable INFO-level logging and progress prints.
@@ -160,7 +151,6 @@ def run_experiment(
     Returns:
         ExperimentResult with the discovery output and run metadata.
     """
-    import logging
 
     if verbose:
         logging.basicConfig(
@@ -171,54 +161,66 @@ def run_experiment(
 
     t0 = time.monotonic()
 
-    # Step 1 — load videos
-    videos = load_dataset(config.dataset.dataset_path)
-    if config.dataset.max_videos is not None:
-        videos = videos[: config.dataset.max_videos]
-
-    if verbose:
-        print(f"\n[{config.name}] {len(videos)} video(s) from '{config.dataset.task_id}'")
-
-    # Step 2 — extract + cluster knowledge items
-    kb = extract_and_cluster_knowledge_items(
-        task_id=config.dataset.task_id,
-        granularity=config.extraction.granularity,
-        videos=videos,
-        base_dir=config.extraction.base_dir,
-        provider=config.extraction.provider,
-        model=config.extraction.model,
-        cluster_config=config.extraction.cluster_config,
-        use_cache=config.extraction.use_cache,
-        max_concurrency=config.extraction.max_concurrency,
+    constructor = ConstructKnowledgeBase(
+        config=config.constructor,
+        task_datasets_dir=Config.TASK_DATASETS_DIR,
+        cache_dir=Config.CACHE_DIR,
     )
 
-    num_units = count_unique_units(kb)
+    discovery = IterativeSchemaDiscovery(
+        config=config.discovery
+    )
+
+    manager = TaskManager(tasks_file=Config.TASKS_FILE)
+
     if verbose:
-        print(f"[{config.name}] KnowledgeBase: {len(kb)} items, {num_units} units")
-
-    # Step 3 — run discovery
-    discovery = IterativeSchemaDiscovery(config.discovery).run(kb)
-
+        elapsed = time.monotonic() - t0
+        logging.info(f"{elapsed:.2f}s: Prepared constructor and discovery.\nRunning experiment for {config.task_id}.")
+    
+    task = manager.get_task(config.task_id)
+    if verbose:
+        elapsed = time.monotonic() - t0
+        logging.info(f"{elapsed:.2f}s: Running experiment for {task.id}.")
+    
+    result = discovery.run(
+        task=task,
+        constructor=constructor,
+    )
+    
     elapsed = time.monotonic() - t0
+
+    num_units = count_unique_units(result.knowledge_base)
+
+    target_discriminativeness = config.discovery.target_d
+    target_compactness = 0
+    for frontier_point in result.frontier:
+        if frontier_point.discriminativeness <= target_discriminativeness:
+            target_discriminativeness = frontier_point.discriminativeness
+            target_compactness = frontier_point.compactness
+            break
+
+    min_discriminativeness = float("inf")
+    min_compactness = 0
+    if len(result.frontier) > 0:
+        min_discriminativeness = result.frontier[-1].discriminativeness
+        min_compactness = result.frontier[-1].compactness
 
     summary = ExperimentSummary(
         num_units=num_units,
-        num_facets=len(discovery.facets),
-        frontier_size=len(discovery.frontier),
-        best_discriminativeness=(
-            discovery.frontier[0].discriminativeness if discovery.frontier else float("inf")
-        ),
-        best_compactness=(
-            discovery.frontier[0].compactness if discovery.frontier else 0
-        ),
-        iterations=discovery.iterations,
+        num_facets=len(result.facets),
+        frontier_size=len(result.frontier),
+        min_discriminativeness=min_discriminativeness,
+        min_compactness=min_compactness,
+        target_discriminativeness=target_discriminativeness,
+        target_compactness=target_compactness,
+        iterations=result.iterations,
     )
 
     return ExperimentResult(
         run_id=str(uuid.uuid4())[:8],
         timestamp=datetime.now(timezone.utc).isoformat(),
         config=config,
-        discovery=discovery,
+        result=result,
         summary=summary,
         elapsed_seconds=elapsed,
     )
@@ -228,125 +230,17 @@ def run_experiment(
 # Display
 # ---------------------------------------------------------------------------
 
-
-def print_summary(result: ExperimentResult) -> None:
-    """Print a human-readable one-page summary of an experiment result."""
-    s = result.summary
-    c = result.config
-    d = c.discovery
-    sep = "=" * 60
-    print(sep)
-    print(f"  {c.name}  [{result.run_id}]")
-    if c.description:
-        print(f"  {c.description}")
-    print(sep)
-    print(f"  dataset      : {c.dataset.task_id}")
-    print(f"  max_videos   : {c.dataset.max_videos or 'all'}")
-    print(f"  granularity  : {c.extraction.granularity.value}")
-    print(f"  cluster sim  : {c.extraction.cluster_config.similarity_threshold}")
-    print(f"  provider     : {d.provider or 'default'}  /  model={d.model or 'default'}")
-    print(f"  item_type    : {d.item_type.value if d.item_type else 'all'}")
-    print(f"  tags         : {c.tags or '—'}")
-    print(f"  ---")
-    print(f"  units        : {s.num_units}")
-    print(f"  facets found : {s.num_facets}")
-    print(f"  frontier pts : {s.frontier_size}")
-    print(f"  best D       : {s.best_discriminativeness:.4f}  (C={s.best_compactness})")
-    print(f"  iterations   : {s.iterations}")
-    print(f"  elapsed      : {result.elapsed_seconds:.1f}s")
-    print(f"  timestamp    : {result.timestamp}")
-    print()
-
-
 def compare_results(results: List[ExperimentResult]) -> None:
     """Print a compact side-by-side comparison table."""
-    cols = f"{'name':<38} {'units':>6} {'facets':>7} {'best_D':>7} {'best_C':>7} {'iters':>6} {'secs':>6}"
+    cols = f"{'name':<38} {'units':>6} {'facets':>7} {'frontier':>7} {'min_D':>7} {'min_C':>7} {'target_D':>7} {'target_C':>7} {'iters':>6} {'secs':>6}"
     print(cols)
     print("-" * len(cols))
     for r in results:
         s = r.summary
+        c = r.config
         print(
-            f"{r.config.name:<38} {s.num_units:>6} {s.num_facets:>7}"
-            f" {s.best_discriminativeness:>7.4f} {s.best_compactness:>7}"
-            f" {s.iterations:>6} {r.elapsed_seconds:>6.1f}"
+            f"{c.name:<38} {s.num_units:>6} {s.num_facets:>7} {s.frontier_size:>7} {s.min_discriminativeness:>7.4f} {s.min_compactness:>7} {s.target_discriminativeness:>7.4f} {s.target_compactness:>7} {s.iterations:>6} {r.elapsed_seconds:.1f}"
         )
-
-
-# ---------------------------------------------------------------------------
-# Serialization
-# ---------------------------------------------------------------------------
-
-
-def _to_jsonable(obj: Any) -> Any:
-    """Recursively convert a (possibly nested) config/summary to JSON-safe types."""
-    if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
-        return {f.name: _to_jsonable(getattr(obj, f.name)) for f in dataclasses.fields(obj)}
-    if isinstance(obj, KnowledgeItemType):
-        return obj.value
-    if isinstance(obj, list):
-        return [_to_jsonable(i) for i in obj]
-    if isinstance(obj, dict):
-        return {k: _to_jsonable(v) for k, v in obj.items()}
-    return obj
-
-
-def save_result(result: ExperimentResult, save_dir: str | Path) -> Path:
-    """
-    Persist an ExperimentResult to disk.
-
-    Creates:
-        {save_dir}/{name}_{run_id}/
-            meta.json         — config snapshot, summary metrics, timing
-            facets.json       — final facet pool (Facet objects)
-            annotations.json  — full annotation table
-            frontier.json     — Pareto frontier points
-
-    Returns:
-        Path to the created run directory.
-    """
-    run_dir = Path(save_dir) / f"{result.config.name}_{result.run_id}"
-    run_dir.mkdir(parents=True, exist_ok=True)
-
-    # meta: config + summary + timing (no heavy data)
-    meta: Dict[str, Any] = {
-        "run_id": result.run_id,
-        "timestamp": result.timestamp,
-        "elapsed_seconds": result.elapsed_seconds,
-        "config": _to_jsonable(result.config),
-        "summary": _to_jsonable(result.summary),
-    }
-    (run_dir / "meta.json").write_text(
-        json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
-
-    # facets, annotations
-    save_facets(result.discovery.facets, run_dir / "facets.json")
-    save_annotations(result.discovery.annotations, run_dir / "annotations.json")
-
-    # frontier
-    frontier_data = [
-        {
-            "discriminativeness": fp.discriminativeness,
-            "compactness": fp.compactness,
-            "facet_ids": fp.facet_ids,
-        }
-        for fp in result.discovery.frontier
-    ]
-    (run_dir / "frontier.json").write_text(
-        json.dumps(frontier_data, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
-
-    print(f"Saved to {run_dir}/")
-    return run_dir
-
-
-def load_result_meta(run_dir: str | Path) -> Dict[str, Any]:
-    """
-    Load only the meta.json from a saved result directory.
-
-    Useful for building comparison tables without loading full facets/annotations.
-    """
-    return json.loads(Path(run_dir).joinpath("meta.json").read_text(encoding="utf-8"))
 
 
 # ---------------------------------------------------------------------------
@@ -376,162 +270,57 @@ def register_experiment(config: ExperimentConfig) -> ExperimentConfig:
 # ---------------------------------------------------------------------------
 # Add your own experiments below.  The three "baseline" entries demonstrate
 # the three main axes of variation.
-
+task_id = "sushi_roll_3"
 register_experiment(ExperimentConfig(
-    name="sushi_atomic_baseline",
-    description="Sushi roll (3 videos) · ATOMIC items · default model (gpt-4o-mini)",
-    tags=["baseline", "sushi", "atomic"],
-    dataset=DatasetConfig(
-        task_id="sushi_roll_3",
-        dataset_path="task_rep/static/datasets/sushi_roll_3.json",
-    ),
-    extraction=ExtractionConfig(
-        granularity=KnowledgeItemType.ATOMIC,
-        cluster_config=ClusterConfig(similarity_threshold=0.85),
+    task_id=task_id,
+
+    name=f"{task_id}_base",
+    description=f"{task_id} baseline experiment v0.1",
+    tags=["baseline", f"{task_id}", "v0.1"],
+    constructor=ConstructorConfig(
+        use_cache=True,
+        use_vision=True,
+        cluster_config=ClusterConfig(
+            similarity_threshold=0.85,
+            model_config=ModelConfig(
+                category="embedding",
+                provider="openai",
+                model="text-embedding-3-small",
+            ),
+        ),
+        model_config=ModelConfig(
+            category="vlm",
+            provider="openai",
+            model="gpt-4o-mini",
+        ),
     ),
     discovery=DiscoveryConfig(
-        task="making a sushi roll",
-        item_type=KnowledgeItemType.ATOMIC,
-        base_dir="task_rep/static/cache",
-        task_id="sushi_roll_3",
-    ),
-))
-
-register_experiment(ExperimentConfig(
-    name="sushi_step_baseline",
-    description="Sushi roll (3 videos) · STEP items · default model",
-    tags=["baseline", "sushi", "step"],
-    dataset=DatasetConfig(
-        task_id="sushi_roll_3",
-        dataset_path="task_rep/static/datasets/sushi_roll_3.json",
-    ),
-    extraction=ExtractionConfig(
-        granularity=KnowledgeItemType.STEP,
-        cluster_config=ClusterConfig(similarity_threshold=0.85),
-    ),
-    discovery=DiscoveryConfig(
-        task="making a sushi roll",
+        use_cache=True,
         item_type=KnowledgeItemType.STEP,
-        base_dir="task_rep/static/cache",
-        task_id="sushi_roll_3",
+        max_iterations=1,
+        k_schemas_to_sample=2,
+        target_d=0.7,
+        max_cells_per_iteration=1,
+        max_items_per_cell=5,
+        discovery_model=ModelConfig(
+            category="vlm",
+            provider="openai",
+            model="gpt-4o-mini",
+        ),
+        vocab_model=ModelConfig(
+            category="vlm",
+            provider="openai",
+            model="gpt-4o-mini",
+        ),
+        labeling_model=ModelConfig(
+            category="vlm",
+            provider="openai",
+            model="gpt-4o-mini",
+        ),
     ),
 ))
 
-register_experiment(ExperimentConfig(
-    name="paper_hat_atomic_baseline",
-    description="Paper hat · ATOMIC items · default model",
-    tags=["baseline", "paper_hat", "atomic"],
-    dataset=DatasetConfig(
-        task_id="paper_hat",
-        dataset_path="task_rep/static/datasets/paper_hat.json",
-    ),
-    extraction=ExtractionConfig(
-        granularity=KnowledgeItemType.ATOMIC,
-        cluster_config=ClusterConfig(similarity_threshold=0.85),
-    ),
-    discovery=DiscoveryConfig(
-        task="making a paper hat",
-        item_type=KnowledgeItemType.ATOMIC,
-        base_dir="task_rep/static/cache",
-        task_id="paper_hat",
-    ),
-))
 
-# --- Ablation: model quality ---
-
-register_experiment(ExperimentConfig(
-    name="sushi_atomic_gpt4o",
-    description="Sushi roll · ATOMIC · gpt-4o (higher quality, higher cost)",
-    tags=["ablation", "model", "sushi", "atomic"],
-    dataset=DatasetConfig(
-        task_id="sushi_roll_3",
-        dataset_path="task_rep/static/datasets/sushi_roll_3.json",
-    ),
-    extraction=ExtractionConfig(
-        granularity=KnowledgeItemType.ATOMIC,
-        cluster_config=ClusterConfig(similarity_threshold=0.85),
-        model="gpt-4o",
-    ),
-    discovery=DiscoveryConfig(
-        task="making a sushi roll",
-        item_type=KnowledgeItemType.ATOMIC,
-        base_dir="task_rep/static/cache",
-        task_id="sushi_roll_3",
-        model="gpt-4o",
-    ),
-))
-
-# --- Ablation: clustering threshold ---
-
-register_experiment(ExperimentConfig(
-    name="sushi_atomic_tight_cluster",
-    description="Sushi roll · ATOMIC · similarity_threshold=0.90 → finer-grained units",
-    tags=["ablation", "clustering", "sushi", "atomic"],
-    dataset=DatasetConfig(
-        task_id="sushi_roll_3",
-        dataset_path="task_rep/static/datasets/sushi_roll_3.json",
-    ),
-    extraction=ExtractionConfig(
-        granularity=KnowledgeItemType.ATOMIC,
-        cluster_config=ClusterConfig(similarity_threshold=0.90),
-    ),
-    discovery=DiscoveryConfig(
-        task="making a sushi roll",
-        item_type=KnowledgeItemType.ATOMIC,
-        base_dir="task_rep/static/cache",
-        task_id="sushi_roll_3",
-    ),
-))
-
-# --- Ablation: per-stage models ---
-
-register_experiment(ExperimentConfig(
-    name="sushi_atomic_mixed_models",
-    description=(
-        "Sushi roll · ATOMIC · gpt-4o for discovery (creative/complex), "
-        "gpt-4o-mini for vocab + labeling (cheap high-throughput batch)"
-    ),
-    tags=["ablation", "model", "sushi", "atomic"],
-    dataset=DatasetConfig(
-        task_id="sushi_roll_3",
-        dataset_path="task_rep/static/datasets/sushi_roll_3.json",
-    ),
-    extraction=ExtractionConfig(
-        granularity=KnowledgeItemType.ATOMIC,
-        cluster_config=ClusterConfig(similarity_threshold=0.85),
-    ),
-    discovery=DiscoveryConfig(
-        task="making a sushi roll",
-        item_type=KnowledgeItemType.ATOMIC,
-        base_dir="task_rep/static/cache",
-        task_id="sushi_roll_3",
-        model="gpt-4o-mini",                        # default for all stages
-        discovery_model=ModelConfig(model="gpt-4o"), # override for discovery only
-    ),
-))
-
-# --- Ablation: algorithm convergence ---
-
-register_experiment(ExperimentConfig(
-    name="sushi_atomic_long_run",
-    description="Sushi roll · ATOMIC · max_iterations=10 to test deeper convergence",
-    tags=["ablation", "convergence", "sushi", "atomic"],
-    dataset=DatasetConfig(
-        task_id="sushi_roll_3",
-        dataset_path="task_rep/static/datasets/sushi_roll_3.json",
-    ),
-    extraction=ExtractionConfig(
-        granularity=KnowledgeItemType.ATOMIC,
-        cluster_config=ClusterConfig(similarity_threshold=0.85),
-    ),
-    discovery=DiscoveryConfig(
-        task="making a sushi roll",
-        item_type=KnowledgeItemType.ATOMIC,
-        base_dir="task_rep/static/cache",
-        task_id="sushi_roll_3",
-        max_iterations=10,
-    ),
-))
 
 
 # ---------------------------------------------------------------------------
@@ -557,12 +346,6 @@ def main() -> None:
     )
     parser.add_argument("--list", action="store_true", help="List all registered experiments.")
     parser.add_argument("--run", metavar="NAME", help="Run an experiment by name.")
-    parser.add_argument(
-        "--save-dir",
-        default=None,
-        metavar="DIR",
-        help="If provided, save the result to this directory.",
-    )
     args = parser.parse_args()
 
     if args.list:
@@ -576,9 +359,7 @@ def main() -> None:
             print(f"Available: {names}")
             return
         result = run_experiment(EXPERIMENTS[args.run], verbose=True)
-        print_summary(result)
-        if args.save_dir:
-            save_result(result, args.save_dir)
+        compare_results([result])
         return
 
     parser.print_help()

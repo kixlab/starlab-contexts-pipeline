@@ -10,10 +10,9 @@ from pathlib import Path
 import pytest
 
 from knowledge_items import (
-    extract_and_cluster_knowledge_items,
     load_knowledge_items,
     save_knowledge_items,
-    load_dataset,
+    load_task_dataset,
     ClusterConfig,
     KnowledgeItemType,
     KnowledgeItem,
@@ -39,8 +38,6 @@ def mock_videos():
             id="video1",
             url="https://youtube.com/watch?v=1",
             title="How to Make Sushi",
-            original_title="Sushi Tutorial",
-            content="Learn to make sushi",
             transcript=[
                 VideoTranscriptSegment(text="First, prepare the rice", start=0.0, end=5.0),
                 VideoTranscriptSegment(text="Then, cut the fish", start=5.0, end=10.0),
@@ -56,8 +53,6 @@ def mock_videos():
             id="video2",
             url="https://youtube.com/watch?v=2",
             title="How to Make Sushi",
-            original_title="Sushi Making Guide",
-            content="Sushi making guide",
             transcript=[
                 VideoTranscriptSegment(text="Prepare your ingredients", start=0.0, end=5.0),
                 VideoTranscriptSegment(text="Season the rice properly", start=5.0, end=10.0),
@@ -196,15 +191,13 @@ def test_load_knowledge_items_file_not_found(tmp_path):
         load_knowledge_items(tmp_path / "nonexistent.jsonl")
 
 
-def test_load_dataset(tmp_path):
+def test_load_task_dataset(tmp_path):
     """Test loading videos from a dataset JSON file."""
     dataset = [
         {
             "id": "v1",
             "url": "https://youtube.com/watch?v=1",
             "title": "Test Video",
-            "original_title": "Test",
-            "content": "test content",
             "transcript": [
                 {"text": "Hello world", "start": 0.0, "end": 5.0},
             ],
@@ -214,11 +207,11 @@ def test_load_dataset(tmp_path):
         },
     ]
 
-    dataset_path = tmp_path / "test_dataset.json"
-    with open(dataset_path, "w") as f:
+    path = tmp_path / "test_dataset.json"
+    with open(path, "w") as f:
         json.dump(dataset, f)
 
-    videos = load_dataset(dataset_path)
+    videos = load_task_dataset(path)
     assert len(videos) == 1
     assert videos[0].id == "v1"
     assert videos[0].title == "Test Video"
@@ -228,10 +221,10 @@ def test_load_dataset(tmp_path):
     assert videos[0].frames[0].time == 2.0
 
 
-def test_load_dataset_file_not_found(tmp_path):
+def test_load_task_dataset_file_not_found(tmp_path):
     """Test that loading nonexistent dataset raises FileNotFoundError."""
     with pytest.raises(FileNotFoundError):
-        load_dataset(tmp_path / "nonexistent.json")
+        load_task_dataset(tmp_path / "nonexistent.json")
 
 
 # ============= KnowledgeItem Formatting Tests =============
@@ -285,7 +278,7 @@ def test_video_get_duration(mock_videos):
 def test_video_get_duration_no_transcript():
     """Test get_duration with frames but minimal transcript."""
     video = Video(
-        id="v1", url="", title="", original_title="", content="",
+        id="v1", url="", title="",
         transcript=[VideoTranscriptSegment(text="hi", start=0.0, end=2.0)],
         frames=[VideoFrame(path="/tmp/f.jpg", time=10.0)],
     )
@@ -316,7 +309,7 @@ def test_video_sample_frames(mock_videos):
 def test_video_sample_frames_no_frames():
     """Test sample_frames when video has no frames."""
     video = Video(
-        id="v1", url="", title="", original_title="", content="",
+        id="v1", url="", title="",
         transcript=[VideoTranscriptSegment(text="hi", start=0.0, end=5.0)],
         frames=[],
     )
@@ -336,7 +329,7 @@ def test_video_format_to_message_content_text_only(mock_videos):
 def test_video_format_to_message_content_no_transcript():
     """Test that format_to_message_content raises on empty transcript."""
     video = Video(
-        id="v1", url="", title="", original_title="", content="",
+        id="v1", url="", title="",
         transcript=[],
         frames=[VideoFrame(path="/tmp/f.jpg", time=1.0)],
     )
@@ -347,7 +340,7 @@ def test_video_format_to_message_content_no_transcript():
 def test_video_format_to_message_content_vision_no_frames():
     """Test that format_to_message_content raises when vision=True but no frames."""
     video = Video(
-        id="v1", url="", title="", original_title="", content="",
+        id="v1", url="", title="",
         transcript=[VideoTranscriptSegment(text="hi", start=0.0, end=5.0)],
         frames=[],
     )
@@ -544,80 +537,6 @@ def test_cluster_config():
 
     assert "sim085" in suffix
     assert "textembedding" in suffix.lower()
-
-
-# ============= Integration Tests =============
-
-@pytest.mark.skipif(
-    not Path("static/datasets/sushi_roll_3.json").exists(),
-    reason="sushi_roll_3 dataset not available",
-)
-def test_extract_and_cluster_with_real_data():
-    """
-    Integration test with real sushi_roll_3 data.
-
-    Requires:
-    - Task sushi_roll_3 to be built: python -m task_rep.scripts.prepare_dataset build sushi_roll_3
-    - OPENAI_API_KEY set
-
-    This test:
-    1. Loads the sushi_roll_3 dataset using load_dataset()
-    2. Extracts atomic knowledge items
-    3. Clusters them
-    4. Verifies caching works
-    """
-    import os
-    import shutil
-
-    if not os.getenv("OPENAI_API_KEY"):
-        pytest.skip("OPENAI_API_KEY not set")
-
-    # Load dataset using the load_dataset utility
-    videos = load_dataset("static/datasets/sushi_roll_3.json")
-    assert len(videos) == 3, f"Expected 3 videos, got {len(videos)}"
-
-    # Extract and cluster
-    cluster_config = ClusterConfig(similarity_threshold=0.9)
-    cache_dir = Path("static/cache_test")
-
-    knowledge_base = extract_and_cluster_knowledge_items(
-        task_id="sushi_roll_3_test",
-        granularity=KnowledgeItemType.ATOMIC,
-        videos=videos,
-        base_dir=cache_dir,
-        cluster_config=cluster_config,
-        use_cache=True,
-    )
-
-    # Verify results
-    assert len(knowledge_base.items) > 0, "Should extract some knowledge items"
-
-    # Check clustering
-    unit_ids = [item.unit_id for item in knowledge_base.items if item.unit_id]
-    unique_units = len(set(unit_ids))
-    assert unique_units > 0, "Should have at least one cluster"
-    assert unique_units < len(knowledge_base.items), "Should cluster similar items"
-
-    # Verify types
-    for item in knowledge_base.items:
-        assert item.type == KnowledgeItemType.ATOMIC
-        assert isinstance(item.subtype, AtomicType) or item.subtype is None
-
-    # Test caching: run again and verify it loads from cache
-    knowledge_base2 = extract_and_cluster_knowledge_items(
-        task_id="sushi_roll_3_test",
-        granularity=KnowledgeItemType.ATOMIC,
-        videos=videos,
-        base_dir=cache_dir,
-        cluster_config=cluster_config,
-        use_cache=True,
-    )
-
-    assert len(knowledge_base2.items) == len(knowledge_base.items)
-
-    # Cleanup
-    if cache_dir.exists():
-        shutil.rmtree(cache_dir)
 
 
 if __name__ == "__main__":
