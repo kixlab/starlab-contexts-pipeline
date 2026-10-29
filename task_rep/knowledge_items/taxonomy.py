@@ -389,9 +389,9 @@ def get_types_in_category(category: AtomicCategory) -> list[AtomicType]:
 class AtomicSubtypeConfig:
     """Named preset of atomic subtypes for optimization focus filtering.
 
-    ``subtypes=[]`` means no filtering — all atomic items count towards the
-    frontier.  When a non-empty list is given, only items with those subtypes
-    are used by the Pareto frontier and collision-detection steps; discovery,
+    ``subtypes=[]`` means no filtering — all atomic items count towards schema
+    evaluation.  When a non-empty list is given, only items with those subtypes
+    are used for schema evaluation (the "focused" knowledge base); proposal,
     vocabulary, and labeling still operate on the full knowledge base.
     """
     name: str
@@ -402,7 +402,7 @@ ATOMIC_ALL = AtomicSubtypeConfig(
     name="all",
     subtypes=[],
 )
-"""No subtype filtering — all atomic items count towards the frontier."""
+"""No subtype filtering — all atomic items count towards schema evaluation."""
 
 ATOMIC_SEMI_IMPORTANT = AtomicSubtypeConfig(
     name="semi_important",

@@ -342,7 +342,7 @@ def test_iterative_prompt_assembles_factor_combinations(sample_facet):
     request = form_facet_iterative_request(
         task="test task",
         facets=[sample_facet],
-        context="schemas",
+        components={"schemas"},
         annotations=annotations,
         knowledge_base=kb,
         accepted_schemas=accepted,

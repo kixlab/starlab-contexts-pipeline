@@ -29,7 +29,6 @@ from optimization.tree import (
     compute_signature_entropy,
     evaluate_schemas,
     prune_and_connect,
-    sample_schemas_from_tree,
     compare_tree_quality,
     _transitive_reduction,
 )
@@ -694,79 +693,6 @@ class TestTransitiveReduction:
         assert ("f2", "f1|f2") in targets
 
 
-# ============= Tests: sample_schemas_from_tree =============
-
-class TestSampleFromTree:
-    def test_empty_tree(self):
-        """Empty tree → no samples."""
-        tree = RefinementTree(nodes=[], edges=[])
-        result = sample_schemas_from_tree(tree, {}, k=2)
-        assert result == []
-
-    def test_samples_leaf_nodes(self):
-        """Should only sample leaf nodes (no outgoing edges)."""
-        parent = make_tree_node([], size=0, D=1.5)
-        child = make_tree_node(["f1"], size=2, D=0.8)
-        tree = RefinementTree(
-            nodes=[parent, child],
-            edges=[TreeEdge("", "f1", MI=0.5, refinement_score=0.5,
-                           marginal_D_gain=0.7, marginal_eta2_gain=0.0,
-                           added_facets=["f1"], removed_facets=[])],
-        )
-        f1_facet = make_facet("f1", "F", ["a", "b"])
-        result = sample_schemas_from_tree(
-            tree, {"f1": f1_facet}, k=2,
-        )
-        # Parent has outgoing edge → not a leaf. Only child is a leaf.
-        assert len(result) == 1
-        assert result[0][1].id == "f1"
-
-    def test_k_limits_samples(self):
-        """When more leaves exist than k, only k are returned."""
-        nodes = [
-            make_tree_node(["f1"], size=2, D=0.8),
-            make_tree_node(["f2"], size=3, D=0.7),
-            make_tree_node(["f3"], size=2, D=0.9),
-        ]
-        tree = RefinementTree(nodes=nodes, edges=[])
-        facets_by_id = {
-            "f1": make_facet("f1", "F1", ["a", "b"]),
-            "f2": make_facet("f2", "F2", ["x", "y", "z"]),
-            "f3": make_facet("f3", "F3", ["lo", "hi"]),
-        }
-        result = sample_schemas_from_tree(
-            tree, facets_by_id, k=2,
-        )
-        assert len(result) == 2
-
-    def test_all_leaves_sampled(self):
-        """All leaf nodes are candidates for sampling."""
-        leaf1 = make_tree_node(["f1"], size=2, D=0.01)
-        leaf2 = make_tree_node(["f2"], size=3, D=0.8)
-        leaf3 = make_tree_node(["f3"], size=2, D=0.6)
-        interior = make_tree_node([], size=0, D=1.5)
-        tree = RefinementTree(
-            nodes=[interior, leaf1, leaf2, leaf3],
-            edges=[TreeEdge("", "f1", MI=0.5, refinement_score=0.5,
-                           marginal_D_gain=1.49, marginal_eta2_gain=0.0,
-                           added_facets=["f1"], removed_facets=[])],
-        )
-        facets_by_id = {
-            "f1": make_facet("f1", "F1", ["a", "b"]),
-            "f2": make_facet("f2", "F2", ["x", "y", "z"]),
-            "f3": make_facet("f3", "F3", ["lo", "hi"]),
-        }
-        result = sample_schemas_from_tree(
-            tree, facets_by_id, k=10,
-        )
-        sampled_ids = {node.id for _, node in result}
-        # interior (has outgoing edge) should NOT be sampled
-        assert "" not in sampled_ids
-        # all leaves (including resolved ones) should be candidates
-        assert "f2" in sampled_ids
-        assert "f3" in sampled_ids
-
-
 # ============= Tests: is_tree_improved =============
 
 class TestCompareTreeQuality:
@@ -911,11 +837,3 @@ class TestIntegration:
         for edge in tree.edges:
             assert edge.source_id in surviving_ids
             assert edge.target_id in surviving_ids
-
-        # Sample
-        sampled = sample_schemas_from_tree(
-            tree, facets_by_id, k=2,
-        )
-        # All sampled should be leaf nodes
-        for facet_list, node in sampled:
-            assert node.id in surviving_ids

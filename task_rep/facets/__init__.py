@@ -2,12 +2,12 @@
 Facet discovery and annotation module.
 
 This module provides data structures for facets and annotations, and
-VLM-based operations for discovering, revising, building vocabulary for,
-and labeling with facets.
+VLM-based operations for proposing, building vocabulary for, and labeling
+with facets.
 
 Public API:
 - Facet, FacetLabel, AnnotationTable: Core data structures
-- VLMFacetExtractor: Batch-first VLM-based facet discovery and revision
+- VLMFacetExtractor: Batch-first VLM-based facet proposal (batch and iterative)
 - VLMFacetVocabularyBuilder: VLM-based vocabulary construction
 - VLMFacetLabeler: VLM-based item labeling
 """

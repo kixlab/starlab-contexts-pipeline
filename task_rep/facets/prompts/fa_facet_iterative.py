@@ -2,16 +2,16 @@
 Prompts for iterative facet proposal: one facet at a time, conditioned on
 the current pool.
 
-Context components are enabled by substring check on the `context` string:
-  "facets" — include existing pool (definitions + vocabularies + label frequencies)
-  "items"  — include tutorial video segments with their current pool labels
-  "tree"   — include refinement-tree statistics
+The prompt is assembled from a collection of context component names:
+  "facets"  — include existing pool (definitions + vocabularies + label frequencies)
+  "items"   — include tutorial video segments with their current pool labels
   "schemas" — include accepted/rejected factor combinations with signature frequencies
-Any combination is valid (e.g. "facets+items+tree").
+  "history" — include previously tried factors that were not kept, with outcomes
+Any non-empty combination is valid (e.g. {"facets", "items"}).
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Collection, Dict, List, Optional
 
 from utils.llm import MessageContent
 from utils import random_uid
@@ -21,14 +21,16 @@ from .formatters import (
     build_item_id_map,
     facets_to_message_content,
     annotated_videos_to_message_content,
-    tree_stats_to_message_content,
     schemas_to_message_content,
+    history_to_message_content,
 )
 
 from facets.schema import Facet, FacetLabel, AnnotationTable
 from knowledge_items.schema import KnowledgeBase, KnowledgeItem
 
 logger = logging.getLogger(__name__)
+
+CONTEXT_COMPONENTS = frozenset({"facets", "items", "schemas", "history"})
 
 
 SYSTEM_PROMPT = """You design user-facing metadata for tutorial videos about: {task}.
@@ -94,12 +96,14 @@ _SECTION_ITEMS = """- Tutorial segments (with current pool labels):
 {tutorials}
 """
 
-_SECTION_TREE = """- Refinement tree statistics:
-{tree_stats}
-"""
 
 _SECTION_SCHEMAS = """- Accepted and rejected facet combinations:
 {factor_combinations}
+"""
+
+_SECTION_HISTORY = """- Previously tried factors that were not kept:
+Do not re-propose these factors or close paraphrases of them.
+{history}
 """
 
 _REMINDER = """REMINDER: propose exactly one factor — the best remaining candidate, going finer-grained within the learner's situation when broad dimensions are covered; every value must complete "Show me the segments for when ___"; vocabulary uses 3-8 plain-word values when possible. An empty list is reserved for the case where every candidate would outright duplicate an existing factor.
@@ -109,22 +113,28 @@ _REMINDER = """REMINDER: propose exactly one factor — the best remaining candi
 def form_facet_iterative_request(
     task: str,
     facets: List[Facet],
-    context: str,
+    components: Collection[str],
     videos: Optional[Dict[str, List[KnowledgeItem]]] = None,
     annotations: Optional[AnnotationTable] = None,
     knowledge_base: Optional[KnowledgeBase] = None,
-    tree_stats: Optional[Dict[str, Any]] = None,
     accepted_schemas: Optional[List[Any]] = None,
     rejected_schemas: Optional[List[Any]] = None,
+    history: Optional[List[Any]] = None,
     **kwargs,
 ) -> Dict[str, Any]:
     """Form a request to propose one new facet given the configured context components."""
+    if isinstance(components, str):
+        raise TypeError("components must be a collection of names, not a string.")
+    unknown = set(components) - CONTEXT_COMPONENTS
+    if unknown:
+        raise ValueError(f"Unknown context components: {sorted(unknown)}.")
+
     content_blocks = MessageContent.from_template(
         _INSTRUCTIONS,
         task=task,
     ).content
 
-    if "facets" in context:
+    if "facets" in components:
         mc = MessageContent.from_template(
             _SECTION_FACETS,
             facets=facets_to_message_content(
@@ -135,7 +145,7 @@ def form_facet_iterative_request(
         )
         content_blocks.extend(mc.content)
 
-    if "items" in context and videos:
+    if "items" in components and videos:
         all_items = [item for items in videos.values() for item in items]
         id_map = build_item_id_map(all_items)
         mc = MessageContent.from_template(
@@ -146,14 +156,7 @@ def form_facet_iterative_request(
         )
         content_blocks.extend(mc.content)
 
-    if "tree" in context and tree_stats is not None:
-        mc = MessageContent.from_template(
-            _SECTION_TREE,
-            tree_stats=tree_stats_to_message_content(tree_stats),
-        )
-        content_blocks.extend(mc.content)
-
-    if "schemas" in context and knowledge_base is not None:
+    if "schemas" in components and knowledge_base is not None:
         mc = MessageContent.from_template(
             _SECTION_SCHEMAS,
             factor_combinations=schemas_to_message_content(
@@ -163,6 +166,13 @@ def form_facet_iterative_request(
                 annotations or AnnotationTable(),
                 knowledge_base,
             ),
+        )
+        content_blocks.extend(mc.content)
+
+    if "history" in components:
+        mc = MessageContent.from_template(
+            _SECTION_HISTORY,
+            history=history_to_message_content(history or []),
         )
         content_blocks.extend(mc.content)
 

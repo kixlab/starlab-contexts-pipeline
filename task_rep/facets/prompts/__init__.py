@@ -1,8 +1,3 @@
-from .fa_facet_discovery import (
-    form_facet_discovery_request,
-    process_facet_discovery_response,
-)
-
 from .fa_facet_iterative import (
     form_facet_iterative_request,
     process_facet_iterative_response,
@@ -11,11 +6,6 @@ from .fa_facet_iterative import (
 from .fa_facet_init import (
     form_facet_init_request,
     process_facet_init_response,
-)
-
-from .fa_facet_revision import (
-    form_facet_revision_request,
-    process_facet_revision_response,
 )
 
 from .fa_facet_labeling import (

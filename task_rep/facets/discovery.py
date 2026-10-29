@@ -1,8 +1,9 @@
 """
-Facet discovery and revision.
+Facet proposal.
 
-Uses batch-first VLM processing to propose new facets or revise existing ones.
-Follows the same architectural pattern as VLMKnowledgeExtractor.
+Uses batch-first VLM processing to propose facets in one batch (a0) or one at
+a time conditioned on the current pool (a1/a2). Follows the same architectural
+pattern as VLMKnowledgeExtractor.
 """
 
 from __future__ import annotations
@@ -10,7 +11,7 @@ from __future__ import annotations
 import logging
 import random
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Collection, Dict, List, Optional
 
 from utils import (
     ModelConfig,
@@ -23,19 +24,15 @@ from knowledge_items import (
 )
 
 from .prompts import (
-    form_facet_discovery_request,
-    process_facet_discovery_response,
     form_facet_init_request,
     process_facet_init_response,
-    form_facet_revision_request,
-    process_facet_revision_response,
     form_facet_iterative_request,
     process_facet_iterative_response,
 )
 
 from .schema import Facet, AnnotationTable
 
-logger = logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 @dataclass
 class VLMFacetExtractor:
@@ -43,8 +40,8 @@ class VLMFacetExtractor:
     Batch-first VLM-based facet extractor.
 
     Operations:
-    - propose_facets: Discover new facets (single request)
-    - revise_facets: Revise existing facets (single request)
+    - init_facets: Propose a batch of facets from tutorials (single request)
+    - propose_facet_iterative: Propose one facet given the current pool (single request)
     """
     model_config: ModelConfig
     max_concurrency: int = 32
@@ -94,100 +91,30 @@ class VLMFacetExtractor:
 
         return [facet for result in batch_results for facet in result]
 
-    def propose_facets(
-        self,
-        task: str,
-        videos: Dict[str, List[KnowledgeItem]],
-        target_item_ids: List[str],
-        facets: Optional[List[Facet]] = None,
-        target_signature: Optional[str] = None,
-    ) -> List[Facet]:
-        """
-        Propose new orthogonal facets to discriminate target items.
-
-        Args:
-            videos: Dict of video_id -> List of KnowledgeItems
-            target_item_ids: List of target item IDs
-            existing_facets: Previously discovered facets
-            target_signature: Current shared signature of target items
-
-        Returns:
-            List of newly proposed facets
-        """
-        if facets is None:
-            facets = []
-
-        if target_signature is None:
-            target_signature = ""
-
-        batch_id = f"facet_discovery_{random_uid()}"
-
-        target_item_ids_set = set(target_item_ids)
-
-        # Filter to only videos that contain at least one target item — avoids
-        # flooding the discovery prompt with irrelevant tutorials.
-        target_video_ids = {
-            item.source.video_id
-            for video_items in videos.values()
-            for item in video_items
-            if item.id in target_item_ids_set
-        }
-        target_videos = {vid: items for vid, items in videos.items() if vid in target_video_ids}
-
-        target_items = [
-            item
-            for video_items in target_videos.values()
-            for item in video_items
-            if item.id in target_item_ids_set
-        ]
-
-        if len(target_items) < 2:
-            logger.info("Not enough target_items for discovery")
-            return []
-
-        request_args = [{
-            "task": task,
-            "videos": target_videos,
-            "target_items": target_items,
-            "facets": facets,
-            "target_signature": target_signature,
-        }]
-
-        batch_results = batch_run_llm_calls(
-            batch_id,
-            request_args,
-            form_facet_discovery_request,
-            process_facet_discovery_response,
-            max_concurrency=self.max_concurrency,
-            model_config=self.model_config,
-        )
-
-        return [facet for result in batch_results for facet in result]
-
     def propose_facet_iterative(
         self,
         task: str,
         facets: List[Facet],
-        context: str,
+        components: Collection[str],
         videos: Optional[Dict[str, List[KnowledgeItem]]] = None,
         annotations: Optional[AnnotationTable] = None,
         knowledge_base: Optional[Any] = None,
-        tree_stats: Optional[Dict[str, Any]] = None,
         accepted_schemas: Optional[List[Any]] = None,
         rejected_schemas: Optional[List[Any]] = None,
+        history: Optional[List[Any]] = None,
     ) -> List[Facet]:
         """Propose exactly one new facet conditioned on the existing pool.
 
         Args:
             task: Task name/description
             facets: Current facet pool (definitions + vocabularies shown to LLM)
-            context: Substring-checked string of components to include ("facets", "items", "tree")
-            videos: Video segments with their pool annotations (included when "items" in context)
+            components: Context component names to include ("facets", "items", "schemas", "history")
+            videos: Video segments with their pool annotations (included with "items")
             annotations: Current pool annotations for the video segments
             knowledge_base: Active optimization scope for frequency statistics
-            tree_stats: Tree summary dict (included when "tree" in context)
-            accepted_schemas: Surviving schema summaries (included when "schemas" in context)
-            rejected_schemas: Rejected schema summaries (included when "schemas" in context)
+            accepted_schemas: Surviving schema summaries (included with "schemas")
+            rejected_schemas: Rejected schema summaries (included with "schemas")
+            history: Previously tried, non-kept candidates (included with "history")
 
         Returns:
             A list of new Facets, or an empty list if the LLM refused.
@@ -197,13 +124,13 @@ class VLMFacetExtractor:
         request_args = [{
             "task": task,
             "facets": facets,
-            "context": context,
+            "components": components,
             "videos": videos,
             "annotations": annotations,
             "knowledge_base": knowledge_base,
-            "tree_stats": tree_stats,
             "accepted_schemas": accepted_schemas,
             "rejected_schemas": rejected_schemas,
+            "history": history,
         }]
 
         batch_results = batch_run_llm_calls(
@@ -211,47 +138,6 @@ class VLMFacetExtractor:
             request_args,
             form_facet_iterative_request,
             process_facet_iterative_response,
-            max_concurrency=self.max_concurrency,
-            model_config=self.model_config,
-        )
-
-        return [facet for result in batch_results for facet in result]
-
-    def revise_facets(
-        self,
-        task: str,
-        facets: List[Facet],
-    ) -> List[Facet]:
-        """
-        Revise existing facets 
-
-        Operates corpus-level: single request with all annotated items.
-
-        This can:
-        - Refine definitions and guidelines to adjust the granularity
-        - Split overly broad facets
-        - Merge redundant facets
-
-        Args:
-            facets: Current facets to revise
-
-        Returns:
-            List of revised facets
-
-        TODO: what items are useful to pass here?
-        """
-        if not facets:
-            return []
-
-        batch_id = f"facet_revision_{random_uid()}"
-
-        request_args = [{"task": task, "facets": facets}]
-
-        batch_results = batch_run_llm_calls(
-            batch_id,
-            request_args,
-            form_facet_revision_request,
-            process_facet_revision_response,
             max_concurrency=self.max_concurrency,
             model_config=self.model_config,
         )
