@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useInteractionLog } from "./utils/useInteractionLog";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import type { DatasetVideo, Facet } from "@/app/types";
@@ -26,7 +25,7 @@ const LOADABLE_OPTIONS = DATASET_OPTIONS.filter((o) => !!o.bundleUrl);
 const EMPTY_TREE: RefinementTree = { nodes: [], edges: [], roots: [] };
 
 function configFromParams(params: URLSearchParams): { label: string | null; config: TreeBuildConfig } {
-  const label = params.get("dataset") || null;
+  const label = params.get("dataset") || LOADABLE_OPTIONS[0]?.label || null;
   const maxK = params.has("maxK") ? Math.max(1, Math.min(5, Number(params.get("maxK")))) : DEFAULT_TREE_CONFIG.maxK;
   const tau = params.has("tau") ? Math.max(0.5, Math.min(1, Number(params.get("tau")))) : DEFAULT_TREE_CONFIG.refinementThreshold;
   const stability = params.has("stability") ? Math.max(0, Math.min(1, Number(params.get("stability")))) : DEFAULT_TREE_CONFIG.stabilityThreshold;
@@ -71,8 +70,7 @@ export default function AppTree2() {
   const [selectedEdgeKey, setSelectedEdgeKey] = useState<string | null>(null);
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
-  // --- Interaction logging ---
-  const log = useInteractionLog();
+
 
   // Derived: dirty flag
   const configDirty = lastBuiltConfig === null || JSON.stringify(config) !== JSON.stringify(lastBuiltConfig);
@@ -227,7 +225,6 @@ export default function AppTree2() {
       setTree(newTree);
       setLastBuiltConfig(cfg);
       setGlobalOrder(computeDOrder(newTree));
-      log.startSession(selectedLabel!, cfg, { nodes: newTree.nodes.length, edges: newTree.edges.length });
       setBuildTimestamp(Date.now());
       const ids = new Set(newTree.nodes.map((n) => n.id));
       setSelectedNodeIds((prev) => prev.filter((id) => ids.has(id)));
@@ -238,7 +235,7 @@ export default function AppTree2() {
     } finally {
       setIsBuilding(false);
     }
-  }, [config, selectedLabel, datasetStatus, dataset, facets, infoTypes, log]);
+  }, [config, selectedLabel, datasetStatus, dataset, facets, infoTypes]);
 
   // --- Tree summary ---
   const treeSummary = useMemo(
@@ -268,9 +265,8 @@ export default function AppTree2() {
       // Normal click: select single node
       setSelectedEdgeKey(null);
       setSelectedNodeIds([nodeId]);
-      log.logNodeInspect(nodeId, "visualization");
     }
-  }, [selectNode, log]);
+  }, [selectNode]);
 
   const handleCompareClick = useCallback((nodeId: string) => {
     selectNode(nodeId);
@@ -281,8 +277,7 @@ export default function AppTree2() {
     setSelectedNodeIds([nodeId]);
     setScrollToNodeId(nodeId);
     setTimeout(() => setScrollToNodeId(null), 600);
-    log.logNodeInspect(nodeId, trigger);
-  }, [log]);
+  }, []);
 
   const handleEdgeClick = useCallback((edgeKey: string | null) => {
     setSelectedEdgeKey(edgeKey);
@@ -293,17 +288,14 @@ export default function AppTree2() {
         if (prev.includes(tgtId)) return [tgtId];
         return [srcId];
       });
-      log.logEdgeInspect(srcId, tgtId);
     } else {
-      log.endCurrentInspection();
     }
-  }, [log]);
+  }, []);
 
   const handleDeselectAll = useCallback(() => {
     setSelectedNodeIds([]);
     setSelectedEdgeKey(null);
-    log.endCurrentInspection();
-  }, [log]);
+  }, []);
 
   // --- Log comparison when two nodes are selected ---
   const prevSelectedRef = useRef<string[]>([]);
@@ -311,9 +303,8 @@ export default function AppTree2() {
     const prev = prevSelectedRef.current;
     prevSelectedRef.current = selectedNodeIds;
     if (selectedNodeIds.length === 2 && (prev.length !== 2 || prev[0] !== selectedNodeIds[0] || prev[1] !== selectedNodeIds[1])) {
-      log.logCompare(selectedNodeIds[0], selectedNodeIds[1]);
     }
-  }, [selectedNodeIds, log]);
+  }, [selectedNodeIds]);
 
   // --- Debounced hover logging (500ms threshold) ---
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -325,21 +316,18 @@ export default function AppTree2() {
     setHoveredNodeId(nodeId);
     if (nodeId) {
       hoverTimerRef.current = setTimeout(() => {
-        log.logHover(nodeId);
         hoverTimerRef.current = null;
       }, 500);
     }
-  }, [log]);
+  }, []);
 
   // --- Expand distribution logging ---
   const handleExpandDist = useCallback((nodeId: string, facetId: string) => {
-    log.logExpandDist(nodeId, facetId);
-  }, [log]);
+  }, []);
 
   // --- Copy ID logging ---
   const handleCopyId = useCallback((facetIds: string) => {
-    log.logCopyId(facetIds);
-  }, [log]);
+  }, []);
 
   const validPiecesCount = cachedRef.current?.validPiecesCount ?? 0;
   const numUniqueUnits = cachedRef.current?.numUniqueUnits ?? 0;
@@ -372,8 +360,6 @@ export default function AppTree2() {
           treeSummary={treeSummary}
           visibleCount={tree.nodes.length}
           visibleEdgeCount={tree.edges.length}
-          onDownloadLog={log.downloadLog}
-          hasLogEntries={log.hasEntries}
           buildTimestamp={buildTimestamp}
         />
 

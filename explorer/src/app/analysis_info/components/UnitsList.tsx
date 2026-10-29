@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { DatasetVideo, Facet } from "../types";
+import type { DatasetVideo, Facet } from "@/app/types";
 import { ThumbnailMentions } from "./ThumbnailMentions";
 import { memo } from "react";
 

@@ -172,14 +172,6 @@ export function FacetListPanel({
   maxSelectable,
   pieces,
 }: FacetListPanelProps) {
-  if (facets.length === 0) {
-    return (
-      <div className={`text-xs text-neutral-500 italic ${className}`}>
-        No facets available.
-      </div>
-    );
-  }
-
   const atLimit = maxSelectable !== undefined && selectedFacetIds.size >= maxSelectable;
 
   // Compute per-facet ΔH when pieces are available.
@@ -224,6 +216,10 @@ export function FacetListPanel({
     () => [...facets].sort((a, b) => a.vocabulary.length - b.vocabulary.length),
     [facets],
   );
+
+  if (facets.length === 0) {
+    return <div className={`text-xs text-neutral-500 italic ${className}`}>No facets available.</div>;
+  }
 
   // Top-3 opacities: rank 0 → 30%, rank 1 → 20%, rank 2 → 10%
   const RANK_INTENSITY = [0.30, 0.20, 0.10] as const;
