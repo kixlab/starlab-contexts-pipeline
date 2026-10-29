@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { Tooltip } from "@/app/components/Tooltip";
+import { FacetDetailContent } from "@/app/components/FacetListPanel";
 import { FACET_VALUE_PERCENTAGE_EXPLANATION, DENOMINATOR_TOOLTIP, NO_CONTEXTS_MESSAGE, DENOMINATOR_TOOLTIP_RELATIVE, DENOMINATOR_TOOLTIP_THEORETICAL } from "@/app/constants/facetValueTooltip";
 import type { Facet, DatasetVideo } from "../types";
-import { computeFacetImpactStats, facetToLabelKey as facetToLabelKeyUtil } from "@/app/utils/facetStats";
+import { computeFacetImpactStats, computeDiscriminativeness, facetToLabelKey as facetToLabelKeyUtil, normalizeFacetVals as normalizeFacetValsUtil } from "@/app/utils/facetStats";
 
 type SelectedFacets = Record<string, { label: string; title: string }>;
 
@@ -36,6 +37,7 @@ export function FacetPanel({
   const [hoverTip, setHoverTip] = useState<null | { x: number; y: number; title: string; text: string }>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [addQuery, setAddQuery] = useState("");
+  const [expandedFacets, setExpandedFacets] = useState<Set<string>>(new Set());
 
   // New datasets use facet ids as label keys; old datasets used `context_${facet.title}`.
   const facetToLabelKey = (facet: Facet) => facetToLabelKeyUtil(facet);
@@ -69,17 +71,31 @@ export function FacetPanel({
     return true;
   };
 
-  // Discriminativeness in this view is about predicting the *information unit* (unit_id),
-  // not the info type. We respect the enabled infoTypes (and current selected facet values),
-  // but keep type-focus from collapsing the entropy target.
-  const entropySelectedType = "All";
+  // Filter pieces by selected facet values and info types (matching computeFacetImpactStats behavior)
+  const filteredPieces = useMemo(() => {
+    return allPieces.filter((p: DatasetVideo["pieces"][number]) => {
+      if (!infoTypes.includes(p.content_type as any)) return false;
+      for (const [key, sel] of Object.entries(selectedFacets)) {
+        const vals = normalizeFacetValsUtil((p.labels?.[key] || []) as string[]);
+        if (!vals.includes(sel.label)) return false;
+      }
+      return true;
+    });
+  }, [allPieces, infoTypes, selectedFacets]);
+
+  // Discriminativeness D using the centralized formula
+  const baseD = useMemo(
+    () => computeDiscriminativeness(filteredPieces, facets).D,
+    [filteredPieces, facets],
+  );
+
+  // Keep computeFacetImpactStats for relativeTotal/theoreticalTotal/totalValues display
   const baseImpact = computeFacetImpactStats({
     facets,
     selectedFacets,
     allPieces,
-    selectedType: entropySelectedType,
+    selectedType: "All",
     infoTypes,
-    target: "unit",
   });
 
   const formatDelta = (n: number) => {
@@ -95,7 +111,6 @@ export function FacetPanel({
   };
 
   const sortedCandidateImpacts = useMemo(() => {
-    // Safety cap: computing entropy is O(#pieces), so don’t do it for huge lists on every keystroke.
     const MAX_CANDIDATES_FOR_SORT = 150;
     const candidates = addableCandidates.slice(0, MAX_CANDIDATES_FOR_SORT);
 
@@ -104,27 +119,28 @@ export function FacetPanel({
         facets: [...facets, f],
         selectedFacets,
         allPieces,
-        selectedType: entropySelectedType,
+        selectedType: "All",
         infoTypes,
-        target: "unit",
       });
-      const deltaH = withFacet.conditionalEntropyBits - baseImpact.conditionalEntropyBits;
-      return { facet: f, withFacet, deltaH };
+      const withD = computeDiscriminativeness(filteredPieces, [...facets, f]).D;
+      // Negative deltaD = good (D decreased)
+      const deltaD = withD - baseD;
+      return { facet: f, withFacet, deltaD };
     });
 
     impacts.sort((a, b) => {
-      // Most negative ΔH (largest reduction) first
-      if (a.deltaH !== b.deltaH) return a.deltaH - b.deltaH;
+      // Most negative ΔD (largest reduction) first
+      if (a.deltaD !== b.deltaD) return a.deltaD - b.deltaD;
       return (a.facet.title || "").localeCompare(b.facet.title || "");
     });
 
     return { impacts, isCapped: addableCandidates.length > MAX_CANDIDATES_FOR_SORT, cap: MAX_CANDIDATES_FOR_SORT };
   }, [
     addableCandidates,
-    allPieces,
-    baseImpact.conditionalEntropyBits,
-    entropySelectedType,
+    filteredPieces,
+    baseD,
     facets,
+    allPieces,
     infoTypes,
     selectedFacets,
   ]);
@@ -178,8 +194,8 @@ export function FacetPanel({
 
                 <div className="inline-flex items-center gap-2">
                   <div className="inline-flex items-center gap-1 rounded-full border border-neutral-300 px-2 py-0.5 bg-white/70 dark:bg-neutral-950/40">
-                    <span className="text-neutral-500">H(unit|ctx)</span>
-                    <span className="font-medium text-neutral-800 dark:text-neutral-200">{baseImpact.conditionalEntropyBits.toFixed(2)} bits</span>
+                    <span className="text-neutral-500">D(unit|ctx)</span>
+                    <span className="font-medium text-neutral-800 dark:text-neutral-200">{baseD.toFixed(2)}</span>
                   </div>
 
                   <div className="inline-flex rounded-full border border-neutral-300 overflow-hidden">
@@ -255,7 +271,8 @@ export function FacetPanel({
           </div>
         )}
         {facets.map((facet) => (
-          <div key={facet.id || facet.title} className="grid grid-cols-[90px_1fr] gap-3 items-start">
+          <div key={facet.id || facet.title} className="space-y-0">
+            <div className="grid grid-cols-[90px_1fr] gap-3 items-start">
             <div
               className="text-sm font-medium leading-5 pt-1 flex items-start justify-between gap-2 cursor-help"
               onMouseEnter={(e) =>
@@ -269,9 +286,26 @@ export function FacetPanel({
               onMouseMove={(e) => setHoverTip((t) => (t ? { ...t, x: e.clientX, y: e.clientY + 16 } : t))}
               onMouseLeave={() => setHoverTip(null)}
             >
-              <span className="break-words max-w-[68px]">
-                {facet.title}
-              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  className="text-neutral-400 dark:text-neutral-500 text-[10px] flex-shrink-0 select-none hover:text-neutral-600 dark:hover:text-neutral-300"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExpandedFacets((prev) => {
+                      const next = new Set(prev);
+                      const key = facet.id || facet.title;
+                      if (next.has(key)) next.delete(key); else next.add(key);
+                      return next;
+                    });
+                  }}
+                  title="Show definition, guidelines, and values"
+                >
+                  {expandedFacets.has(facet.id || facet.title) ? "\u25BE" : "\u25B8"}
+                </button>
+                <span className="break-words max-w-[68px]">
+                  {facet.title}
+                </span>
+              </div>
               <div className="flex items-center gap-1">
                 {(() => {
                   const key = facetToLabelKey(facet);
@@ -557,6 +591,12 @@ export function FacetPanel({
               ))}
             </div>
           </div>
+            {expandedFacets.has(facet.id || facet.title) && (
+              <div className="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/40 mx-1 mb-1">
+                <FacetDetailContent facet={facet} />
+              </div>
+            )}
+          </div>
         ))}
       </div>
       {isAddOpen && (
@@ -591,8 +631,8 @@ export function FacetPanel({
               <div className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Current context stats</div>
               <div className="mt-1 grid grid-cols-3 gap-2 text-[11px] text-neutral-600 dark:text-neutral-400">
                 <div>
-                  <div className="text-[10px] uppercase tracking-wide text-neutral-500">H(Info|ctx)</div>
-                  <div className="font-medium text-neutral-800 dark:text-neutral-200">{baseImpact.conditionalEntropyBits.toFixed(2)} bits</div>
+                  <div className="text-[10px] uppercase tracking-wide text-neutral-500">D(unit|ctx)</div>
+                  <div className="font-medium text-neutral-800 dark:text-neutral-200">{baseD.toFixed(2)}</div>
                 </div>
                 <div>
                   <div className="text-[10px] uppercase tracking-wide text-neutral-500">Relative ctx</div>
@@ -609,7 +649,7 @@ export function FacetPanel({
               {addableCandidates.length === 0 ? (
                 <div className="text-sm text-neutral-500 py-6 text-center">No facets to add.</div>
               ) : (
-                sortedCandidateImpacts.impacts.slice(0, 50).map(({ facet: f, withFacet, deltaH }, idx) => {
+                sortedCandidateImpacts.impacts.slice(0, 50).map(({ facet: f, withFacet, deltaD }, idx) => {
                   const deltaRelative = withFacet.relativeTotal - baseImpact.relativeTotal;
                   const deltaTheoretical = withFacet.theoreticalTotal - baseImpact.theoreticalTotal;
                   const deltaValues = withFacet.totalValues - baseImpact.totalValues;
@@ -640,9 +680,9 @@ export function FacetPanel({
                            )}
                         </div>
                         <div className="shrink-0 text-right">
-                          <div className="text-[10px] text-neutral-500">Δ H(unit|ctx)</div>
+                          <div className="text-[10px] text-neutral-500">Δ D</div>
                           <div className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
-                            {formatDeltaFloat(deltaH, 2)} bits
+                            {formatDeltaFloat(deltaD, 2)}
                           </div>
                         </div>
                       </div>
@@ -674,8 +714,8 @@ export function FacetPanel({
               {(sortedCandidateImpacts.impacts.length > 50 || sortedCandidateImpacts.isCapped) && (
                 <div className="text-[11px] text-neutral-500 py-2 text-center">
                   {sortedCandidateImpacts.isCapped
-                    ? `Sorted by ΔH using the first ${sortedCandidateImpacts.cap} matches. Narrow your search to sort more precisely.`
-                    : "Showing the top 50 (sorted by ΔH). Narrow your search to see others."}
+                    ? `Sorted by ΔD using the first ${sortedCandidateImpacts.cap} matches. Narrow your search to sort more precisely.`
+                    : "Showing the top 50 (sorted by ΔD). Narrow your search to see others."}
                 </div>
               )}
             </div>
