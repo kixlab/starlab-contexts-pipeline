@@ -138,6 +138,150 @@ class RefinementTree:
         )
 
 
+@dataclass
+class AcceptedSchemaSummary:
+    """Prompt-facing summary of a schema that survived pruning."""
+
+    id: str
+    facet_ids: List[str]
+    size: int
+    D: float
+    eta2: float
+    H: float
+
+    @staticmethod
+    def from_node(node: TreeNode) -> "AcceptedSchemaSummary":
+        return AcceptedSchemaSummary(
+            id=node.id,
+            facet_ids=list(node.facet_ids),
+            size=node.size,
+            D=node.D,
+            eta2=node.eta2,
+            H=node.H,
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "facet_ids": self.facet_ids,
+            "size": self.size,
+            "D": self.D,
+            "eta2": self.eta2,
+            "H": self.H,
+        }
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "AcceptedSchemaSummary":
+        return AcceptedSchemaSummary(
+            id=data["id"],
+            facet_ids=data["facet_ids"],
+            size=data["size"],
+            D=data["D"],
+            eta2=data["eta2"],
+            H=data["H"],
+        )
+
+
+@dataclass
+class RejectedSchemaSummary:
+    """Prompt-facing summary of a schema rejected by greedy pruning."""
+
+    id: str
+    facet_ids: List[str]
+    size: int
+    D: float
+    eta2: float
+    H: float
+    rejected_by_id: str
+    rejected_by_facet_ids: List[str]
+    MI: float
+    refinement_score: float
+    refinement_threshold: float
+
+    @staticmethod
+    def from_nodes(
+        rejected: TreeNode,
+        rejected_by: TreeNode,
+        MI: float,
+        refinement_score: float,
+        refinement_threshold: float,
+    ) -> "RejectedSchemaSummary":
+        return RejectedSchemaSummary(
+            id=rejected.id,
+            facet_ids=list(rejected.facet_ids),
+            size=rejected.size,
+            D=rejected.D,
+            eta2=rejected.eta2,
+            H=rejected.H,
+            rejected_by_id=rejected_by.id,
+            rejected_by_facet_ids=list(rejected_by.facet_ids),
+            MI=MI,
+            refinement_score=refinement_score,
+            refinement_threshold=refinement_threshold,
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "facet_ids": self.facet_ids,
+            "size": self.size,
+            "D": self.D,
+            "eta2": self.eta2,
+            "H": self.H,
+            "rejected_by_id": self.rejected_by_id,
+            "rejected_by_facet_ids": self.rejected_by_facet_ids,
+            "MI": self.MI,
+            "refinement_score": self.refinement_score,
+            "refinement_threshold": self.refinement_threshold,
+        }
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "RejectedSchemaSummary":
+        return RejectedSchemaSummary(
+            id=data["id"],
+            facet_ids=data["facet_ids"],
+            size=data["size"],
+            D=data["D"],
+            eta2=data["eta2"],
+            H=data["H"],
+            rejected_by_id=data["rejected_by_id"],
+            rejected_by_facet_ids=data["rejected_by_facet_ids"],
+            MI=data["MI"],
+            refinement_score=data["refinement_score"],
+            refinement_threshold=data["refinement_threshold"],
+        )
+
+
+@dataclass
+class SchemaEvaluation:
+    """Schema-pruning output split into graph and prompt-facing summaries."""
+
+    tree: RefinementTree
+    accepted_schemas: List[AcceptedSchemaSummary]
+    rejected_schemas: List[RejectedSchemaSummary]
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "tree": self.tree.to_dict(),
+            "accepted_schemas": [s.to_dict() for s in self.accepted_schemas],
+            "rejected_schemas": [s.to_dict() for s in self.rejected_schemas],
+        }
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "SchemaEvaluation":
+        return SchemaEvaluation(
+            tree=RefinementTree.from_dict(data["tree"]),
+            accepted_schemas=[
+                AcceptedSchemaSummary.from_dict(s)
+                for s in data["accepted_schemas"]
+            ],
+            rejected_schemas=[
+                RejectedSchemaSummary.from_dict(s)
+                for s in data["rejected_schemas"]
+            ],
+        )
+
+
 # ---------------------------------------------------------------------------
 # Entropy helpers
 # ---------------------------------------------------------------------------
@@ -360,6 +504,30 @@ def prune_and_connect(
     Returns:
         RefinementTree with surviving nodes and reduced edges.
     """
+    return evaluate_schemas(
+        nodes, knowledge_base, facets_by_id, annotations, h_memo,
+        refinement_threshold=refinement_threshold,
+        metric_mode=metric_mode,
+    ).tree
+
+
+def evaluate_schemas(
+    nodes: List[TreeNode],
+    knowledge_base: KnowledgeBase,
+    facets_by_id: Dict[str, Facet],
+    annotations: AnnotationTable,
+    h_memo: Dict[FrozenSet[str], float],
+    refinement_threshold: float = 0.7,
+    metric_mode: str = "entropy",
+) -> SchemaEvaluation:
+    """
+    Build schema evaluation output for optimization and downstream prompts.
+
+    The returned RefinementTree contains only accepted schemas and graph edges.
+    Rejected schemas are returned separately with the accepted schema that
+    rejected them, so prompt code can consume schema summaries without taking a
+    dependency on tree traversal.
+    """
     tau = refinement_threshold
 
     def _get_H_union(node_a: TreeNode, node_b: TreeNode) -> float:
@@ -388,12 +556,20 @@ def prune_and_connect(
 
     # Phase A: greedy survival
     accepted: List[TreeNode] = []
+    rejected: List[RejectedSchemaSummary] = []
     for candidate in sorted_nodes:
         dominated = False
         for keeper in accepted:
             mi = _compute_mi(keeper, candidate)
             ref_from_candidate = mi / candidate.H if candidate.H > 0 else 0.0
             if ref_from_candidate > tau and keeper.size <= candidate.size:
+                rejected.append(RejectedSchemaSummary.from_nodes(
+                    rejected=candidate,
+                    rejected_by=keeper,
+                    MI=mi,
+                    refinement_score=ref_from_candidate,
+                    refinement_threshold=tau,
+                ))
                 dominated = True
                 break
         if not dominated:
@@ -445,7 +621,12 @@ def prune_and_connect(
     # Phase C: transitive reduction
     edges = _transitive_reduction(accepted, edges)
 
-    return RefinementTree(nodes=accepted, edges=edges)
+    tree = RefinementTree(nodes=accepted, edges=edges)
+    return SchemaEvaluation(
+        tree=tree,
+        accepted_schemas=[AcceptedSchemaSummary.from_node(node) for node in accepted],
+        rejected_schemas=rejected,
+    )
 
 
 def _transitive_reduction(

@@ -1,8 +1,8 @@
 from pydantic import BaseModel, ConfigDict, Field
-from typing import List
+from typing import List, Optional
 
-class SegmentLabel(BaseModel):
-    """A label in a facet's vocabulary."""
+class VocabularyEntry(BaseModel):
+    """A single entry in a contextual factor's vocabulary (one possible value of the factor)."""
     model_config = ConfigDict(extra='forbid')
 
     label: str = Field(description="Label text")
@@ -10,38 +10,15 @@ class SegmentLabel(BaseModel):
 
 #----------------------------------------
 
-class RevisedFacetCandidate(BaseModel):
-    """A revised facet candidate."""
-    model_config = ConfigDict(extra='forbid')
-
-    title: str = Field(description="Factor title")
-    title_plural: str = Field(description="Plural form")
-    scope: str = Field(description="global, mid-level, or fine-grained")
-    justification: str = Field(
-        description="Brief justification of changes and why this facet is useful."
-    )
-    definition: str = Field(description="Updated definition")
-    guidelines: List[str] = Field(description="Updated instructions for labeling")
-    segment_labels: List[SegmentLabel] = Field(description="Updated vocabulary")
-
-class FacetRevisionResult(BaseModel):
-    """Result of facet revision."""
-    model_config = ConfigDict(extra='forbid')
-
-    candidates: List[RevisedFacetCandidate] = Field(description="Revised facets")
-    changes: str = Field(description="Summary of what was changed and why. If no changes are proposed, a brief explanation of why.")
-
-#----------------------------------------
-
 class SegmentationEntry(BaseModel):
-    """Single segment-label assignment in a segmentation."""
+    """Single tutorial-segment label assignment in a segmentation."""
     model_config = ConfigDict(extra='forbid')
 
-    segment_id: str = Field(description="ID of the knowledge segment")
+    segment_id: str = Field(description="ID of the tutorial segment")
     label: str = Field(description="Label name from the vocabulary — the exact text inside the <name> tag")
 
 class Segmentation(BaseModel):
-    """A segmentation of segments by a single facet."""
+    """A segmentation of tutorial segments by a single contextual factor."""
     model_config = ConfigDict(extra='forbid')
 
     segmentation: List[SegmentationEntry] = Field(description="Label assignment for each segment")
@@ -50,88 +27,99 @@ class Segmentation(BaseModel):
 #----------------------------------------
 
 class TargetAssignment(BaseModel):
-    """Label assignment for a target segment."""
+    """Label assignment for a target tutorial segment."""
     model_config = ConfigDict(extra='forbid')
 
-    segment_id: str = Field(description="ID of the target information unit")
+    segment_id: str = Field(description="ID of the target tutorial segment")
     label: str = Field(description="Assigned label from the vocabulary")
     brief_reason: str = Field(
-        description="One-sentence justification for why this label applies based on the surrounding context, not the segment content itself"
+        description="One-sentence justification for why this label applies based on the proceudral context."
     )
 
 
 class AnchorExample(BaseModel):
-    """A non-target segment demonstrating that the factor applies broadly."""
+    """A non-target tutorial segment demonstrating that the contextual factor applies broadly."""
     model_config = ConfigDict(extra='forbid')
 
-    segment_id: str = Field(description="ID of a non-target segment from the tutorial")
-    label: str = Field(description="Label that would apply to this segment's context")
+    segment_id: str = Field(description="ID of a non-target tutorial segment")
+    label: str = Field(description="The assigned label for this tutorial segment under the contextual factor")
     brief_reason: str = Field(
-        description="Why this anchor demonstrates the factor's breadth"
+        description="Why this anchor demonstrates the contextual factor's breadth"
     )
 
 #----------------------------------------
 
-class FacetCandidate(BaseModel):
-    """A proposed facet candidate with vocabulary and segmentations."""
+class ContextualFactorCandidate(BaseModel):
+    """A proposed contextual factor."""
     model_config = ConfigDict(extra='forbid')
 
-    title: str = Field(description="Short name (2-3 words)")
+    title: str = Field(description="Short name (1-3 words)")
     title_plural: str = Field(description="Plural form of the title")
+    user_question: str = Field(
+        description="A natural question a novice learner would ask to choose this factor's value, e.g. 'What tool is being used?'"
+    )
     scope: str = Field(description="global, mid-level, or fine-grained")
     justification: str = Field(
-        description="Why this facet was chosen: (1) why is it a contextual factor, (2) how does it separates colliding segments, (3) why is it distinct from previous factors"
+        description="Why this factor was chosen: (1) why it is a valid contextual factor, (2) why it is distinct from previously identified contextual factors"
     )
-    definition: str = Field(description="What this facet captures")
-    guidelines: List[str] = Field(description="Instructions for labeling")
-    segment_labels: list[SegmentLabel] = Field(description="Full vocabulary")
+    definition: str = Field(description="What this factor captures")
+    guidelines: List[str] = Field(description="Instructions for labeling tutorial segments under this contextual factor")
+    vocabulary: list[VocabularyEntry] = Field(description="Vocabulary for this contextual factor (list of possible label values)")
+
+
+#----------------------------------------
+
+class ContextualFactorCandidateWithAssignments(ContextualFactorCandidate):
+    """A proposed contextual factor with assignments to target tutorial segments."""
+
     target_assignments: list[TargetAssignment] = Field(
-        description="Label for each target segment under this factor"
+        min_length=1,
+        description="Label for each target tutorial segment under this contextual factor"
     )
     anchor_examples: list[AnchorExample] = Field(
         min_length=2,
         max_length=4,
-        description="Non-target segments showing the factor applies broadly "
-        "across the tutorial with different labels used",
+        description="Non-target tutorial segments showing the contextual factor applies broadly, with different labels used",
     )
 
 
-class FacetDiscoveryResult(BaseModel):
-    """Result of facet discovery."""
+class ContextualFactorDiscoveryResult(BaseModel):
+    """Result of contextual factor discovery."""
     model_config = ConfigDict(extra='forbid')
 
-    candidates: list[FacetCandidate] = Field(
-        description="Proposed facet candidates. Empty list if no valid factors found."
+    candidates: list[ContextualFactorCandidateWithAssignments] = Field(
+        min_length=0,
+        description="Proposed contextual factors. Empty list if none are valid."
     )
     refusal_reason: str = Field(
-        description="If no candidates are proposed, a brief explanation of why the target segments cannot be meaningfully distinguished by contextual factors. Otherwise, leave it empty.",
+        description="If no candidates are proposed, a brief explanation of why the target tutorial segments cannot be meaningfully distinguished by contextual factors. Otherwise, leave it empty.",
     )
 
 #----------------------------------------
-# Facet Initialization (bootstrap)
+# Contextual Factor Revision
 #----------------------------------------
 
-class FacetInitCandidate(BaseModel):
-    """A facet candidate proposed during initialization (no target assignments)."""
+class ContextualFactorRevisionResult(BaseModel):
+    """Result of contextual factor revision."""
     model_config = ConfigDict(extra='forbid')
 
-    title: str = Field(description="Short name (2-3 words)")
-    title_plural: str = Field(description="Plural form of the title")
-    scope: str = Field(description="global, mid-level, or fine-grained")
-    justification: str = Field(
-        description="Why this facet was chosen: (1) why is it a contextual factor, (2) why is it is distinct from previous factors"
+    candidates: List[ContextualFactorCandidate] = Field(description="Revised contextual factors")
+    changes: str = Field(description="Summary of what was changed and why. If no changes are proposed, a brief explanation of why.")
+
+#----------------------------------------
+# Contextual Factor Initialization
+#----------------------------------------
+
+class ContextualFactorInitResult(BaseModel):
+    """Result of contextual factor proposal."""
+    model_config = ConfigDict(extra='forbid')
+
+    candidates: list[ContextualFactorCandidate] = Field(
+        min_length=0,
+        description="Proposed contextual factors. Empty list if none are valid."
     )
-    definition: str = Field(description="What this facet captures")
-    guidelines: List[str] = Field(description="Instructions for labeling")
-    segment_labels: list[SegmentLabel] = Field(description="Full vocabulary")
-
-
-class FacetInitResult(BaseModel):
-    """Result of facet initialization."""
-    model_config = ConfigDict(extra='forbid')
-
-    candidates: list[FacetInitCandidate] = Field(
-        description="Proposed facet candidates for bootstrapping the algorithm."
+    refusal_reason: str = Field(
+        description="If no candidates are proposed, a brief explanation of why. Otherwise, leave it empty.",
     )
 
 #----------------------------------------
@@ -139,14 +127,14 @@ class FacetInitResult(BaseModel):
 #----------------------------------------
 
 class ProposedLabel(BaseModel):
-    """A single proposed vocabulary label for a facet."""
+    """A single proposed vocabulary label for a contextual factor."""
     model_config = ConfigDict(extra='forbid')
 
-    label: str = Field(description="Short label text (2-5 words)")
-    definition: str = Field(description="Definition of what this label means in the context of the facet")
+    label: str = Field(description="Short label text (1-3 words)")
+    definition: str = Field(description="Definition of what this label means in the context of the contextual factor")
 
 class VocabularyProposalResult(BaseModel):
-    """Result of per-video vocabulary proposal for a single facet."""
+    """Result of per-tutorial vocabulary proposal for a single contextual factor."""
     model_config = ConfigDict(extra='forbid')
 
     proposed_labels: List[ProposedLabel] = Field(description="Proposed vocabulary labels")
@@ -161,9 +149,25 @@ class ConsolidatedLabel(BaseModel):
     definition: str = Field(description="Refined definition")
     source_labels: List[str] = Field(description="Original proposed labels that were merged into this one")
 
-class VocabularyConsolidationResult(BaseModel):
-    """Result of consolidating vocabulary for a single facet."""
+class ContextualFactorConsolidationResult(BaseModel):
+    """Result of consolidating a contextual factor's vocabulary.
+
+    The definition and guidelines are realigned only as needed to stay consistent
+    with the consolidated vocabulary; they are returned unchanged otherwise.
+    """
     model_config = ConfigDict(extra='forbid')
 
     consolidated_labels: List[ConsolidatedLabel] = Field(description="Final deduplicated vocabulary labels")
-    consolidation_notes: str = Field(description="Brief explanation of merging decisions")
+    revised_definition: str = Field(
+        description="Contextual factor definition, possibly unchanged. Revise only if the consolidated vocabulary makes the original inaccurate or ambiguous."
+    )
+    revised_guidelines: List[str] = Field(
+        description="Labeling guidelines, possibly unchanged. Update only the items affected by vocabulary changes; otherwise keep them verbatim."
+    )
+    consolidation_notes: str = Field(
+        description="Brief summary of vocabulary consolidation decisions; mention any definition/guideline edit only if it was forced by a vocabulary change."
+    )
+
+
+# Back-compat alias (older name referred only to vocabulary).
+VocabularyConsolidationResult = ContextualFactorConsolidationResult
