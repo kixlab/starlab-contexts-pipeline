@@ -1,21 +1,16 @@
 # Pipeline explorer
 
-From this directory, use Node.js 22, `npm ci`, then `npm run dev` and open
-<http://localhost:3000>.
+Use Node.js 22. From this directory, run `npm ci`, then
+`npm run dev -- --port 3001` and open <http://localhost:3001>.
 
-`/inspect` inspects knowledge units, source clips, facet labels, and coverage.
-`/space` enumerates contextual schemas and displays their refinement graph;
-press **Build** after loading a dataset. The original `/analysis_info` and
-`/app_tree_2` URLs remain available. The bundled dataset and media are synthetic.
+- `/inspect`: select a knowledge unit and expand its source details.
+- `/space`: press **Build**, then select a schema node.
 
-To add output from your pipeline, copy the exported bundle to
-`public/data/local-bundle.json`, copy `.env.local.example` to `.env.local`, set
-`NEXT_PUBLIC_BUNDLE_URL=/data/local-bundle.json`, and restart the server. Choose
-**Local pipeline output**. A raw `result.json` must be combined with its knowledge
-base through `python main.py export` in the parent repo first.
+The bundled synthetic dataset and local video work without API keys. To use a
+generated bundle, follow the [root quick start](../README.md#quick-start-both-repos).
+The configured bundle is selected automatically; both interfaces expose dataset
+controls. Restart after changing `.env.local` and set it before production builds.
 
-`npm run build` makes a production build; `npm run start` serves it. Use
-`-- --port 3001` to run beside the applications repo. `npm run test:smoke` tests
-the production UI after `npx playwright install chromium`. No study logging or
-participant data is included. See the [root README](../README.md) for the full
-system setup and export instructions.
+For production, use `npm run build`, then `npm run start -- --port 3001`.
+After building, `npx playwright install chromium` and `npm run test:smoke` verify
+the inspector, graph, and local data loading.

@@ -9,12 +9,12 @@ import { DetailsPanel } from "./components/DetailsPanel";
 import type { DatasetVideo, Facet } from "@/app/types";
 import { normalizeBundle } from "@/app/utils/bundleConverter";
 import { GRID_TEMPLATE } from "@/app/constants/ui";
-import { getSelectedDataset, deriveInfoTypesFromDataset } from "@/app/constants/datasetConfig";
+import { DATASET_OPTIONS, getSelectedDataset, deriveInfoTypesFromDataset } from "@/app/constants/datasetConfig";
 
 export default function Home() {
-  // Get dataset from localStorage or use default
-  const selectedDataset = getSelectedDataset();
-  const [bundleUrl] = useState(selectedDataset.bundleUrl);
+  const [selectedDataset, setSelectedDataset] = useState(() => getSelectedDataset());
+  const bundleUrl = selectedDataset.bundleUrl;
+  const [loadError, setLoadError] = useState<string | null>(null);
   // availableInfoTypes starts from the config list; when config is null it is
   // populated after the dataset loads via deriveInfoTypesFromDataset.
   const [availableInfoTypes, setAvailableInfoTypes] = useState<string[]>(selectedDataset.infoTypes ?? []);
@@ -55,11 +55,20 @@ export default function Home() {
   }, [availableInfoTypes]);
 
   useEffect(() => {
+    let cancelled = false;
     const load = async () => {
       // Load bundled file with { context_schema, facet_candidates, labeled_dataset }
       if (!bundleUrl) return;
+      setLoadError(null);
+      setSelectedUnitId(null);
+      setSelectedFacets({});
+      setSelectedType("All");
       try {
-        const bundle = normalizeBundle(await fetch(bundleUrl).then((r) => r.json()));
+        const response = await fetch(bundleUrl);
+        if (!response.ok) throw new Error(`Bundle request failed (${response.status})`);
+        const bundle = normalizeBundle(await response.json());
+        if (!Array.isArray(bundle?.labeled_dataset)) throw new Error("Expected a labeled_dataset array");
+        if (cancelled) return;
         if (bundle && typeof bundle === "object" && bundle.labeled_dataset) {
           const ds = bundle.labeled_dataset as DatasetVideo[];
           setDataset(ds);
@@ -71,18 +80,23 @@ export default function Home() {
           setFacetCandidates(initialCandidates);
 
           // Derive infoTypes from data when config is null (step/tutorial datasets).
-          if (selectedDataset.infoTypes === null) {
-            const types = deriveInfoTypesFromDataset(ds);
-            setAvailableInfoTypes(types);
-            setSelectedInfoTypes(types.includes("Method - Instruction") ? ["Method - Instruction"] : types.slice(0, 1));
-          }
+          const types = selectedDataset.infoTypes ?? deriveInfoTypesFromDataset(ds);
+          setAvailableInfoTypes(types);
+          setSelectedInfoTypes(types.includes("Method - Instruction") ? ["Method - Instruction"] : types.slice(0, 1));
         }
       } catch (error) {
         console.error("Failed to load bundle:", error);
+        if (!cancelled) {
+          setDataset([]);
+          setShownFacets([]);
+          setFacetCandidates([]);
+          setLoadError("Could not load this dataset. Check the bundle file and NEXT_PUBLIC_BUNDLE_URL setting.");
+        }
       }
     };
     load();
-  }, [bundleUrl]);
+    return () => { cancelled = true; };
+  }, [bundleUrl, selectedDataset.infoTypes]);
 
   const allPieces = useMemo(() => dataset.flatMap((v) => v.pieces || []), [dataset]);
 
@@ -251,16 +265,31 @@ export default function Home() {
   // Grid template comes from constants
 
   return (
-    <div className="h-screen w-full overflow-hidden font-sans bg-white dark:bg-black text-black dark:text-white">
-      <div className="absolute top-4 left-4 z-10">
+    <div className="h-screen w-full flex flex-col overflow-hidden font-sans bg-white dark:bg-black text-black dark:text-white">
+      <div className="flex items-center gap-4 px-4 py-2 border-b border-neutral-200 dark:border-neutral-800">
         <Link
           href="/"
           className="px-3 py-1.5 text-sm bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded border border-neutral-300 dark:border-neutral-600 transition-colors"
         >
           ← Back to Home
         </Link>
+        <label className="text-sm flex items-center gap-2">
+          Dataset
+          <select
+            aria-label="Dataset"
+            value={selectedDataset.label}
+            onChange={(event) => {
+              const next = DATASET_OPTIONS.find((option) => option.label === event.target.value);
+              if (next) setSelectedDataset(next);
+            }}
+            className="rounded border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1"
+          >
+            {DATASET_OPTIONS.map((option) => <option key={option.label} value={option.label}>{option.label}</option>)}
+          </select>
+        </label>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-[var(--grid)] gap-4 p-4 h-full min-h-0" style={{ ['--grid' as string]: GRID_TEMPLATE, gridTemplateRows: '1fr' }}>
+      {loadError && <p role="alert" className="px-4 py-2 text-sm text-red-600 dark:text-red-400">{loadError}</p>}
+      <div className="grid grid-cols-1 lg:grid-cols-[var(--grid)] gap-4 p-4 flex-1 min-h-0" style={{ ['--grid' as string]: GRID_TEMPLATE, gridTemplateRows: '1fr' }}>
         {/* Column 1: Facets */}
         <FacetPanel
           facets={shownFacets}
