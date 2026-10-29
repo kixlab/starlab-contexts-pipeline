@@ -28,6 +28,7 @@ from knowledge_items import (
 )
 from knowledge_items.prompts.formatters import video_to_message_content, format_item, knowledge_item_to_message_content
 from knowledge_items.chunk_sampling import ChunkConfig
+from utils import ModelConfig
 
 
 # ============= Fixtures =============
@@ -269,22 +270,25 @@ def test_knowledge_item_format_to_message_content():
 
 # ============= Video Tests =============
 
-def test_video_get_duration(mock_videos):
-    """Test Video.get_duration()."""
-    video = mock_videos[0]
-    duration = video.get_duration()
-    # Should be max of transcript end (15.0) and last frame time (12.0)
-    assert duration == 15.0
+def test_video_get_duration():
+    """Test Video.get_duration() reads from metadata."""
+    video = Video(
+        id="v1", url="", title="",
+        transcript=[VideoTranscriptSegment(text="hi", start=0.0, end=15.0)],
+        frames=[VideoFrame(path="/tmp/f.jpg", time=12.0)],
+        metadata={"duration": 15},
+    )
+    assert video.get_duration() == 15
 
 
-def test_video_get_duration_no_transcript():
-    """Test get_duration with frames but minimal transcript."""
+def test_video_get_duration_no_metadata():
+    """Test get_duration defaults to 0 when duration not in metadata."""
     video = Video(
         id="v1", url="", title="",
         transcript=[VideoTranscriptSegment(text="hi", start=0.0, end=2.0)],
         frames=[VideoFrame(path="/tmp/f.jpg", time=10.0)],
     )
-    assert video.get_duration() == 10.0
+    assert video.get_duration() == 0
 
 
 def test_video_sample_frames(mock_videos):
@@ -534,7 +538,10 @@ def test_knowledge_base_iter_and_len():
 
 def test_cluster_config():
     """Test ClusterConfig cache suffix generation."""
-    config = ClusterConfig(similarity_threshold=0.85, embedding_model="text-embedding-3-small")
+    config = ClusterConfig(
+        similarity_threshold=0.85,
+        model_config=ModelConfig(category="embedding", provider="openai", model="text-embedding-3-small"),
+    )
     suffix = config.cache_suffix()
 
     assert "sim085" in suffix

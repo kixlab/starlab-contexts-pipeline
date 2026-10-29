@@ -7,7 +7,12 @@ Run with: python -m pytest tests/test_facets.py -v
 import pytest
 
 from facets import Facet, FacetLabel, VLMFacetExtractor
-from facets.prompts.formatters import facet_label_to_message_content, facet_to_message_content
+from facets.prompts.formatters import (
+    facet_to_message_content,
+    format_guidelines,
+    format_vocabulary,
+)
+from utils import ModelConfig
 
 
 # ============= FacetLabel Tests =============
@@ -59,16 +64,6 @@ def test_facet_label_str():
     s = str(label)
     assert "Beginner Level" in s
     assert "For newcomers" in s
-
-
-def test_facet_label_format_to_message_content():
-    """Test facet_label_to_message_content()."""
-    label = FacetLabel(label="beginner", definition="For newcomers", id="l1")
-    mc = facet_label_to_message_content(label)
-    assert len(mc.content) == 1
-    assert mc.content[0]["type"] == "text"
-    assert "beginner" in mc.content[0]["text"]
-
 
 # ============= Facet Tests =============
 
@@ -191,15 +186,15 @@ def test_facet_str(sample_facet):
 
 
 def test_facet_format_guidelines(sample_facet):
-    """Test Facet.format_guidelines()."""
-    formatted = sample_facet.format_guidelines()
+    """Test format_guidelines() from facets.prompts.formatters."""
+    formatted = format_guidelines(sample_facet.guidelines)
     assert "Label based on required expertise" in formatted
     assert "Consider tool complexity" in formatted
 
 
 def test_facet_format_vocabulary(sample_facet):
-    """Test Facet.format_vocabulary()."""
-    formatted = sample_facet.format_vocabulary()
+    """Test format_vocabulary() from facets.prompts.formatters."""
+    formatted = format_vocabulary(sample_facet.vocabulary)
     assert "beginner" in formatted
     assert "intermediate" in formatted
     assert "advanced" in formatted
@@ -243,24 +238,23 @@ def test_facet_with_metadata():
 
 def test_vlm_facet_extractor_defaults():
     """Test VLMFacetExtractor default initialization."""
-    extractor = VLMFacetExtractor(task="sushi")
-    assert extractor.task == "sushi"
-    assert extractor.provider == "openai"
-    assert extractor.model == "gpt-4o-mini"
+    extractor = VLMFacetExtractor(model_config=ModelConfig(category="vlm", provider="openai"))
+    assert extractor.model_config.provider == "openai"
+    assert extractor.model_config.model == "gpt-4o-mini"
     assert extractor.max_concurrency == 32
 
 
 def test_vlm_facet_extractor_anthropic():
     """Test VLMFacetExtractor with Anthropic provider."""
-    extractor = VLMFacetExtractor(task="sushi", provider="anthropic")
-    assert extractor.provider == "anthropic"
-    assert "claude" in extractor.model
+    extractor = VLMFacetExtractor(model_config=ModelConfig(category="vlm", provider="anthropic"))
+    assert extractor.model_config.provider == "anthropic"
+    assert "claude" in extractor.model_config.model
 
 
 def test_vlm_facet_extractor_custom_model():
     """Test VLMFacetExtractor with custom model."""
-    extractor = VLMFacetExtractor(task="sushi", provider="openai", model="gpt-4o")
-    assert extractor.model == "gpt-4o"
+    extractor = VLMFacetExtractor(model_config=ModelConfig(category="vlm", provider="openai", model="gpt-4o"))
+    assert extractor.model_config.model == "gpt-4o"
 
 
 if __name__ == "__main__":

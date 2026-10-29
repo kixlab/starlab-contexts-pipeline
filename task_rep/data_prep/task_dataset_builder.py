@@ -19,6 +19,11 @@ from .video_downloader import (
 from .task_manager import (
     Task,
 )
+from .narration_checker import (
+    check_narration_quality,
+    DEFAULT_MIN_WORD_COUNT,
+    DEFAULT_MIN_WORDS_PER_MINUTE,
+)
 
 def build_task_dataset(
     task: Task,
@@ -27,6 +32,9 @@ def build_task_dataset(
     fps: float = 1.0,
     transcript_source: Literal["openai", "youtube"] = "openai",
     force_download: bool = False,
+    narration_check: bool = True,
+    min_word_count: int = DEFAULT_MIN_WORD_COUNT,
+    min_words_per_minute: float = DEFAULT_MIN_WORDS_PER_MINUTE,
 ) -> Path:
     """
     Build a complete dataset from a task definition.
@@ -37,6 +45,7 @@ def build_task_dataset(
         - Downloads metadata, video, audio and YouTube transcript (if needed or force_download is True)
         - Extracts frames according to fps
         - Extracts the transcript according to transcript_source
+        - Optionally checks narration quality and skips under-narrated videos
     3. Saves complete dataset JSON
 
     Args:
@@ -45,6 +54,9 @@ def build_task_dataset(
         fps: Frames per second to extract
         transcript_source: Which transcripts to use: "openai" or "youtube"
         force_download: Re-download videos even if they exist
+        narration_check: Skip videos that don't have enough narration
+        min_word_count: Minimum total word count to pass narration check
+        min_words_per_minute: Minimum words-per-minute to pass narration check
     """
 
     output_path: Path = task.get_dataset_path(dataset_dir)
@@ -53,6 +65,7 @@ def build_task_dataset(
     # Process each video
     dataset = []
     skipped_videos = []
+    narration_filtered_videos = []
 
     for i, video_id in enumerate(task.video_ids):
         print(f"\n[{i+1}/{len(task.video_ids)}] Processing {video_id}")
@@ -95,6 +108,26 @@ def build_task_dataset(
             video_data["transcript_source"] = transcript_source
 
             print(f"  ✓ {transcript_source} transcript: {len(transcript)} segments")
+
+            if narration_check:
+                duration = metadata.get("duration", 0) or 0
+                narration_result = check_narration_quality(
+                    transcript,
+                    video_duration=float(duration),
+                    min_word_count=min_word_count,
+                    min_words_per_minute=min_words_per_minute,
+                )
+                if not narration_result.passed:
+                    print(f"  ✗ Narration check failed: {narration_result.reason}")
+                    print(f"    Stats: {narration_result.stats}")
+                    narration_filtered_videos.append(video_id)
+                    continue
+                else:
+                    s = narration_result.stats
+                    print(
+                        f"  ✓ Narration check passed "
+                        f"({s['word_count']} words, {s['words_per_minute']} wpm)"
+                    )
         except Exception as e:
             print(f"  ✗ Error processing video: {e}")
             skipped_videos.append(video_id)
@@ -107,10 +140,16 @@ def build_task_dataset(
         json.dump(dataset, indent=2, ensure_ascii=False, fp=f)
 
     print(f"\n✓ Dataset saved: {output_path}")
-    print(f"  Total videos processed: {len(dataset)}/{len(task.video_ids)}")
+    print(f"  Total videos in dataset: {len(dataset)}/{len(task.video_ids)}")
 
-    # Show skipped videos
     if skipped_videos:
         print(f"\n⚠ Skipped {len(skipped_videos)} video(s) (unavailable or failed to download):")
+        for vid in skipped_videos:
+            print(f"    - {vid}")
+
+    if narration_filtered_videos:
+        print(f"\n⚠ Filtered {len(narration_filtered_videos)} video(s) (insufficient narration):")
+        for vid in narration_filtered_videos:
+            print(f"    - {vid}")
 
     return Path(output_path)

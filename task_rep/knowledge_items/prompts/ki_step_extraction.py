@@ -5,6 +5,7 @@ This includes both step discovery (identifying what steps exist) and
 step extraction based on a step taxonomy.
 """
 
+import logging
 from typing import Any, Dict, List
 
 from utils import MessageContent
@@ -14,6 +15,8 @@ from .ki_pydantic import StepExtractionResult
 
 from knowledge_items.schema import KnowledgeItem, KnowledgeItemType, KnowledgeSource, Video
 from knowledge_items.chunk_sampling import ChunkConfig
+
+logger = logging.getLogger(__name__)
 
 
 SYSTEM_MESSAGE_DISCOVERY = """You are an expert at analyzing tutorial videos and identifying procedural steps about the task: {task}. You excel at recognizing the high-level structure of tutorials, breaking down complex procedures into clear steps, and understanding both what is shown visually and what is explained in narration."""
@@ -158,15 +161,24 @@ def process_step_extraction_response_extraction(
     result = response.get("response", {})
     steps = result.get("steps", [])
 
+    labeled_segments = []
+
     valid_step_names = {step.get('name') for step in step_taxonomy}
     items = []
     for idx, step in enumerate(steps):
         name = step.get("name", "").strip().lower()
         if name not in valid_step_names:
+            logger.warning(f"Step name {name} not in taxonomy! Skipping...")
             continue
         content = step.get("content")
         start = step.get("start")
         end = step.get("end")
+
+        labeled_segments.append({
+            "start": float(start),
+            "end": float(end),
+            "name": name,
+        })
         items.append(KnowledgeItem(
             id=f"step:{name}-{idx}:{video.id}",
             type=KnowledgeItemType.STEP,
@@ -179,4 +191,33 @@ def process_step_extraction_response_extraction(
             ),
             subtype=name,
         ))
+
+    ### check and raise warning if there are unlabeled transcript segments
+    originally_unlabeled_duration = 0
+    for i in range(len(video.transcript)):
+        if i == 0:
+            originally_unlabeled_duration += video.transcript[i].start
+        if i == len(video.transcript) - 1:
+            originally_unlabeled_duration += video.get_duration() - video.transcript[i].end
+            continue
+        originally_unlabeled_duration += video.transcript[i + 1].start - video.transcript[i].end
+    
+    labeled_segments = sorted(labeled_segments, key=lambda x: x["start"])
+    unlabeled_segment_duration = 0
+    for i in range(len(labeled_segments)):
+        if labeled_segments[i]["start"] < 0 or labeled_segments[i]["end"] > video.get_duration():
+            logger.warning(f"Invalid segment found for video {video.id}: {labeled_segments[i]['start']} - {labeled_segments[i]['end']}")
+        if labeled_segments[i]["end"] < labeled_segments[i]["start"]:
+            logger.warning(f"Invalid segment found for video {video.id}: {labeled_segments[i]['start']} - {labeled_segments[i]['end']}")
+        if i == 0:
+            unlabeled_segment_duration += labeled_segments[i]["start"]
+        if i == len(labeled_segments) - 1:
+            unlabeled_segment_duration += video.get_duration() - labeled_segments[i]["end"]
+            continue
+        if labeled_segments[i]["end"] > labeled_segments[i + 1]["start"]:
+            logger.warning(f"Clashing segments found for video {video.id}: {labeled_segments[i]['start']} - {labeled_segments[i]['end']} and {labeled_segments[i + 1]['start']} - {labeled_segments[i + 1]['end']}")
+        else:
+            unlabeled_segment_duration += labeled_segments[i + 1]["start"] - labeled_segments[i]["end"]
+    if abs(originally_unlabeled_duration - unlabeled_segment_duration) > 0:
+        logger.warning(f"Unlabeled segment found for video {video.id}: {originally_unlabeled_duration - unlabeled_segment_duration} seconds")
     return items
