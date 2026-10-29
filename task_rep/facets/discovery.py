@@ -7,6 +7,7 @@ Follows the same architectural pattern as VLMKnowledgeExtractor.
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
@@ -29,6 +30,7 @@ from .prompts import (
 
 from .schema import Facet
 
+logger = logger = logging.getLogger(__name__)
 
 @dataclass
 class VLMFacetExtractor:
@@ -70,16 +72,32 @@ class VLMFacetExtractor:
 
         batch_id = f"facet_discovery_{random_uid()}"
 
-        target_items = [
-            item
+        target_item_ids_set = set(target_item_ids)
+
+        # Filter to only videos that contain at least one target item — avoids
+        # flooding the discovery prompt with irrelevant tutorials.
+        target_video_ids = {
+            item.source.video_id
             for video_items in videos.values()
             for item in video_items
-            if item.id in target_item_ids
+            if item.id in target_item_ids_set
+        }
+        target_videos = {vid: items for vid, items in videos.items() if vid in target_video_ids}
+
+        target_items = [
+            item
+            for video_items in target_videos.values()
+            for item in video_items
+            if item.id in target_item_ids_set
         ]
+
+        if len(target_items) < 2:
+            logger.info("Not enough target_items for discovery")
+            return []
 
         request_args = [{
             "task": task,
-            "videos": videos,
+            "videos": target_videos,
             "target_items": target_items,
             "facets": facets,
             "target_signature": target_signature,
@@ -116,6 +134,8 @@ class VLMFacetExtractor:
 
         Returns:
             List of revised facets
+
+        TODO: what items are useful to pass here?
         """
         if not facets:
             return []

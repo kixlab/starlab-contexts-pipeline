@@ -191,7 +191,7 @@ def is_pareto_improved(
     - new_C ≤ old_C and new_D < old_D, OR
     - new_C < old_C and new_D ≤ old_D.
 
-    Both frontiers are sorted by ascending compactness.
+    Both frontiers are sorted by ascending compactness and assumes that the new_frontier is at least no worse than the old_frontier.
     """
     old_clipped = clip_frontier(old_frontier, min_d)
     new_clipped = clip_frontier(new_frontier, min_d)
@@ -217,6 +217,12 @@ def is_pareto_improved(
             old_i += 1
         else:
             new_i += 1
+
+    # Old exhausted but new has remaining points at higher C.
+    # If new's minimum D beats old's minimum D, that's a real improvement.
+    if old_i == len(old_clipped) and new_i < len(new_clipped):
+        if new_clipped[-1].discriminativeness < old_clipped[-1].discriminativeness:
+            return True
 
     return False
 

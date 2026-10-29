@@ -43,7 +43,7 @@ def format_guidelines(guidelines: List[str]) -> str:
         return "No guidelines are available."
     return "\n".join([_GUIDELINE_STR_FORMAT.format(guideline=guideline) for guideline in guidelines])
 
-_LABEL_STR_FORMAT = """[{label}] {definition}"""
+_LABEL_STR_FORMAT = """<label id="{label}">{definition}</label>"""
 
 def format_facet_label(label: FacetLabel) -> str:
     return _LABEL_STR_FORMAT.format(
@@ -58,11 +58,13 @@ def format_vocabulary(vocabulary: List[FacetLabel]) -> str:
     return "\n".join([format_facet_label(label) for label in vocabulary])
 
 
-_FACET_FORMAT = """[{display_id}] {title_plural}: {definition}
+_FACET_FORMAT = """<facet id="{display_id}">
+{title_plural}: {definition}
 **Guidelines for labeling items**:
 {guidelines}
 **Vocabulary**:
-{vocabulary}"""
+{vocabulary}
+</facet>"""
 
 def format_facet(facet: Facet, display_id: Optional[str] = None) -> str:
     """Format a Facet as text using display_id instead of facet.id."""

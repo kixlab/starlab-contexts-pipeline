@@ -48,7 +48,7 @@ DEFAULT_MODEL_ANTHROPIC = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
 # Generation parameters
 SEED = 13774
 TEMPERATURE = 0.0
-REASONING_EFFORT = "low"  # For GPT-5 models: "minimal", "low", "medium", "high"
+REASONING_EFFORT = "medium"  # For GPT-5 models: "minimal", "low", "medium", "high"
 
 # Model-specific max completion tokens
 MODEL_MAX_TOKENS = {

@@ -15,7 +15,7 @@ from .ki_pydantic import StepTaxonomy
 from knowledge_items.schema import KnowledgeItem, Video
 
 
-SYSTEM_MESSAGE = """You are an expert at analyzing procedural knowledge and creating step taxonomies for the task: {task}. You excel at identifying similar or duplicate steps across multiple tutorials, understanding naming variations, and creating clear, consistent canonical names with comprehensive definitions. You understand logical ordering of procedural steps and can recognize when steps from different videos represent the same action versus genuinely distinct actions."""
+SYSTEM_MESSAGE = """You are an expert at analyzing procedural knowledge and creating step taxonomies for the task: {task}. You excel at identifying similar or duplicate steps across multiple tutorials, understanding naming variations, and creating clear, consistent canonical names with comprehensive definitions. You understand logical ordering of procedural steps and can recognize when steps from different videos represent the same action versus genuinely distinct actions. Inputs are structured with XML tags — use the tag name and id attribute to identify each object and its boundaries."""
 
 USER_MESSAGE = """You are given steps discovered from multiple tutorial videos.
 

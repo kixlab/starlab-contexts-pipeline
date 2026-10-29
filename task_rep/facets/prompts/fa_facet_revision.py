@@ -88,7 +88,7 @@ def process_facet_revision_response(
     facets = []
     for candidate in candidates:
         vocabulary = [
-            FacetLabel(label=ld["label"], definition=ld["definition"])
+            FacetLabel(label=ld["label"].strip().lower(), definition=ld["definition"])
             for ld in candidate.get("segment_labels", [])
         ]
         facets.append(Facet(
