@@ -10,6 +10,5 @@ inter-rater checks, candidate selection, checkpoints, and evaluation. It depends
 on `facets/`, `knowledge_items/`, `optimization/`, and `utils/`.
 
 From this directory, `python -m pipeline.cli --help` shows commands and
-`python -m pytest tests -q` runs the offline suite. The two separate experimental
-agent runners are excluded from this distribution. Reports support the public
-prompt pipeline without importing either agent.
+`python -m pytest tests -q` runs the offline suite. Reports consume the prompt pipeline's saved results, while `contextual/`
+remains independent of runner-specific modules.
