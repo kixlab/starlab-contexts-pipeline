@@ -15,9 +15,11 @@ export type TranscriptEntry = {
 };
 
 export type DatasetVideo = {
+  id?: string;
   url: string;
   title: string;
   original_title: string;
+  category?: string;
   content: string;
   transcript: TranscriptEntry[];
   pieces: DatasetVideoPiece[];
@@ -27,10 +29,11 @@ export type Facet = {
   type: string; // when | where | why
   title: string;
   title_plural: string;
-  question: string;
-  answer_guidelines?: string[];
-  answers: Array<{
-    answer: string;
+  definition: string;
+  guidelines?: string[];
+  vocabulary: Array<{
+    label: string;
     definition: string;
   }>;
+  id: string;
 };
