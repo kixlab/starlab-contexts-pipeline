@@ -17,6 +17,7 @@ import json
 import os
 import random
 import re
+import logging
 import threading
 import time
 from dataclasses import dataclass
@@ -29,6 +30,8 @@ from anthropic import AnthropicBedrock
 from uuid import uuid4
 
 from .config import ModelConfig
+
+logger = logging.getLogger(__name__)
 
 
 # ============== Configuration ==============
@@ -838,7 +841,7 @@ async def process_api_requests(
     # Run producer and workers
     await asyncio.gather(producer(), *[worker(i) for i in range(max_concurrency)])
 
-    print(
+    logger.info(
         f"Batch {batch_id} complete: "
         f"Success={status.num_tasks_succeeded} "
         f"Failed={status.num_tasks_failed} "
@@ -853,7 +856,7 @@ def batch_run_llm_calls(
     max_concurrency: int,
     model_config: ModelConfig,
 ):
-    print(f"Batch ID for {func_request.__name__}: {batch_id}")
+    logger.info(f"Batch ID for {func_request.__name__}: {batch_id}")
     if len(request_args) == 0:
         return []
     req_ids = []

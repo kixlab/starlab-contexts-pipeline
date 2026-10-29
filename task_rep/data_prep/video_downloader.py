@@ -17,7 +17,9 @@ from typing import List, Optional, Literal
 from .transcriber import transcribe_audio
 
 def _add_cookie_support(cmd: List[str]) -> List[str]:
-     # Add cookie support
+    # Add JS runtime (required by yt-dlp >= 2025)
+    cmd.extend(["--js-runtimes", "node"])
+    # Add cookie support
     if os.environ.get("YT_DLP_COOKIES_FROM_BROWSER"):
         cmd.extend(["--cookies-from-browser", os.environ["YT_DLP_COOKIES_FROM_BROWSER"]])
     elif os.path.exists(os.path.expanduser("~/.config/yt-dlp/cookies.txt")):

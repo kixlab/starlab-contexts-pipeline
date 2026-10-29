@@ -5,6 +5,7 @@ Atomic information refers to individual pieces of knowledge that can be
 classified into a taxonomy (e.g., methods, tips, context, explanations).
 """
 
+import logging
 from typing import List, Dict, Any
 
 from utils import MessageContent
@@ -16,6 +17,7 @@ from knowledge_items.schema import KnowledgeItem, KnowledgeItemType, KnowledgeSo
 from knowledge_items.taxonomy import AtomicType
 from knowledge_items.chunk_sampling import ChunkConfig
 
+logger = logging.getLogger(__name__)
 
 SYSTEM_MESSAGE = """You are an expert at analyzing tutorial videos and extracting atomic pieces of information about the task: {task}. You excel at identifying atomic information from both visual and audio content. You understand how to classify information using taxonomies and can accurately identify the start and end times of each piece of information."""
 
@@ -95,7 +97,7 @@ def process_atomic_extraction_response(
         try:
             atomic_type = AtomicType(atomic_type_str)
         except ValueError:
-            print(f"Invalid atomic type: {atomic_type_str}")
+            logger.warning(f"Invalid atomic type: {atomic_type_str}! Skipping...")
             continue
         content = item.get("content")
         start = item.get("start")

@@ -65,6 +65,7 @@ def video_to_message_content(
 
     return MessageContent(content=content)
 
+_KNOWLEDGE_ITEM_FORMAT = """[{display_id}] {text}"""
 
 def format_item(
     item: KnowledgeItem,
@@ -73,12 +74,11 @@ def format_item(
 ) -> str:
     """Format a KnowledgeItem as text, using display_id instead of real item.id."""
     did = display_id if display_id is not None else item.id
-    text = f"[{did}]"
+    text = item.text
     if with_type and item.subtype:
         subtype_val = item.subtype.value if hasattr(item.subtype, "value") else str(item.subtype)
-        text += f" ({subtype_val})"
-    return text + " " + item.text
-
+        text = f"({subtype_val}) {text}"
+    return _KNOWLEDGE_ITEM_FORMAT.format(display_id=did, text=text)
 
 def knowledge_item_to_message_content(
     item: KnowledgeItem,
@@ -88,15 +88,15 @@ def knowledge_item_to_message_content(
     """Format a KnowledgeItem as MessageContent for prompt inclusion."""
     return MessageContent(content=[{"type": "text", "text": format_item(item, display_id, with_type)}])
 
-
+_TAXONOMY_ITEM_FORMAT = """[{name}] {definition}"""
 def taxonomy_to_message_content(taxonomy: List[Dict[str, Any]]) -> MessageContent:
     """Format a taxonomy list as MessageContent for prompts."""
     if not taxonomy:
         return MessageContent(content=[{"type": "text", "text": "(No taxonomy provided)"}])
-    lines = [f"- [{item.get('name')}] {item.get('definition')}" for item in taxonomy]
+    lines = [_TAXONOMY_ITEM_FORMAT.format(name=item.get('name'), definition=item.get('definition')) for item in taxonomy]
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
-
+_STEP_FORMAT = """{id}. [{step_id}] {text}"""
 def steps_by_video_to_message_content(
     videos: List[Video],
     steps_by_video: Dict[str, List["KnowledgeItem"]],
@@ -108,13 +108,10 @@ def steps_by_video_to_message_content(
         steps_by_video: Mapping from video_id to the list of discovered step KnowledgeItems.
     """
     video_map = {v.id: v for v in videos}
-    content: List[Dict[str, Any]] = []
+    lines = []
     for video_idx, (video_id, steps) in enumerate(steps_by_video.items()):
         title = video_map[video_id].title if video_id in video_map else video_id
-        content.append({"type": "text", "text": f"\nVideo {video_idx + 1}: {title}"})
+        lines.append(f"Video {video_idx + 1}: {title}")
         for idx, step in enumerate(steps):
-            content.append({
-                "type": "text",
-                "text": f"{idx + 1}. [{step.subtype}] {step.text}",
-            })
-    return MessageContent(content=content)
+            lines.append(_STEP_FORMAT.format(id=idx + 1, step_id=step.subtype, text=step.text))
+    return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
