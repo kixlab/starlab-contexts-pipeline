@@ -31,31 +31,25 @@ logger = logging.getLogger(__name__)
 
 # ============= Phase 1: Per-(Facet, Video) Proposal =============
 
-PROPOSAL_SYSTEM_PROMPT = """You are an expert at analyzing tutorial content and identifying vocabulary labels for contextual factors related to the task: {task}. Inputs are structured with XML tags — use the tag name and id attribute to identify each object and its boundaries."""
+PROPOSAL_SYSTEM_PROMPT = """You are an expert at analyzing tutorial content and identifying vocabulary labels for contextual factors related to the task: {task}. Inputs are structured with XML tags. Use tag names and id attributes to identify objects and boundaries."""
 
-PROPOSAL_USER_PROMPT = """You are given a contextual factor (facet) and knowledge items extracted from a tutorial video. Propose vocabulary labels that capture the distinct values this facet takes within the video content.
+PROPOSAL_USER_PROMPT = """You are given a contextual factor and tutorial segments extracted from a tutorial video. Propose vocabulary labels that capture the distinct values this factor takes in the provided content.
 
-DEFINITIONS
-- A valid contextual factor is a variable describing the procedural situation at a given moment or span. It must be:
-    - Domain-grounded: anchored in the task-world (e.g., procedural stage, material state, tool state, object configuration, environmental condition, operating mode, verification state, service context) — NOT in media, narration, editing, presentation, or social framing.
-    - Consequential: changes what actions, constraints, interpretations, checks, or information apply.
-    - Monolithic: captures one coherent semantic concept, not a bundle.
-    - Piecewise-stable: remains constant over meaningful spans; changes at identifiable boundaries.
-    - Target-independent: determined by the broader procedural context; removing the target item would not change the factor's value.
-- A vocabulary label is one possible value a facet can take. Labels must be mutually exclusive and collectively cover all content relevant to the facet.
+A vocabulary label is a possible value of the given contextual factor. Labels should be grounded in the procedural content, concise, and distinct from one another.
 
 REQUIREMENTS
-- Propose labels that are grounded in the actual video content provided.
-- Labels should be concise (2-5 words) with clear definitions.
-- If the facet already has vocabulary labels, propose ADDITIONAL labels only if the video content reveals values not covered by the existing vocabulary. Do not re-propose existing labels.
+- Propose labels based only on values that are supported by the provided tutorial segments.
+- Labels should be concise (2 to 5 words) and include a short definition.
+- Labels should be mutually exclusive where possible.
+- If the factor already has vocabulary labels, propose additional labels only when the provided content reveals values not covered by the existing vocabulary.
+- Do not repeat or rename existing labels.
 - If no new labels are needed, return an empty list.
 
 INPUTS
-- Facet:
+- Contextual factor:
 {facet}
-- Knowledge items from this video:
-{video_items}
-"""
+- Tutorial segments from this video:
+{video_items}"""
 
 
 def form_vocabulary_proposal_request(
@@ -104,17 +98,23 @@ def process_vocabulary_proposal_response(
 
 # ============= Phase 2: Per-Facet Consolidation =============
 
-CONSOLIDATION_SYSTEM_PROMPT = """You are an expert at organizing and consolidating vocabulary labels for contextual factors related to the task: {task}. Inputs are structured with XML tags — use the tag name and id attribute to identify each object and its boundaries."""
+CONSOLIDATION_SYSTEM_PROMPT = """You are an expert at organizing and consolidating vocabulary labels for contextual factors related to the task: {task}. Inputs are structured with XML tags. Use tag names and id attributes to identify objects and boundaries."""
 
-CONSOLIDATION_USER_PROMPT = """You are given a contextual factor (facet) with its definition and guidelines, along with vocabulary labels proposed from multiple tutorial videos. Your goal is to consolidate all labels into a single, clean vocabulary.
+CONSOLIDATION_USER_PROMPT = """You are given a contextual factor with its definition and guidelines, along with vocabulary labels proposed from multiple tutorial videos. Your task is to consolidate these into a single, clean vocabulary for segmentation.
 
 REQUIREMENTS
-1. Merge semantically equivalent labels: If two or more proposed labels describe the same concept (even with different wording), merge them into a single canonical label.
-2. Preserve existing vocabulary: Labels already in the facet vocabulary should be kept unless they are clearly redundant with other existing labels.
-3. Maintain mutual exclusivity: The final vocabulary should consist of non-overlapping labels.
-4. Ensure completeness: The final vocabulary should cover all distinct values observed across the corpus.
-5. Use clear canonical names: Each label should have a concise name (2-5 words) and a definition broad enough to cover variations but specific enough to distinguish from other labels.
-6. Track provenance: For each consolidated label, list the original proposed labels that were merged into it (in source_labels).
+- Merge semantically equivalent or near-duplicate labels into a single canonical label.
+- Prefer the most general stable vocabulary that preserves the distinctions needed for segmentation. Do not introduce new distinctions unless clearly supported by the evidence.
+- Prefer existing facet vocabulary when adequate, and revise it only to reduce redundancy, ambiguity, or inconsistency.
+- Keep the final labels mutually exclusive, interpretable, and at a single level of abstraction suitable for consistent segmentation.
+- Use concise canonical names and track provenance by listing the original proposed labels that map to each final label in `source_labels`.
+- When multiple valid vocabularies are possible, choose the one that is simplest, most reusable, and most consistent with the existing facet vocabulary.
+
+OUTPUT
+Return the final consolidated vocabulary. For each label, include:
+- canonical label
+- definition
+- source_labels
 
 INPUTS
 - Facet:

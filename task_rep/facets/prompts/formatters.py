@@ -12,7 +12,6 @@ from utils import MessageContent
 
 from facets.schema import Facet, FacetLabel
 from knowledge_items.schema import KnowledgeItem
-from knowledge_items.prompts.formatters import format_item
 
 
 # ============= ID mapping helpers =============
@@ -24,7 +23,7 @@ def build_item_id_map(items: List[KnowledgeItem]) -> Dict[str, str]:
     so calling this in both gives a consistent, reversible mapping without
     passing extra state through batch_run_llm_calls.
     """
-    return {item.id: f"I{i + 1}" for i, item in enumerate(items)}
+    return {item.id: f"S{i + 1}" for i, item in enumerate(items)}
 
 
 def reverse_id_map(id_map: Dict[str, str]) -> Dict[str, str]:
@@ -60,7 +59,7 @@ def format_vocabulary(vocabulary: List[FacetLabel]) -> str:
 
 _FACET_FORMAT = """<facet id="{display_id}">
 {title_plural}: {definition}
-**Guidelines for labeling items**:
+**Guidelines for labeling segments**:
 {guidelines}
 **Vocabulary**:
 {vocabulary}
@@ -77,6 +76,22 @@ def format_facet(facet: Facet, display_id: Optional[str] = None) -> str:
         vocabulary=format_vocabulary(facet.vocabulary),
     )
 
+_TUTORIAL_SEGMENT_FORMAT = """<segment id="{display_id}">
+{text}
+</segment>"""
+
+def format_segment(
+    segment: KnowledgeItem,
+    display_id: Optional[str] = None,
+    with_type: bool = True,
+) -> str:
+    """Format a KnowledgeItem as text, using display_id instead of real segment.id."""
+    did = display_id if display_id is not None else segment.id
+    text = segment.text
+    if with_type and segment.subtype:
+        subtype_val = segment.subtype.value if hasattr(segment.subtype, "value") else str(segment.subtype)
+        text = f"({subtype_val}) {text}"
+    return _TUTORIAL_SEGMENT_FORMAT.format(display_id=did, text=text)
 
 # ============= MessageContent formatters =============
 
@@ -107,7 +122,7 @@ def knowledge_items_to_message_content(
     lines = []
     for item in items:
         display_id = id_map[item.id] if id_map else None
-        lines.append(format_item(item, display_id))
+        lines.append(format_segment(item, display_id))
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
@@ -137,7 +152,7 @@ def videos_to_message_content(
         lines.append(f"Video {video_id}:")
         for item in items:
             display_id = id_map[item.id] if id_map else None
-            lines.append(format_item(item, display_id))
+            lines.append(format_segment(item, display_id))
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 

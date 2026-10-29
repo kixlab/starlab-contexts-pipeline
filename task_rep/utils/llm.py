@@ -26,7 +26,9 @@ from typing import Any, Dict, List, Literal, Optional
 
 import tiktoken
 from openai import BadRequestError, OpenAI
-from anthropic import AnthropicBedrock
+from anthropic import AnthropicBedrockMantle
+from google import genai
+from google.genai import types as genai_types
 from uuid import uuid4
 
 from .config import ModelConfig
@@ -44,10 +46,12 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 ANTHROPIC_ACCESS_KEY = os.getenv("ANTHROPIC_ACCESS_KEY")
 ANTHROPIC_SECRET_KEY = os.getenv("ANTHROPIC_SECRET_KEY")
 ANTHROPIC_REGION = os.getenv("ANTHROPIC_REGION", "us-west-2")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Default models
 DEFAULT_MODEL_OPENAI = "gpt-4.1-mini-2025-04-14"
 DEFAULT_MODEL_ANTHROPIC = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
+DEFAULT_MODEL_GEMINI = "gemini-2.5-flash"
 
 # Generation parameters
 SEED = 13774
@@ -64,11 +68,19 @@ MODEL_MAX_TOKENS = {
     "gpt-4.1-mini": 16384,
     "gpt-5": 32768,
     # Anthropic models (via Bedrock)
+    "claude-opus-4-7": 128000,
+    "claude-sonnet-4-6": 64000,
     "claude-3-5-sonnet": 8192,
     "claude-3-5-haiku": 8192,
     "claude-3-opus": 4096,
     "claude-3-sonnet": 4096,
     "claude-3-haiku": 4096,
+    # Gemini models
+    "gemini-3.1-pro": 65536,
+    "gemini-3.1-flash-lite": 65536,
+    "gemini-3-flash": 65536,
+    "gemini-2.5-pro": 8192,
+    "gemini-2.5-flash": 8192,
 }
 
 
@@ -104,7 +116,8 @@ REPLY_PRIMING_TOKENS = 2
 # ============== Client Setup ==============
 
 _openai_client: Optional[OpenAI] = None
-_anthropic_client: Optional[AnthropicBedrock] = None
+_anthropic_client: Optional[AnthropicBedrockMantle] = None
+_gemini_client: Optional[genai.Client] = None
 
 
 def _get_openai_client() -> OpenAI:
@@ -116,19 +129,28 @@ def _get_openai_client() -> OpenAI:
     return _openai_client
 
 
-def _get_anthropic_client() -> AnthropicBedrock:
+def _get_anthropic_client() -> AnthropicBedrockMantle:
     global _anthropic_client
     if _anthropic_client is None:
         if not ANTHROPIC_ACCESS_KEY or not ANTHROPIC_SECRET_KEY:
             raise ValueError(
                 "ANTHROPIC_ACCESS_KEY and ANTHROPIC_SECRET_KEY environment variables must be set"
             )
-        _anthropic_client = AnthropicBedrock(
+        _anthropic_client = AnthropicBedrockMantle(
             aws_access_key=ANTHROPIC_ACCESS_KEY,
             aws_secret_key=ANTHROPIC_SECRET_KEY,
             aws_region=ANTHROPIC_REGION,
         )
     return _anthropic_client
+
+
+def _get_gemini_client() -> genai.Client:
+    global _gemini_client
+    if _gemini_client is None:
+        if not GEMINI_API_KEY:
+            raise ValueError("GEMINI_API_KEY environment variable not set")
+        _gemini_client = genai.Client(api_key=GEMINI_API_KEY)
+    return _gemini_client
 
 
 # ============== Image Utilities ==============
@@ -241,6 +263,33 @@ class MessageContent:
                         },
                     }
                 )
+
+        return result
+
+    def to_gemini_content(self) -> List[genai_types.Part]:
+        """Convert to Gemini API content format (list of Parts)."""
+        result: List[genai_types.Part] = []
+
+        for block in self.content:
+            block_type = block.get("type")
+
+            if block_type == "text":
+                result.append(genai_types.Part.from_text(text=block["text"]))
+
+            elif block_type == "image_path":
+                suffix = Path(block["path"]).suffix.lower()
+                mime_type = {
+                    ".jpg": "image/jpeg",
+                    ".jpeg": "image/jpeg",
+                    ".png": "image/png",
+                    ".gif": "image/gif",
+                    ".webp": "image/webp",
+                }.get(suffix, "image/jpeg")
+
+                with open(block["path"], "rb") as f:
+                    raw_bytes = f.read()
+
+                result.append(genai_types.Part.from_bytes(data=raw_bytes, mime_type=mime_type))
 
         return result
 
@@ -391,38 +440,128 @@ def get_response_pydantic_anthropic(
 
     client = _get_anthropic_client()
 
-    # Build format schema
+    # Build JSON schema from Pydantic model
+    json_obj = response_format
     if hasattr(response_format, "model_json_schema"):
-        format_schema = json.dumps(response_format.model_json_schema())
-    else:
-        format_schema = json.dumps(response_format)
-
-    # Append formatting instruction
-    messages = list(messages)  # Don't modify the original
-    messages.append(
-        {
-            "role": "user",
-            "content": ANTHROPIC_FORMAT_PROMPT.format(format=format_schema),
+        json_obj = {
+            "schema": response_format.model_json_schema(),
+            "name": response_format.__name__,
         }
-    )
+
+    response_format_dict = {
+        "type": "json_schema",
+        "schema": {
+            **json_obj,
+            "strict": True,
+        },
+    }
 
     messages, system_prompt = _split_system_prompt(messages)
 
+    basic_args = {
+        "model": model,
+        "max_tokens": get_max_tokens_for_model(model),
+        "system": system_prompt,
+        "messages": messages,
+    }
+
+    # Model-specific parameters
+    variable_args = {}
+    variable_args["output_config"] = {
+        "format": response_format_dict,
+    }
+    if "claude-3" in model:
+        variable_args["temperature"] = temperature if temperature is not None else TEMPERATURE
+    else:
+        variable_args["thinking"] = {
+            "type": "adaptive"
+        }
+        variable_args["output_config"] = {
+            **variable_args["output_config"],
+            "effort": REASONING_EFFORT
+        }
+
     completion = client.messages.create(
-        model=model,
-        max_tokens=get_max_tokens_for_model(model),
-        system=system_prompt,
-        messages=messages,
-        temperature=temperature if temperature is not None else TEMPERATURE,
+        **basic_args,
+        **variable_args,
     )
 
     response_text = completion.content[0].text
 
     try:
-        json_text = response_text.split("<response>")[1].split("</response>")[0]
-        return json.loads(json_text)
+        return json.loads(response_text)
     except (json.JSONDecodeError, IndexError):
         raise LLMParseError(f"Failed to extract JSON from response: {response_text}")
+
+
+def get_response_pydantic_gemini(
+    messages: List[Dict[str, Any]],
+    response_format: Any,
+    model: Optional[str] = None,
+    temperature: Optional[float] = None,
+) -> Dict[str, Any]:
+    """Call Gemini API with structured output."""
+    if model is None:
+        model = DEFAULT_MODEL_GEMINI
+
+    client = _get_gemini_client()
+
+    # Build JSON schema (accept both pydantic class and pre-serialized dict)
+    if hasattr(response_format, "model_json_schema"):
+        schema = response_format.model_json_schema()
+    elif isinstance(response_format, dict) and "schema" in response_format:
+        schema = response_format["schema"]
+    else:
+        schema = response_format
+
+    # Split system prompt from messages
+    messages, system_prompt = _split_system_prompt(list(messages))
+
+    # Convert messages to Gemini Content format
+    role_map = {"user": "user", "assistant": "model"}
+    contents: List[genai_types.Content] = []
+    for msg in messages:
+        role = role_map.get(msg["role"], "user")
+        content = msg["content"]
+        if isinstance(content, str):
+            parts = [genai_types.Part.from_text(text=content)]
+        else:
+            parts = list(content)
+        contents.append(genai_types.Content(role=role, parts=parts))
+
+    basic_args = {
+        "system_instruction": system_prompt,
+        "seed": SEED,
+        "max_output_tokens": get_max_tokens_for_model(model),
+        "response_mime_type": "application/json",
+        "response_json_schema": schema,
+        "automatic_function_calling": genai_types.AutomaticFunctionCallingConfig(disable=True),
+    }
+
+    ## Model-specific parameters
+    variable_args = {}
+    if "gemini-3" in model:
+        variable_args["thinking_config"] = genai_types.ThinkingConfig(thinking_level=REASONING_EFFORT)
+    if temperature is not None:
+        variable_args["temperature"] = temperature
+
+    config = genai_types.GenerateContentConfig(
+        **basic_args,
+        **variable_args
+    )
+
+    response = client.models.generate_content(
+        model=model,
+        contents=contents,
+        config=config,
+    )
+
+    response_text = response.text
+
+    try:
+        return json.loads(response_text)
+    except (json.JSONDecodeError, TypeError):
+        raise LLMParseError(f"Failed to parse response as JSON: {response_text}")
 
 # ============== Batch Processing ==============
 
@@ -598,6 +737,9 @@ def _is_retryable_http_error(err: Exception) -> bool:
             "502",
             "504",
             "refusal",
+            # Gemini occasionally returns transient 403 SERVICE_DISABLED even
+            # on a properly enabled project; a retry with backoff resolves it.
+            "service_disabled",
         ]
     )
 
@@ -743,6 +885,8 @@ async def process_api_requests(
         call_function = get_response_pydantic_openai
     elif model_config.provider == "anthropic":
         call_function = get_response_pydantic_anthropic
+    elif model_config.provider == "gemini":
+        call_function = get_response_pydantic_gemini
     else:
         raise ValueError(f"Unknown provider: {model_config.provider}")
 
@@ -808,6 +952,8 @@ async def process_api_requests(
                                 msg_content = MessageContent.from_dict(content)
                                 if model_config.provider == "openai":
                                     content = msg_content.to_openai_content()
+                                elif model_config.provider == "gemini":
+                                    content = msg_content.to_gemini_content()
                                 else:
                                     content = msg_content.to_anthropic_content()
                             processed_messages.append({"role": msg["role"], "content": content})
