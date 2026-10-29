@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
-from typing import List, Literal, Optional
+from typing import List, Literal
 
 class VocabularyEntry(BaseModel):
     """A single entry in a contextual factor's vocabulary (one possible value of the factor)."""

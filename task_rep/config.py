@@ -9,7 +9,7 @@ class Config:
     VIDEOS_DIR: Path = STORAGE_DIR / "videos"
     TASK_DATASETS_DIR: Path = STORAGE_DIR / "task-datasets"
 
-    CACHE_DIR: Path = STORAGE_DIR / "cache"
+    CACHE_DIR: Path = STORAGE_DIR / "cache_2"   # items, units, runs (contextual/cache.py)
 
     TASKS_PER_DATASET = {
         "test_tasks": [

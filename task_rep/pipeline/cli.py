@@ -2,16 +2,17 @@
 Command-line interface for the contextual-unit pipeline.
 
     python -m pipeline.cli list
-    python -m pipeline.cli run NAME [NAME ...]
+    python -m pipeline.cli run NAME [NAME ...] [--fresh]
     python -m pipeline.cli show TARGET
     python -m pipeline.cli dump TARGET
     python -m pipeline.cli compare TARGET [TARGET ...]
     python -m pipeline.cli budget TARGET [TARGET ...]
     python -m pipeline.cli tree NAME [--tau T ...]
 
-TARGET is an experiment name (resolved to its newest saved result with a
-matching config) or a path to a ``pipeline_result_*.json`` file. Only ``run``
-calls models; ``tree`` reads the experiment's cached knowledge base; the other
+``run`` resumes an experiment's interrupted run, or starts a new one
+(``--fresh`` always starts a new one). TARGET is an experiment name (its newest
+finished run with a matching config) or a run folder
+(``static/cache_2/<task>/runs/<time>__<experiment>``). Only ``run`` calls models; ``tree`` reads the experiment's cached knowledge base; the other
 commands read saved result files only.
 Dataset construction stays in ``python -m dataset``.
 """
@@ -35,7 +36,7 @@ from contextual.reporting import (
     total_usage,
     write_facets_csv,
 )
-from contextual.store import RunStore
+from contextual.cache import load_result
 
 from .experiments import (
     EXPERIMENTS_DIR,
@@ -61,16 +62,19 @@ def _context_label(strategy: str, context) -> str:
 def resolve(target: str, experiments_dir: Path) -> Tuple[str, RunResult, Optional[ExperimentSpec]]:
     """Return (label, result, spec-or-None) for a name or a result path."""
     path = Path(target)
-    if path.suffix == ".json" and path.exists():
-        return path.stem, RunStore.load_result(path), None
+    if path.exists():                                   # a run folder or its result.json
+        folder = path if path.is_dir() else path.parent
+        print(f"[run {folder}]", file=sys.stderr)
+        return folder.name, load_result(path), None
     specs, _ = load_experiments_dir(experiments_dir)
     if target not in specs:
-        raise SystemExit(f"Unknown experiment {target!r} and no such result file.")
+        raise SystemExit(f"Unknown experiment {target!r} and no such run folder.")
     spec = specs[target]
     found = find_result(spec)
     if found is None:
         raise SystemExit(f"No saved result for {target!r} with its current config. Run it first.")
-    return target, RunStore.load_result(found), spec
+    print(f"[run {found}]", file=sys.stderr)
+    return target, load_result(found), spec
 
 
 # ---------------------------------------------------------------------------
@@ -138,6 +142,8 @@ def main(argv: Optional[List[str]] = None, experiments_dir: Path = EXPERIMENTS_D
     sub.add_parser("list", help="List experiment configurations.")
     p_run = sub.add_parser("run", help="Run experiments (calls models).")
     p_run.add_argument("names", nargs="+")
+    p_run.add_argument("--fresh", action="store_true",
+                       help="start a new run even if the last one was interrupted")
     p_show = sub.add_parser("show", help="Show a saved result.")
     p_show.add_argument("target")
     p_dump = sub.add_parser("dump", help="Dump a result's pool facets to static/*.csv.")
@@ -161,7 +167,7 @@ def main(argv: Optional[List[str]] = None, experiments_dir: Path = EXPERIMENTS_D
         if missing:
             raise SystemExit(f"Unknown experiment(s): {missing}")
         for name in args.names:
-            print(format_summary(name, run_experiment(specs[name])))
+            print(format_summary(name, run_experiment(specs[name], fresh=args.fresh)))
     elif args.command == "show":
         label, result, _ = resolve(args.target, experiments_dir)
         print(format_summary(label, result))

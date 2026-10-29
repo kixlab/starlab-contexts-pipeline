@@ -34,10 +34,6 @@ class ItemScopeConfig:
     item_type: KnowledgeItemType
     atomic_subtype: AtomicSubtypeConfig = field(default_factory=lambda: ATOMIC_ALL)
 
-    def cache_suffix(self) -> str:
-        type_str = self.item_type.value.lower().replace(" ", "_")
-        return f"{type_str}_{self.atomic_subtype.name}"
-
     def to_dict(self) -> Dict[str, Any]:
         return {
             "item_type": self.item_type.value,

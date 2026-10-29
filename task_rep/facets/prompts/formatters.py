@@ -161,24 +161,36 @@ def facet_to_message_content(
         "text": format_facet(facet, display_id, label_frequencies),
     }])
 
-def facet_display_id(index: int) -> str:
-    """Get the display ID for a facet given its index in the list."""
-    return f"F{index + 1}"
+def factor_ids(facets: List[Facet], ids: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+    """facet.id -> display id ("F3"). ``ids`` gives stable ids (a run numbers
+    factors as they enter the pool, see ``contextual.feedback.factor_ids``);
+    without it, factors are numbered by list position."""
+    if ids is not None:
+        return {f.id: ids[f.id] for f in facets}
+    return {f.id: f"F{i + 1}" for i, f in enumerate(facets)}
+
+
+def by_factor_id(facets: List[Facet], display: Dict[str, str]) -> List[Facet]:
+    """``facets`` ordered by display id (F1, F2, F10), whatever the pool order."""
+    return sorted(facets, key=lambda f: int(display[f.id].lstrip("F")))
+
 
 def facets_to_message_content(
     facets: List[Facet],
     annotations: Optional[AnnotationTable] = None,
     knowledge_base: Optional[KnowledgeBase] = None,
+    ids: Optional[Dict[str, str]] = None,
 ) -> MessageContent:
-    """Format a list of Facets using sequential F1, F2 display IDs."""
+    """Format a list of Facets with their display ids (see ``factor_ids``)."""
+    display = factor_ids(facets, ids)
     lines = []
-    for i, facet in enumerate(facets):
+    for facet in by_factor_id(facets, display):
         frequencies = None
         if annotations is not None and knowledge_base is not None:
             frequencies = facet_label_frequencies(facet, knowledge_base, annotations)
-        lines.append(format_facet(facet, facet_display_id(i), frequencies))
+        lines.append(format_facet(facet, display[facet.id], frequencies))
     if len(lines) == 0:
-        lines.append("No existing contextual factors.")
+        lines.append("No contextual factors in the pool yet.")
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
@@ -199,18 +211,6 @@ def knowledge_items_to_message_content(
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
-def target_items_to_message_content(
-    items: List[KnowledgeItem],
-    id_map: Optional[Dict[str, str]] = None,
-) -> MessageContent:
-    """Format target KnowledgeItems as MessageContent.
-
-    Args:
-        id_map: Optional real_id → temp_id mapping for reliable LLM reproduction.
-    """
-    return knowledge_items_to_message_content(items, id_map)
-
-
 def videos_to_message_content(
     videos: Dict[str, List[KnowledgeItem]],
     id_map: Optional[Dict[str, str]] = None,
@@ -229,52 +229,48 @@ def videos_to_message_content(
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
-_ANNOTATED_SEGMENT_FORMAT = """<segment id="{display_id}">
-{text}
-<factor_labels>{labels}</factor_labels>
-</segment>"""
+def corpus_to_message_content(videos: Dict[str, List[KnowledgeItem]]) -> MessageContent:
+    """Every segment of the corpus with its id (S1, S2, ...), grouped by video.
 
-def format_segment_annotated(
-    segment: KnowledgeItem,
+    Segment ids come from ``build_item_id_map`` over the corpus in this order;
+    ``segment_labels_to_message_content`` uses the same ids.
+    """
+    items = [item for vid_items in videos.values() for item in vid_items]
+    return videos_to_message_content(videos, build_item_id_map(items))
+
+
+def segment_labels_to_message_content(
+    corpus: Dict[str, List[KnowledgeItem]],
     facets: List[Facet],
     annotations: AnnotationTable,
-    display_id: Optional[str] = None,
-    with_type: bool = True,
-) -> str:
-    """Format a KnowledgeItem with its pool annotation labels appended."""
-    did = display_id if display_id is not None else segment.id
-    text = segment.text
-    if with_type and segment.subtype:
-        subtype_val = segment.subtype.value if hasattr(segment.subtype, "value") else str(segment.subtype)
-        text = f"({subtype_val}) {text}"
-    labels_parts = [
-        f"{facet_display_id(idx)}: {annotations[segment.id, facet.id]}"
-        for idx, facet in enumerate(facets)
-        if (segment.id, facet.id) in annotations
-    ]
-    labels_str = ", ".join(labels_parts) if labels_parts else ""
-    return _ANNOTATED_SEGMENT_FORMAT.format(display_id=did, text=text, labels=labels_str)
-
-
-def annotated_videos_to_message_content(
-    videos: Dict[str, List[KnowledgeItem]],
-    facets: List[Facet],
-    annotations: AnnotationTable,
-    id_map: Optional[Dict[str, str]] = None,
+    video_ids: Optional[List[str]] = None,
+    ids: Optional[Dict[str, str]] = None,
 ) -> MessageContent:
-    """Like videos_to_message_content but appends per-facet pool labels to each segment."""
+    """Each segment's label under every pool factor, by segment id; no text.
+
+    Segment ids are the corpus ids (``corpus_to_message_content``), factor ids
+    those of the FACETS section. ``video_ids`` restricts the videos shown
+    (default: all, in corpus order).
+    """
+    items = [item for vid_items in corpus.values() for item in vid_items]
+    seg_ids = build_item_id_map(items)
+    display = factor_ids(facets, ids)
+    facets = by_factor_id(facets, display)
     lines = []
-    for video_id, items in videos.items():
+    for video_id, vid_items in corpus.items():
+        if video_ids is not None and video_id not in video_ids:
+            continue
         lines.append(f"Video {video_id}:")
-        for item in items:
-            display_id = id_map[item.id] if id_map else None
-            lines.append(format_segment_annotated(item, facets, annotations, display_id))
-    if len(lines) == 0:
-        lines.append("No tutorial segments.")
+        for item in vid_items:
+            labels = [f"{display[f.id]} = {annotations[item.id, f.id]}"
+                      for f in facets if (item.id, f.id) in annotations]
+            lines.append(f"{seg_ids[item.id]}: " + ("; ".join(labels) if labels else "(no labels)"))
+    if not facets:
+        lines = ["No contextual factors in the pool yet, so no segment has labels."]
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
-_HISTORY_ENTRY_FORMAT = """<tried_factor><title>{title}</title><scope>{scope}</scope><definition>{definition}</definition><outcome>{outcome}</outcome></tried_factor>"""
+_HISTORY_ENTRY_FORMAT = """<tried_factor><title>{title}</title><scope>{scope}</scope><definition>{definition}</definition><why_not_kept>{outcome}</why_not_kept></tried_factor>"""
 
 _DESIGN_SPACE_GUIDE = """HOW THE DESIGN SPACE IS BUILT
 - A combination is {combos}. It splits the segments into cells: one cell for each combination of values that occurs.
@@ -292,21 +288,18 @@ def schemas_to_message_content(
     knowledge_base: KnowledgeBase,
     refinement_edges: Optional[List[Tuple[str, str]]] = None,
     refinement_threshold: Optional[float] = None,
-    last_submission: Optional[Any] = None,
+    ids: Optional[Dict[str, str]] = None,
+    max_schema_facets: Optional[int] = None,
 ) -> MessageContent:
-    """Format the design space (DAG) of factor combinations.
-
-    Shows how it is built, each factor once, the kept combinations (why each
-    was kept and what it refines), the pruned single factors (and whether they
-    are used anywhere), one summary line for pruned pairs, and what the last
-    submission changed. Linear in the number of factors and kept
+    """Format the design space (DAG) of factor combinations: how it is built,
+    the kept combinations (why each was kept and what it refines), the pruned
+    single factors (and whether they are used anywhere), and one summary line
+    for pruned pairs. Factors are named by id and title only; their details
+    are the FACETS section's. Linear in the number of factors and kept
     combinations; nothing grows with the number of segments.
-
-    ``last_submission`` needs ``title``, ``facet_id``, ``outcome``,
-    ``entered`` and ``previous_schema_ids`` (see ``contextual.feedback``).
     """
-    display = {facet.id: facet_display_id(idx) for idx, facet in enumerate(facets)}
-    order = {facet.id: idx for idx, facet in enumerate(facets)}
+    display = factor_ids(facets, ids)
+    order = {fid: int(did.lstrip("F")) for fid, did in display.items()}  # by factor id
     by_id = {facet.id: facet for facet in facets}
 
     def rank(facet_ids) -> List[int]:
@@ -331,8 +324,9 @@ def schemas_to_message_content(
         tau = getattr(rejected_schemas[0], "refinement_threshold", None)
     limit = f"{tau:.0%}" if tau is not None else "the limit"
     all_schemas = list(accepted_schemas) + list(rejected_schemas)
-    max_facets = max((len(s.facet_ids) for s in all_schemas), default=1)
-    with_pairs = max_facets >= 2
+    if max_schema_facets is None:  # infer from the combinations that exist
+        max_schema_facets = max((len(s.facet_ids) for s in all_schemas), default=1)
+    with_pairs = max_schema_facets >= 2
 
     kept = sorted((s for s in accepted_schemas if s.facet_ids),
                   key=lambda s: (len(s.facet_ids), rank(s.facet_ids)))
@@ -348,9 +342,7 @@ def schemas_to_message_content(
 
     lines = [_DESIGN_SPACE_GUIDE.format(
         combos="a single factor or a pair of factors" if with_pairs else "a single factor",
-        limit=limit), "", "Factors:"]
-    lines += [b["text"] for b in facets_to_message_content(
-        facets, annotations=annotations, knowledge_base=knowledge_base).content]
+        limit=limit)]
 
     kept_singles = [s for s in kept if len(s.facet_ids) == 1]
     kept_pairs = [s for s in kept if len(s.facet_ids) == 2]
@@ -407,76 +399,19 @@ def schemas_to_message_content(
                      f"combination does.")
         lines += ["", line]
 
-    if last_submission is not None:
-        lines += ["", "Last submission:"]
-        lines += _last_submission_lines(
-            last_submission, kept, rejected_schemas, labels, display, name, ref, with_pairs)
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
-
-
-def _last_submission_lines(sub, kept, rejected, labels, display, name, ref, with_pairs) -> List[str]:
-    title = getattr(sub, "title", "")
-    fid = getattr(sub, "facet_id", "")
-    head = (f"- \"{title}\"" + (f" ({display[fid]})" if fid in display else "") + ": "
-            if title else "- ")
-    head += f"{getattr(sub, 'outcome', '')}."
-    if not getattr(sub, "entered", False):
-        return [head + (" It did not enter the design space." if title else "")]
-    lines = [head]
-    single_kept = next((s for s in kept if s.facet_ids == [fid]), None)
-    single_pruned = next((s for s in rejected if s.facet_ids == [fid]), None)
-    if single_kept is not None:
-        lines.append(f"- As a single factor: kept as {labels[single_kept.id]}.")
-    elif single_pruned is not None:
-        lines.append(
-            f"- As a single factor: pruned; "
-            f"{ref(single_pruned.rejected_by_id, single_pruned.rejected_by_facet_ids)} "
-            f"already carries {single_pruned.refinement_score:.0%} of its information.")
-    if with_pairs:
-        kept_pairs = [s for s in kept if len(s.facet_ids) == 2 and fid in s.facet_ids]
-        pruned_pairs = [s for s in rejected if len(s.facet_ids) == 2 and fid in s.facet_ids]
-        if kept_pairs:
-            partners = ", ".join(
-                f"{labels[s.id]} (with {name([f for f in s.facet_ids if f != fid])})"
-                for s in kept_pairs)
-            lines.append(f"- In pairs: kept in {partners}; {len(pruned_pairs)} other pairs pruned.")
-        else:
-            lines.append(f"- In pairs: none of its {len(pruned_pairs)} pairs is kept.")
-    before = set(getattr(sub, "previous_schema_ids", []))
-    changes = [
-        f"{name(s.facet_ids)} is now pruned; "
-        f"{ref(s.rejected_by_id, s.rejected_by_facet_ids)} carries {s.refinement_score:.0%} of it"
-        for s in rejected if s.id in before
-    ] + [
-        f"{labels[s.id]} ({name(s.facet_ids)}) is now kept"
-        for s in kept if s.id not in before and fid not in s.facet_ids
-    ]
-    lines.append("- Elsewhere: " + ("; ".join(changes) + "." if changes
-                                    else "nothing else in the design space changed."))
-    return lines
 
 
 def history_to_message_content(history: List[Any]) -> MessageContent:
-    """Format previously tried, non-kept factors with their outcomes.
+    """Format previously tried, non-kept factors with why each is not kept.
 
-    Each entry needs ``title``, ``scope``, ``definition``, ``outcome`` and an
-    optional ``duplicate_of`` (title of the matched factor).
+    Each entry needs ``title``, ``scope``, ``definition`` and ``outcome``.
     """
-    lines = []
-    for entry in history:
-        outcome = getattr(entry, "outcome", "")
-        duplicate_of = getattr(entry, "duplicate_of", None)
-        if duplicate_of:
-            outcome = f"{outcome} of {duplicate_of}"
-        lines.append(_HISTORY_ENTRY_FORMAT.format(
-            title=getattr(entry, "title", ""),
-            scope=getattr(entry, "scope", ""),
-            definition=getattr(entry, "definition", ""),
-            outcome=outcome,
-        ))
-    if not lines:
-        lines.append("None yet.")
-    return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
+    lines = [_HISTORY_ENTRY_FORMAT.format(
+        title=getattr(entry, "title", ""), scope=getattr(entry, "scope", ""),
+        definition=getattr(entry, "definition", ""), outcome=getattr(entry, "outcome", ""),
+    ) for entry in history]
+    return MessageContent(content=[{"type": "text", "text": "\n".join(lines or ["None yet."])}])
 
 
 def proposals_by_video_to_message_content(

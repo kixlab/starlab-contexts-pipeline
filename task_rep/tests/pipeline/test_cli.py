@@ -12,7 +12,7 @@ from contextual.reporting import budget_rows, tau_sweep
 from pipeline.cli import main
 from contextual.models import RunResult
 from pipeline.runner import PipelineRunner
-from contextual.store import RunStore
+from contextual.cache import load_result
 
 from tests.pipeline.helpers import (
     ScriptedLabeler,
@@ -38,14 +38,14 @@ def saved_result(tmp_path):
         proposer=ScriptedProposer(script),
         vocab_builder=ScriptedVocabBuilder(fail_ids={"V"}),
         labeler=ScriptedLabeler(), embedder=TableEmbedder(),
-        cache_dir=tmp_path / "cache",
+        runs_dir=tmp_path / "runs",
     )
     runner.run()
-    return runner.store.result_path()
+    return runner.folder.path
 
 
 def test_budget_rows_replay_ledger(saved_result):
-    rows = budget_rows(RunStore.load_result(saved_result))
+    rows = budget_rows(load_result(saved_result))
     assert [r["status"] for r in rows] == [
         "accepted", "accepted", "vocabulary_failed", "refused", "replaced",
     ]
@@ -140,7 +140,7 @@ def test_tree_command_needs_cached_kb(monkeypatch, tmp_path):
 
 
 def test_show_reports_usage(saved_result, capsys):
-    result = RunStore.load_result(saved_result)
+    result = load_result(saved_result)
     result.usage = {"proposal": {"input_tokens": 1500, "output_tokens": 10,
                                  "thinking_tokens": 7, "requests": 2}}
     print(cli_mod.format_summary("x", result))

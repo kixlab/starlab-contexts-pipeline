@@ -4,7 +4,7 @@ from dataclasses import dataclass, field, asdict
 from enum import Enum
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Union
 
-from .taxonomy import AtomicType, AtomicCategory
+from .taxonomy import AtomicType
 
 class KnowledgeItemType(str, Enum):
     """Types of knowledge items we can extract."""

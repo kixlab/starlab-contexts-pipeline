@@ -10,7 +10,7 @@ context component set differs.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, FrozenSet, List, Optional, Protocol, Tuple, runtime_checkable
+from typing import Any, Dict, FrozenSet, List, Optional, Protocol, Tuple, runtime_checkable
 
 from utils import ModelConfig
 
@@ -20,7 +20,7 @@ from facets import Facet, AnnotationTable, VLMFacetExtractor
 
 from optimization import AcceptedSchemaSummary, RejectedSchemaSummary
 
-from contextual.feedback import HistoryEntry, LastSubmission
+from contextual.feedback import HistoryEntry
 
 from .config import ContextComponent
 
@@ -34,7 +34,7 @@ class BatchContext:
     """Context for a0's single batch request."""
 
     task: str
-    videos: Dict[str, List[KnowledgeItem]]
+    videos: Dict[str, List[KnowledgeItem]]  # the corpus (evaluated segments)
     num_facets: int
     seed: Optional[int] = None
 
@@ -49,18 +49,32 @@ class IterativeContext:
 
     task: str
     components: FrozenSet[ContextComponent]
+    corpus: Dict[str, List[KnowledgeItem]]  # every evaluated segment, by video (system message)
     pool: List[Facet] = field(default_factory=list)
+    ids: Dict[str, str] = field(default_factory=dict)  # facet id -> stable "F3"
     annotations: AnnotationTable = field(default_factory=AnnotationTable)
-    knowledge_base: Optional[KnowledgeBase] = None
-    videos: Optional[Dict[str, List[KnowledgeItem]]] = None
+    knowledge_base: Optional[KnowledgeBase] = None  # evaluated segments
+    item_video_ids: Optional[List[str]] = None  # ITEMS videos (None = all)
     accepted_schemas: List[AcceptedSchemaSummary] = field(default_factory=list)
     rejected_schemas: List[RejectedSchemaSummary] = field(default_factory=list)
     # (source_id, target_id) refinement edges among accepted schemas
     refinement_edges: List[Tuple[str, str]] = field(default_factory=list)
     refinement_threshold: Optional[float] = None
-    last_submission: Optional[LastSubmission] = None
+    max_schema_facets: Optional[int] = None  # explained with SCHEMAS
     history: List[HistoryEntry] = field(default_factory=list)
     seed: Optional[int] = None  # distinct per attempt (see contextual.settings.stage_seed)
+
+    def request_args(self) -> Dict[str, Any]:
+        """Arguments of ``form_facet_iterative_request`` for this context."""
+        return dict(
+            task=self.task, facets=self.pool, components={c.value for c in self.components},
+            corpus=self.corpus, item_video_ids=self.item_video_ids,
+            annotations=self.annotations, knowledge_base=self.knowledge_base,
+            accepted_schemas=self.accepted_schemas, rejected_schemas=self.rejected_schemas,
+            refinement_edges=self.refinement_edges,
+            refinement_threshold=self.refinement_threshold,
+            max_schema_facets=self.max_schema_facets, history=self.history, ids=self.ids,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -102,18 +116,4 @@ class VLMFacetProposer:
         )
 
     def propose_one(self, context: IterativeContext) -> List[Facet]:
-        return self._extractor.propose_facet_iterative(
-            task=context.task,
-            facets=context.pool,
-            components={c.value for c in context.components},
-            videos=context.videos,
-            annotations=context.annotations,
-            knowledge_base=context.knowledge_base,
-            accepted_schemas=context.accepted_schemas,
-            rejected_schemas=context.rejected_schemas,
-            refinement_edges=context.refinement_edges,
-            refinement_threshold=context.refinement_threshold,
-            last_submission=context.last_submission,
-            history=context.history,
-            seed=context.seed,
-        )
+        return self._extractor.propose_facet_iterative(seed=context.seed, **context.request_args())

@@ -2,7 +2,6 @@
 
 from .llm import (  # noqa: F401
     llm_enqueue_request,
-    llm_get_response,
     llm_get_responses,
     process_api_requests,
     batch_run_llm_calls,

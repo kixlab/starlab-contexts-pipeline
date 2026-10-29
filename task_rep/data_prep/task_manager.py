@@ -45,8 +45,6 @@ class Task:
     def get_dataset_path(self, dataset_dir: str | Path) -> Path:
         return Path(dataset_dir) / f"{self.id}.json"
 
-    def get_cache_dir(self, cache_dir: str | Path, suffix: str = "") -> Path:
-        return Path(cache_dir) / f"{self.id}{f'_{suffix}' if suffix else ''}"
 
 class TaskManager:
     """Manages tasks.json."""

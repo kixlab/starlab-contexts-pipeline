@@ -23,10 +23,10 @@ from pipeline.proposal import BatchContext, HistoryEntry, IterativeContext, VLMF
 
 from tests.pipeline.helpers import label_book, make_config, make_facet, make_kb
 
-SECTION_FACETS = "- Existing contextual factors:"
-SECTION_ITEMS = "- Tutorial segments (with current pool labels):"
+SECTION_FACETS = "- Contextual factors in the pool:"
+SECTION_ITEMS = "- Current labels of the tutorial segments"
 SECTION_SCHEMAS = "- The current design space of factor combinations."
-SECTION_HISTORY = "- Previously tried factors that were not kept:"
+SECTION_HISTORY = "- Previously tried factors that are not in the pool:"
 ALL_SECTIONS = {
     "facets": SECTION_FACETS,
     "items": SECTION_ITEMS,
@@ -35,12 +35,13 @@ ALL_SECTIONS = {
 }
 
 
-def _user_text(request) -> str:
-    content = request["messages"][1]["content"].content
+def _text(request, index) -> str:
+    content = request["messages"][index]["content"].content
     return "\n".join(b["text"] for b in content if b["type"] == "text")
 
 
-def _render(components, *, pool=None, history=None, with_schemas=True):
+def _request(components, *, pool=None, history=None, with_schemas=True, ids=None,
+             max_schema_facets=None):
     kb = make_kb()
     pool = [make_facet("A"), make_facet("B")] if pool is None else pool
     ann = label_book([f.id for f in pool])
@@ -51,23 +52,28 @@ def _render(components, *, pool=None, history=None, with_schemas=True):
         rejected_by_id="A", rejected_by_facet_ids=["A"], MI=0.9,
         refinement_score=0.9, refinement_threshold=0.2,
     )] if (with_schemas and pool) else []
-    return _user_text(form_facet_iterative_request(
+    return form_facet_iterative_request(
         task="sushi",
         facets=pool,
         components=components,
-        videos=kb.by_video(),
+        corpus=kb.by_video(),
         annotations=ann,
         knowledge_base=kb,
         accepted_schemas=accepted,
         rejected_schemas=rejected,
         history=history if history is not None else [
-            HistoryEntry(title="Knife Type", scope="global",
-                         definition="Which knife is used.", outcome="vocabulary_failed"),
-            HistoryEntry(title="Rice Kind", scope="global",
-                         definition="Kind of rice.", outcome="duplicate",
-                         duplicate_of="Rice Type"),
+            HistoryEntry(title="Knife Type", scope="global", definition="Which knife is used.",
+                         outcome="no usable values could be built from the tutorials"),
+            HistoryEntry(title="Rice Kind", scope="global", definition="Kind of rice.",
+                         outcome='duplicate of "Rice Type"'),
         ],
-    ))
+        ids=ids,
+        max_schema_facets=max_schema_facets,
+    )
+
+
+def _render(components, **kwargs):
+    return _text(_request(components, **kwargs), 1)
 
 
 # ---------------------------------------------------------------------------
@@ -75,13 +81,19 @@ def _render(components, *, pool=None, history=None, with_schemas=True):
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("components", [
-    {"facets"}, {"items"}, {"schemas"}, {"history"},
-    {"facets", "items"}, {"facets", "items", "schemas", "history"},
+    {"facets"}, {"history"}, {"facets", "history"}, {"facets", "items"},
+    {"facets", "schemas"}, {"facets", "items", "schemas", "history"},
 ])
 def test_each_component_renders_only_when_requested(components):
     text = _render(components)
     for name, header in ALL_SECTIONS.items():
         assert (header in text) == (name in components), name
+
+
+@pytest.mark.parametrize("components", [{"items"}, {"schemas"}, {"items", "history"}])
+def test_items_and_schemas_require_facets(components):
+    with pytest.raises(ValueError, match="require facets"):
+        _render(components)
 
 
 def test_substring_context_is_rejected():
@@ -94,32 +106,72 @@ def test_unknown_component_is_rejected():
         _render({"facets", "tree"})
 
 
+def test_segment_text_is_only_in_the_system_message():
+    systems = set()
+    for components in ({"facets", "items", "history"}, {"facets", "schemas", "history"}):
+        request = _request(components)
+        assert "Segment i1" not in _text(request, 1)
+        systems.add(_text(request, 0))
+    batch = fa_facet_init.form_facet_init_request(task="sushi", videos=make_kb().by_video(),
+                                                  num_facets=3)
+    assert "Segment i1" not in _text(batch, 1)
+    systems.add(_text(batch, 0))
+    (system,) = systems  # a0, a1 and a2 share one system message
+    assert '<segment id="S1">\nSegment i1\n</segment>' in system and "Video v2:" in system
+
+
+def test_items_are_labels_by_segment_id():
+    text = _render({"facets", "items"})
+    assert "Video v1:\nS1: F1 = a; F2 = a\nS2: F1 = a; F2 = a\nS3: F1 = a; F2 = b" in text
+
+
 def test_a1_empty_pool_first_iteration():
     text = _render({"facets", "items"}, pool=[], history=[])
-    assert "No existing contextual factors." in text
-    assert SECTION_ITEMS in text and "Segment i1" in text
+    assert "No contextual factors in the pool yet." in text
+    assert "No contextual factors in the pool yet, so no segment has labels." in text
 
 
 def test_a2_empty_pool_first_iteration_has_no_data():
-    text = _render({"schemas"}, pool=[], history=[])
+    text = _render({"facets", "schemas"}, pool=[], history=[])
     assert "Kept combinations:\n- none yet" in text
     assert "Pruned single factors:\n- none" in text
-    assert "Last submission:" not in text
-    assert SECTION_ITEMS not in text and "Segment i1" not in text
 
 
-def test_a2_renders_schema_feedback():
-    text = _render({"schemas"})
-    assert "Kept combinations:\n- C1: F1 (As), 2 cells" in text
-    assert "- F2 (Bs): pruned; C1 (F1 (As)) already carries 90%" in text
-    assert "<signature_frequencies>" not in text
+def test_a2_renders_schema_feedback_without_factor_details():
+    text = _render({"facets", "schemas"})
+    schemas = text[text.index(SECTION_SCHEMAS):]
+    assert "Kept combinations:\n- C1: F1 (As), 2 cells" in schemas
+    assert "- F2 (Bs): pruned; C1 (F1 (As)) already carries 90%" in schemas
+    assert "<factor" not in schemas and "Last submission" not in schemas
+    assert text.count('<factor id="F1">') == 1  # factor details once, in FACETS
 
 
-def test_history_renders_title_definition_and_outcome():
+def test_stable_ids_are_used_by_every_section():
+    text = _render({"facets", "items", "schemas"}, ids={"A": "F2", "B": "F5"})
+    assert '<factor id="F2">' in text and '<factor id="F5">' in text
+    assert "S1: F2 = a; F5 = a" in text
+    assert "C1: F2 (As)" in text and "F1" not in text
+
+
+def test_factors_are_listed_by_id_not_pool_order():
+    text = _render({"facets", "items"}, ids={"A": "F5", "B": "F2"})
+    assert text.index('<factor id="F2">') < text.index('<factor id="F5">')
+    assert "S1: F2 = a; F5 = a" in text
+
+
+def test_design_space_guide_follows_the_run_setting_not_the_pool():
+    single = _render({"facets", "schemas"}, pool=[], history=[])
+    pairs = _render({"facets", "schemas"}, pool=[], history=[], max_schema_facets=2)
+    assert "A combination is a single factor." in single
+    assert "A combination is a single factor or a pair of factors." in pairs
+    assert "kept 0 of 0 single factors and 0 of 0 pairs." in pairs
+
+
+def test_history_renders_title_definition_and_why_not_kept():
     text = _render({"history"})
     assert "Knife Type" in text and "Which knife is used." in text
-    assert "vocabulary_failed" in text
-    assert "duplicate of Rice Type" in text
+    assert "<why_not_kept>no usable values could be built from the tutorials</why_not_kept>" in text
+    assert '<why_not_kept>duplicate of "Rice Type"</why_not_kept>' in text
 
 
 def test_empty_history_renders_placeholder():
@@ -147,7 +199,8 @@ def test_batch_identity_ignores_context():
 
 def test_canonical_context_sets():
     assert A1_CONTEXT == frozenset({ContextComponent.FACETS, ContextComponent.ITEMS, ContextComponent.HISTORY})
-    assert A2_CONTEXT == frozenset({ContextComponent.SCHEMAS, ContextComponent.HISTORY})
+    assert A2_CONTEXT == frozenset({ContextComponent.FACETS, ContextComponent.SCHEMAS,
+                                    ContextComponent.HISTORY})
 
 
 def test_context_accepts_strings_and_normalizes():
@@ -155,7 +208,7 @@ def test_context_accepts_strings_and_normalizes():
     assert cfg.context == A1_CONTEXT
 
 
-@pytest.mark.parametrize("bad", [[], ["tree"], ["facets", "nope"]])
+@pytest.mark.parametrize("bad", [[], ["tree"], ["facets", "nope"], ["schemas", "history"]])
 def test_invalid_context_rejected(bad):
     with pytest.raises(ValueError):
         make_config(context=bad)
@@ -164,7 +217,7 @@ def test_invalid_context_rejected(bad):
 def test_config_round_trip_and_defaults():
     cfg = make_config(context=A2_CONTEXT, irr_sample_videos=3)
     data = cfg.to_dict()
-    assert data["context"] == ["history", "schemas"]
+    assert data["context"] == ["facets", "history", "schemas"]
     assert PipelineConfig.from_dict(data).to_dict() == data
 
     defaults = PipelineConfig.from_dict({
@@ -255,11 +308,10 @@ def test_vlm_proposer_iterative_passes_component_names_and_history(monkeypatch):
     seen = {}
     monkeypatch.setattr(proposer._extractor, "propose_facet_iterative",
                         lambda **kw: seen.update(kw) or [])
-    history = [HistoryEntry(title="X", scope="global", definition="d", outcome="irr_pruned")]
-    ctx = IterativeContext(
-        task="t", components=frozenset({ContextComponent.SCHEMAS, ContextComponent.HISTORY}),
-        knowledge_base=make_kb(), history=history,
-    )
+    history = [HistoryEntry(title="X", scope="global", definition="d", outcome="unreliable")]
+    ctx = IterativeContext(task="t", components=A2_CONTEXT, corpus=make_kb().by_video(),
+                           knowledge_base=make_kb(), history=history, seed=4)
     assert proposer.propose_one(ctx) == []
-    assert seen["components"] == {"schemas", "history"}
-    assert seen["history"] == history
+    assert seen["components"] == {"facets", "schemas", "history"}
+    assert seen["history"] == history and seen["seed"] == 4
+    form_facet_iterative_request(**{k: v for k, v in seen.items() if k != "seed"})

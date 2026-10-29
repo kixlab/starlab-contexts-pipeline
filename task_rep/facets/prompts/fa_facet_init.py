@@ -13,10 +13,7 @@ from utils import random_uid
 
 from .fa_criteria import FACTOR_CRITERIA
 from .fa_pydantic import ContextualFactorInitResult
-from .formatters import (
-    videos_to_message_content,
-    build_item_id_map,
-)
+from .fa_system import system_message
 
 from facets.schema import Facet, FacetLabel
 from knowledge_items.schema import KnowledgeItem
@@ -24,79 +21,12 @@ from knowledge_items.schema import KnowledgeItem
 logger = logging.getLogger(__name__)
 
 
-SYSTEM_PROMPT = """You design user-facing metadata for tutorial videos about: {task}.
-
-You propose contextual factors: questions about a learner's situation, progress, or current step that determine which tutorial segments apply to them.
-
-Your audience is novice and intermediate learners of {task}. Factors become filter menus, timeline labels, and search options. Learners use them to find useful segments before watching, so every factor must be something a learner can answer about themselves without seeing the footage."""
-
-USER_PROMPT = """You are given tutorial segments from tutorials. Propose exactly {num_facets} contextual factors that together help learners find the segments that fit them. Cover situations, progress, and moments, and start with the broadest factors.
+USER_PROMPT = """Propose exactly {num_facets} contextual factors that together help learners find the tutorial segments that fit them. Cover situations, progress, and moments, and start with the broadest factors.
 
 """ + FACTOR_CRITERIA + """
 
-INPUTS
-- Tutorial segments:
-{tutorials}
-
 REMINDER: propose exactly {num_facets} distinct factors; every value must complete "Show me the segments for when ___"; prefer factors that apply across most tutorials.
 """
-
-# USER_PROMPT = """You are given tutorial videos and information units extracted from them. Propose exactly {num_facets} broad `contextual factors` (facets) that would help differentiate when information units appear in the videos.
-
-# CONTEXTUAL FACTOR DEFINITION
-# A valid contextual factor is a variable describing the procedural situation at a given moment or span. It must be:
-
-# - Domain-grounded: anchored in the task-world (e.g., procedural stage, material state, tool state, object configuration, environmental condition, operating mode, verification state, service context) — NOT in media, narration, editing, presentation, or social framing.
-# - Consequential: changes what actions, constraints, interpretations, checks, or information apply.
-# - Monolithic: captures one coherent semantic concept, not a bundle.
-# - Piecewise-stable: remains constant over meaningful spans; changes at identifiable boundaries.
-# - Target-independent: determined by the broader procedural context; removing the target item would not change the factor's value.
-
-# Non-examples: video genre, tutorial format, presenter configuration, narration style, camera/editing style, entertainment framing, human skill level, subjective quality, labels restating target content.
-
-# DESIDERATA
-# Prefer factors that are:
-# - easy to understand at a glance, even without deep domain familiarity
-# - broadly useful across the tutorial
-# - simple, intuitive, mid-level task-world distinctions over obscure or overly fine-grained ones
-
-# GOAL
-# Propose top-{num_facets} contextual factors that capture the most important axes of variation across the tutorials. Think about what meaningful dimensions a practitioner would naturally use to organize or contextualize the information in these tutorials.
-
-# WHEN NOT TO PROPOSE FACTORS
-# Do NOT force factors that are artificial or unreliable. Return an empty candidate list with a refusal reason if any of the following apply:
-# - All target items occur in the same narrow region of the tutorial and share identical context — no factor can assign them different labels without reading the item content itself (violating target-independence).
-# - The only distinguishing factors would be too fine-grained to generalize (e.g., "the exact product being discussed"), essentially re-encoding the item content as a label.
-# - Proposed factors would require subjective or ambiguous judgment calls that different annotators would disagree on.
-# It is better to return zero candidates than to propose a factor that does not reliably separate the information units.
-
-# REQUIREMENTS
-# - Each proposed factor must be distinct from the others.
-# - For each factor, labeling must be non-overlapping, exhaustive, and single-label (exactly one label per moment in time).
-# - Keep factor titles short (2-3 words)
-# - Provide a finite, explicit label vocabulary for each factor
-# - Prefer global or mid-level factors. Available context scopes are:
-#     - Global: stable across a large section or the whole tutorial.
-#     - Mid-level: persists for a meaningful span of the tutorial.
-#     - Fine-grained (only if necessary): brief contexts used only if global + mid-level factors cannot suffice.
-
-# PROCEDURE
-# 1. Identify the {num_facets} most important contextual dimensions that vary across the tutorials.
-#     - Brief validity note: one sentence confirming it satisfies the five criteria
-#     - Provide for each factor:
-#         - Context scope ("global", "mid-level", "fine-grained")
-#         - Title
-#         - Definition
-#         - Segmentation guidelines (start/end rules; transcript cues for label change)
-#         - Full vocabulary necessary to segment the tutorial according to the factor.
-
-# OUTPUT
-# Return the proposed contextual factors according to the schema.
-
-# INPUTS
-# - Example Tutorials:
-# {tutorials}
-# """
 
 
 def form_facet_init_request(
@@ -105,23 +35,13 @@ def form_facet_init_request(
     num_facets: int,
     **kwargs,
 ) -> Dict[str, Any]:
-    """Form request to initialize facets from tutorials."""
-    all_items = [item for items in videos.values() for item in items]
-    id_map = build_item_id_map(all_items)
-
+    """Form request to initialize facets from tutorials (shown in the system message)."""
     messages = [
-        {
-            "role": "system",
-            "content": MessageContent.from_template(SYSTEM_PROMPT, task=task),
-        },
+        {"role": "system", "content": system_message(task, videos)},
         {
             "role": "user",
             "content": MessageContent.from_template(
-                USER_PROMPT,
-                task=task,
-                num_facets=str(num_facets),
-                tutorials=videos_to_message_content(videos, id_map),
-            ),
+                USER_PROMPT, task=task, num_facets=str(num_facets)),
         },
     ]
     return {

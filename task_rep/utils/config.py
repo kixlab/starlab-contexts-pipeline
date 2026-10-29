@@ -9,7 +9,7 @@ class ModelConfig:
     provider: Literal["openai", "anthropic", "gemini"]
     model: Optional[str] = None
     # Thinking / reasoning effort ("minimal" | "low" | "medium" | "high");
-    # None = utils.llm.REASONING_EFFORT. Not part of cache_suffix.
+    # None = utils.llm.REASONING_EFFORT.
     reasoning_effort: Optional[str] = None
 
     def __post_init__(self):
@@ -35,10 +35,6 @@ class ModelConfig:
                 self.model = "gemini-embedding-2"
         else:
             raise ValueError(f"Invalid provider: {self.provider}")
-
-    def cache_suffix(self) -> str:
-        model_name = self.model.split("/")[-1].replace("-", "").replace("_", "")
-        return f"{model_name}"
 
     def to_dict(self) -> Dict[str, Any]:
         data = {"category": self.category, "provider": self.provider, "model": self.model}

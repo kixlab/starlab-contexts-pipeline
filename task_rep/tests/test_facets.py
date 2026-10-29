@@ -4,7 +4,6 @@ Tests for facet discovery and data structures.
 Run with: python -m pytest tests/test_facets.py -v
 """
 
-from types import SimpleNamespace
 
 import pytest
 
@@ -315,23 +314,16 @@ def test_schemas_to_message_content_renders_design_space(sample_facet):
         rejected_by_id="f2", rejected_by_facet_ids=["f2"], MI=0.8,
         refinement_score=0.8, refinement_threshold=0.55,
     )
-    last = SimpleNamespace(title="Difficulty Level", facet_id="f1",
-                           outcome="accepted into the pool", entered=True,
-                           previous_schema_ids=["", "f2"])
-
     mc = schemas_to_message_content(
         accepted, rejected, [sample_facet, tool_facet], annotations, kb,
         refinement_edges=[("f2", "f1|f2")], refinement_threshold=0.55,
-        last_submission=last,
     )
     text = mc.content[0]["text"]
     # How it is built, with the run's threshold.
     assert "HOW THE DESIGN SPACE IS BUILT" in text
     assert "overlap above 55% with it" in text and "a single factor or a pair" in text
-    # Each factor once, with value frequencies; F IDs follow the factor list.
-    assert text.count("<factor id=\"F1\">") == 1
-    assert text.count("<factor id=\"F2\">") == 1
-    assert "<user_question>What tool is being used?</user_question>" in text
+    # Factors are named by id and title only; their details are FACETS'.
+    assert "<factor" not in text and "<user_question>" not in text
     assert "Design space: kept 1 of 2 single factors and 1 of 1 pairs." in text
     # Kept combinations with why they were kept; the empty schema is not shown.
     assert "- C1: F2 (Tools), 2 cells; kept because no kept combination has fewer values" in text
@@ -342,17 +334,13 @@ def test_schemas_to_message_content_renders_design_space(sample_facet):
     assert ("- F1 (Difficulty Levels): pruned; C1 (F2 (Tools)) already carries 80% "
             "of its information; still used in C2") in text
     assert "Pruned pairs: 0 of 1." in text
-    # What the last submission did.
-    assert '- "Difficulty Level" (F1): accepted into the pool.' in text
-    assert "- As a single factor: pruned; C1 (F2 (Tools)) already carries 80%" in text
-    assert "- In pairs: kept in C2 (with F2 (Tools)); 0 other pairs pruned." in text
-    assert "- Elsewhere: nothing else in the design space changed." in text
+    assert "Last submission" not in text
     # Nothing that scales with the number of segments.
     assert "<signature" not in text
     assert "D=" not in text and "eta2=" not in text
 
 
-def test_design_space_used_nowhere_and_failed_submission(sample_facet):
+def test_design_space_used_nowhere(sample_facet):
     other = Facet(id="f2", title="Tool", title_plural="Tools", scope="global",
                   definition="d", justification="j", user_question="q", guidelines=[],
                   vocabulary=[FacetLabel(label="brush", definition="b")])
@@ -368,19 +356,13 @@ def test_design_space_used_nowhere_and_failed_submission(sample_facet):
                               H=1.0, rejected_by_id="f1", rejected_by_facet_ids=["f1"],
                               MI=0.9, refinement_score=0.9, refinement_threshold=0.55),
     ]
-    failed = SimpleNamespace(title="Knife", facet_id="x", entered=False,
-                             outcome="rejected; independent labelers disagreed too often",
-                             previous_schema_ids=["f1"])
     text = schemas_to_message_content(
         accepted, rejected, [sample_facet, other], AnnotationTable(), kb,
-        last_submission=failed,
     ).content[0]["text"]
     assert "overlap above 55%" in text  # threshold taken from the rejections
     assert "of its information; used nowhere" in text
     assert ("Pruned pairs: 1 of 1. In 1, one of the pair's own factors already carries "
             "more than 55% of it; in 0, another kept combination does.") in text
-    assert ('- "Knife": rejected; independent labelers disagreed too often. '
-            "It did not enter the design space.") in text
 
 
 def test_iterative_prompt_assembles_factor_combinations(sample_facet):
@@ -401,7 +383,8 @@ def test_iterative_prompt_assembles_factor_combinations(sample_facet):
     request = form_facet_iterative_request(
         task="test task",
         facets=[sample_facet],
-        components={"schemas"},
+        components={"facets", "schemas"},
+        corpus=kb.by_video(),
         annotations=annotations,
         knowledge_base=kb,
         accepted_schemas=accepted,

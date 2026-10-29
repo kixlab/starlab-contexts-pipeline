@@ -149,9 +149,6 @@ class RunState:
     tree: Optional[RefinementTree] = None
     accepted_schemas: List[AcceptedSchemaSummary] = field(default_factory=list)
     rejected_schemas: List[RejectedSchemaSummary] = field(default_factory=list)
-    # ids of the accepted schemas just before the latest ledger record, so
-    # feedback can say what the last submission changed in the design space
-    schema_ids_before_last: List[str] = field(default_factory=list)
 
     # complete candidate ledger
     ledger: List[CandidateRecord] = field(default_factory=list)
@@ -194,7 +191,6 @@ class RunState:
             "tree": (self.tree or RefinementTree(nodes=[], edges=[])).to_dict(),
             "accepted_schemas": [s.to_dict() for s in self.accepted_schemas],
             "rejected_schemas": [s.to_dict() for s in self.rejected_schemas],
-            "schema_ids_before_last": list(self.schema_ids_before_last),
             "ledger": [r.to_dict() for r in self.ledger],
             "embeddings": self.embeddings,
             "attempts": self.attempts,
@@ -223,7 +219,6 @@ class RunState:
                 RejectedSchemaSummary.from_dict(s)
                 for s in data.get("rejected_schemas", [])
             ],
-            schema_ids_before_last=list(data.get("schema_ids_before_last", [])),
             ledger=[CandidateRecord.from_dict(r) for r in data.get("ledger", [])],
             embeddings={k: list(v) for k, v in data.get("embeddings", {}).items()},
             attempts=data.get("attempts", 0),
@@ -272,6 +267,7 @@ class RunResult:
     num_units: int = 0
     usage: Dict[str, Dict[str, int]] = field(default_factory=dict)
     runner_state: Dict[str, Any] = field(default_factory=dict)
+    embeddings: Dict[str, List[float]] = field(default_factory=dict)   # dedup vectors
 
     @staticmethod
     def from_state(
@@ -299,6 +295,7 @@ class RunResult:
             num_units=num_units,
             usage={k: dict(v) for k, v in state.usage.items()},
             runner_state=dict(state.runner_state),
+            embeddings=dict(state.embeddings),
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -320,6 +317,7 @@ class RunResult:
             "num_units": self.num_units,
             "usage": self.usage,
             "runner_state": self.runner_state,
+            "embeddings": self.embeddings,
         }
 
     @staticmethod
@@ -349,4 +347,18 @@ class RunResult:
             num_units=data.get("num_units", 0),
             usage=data.get("usage", {}),
             runner_state=data.get("runner_state", {}),
+            embeddings=data.get("embeddings", {}),
+        )
+
+    def to_state(self) -> RunState:
+        """The final run state (the design space as saved), e.g. to re-score it."""
+        return RunState(
+            pool=list(self.pool), annotations=self.annotations, tree=self.tree,
+            accepted_schemas=list(self.accepted_schemas),
+            rejected_schemas=list(self.rejected_schemas), ledger=list(self.ledger),
+            embeddings=dict(self.embeddings), attempts=self.attempts,
+            proposals=self.proposals, iteration=self.iterations,
+            usage={k: dict(v) for k, v in self.usage.items()},
+            runner_state=dict(self.runner_state), fingerprint=self.fingerprint,
+            stop_reason=self.stop_reason,
         )
