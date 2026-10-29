@@ -18,7 +18,7 @@ class RevisedFacetCandidate(BaseModel):
     title_plural: str = Field(description="Plural form")
     scope: str = Field(description="global, mid-level, or fine-grained")
     justification: str = Field(
-        description="Brief justification of changes and why this facet is (1) monolithic and (2) piecewise-stable, target-independent, and task-relevant."
+        description="Brief justification of changes and why this facet is (1) data-grounded, (2) task-relevant, (3) monolithic, (4) piecewise-stable, and (5) target-independent."
     )
     definition: str = Field(description="Updated definition")
     guidelines: List[str] = Field(description="Updated instructions for labeling")
@@ -81,7 +81,7 @@ class FacetCandidate(BaseModel):
     title_plural: str = Field(description="Plural form of the title")
     scope: str = Field(description="global, mid-level, or fine-grained")
     justification: str = Field(
-        description="Why this facet was chosen: (1) satisfies piecewise-stable, target-independent, task-relevant, (2) how it separates colliding items, (3) why it is distinct from previous factors"
+        description="Why this facet was chosen: (1) satisfies data-grounded, task-relevant, monolithic, piecewise-stable, and target-independent, (2) how it separates colliding items, (3) why it is distinct from previous factors"
     )
     definition: str = Field(description="What this facet captures")
     guidelines: List[str] = Field(description="Instructions for labeling")
@@ -106,6 +106,33 @@ class FacetDiscoveryResult(BaseModel):
     )
     refusal_reason: str = Field(
         description="If no candidates are proposed, a brief explanation of why the target items cannot be meaningfully distinguished by contextual factors. Otherwise, leave it empty.",
+    )
+
+#----------------------------------------
+# Facet Initialization (bootstrap)
+#----------------------------------------
+
+class FacetInitCandidate(BaseModel):
+    """A facet candidate proposed during initialization (no target assignments)."""
+    model_config = ConfigDict(extra='forbid')
+
+    title: str = Field(description="Short name (2-3 words)")
+    title_plural: str = Field(description="Plural form of the title")
+    scope: str = Field(description="global, mid-level, or fine-grained")
+    justification: str = Field(
+        description="Why this facet was chosen: (1) satisfies data-grounded, task-relevant, monolithic, piecewise-stable, and target-independent, and (2) why it is distinct from previous factors"
+    )
+    definition: str = Field(description="What this facet captures")
+    guidelines: List[str] = Field(description="Instructions for labeling")
+    segment_labels: list[SegmentLabel] = Field(description="Full vocabulary")
+
+
+class FacetInitResult(BaseModel):
+    """Result of facet initialization."""
+    model_config = ConfigDict(extra='forbid')
+
+    candidates: list[FacetInitCandidate] = Field(
+        description="Proposed facet candidates for bootstrapping the algorithm."
     )
 
 #----------------------------------------

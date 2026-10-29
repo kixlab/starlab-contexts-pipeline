@@ -1,7 +1,7 @@
 """
 Data structures for facets and annotations.
 
-A facet is a piecewise-stable, target-independent, task-relevant dimension
+A facet is a data-grounded, task-relevant, monolithic, piecewise-stable, target-independent dimension
 that discriminates knowledge items from one another.
 """
 

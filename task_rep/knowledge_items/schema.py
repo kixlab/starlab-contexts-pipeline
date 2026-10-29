@@ -160,7 +160,7 @@ class KnowledgeItem:
     source: KnowledgeSource
     # Subtype classification:
     # - For ATOMIC items: AtomicType enum (from taxonomy)
-    # - For STEP items: str (induced step taxonomy value)
+    # - For STEP items: None (no aggregation)
     # - For TUTORIAL items: None
     subtype: Optional[KnowledgeItemSubtype] = None
     # Unit ID for clustering (assigned by clustering algorithm)

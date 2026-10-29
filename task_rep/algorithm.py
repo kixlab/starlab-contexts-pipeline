@@ -51,7 +51,9 @@ from facets import (
 from optimization import (
     compute_cells,
     sample_target_items,
+    sample_target_items_coherence,
     sample_schemas,
+    compute_irr,
 
     FrontierPoint,
     clip_frontier,
@@ -92,6 +94,10 @@ class DiscoveryConfig:
     # Minimum D value for the frontier (i.e., considered resolved)
     min_d: float = 0.01
 
+    # Maximum number of facets in a single schema on the frontier.
+    # Brute-force enumeration is O(n^max_schema_facets), so keep this small.
+    max_schema_facets: int = 3
+
     # Collision detection
     max_cells_per_iteration: int = 1
     max_items_per_cell: int = 5
@@ -102,6 +108,29 @@ class DiscoveryConfig:
     # sample of this many videos.  `0` means use all videos (original behaviour).
     # Phase 2 consolidation and labeling are always run on the full corpus.
     vocab_sample_videos: int = 0
+
+    # Initialization — bootstrap the iterative algorithm with this many
+    # common-sense facets before the main loop.  0 = no initialization.
+    init_facets: int = 0
+
+    # Metric mode — which quality metric drives the Pareto frontier.
+    # "entropy"             = original discriminativeness (log-based, cross-unit separation)
+    # "coherence_ordinal"   = η² using item local_index as position (within-tutorial clustering)
+    # "coherence_temporal"  = η² using time_range midpoint as position (within-tutorial clustering)
+    metric_mode: str = "entropy"
+
+    # Eta-squared averaging mode (only used when metric_mode is coherence_*).
+    # "equal"    = each video contributes equally to the average η²
+    # "weighted" = videos weighted by their item count
+    eta_squared_weighting: str = "equal"
+
+    # IRR (Inter-Rater Reliability) diagnostic.
+    # 0 = disabled; >0 = sample N videos and re-label to measure consistency.
+    irr_sample_videos: int = 0
+    # Number of independent labeling passes for IRR.
+    irr_num_raters: int = 3
+    # Minimum Fleiss' kappa for a facet to be retained; facets below this are pruned.
+    irr_min_agreement: float = 0.6
 
     def cache_suffix(self) -> str:
         item_scope = self.item_scope.cache_suffix()
@@ -114,8 +143,13 @@ class DiscoveryConfig:
         max_cells_per_iteration = str(self.max_cells_per_iteration)
         max_items_per_cell = str(self.max_items_per_cell)
         vocab_sample_videos = str(self.vocab_sample_videos) if self.vocab_sample_videos != 0 else "all"
+        max_schema_facets = str(self.max_schema_facets)
+        init_facets = str(self.init_facets) if self.init_facets != 0 else "0"
+        metric_mode = self.metric_mode
+        eta_squared_weighting = self.eta_squared_weighting if self.metric_mode != "entropy" else "na"
+        irr = f"irr{self.irr_sample_videos}x{self.irr_num_raters}a{self.irr_min_agreement}" if self.irr_sample_videos > 0 else "noirr"
 
-        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}"
+        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}_{max_schema_facets}_{init_facets}_{metric_mode}_{eta_squared_weighting}_{irr}"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -129,6 +163,13 @@ class DiscoveryConfig:
             "max_items_per_cell": self.max_items_per_cell,
             "max_concurrency": self.max_concurrency,
             "vocab_sample_videos": self.vocab_sample_videos,
+            "max_schema_facets": self.max_schema_facets,
+            "init_facets": self.init_facets,
+            "metric_mode": self.metric_mode,
+            "eta_squared_weighting": self.eta_squared_weighting,
+            "irr_sample_videos": self.irr_sample_videos,
+            "irr_num_raters": self.irr_num_raters,
+            "irr_min_agreement": self.irr_min_agreement,
             "discovery_model": self.discovery_model.to_dict(),
             "vocab_model": self.vocab_model.to_dict(),
             "labeling_model": self.labeling_model.to_dict(),
@@ -150,6 +191,13 @@ class DiscoveryConfig:
             max_items_per_cell=data.get("max_items_per_cell", 5),
             max_concurrency=data.get("max_concurrency", 32),
             vocab_sample_videos=data.get("vocab_sample_videos", 0),
+            max_schema_facets=data.get("max_schema_facets", 4),
+            init_facets=data.get("init_facets", 0),
+            metric_mode=data.get("metric_mode", "entropy"),
+            eta_squared_weighting=data.get("eta_squared_weighting", "equal"),
+            irr_sample_videos=data.get("irr_sample_videos", 0),
+            irr_num_raters=data.get("irr_num_raters", 3),
+            irr_min_agreement=data.get("irr_min_agreement", 0.6),
         )
 
 
@@ -248,10 +296,48 @@ class IterativeSchemaDiscovery:
         if use_cache:
             self._restore_cache(cache_dir)
 
+        # Optional: bootstrap with common-sense facets before iterating.
+        # Only runs when init_facets > 0 and no facets exist yet (fresh run).
+        if self.config.init_facets > 0 and not self._facets:
+            logger.info(
+                "Initializing with %d common-sense facet(s)...",
+                self.config.init_facets,
+            )
+            videos = self._knowledge_base.by_video()
+            init_facets = self._extractor.init_facets(
+                task=task.name,
+                videos=videos,
+                num_facets=self.config.init_facets,
+            )
+            if init_facets:
+                init_facets = self._vocab_builder.build_vocabulary(
+                    task=task.name,
+                    facets=init_facets,
+                    knowledge_base=self._knowledge_base,
+                    sample_videos=self.config.vocab_sample_videos,
+                )
+                init_annotations = self._labeler.label_batch(
+                    task=task.name,
+                    facets=init_facets,
+                    knowledge_base=self._knowledge_base,
+                )
+                for f in init_facets:
+                    self._facets[f.id] = f
+                self._annotations.update(init_annotations)
+                logger.info("Initialized %d facet(s).", len(init_facets))
+                self._save_cache(cache_dir)
+
+        max_schema_facets = self.config.max_schema_facets
+        metric_mode = self.config.metric_mode
+        eta_squared_weighting = self.config.eta_squared_weighting
+
         self._frontier = compute_frontier(
             focused_kb,
             list(self._facets.values()),
             self._annotations,
+            max_schema_facets=max_schema_facets,
+            metric_mode=metric_mode,
+            eta_squared_weighting=eta_squared_weighting,
         )
         logger.info(
             "Initial frontier: %d points | worst D=%.4f | best D=%.4f",
@@ -261,7 +347,6 @@ class IterativeSchemaDiscovery:
         )
 
         tries_with_no_improvement = 0
-        # min_d = self.config.min_d
         target_d = self.config.target_d
         max_iterations = self.config.max_iterations
         max_cells_per_iteration = self.config.max_cells_per_iteration
@@ -307,15 +392,23 @@ class IterativeSchemaDiscovery:
             for schema_facets, point in sampled:
                 # 2a: Discover new facets from collision sites when D is still high
                 if point.discriminativeness > target_d:
-                    cells = compute_cells(
-                        focused_kb, schema_facets, self._annotations
-                    )
-                    targets = sample_target_items(
-                        focused_kb,
-                        cells,
-                        max_cells=max_cells_per_iteration,
-                        max_items_per_cell=max_items_per_cell,
-                    )
+                    if metric_mode == "entropy":
+                        targets = sample_target_items(
+                            focused_kb,
+                            schema_facets,
+                            self._annotations,
+                            max_cells=max_cells_per_iteration,
+                            max_items_per_cell=max_items_per_cell,
+                        )
+                    else:
+                        pos_mode = "ordinal" if metric_mode == "coherence_ordinal" else "time"
+                        targets = sample_target_items_coherence(
+                            focused_kb,
+                            schema_facets,
+                            self._annotations,
+                            position_mode=pos_mode,
+                            max_cells=max_cells_per_iteration,
+                        )
                     for target_ids, cell_sig in targets:
                         proposed = self._extractor.propose_facets(
                             task=task.name,
@@ -354,7 +447,30 @@ class IterativeSchemaDiscovery:
 
             logger.info("Candidate new facets: %d", len(unique_new))
 
-            # Step 3: Build vocabulary for new facets
+            # Step 3.5: IRR check — prune unreliable facets before full annotation
+            if self.config.irr_sample_videos > 0 and unique_new:
+                irr = compute_irr(
+                    task=task.name,
+                    facets=unique_new,
+                    knowledge_base=self._knowledge_base,
+                    labeler=self._labeler,
+                    sample_videos=self.config.irr_sample_videos,
+                    num_raters=self.config.irr_num_raters,
+                    min_agreement=self.config.irr_min_agreement,
+                )
+                low_irr_ids = set(irr.get("low_irr_facet_ids", []))
+                if low_irr_ids:
+                    unique_new = [f for f in unique_new if f.id not in low_irr_ids]
+                    logger.info(
+                        "Pruned %d low-IRR candidate(s): %s",
+                        len(low_irr_ids), list(low_irr_ids),
+                    )
+                if not unique_new:
+                    logger.info("All candidates pruned by IRR.")
+                    tries_with_no_improvement += 1
+                    continue
+            
+            # Step 3: Build vocabulary for new facets (TODO: should put before irr?)
             unique_new = self._vocab_builder.build_vocabulary(
                 task=task.name,
                 facets=unique_new,
@@ -373,7 +489,10 @@ class IterativeSchemaDiscovery:
             combined_facets = list(self._facets.values()) + unique_new
             combined_annotations = self._annotations.merge(new_annotations)
             new_frontier = compute_frontier(
-                focused_kb, combined_facets, combined_annotations
+                focused_kb, combined_facets, combined_annotations,
+                max_schema_facets=max_schema_facets,
+                metric_mode=metric_mode,
+                eta_squared_weighting=eta_squared_weighting,
             )
 
             # Step 6: Accept if the clipped frontier before target_d is improved
@@ -404,7 +523,10 @@ class IterativeSchemaDiscovery:
                 # Recompute frontier from the accepted pool (may differ from
                 # new_frontier if some candidates were dropped).
                 self._frontier = compute_frontier(
-                    focused_kb, list(self._facets.values()), self._annotations
+                    focused_kb, list(self._facets.values()), self._annotations,
+                    max_schema_facets=max_schema_facets,
+                    metric_mode=metric_mode,
+                    eta_squared_weighting=eta_squared_weighting,
                 )
 
                 tries_with_no_improvement = 0

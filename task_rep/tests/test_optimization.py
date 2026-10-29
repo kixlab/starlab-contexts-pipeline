@@ -160,49 +160,77 @@ def annotations_f1_f2_with_clash():
 # ============= compute_discriminativeness =============
 
 class TestComputeDiscriminativeness:
-    def test_zero_units(self):
-        assert compute_discriminativeness({}, num_units=0) == 0.0
+    def test_zero_items(self):
+        assert compute_discriminativeness({}) == 0.0
 
     def test_empty_cells(self):
-        assert compute_discriminativeness({}, num_units=3) == 0.0
+        assert compute_discriminativeness({}) == 0.0
 
     def test_perfect_separation(self):
-        """Each unit in its own cell → D = 0."""
-        cells = {"a": {"u1"}, "b": {"u2"}, "c": {"u3"}}
-        assert compute_discriminativeness(cells, num_units=3) == pytest.approx(0.0)
+        """Each unit in its own cell → H(U|C) = 0."""
+        cells = {"a": {"u1": 1}, "b": {"u2": 1}, "c": {"u3": 1}}
+        assert compute_discriminativeness(cells) == pytest.approx(0.0)
 
     def test_no_separation(self):
-        """All units in one cell → D = log2(N)."""
-        cells = {"all": {"u1", "u2", "u3"}}
+        """All units in one cell (uniform) → H(U|C) = log2(N)."""
+        cells = {"all": {"u1": 1, "u2": 1, "u3": 1}}
         expected = math.log(3, 2)
-        assert compute_discriminativeness(cells, num_units=3) == pytest.approx(expected)
+        assert compute_discriminativeness(cells) == pytest.approx(expected)
 
     def test_partial_separation(self):
         """
-        2 units in cell A, 1 in cell B (N=3):
-        D = (2/3)*log2(2) + (1/3)*log2(1) = 2/3.
+        2 units in cell A (1 item each), 1 in cell B (1 item):
+        H(U|C) = (2/3)*log2(2) + (1/3)*0 = 2/3.
         """
-        cells = {"A": {"u1", "u2"}, "B": {"u3"}}
+        cells = {"A": {"u1": 1, "u2": 1}, "B": {"u3": 1}}
         expected = (2 / 3) * math.log(2, 2)  # = 2/3
-        assert compute_discriminativeness(cells, num_units=3) == pytest.approx(expected)
+        assert compute_discriminativeness(cells) == pytest.approx(expected)
 
     def test_custom_base(self):
-        """D uses the supplied logarithm base."""
-        cells = {"all": {"u1", "u2", "u3", "u4"}}
+        """H uses the supplied logarithm base."""
+        cells = {"all": {"u1": 1, "u2": 1, "u3": 1, "u4": 1}}
         expected_base2 = math.log(4, 2)   # = 2.0
         expected_base10 = math.log(4, 10)
-        assert compute_discriminativeness(cells, num_units=4, base=2) == pytest.approx(expected_base2)
-        assert compute_discriminativeness(cells, num_units=4, base=10) == pytest.approx(expected_base10)
+        assert compute_discriminativeness(cells, base=2) == pytest.approx(expected_base2)
+        assert compute_discriminativeness(cells, base=10) == pytest.approx(expected_base10)
 
     def test_d_increases_with_worse_separation(self):
-        """More collision → higher D."""
-        perfect = {"a": {"u1"}, "b": {"u2"}, "c": {"u3"}}
-        partial = {"a": {"u1"}, "b": {"u2", "u3"}}
-        none = {"a": {"u1", "u2", "u3"}}
-        d_perfect = compute_discriminativeness(perfect, 3)
-        d_partial = compute_discriminativeness(partial, 3)
-        d_none = compute_discriminativeness(none, 3)
+        """More collision → higher H(U|C)."""
+        perfect = {"a": {"u1": 1}, "b": {"u2": 1}, "c": {"u3": 1}}
+        partial = {"a": {"u1": 1}, "b": {"u2": 1, "u3": 1}}
+        none = {"a": {"u1": 1, "u2": 1, "u3": 1}}
+        d_perfect = compute_discriminativeness(perfect)
+        d_partial = compute_discriminativeness(partial)
+        d_none = compute_discriminativeness(none)
         assert d_perfect < d_partial < d_none
+
+    def test_unequal_item_counts_within_cell(self):
+        """Under uniform-over-units, item counts per unit don't affect entropy."""
+        # 100 items from u1, 1 from u2 → each unit still gets equal weight
+        skewed = {"a": {"u1": 100, "u2": 1}}
+        # 1 item each
+        uniform = {"a": {"u1": 1, "u2": 1}}
+        d_skewed = compute_discriminativeness(skewed)
+        d_uniform = compute_discriminativeness(uniform)
+        assert d_skewed == pytest.approx(d_uniform)
+
+    def test_unit_overlap_across_cells(self):
+        """
+        Unit u3 spans two cells (items from different tutorials).
+        Under uniform-over-units, u3's weight is split across cells.
+        """
+        # u3 has 1 item in each of two cells
+        cells = {"a": {"u1": 1, "u3": 1}, "b": {"u2": 1, "u3": 1}}
+        d = compute_discriminativeness(cells)
+        # N=3, unit_totals: u1=1, u2=1, u3=2
+        # Cell a: w(u1)=1, w(u3)=0.5, w_sum=1.5, P(u1|a)=2/3, P(u3|a)=1/3
+        # Cell b: w(u2)=1, w(u3)=0.5, w_sum=1.5, P(u2|b)=2/3, P(u3|b)=1/3
+        # H(U|C) = 2 * (1.5/3) * H(2/3,1/3) = log2(3) - 2/3
+        expected = math.log(3, 2) - 2 / 3
+        assert d == pytest.approx(expected)
+        # H(U) under uniform prior = log2(N) = log2(3)
+        h_u = math.log(3, 2)
+        assert d <= h_u  # H(U|C) ≤ H(U), always
 
 
 # ============= compute_compactness =============
@@ -272,7 +300,7 @@ class TestComputeCells:
         """No facets → all items share the empty signature → one cell."""
         cells = compute_cells(three_unit_kb, [], annotations_f1_f2)
         assert len(cells) == 1
-        assert cells[""] == {"u1", "u2", "u3"}
+        assert cells[""] == {"u1": 1, "u2": 1, "u3": 1}
 
     def test_partial_separation_with_f1(self, three_unit_kb, f1, annotations_f1_f2):
         """
@@ -286,8 +314,8 @@ class TestComputeCells:
         collision_cells = {sig: units for sig, units in cells.items() if len(units) > 1}
         assert len(singleton_cells) == 1
         assert len(collision_cells) == 1
-        assert singleton_cells[next(iter(singleton_cells))] == {"u1"}
-        assert collision_cells[next(iter(collision_cells))] == {"u2", "u3"}
+        assert singleton_cells[next(iter(singleton_cells))] == {"u1": 1}
+        assert collision_cells[next(iter(collision_cells))] == {"u2": 1, "u3": 1}
 
     def test_perfect_separation_with_f2(self, three_unit_kb, f2, annotations_f1_f2):
         """Under f2: every unit gets a distinct label → 3 singleton cells."""
@@ -324,7 +352,7 @@ class TestComputeCells:
         ann[("i2", "f1")] = "a"
         cells = compute_cells(kb, [f1], ann)
         assert len(cells) == 1
-        assert cells[next(iter(cells))] == {"u1"}
+        assert cells[next(iter(cells))] == {"u1": 2}
 
 
 # ============= clip_frontier =============
@@ -507,20 +535,24 @@ class TestComputeFrontier:
 
     def test_known_frontier_values_with_clash(self, three_unit_kb_with_clash, f1, f2, annotations_f1_f2_with_clash):
         """
-        Concrete verification (3 unique units: u1, u2, u3):
+        Concrete verification (3 unique units: u1, u2, u3; 4 items):
 
           item1→u1: f1=a, f2=x
           item2→u2: f1=b, f2=y
           item3→u3: f1=b, f2=z
           item4→u3: f1=a, f2=z  ← clash: u3 lands in two f1 cells
 
-          {} (C=0):      D = log2(3)  ≈ 1.585  (one cell with all 3 units)
-          {f1} (C=2):    D = 4/3      ≈ 1.333
-                          cell <Difficulty:a> → {u1,u3}, cell <Difficulty:b> → {u2,u3}
-                          D = (2/3)·log2(2) + (2/3)·log2(2) = 4/3
-          {f2} (C=3):    D = 0
-                          cell <Tool:x>→{u1}, <Tool:y>→{u2}, <Tool:z>→{u3}  (perfect)
-          {f1,f2} (C=5): D = 0 → dominated by {f2} → excluded from frontier
+          Under uniform-over-units prior:
+
+          {} (C=0):      H(U|C) = log2(3)
+                          one cell: {u1:1, u2:1, u3:2}
+                          w(u1)=1, w(u2)=1, w(u3)=1 → all equal → H = log2(3)
+          {f1} (C=2):    H(U|C) = log2(3) - 2/3
+                          cell <a> → {u1:1, u3:1}, cell <b> → {u2:1, u3:1}
+                          u3 split across cells → same as overlap test
+          {f2} (C=3):    H(U|C) = 0
+                          cell <x>→{u1:1}, <y>→{u2:1}, <z>→{u3:2}  (each cell pure)
+          {f1,f2} (C=5): H = 0 → dominated by {f2} → excluded from frontier
         """
         frontier = compute_frontier(three_unit_kb_with_clash, [f1, f2], annotations_f1_f2_with_clash)
 
@@ -528,8 +560,75 @@ class TestComputeFrontier:
         assert set(by_c.keys()) == {0, 2, 3}
 
         assert by_c[0].discriminativeness == pytest.approx(math.log(3, 2))
-        assert by_c[2].discriminativeness == pytest.approx(4 / 3)
+        assert by_c[2].discriminativeness == pytest.approx(math.log(3, 2) - 2 / 3)
         assert by_c[3].discriminativeness == pytest.approx(0.0)
+
+    def test_synergistic_facets_knapsack_regression(self):
+        """
+        Regression: the old 0/1 knapsack DP could miss the optimal subset
+        when facets interact non-additively.
+
+        Setup — 6 units (one item each), three 2-label facets (weight=2 each):
+
+          Facet A: u1-u4 → a1  (4 units), u5-u6 → a2  (2 units)
+            D({A}) = (4/6)·log2(4) + (2/6)·log2(2) = 4/3 + 1/3 = 5/3 ≈ 1.667
+
+          Facet B: u1-u3 → b1  (3 units), u4-u6 → b2  (3 units)
+            D({B}) = 2·(3/6)·log2(3) = log2(3) ≈ 1.585
+
+          Facet C: u1-u2 → c1  (2 units), u3-u6 → c2  (4 units)
+            D({C}) ≈ 1.667
+
+        D({B}) < D({A}): the knapsack stores {B} at weight 2 and evicts {A},
+        then tries {B,C} at weight 4 and never explores {A,C}.
+
+          D({A,C}) = 3·(2/6)·log2(2) = 1.0       ← optimal at weight 4
+          D({B,C}) = 1/3 + (1/2)·log2(3) ≈ 1.125 ← what the knapsack found
+
+        Brute-force enumeration correctly identifies {A,C} as the winning
+        schema at compactness 4.
+        """
+        kb = KnowledgeBase(items=[
+            make_item("i1", unit_id="u1"),
+            make_item("i2", unit_id="u2"),
+            make_item("i3", unit_id="u3"),
+            make_item("i4", unit_id="u4"),
+            make_item("i5", unit_id="u5"),
+            make_item("i6", unit_id="u6"),
+        ])
+
+        fa = make_facet("fa", "A", ["a1", "a2"])  # weight=2
+        fb = make_facet("fb", "B", ["b1", "b2"])  # weight=2
+        fc = make_facet("fc", "C", ["c1", "c2"])  # weight=2
+
+        ann = AnnotationTable()
+        for item_id in ("i1", "i2", "i3", "i4"):
+            ann[(item_id, "fa")] = "a1"
+        for item_id in ("i5", "i6"):
+            ann[(item_id, "fa")] = "a2"
+
+        for item_id in ("i1", "i2", "i3"):
+            ann[(item_id, "fb")] = "b1"
+        for item_id in ("i4", "i5", "i6"):
+            ann[(item_id, "fb")] = "b2"
+
+        for item_id in ("i1", "i2"):
+            ann[(item_id, "fc")] = "c1"
+        for item_id in ("i3", "i4", "i5", "i6"):
+            ann[(item_id, "fc")] = "c2"
+
+        frontier = compute_frontier(kb, [fa, fb, fc], ann)
+        by_c = {p.compactness: p for p in frontier}
+
+        # At compactness 4, the winner must be {A,C} (D=1.0), not {B,C} (D≈1.125).
+        d_at_4 = by_c[4].discriminativeness
+        d_ac = 1.0
+        d_bc = 1 / 3 + math.log(3, 2) / 2
+        assert d_at_4 == pytest.approx(d_ac), (
+            f"Expected D({'{A,C}'})={d_ac:.4f} at compactness 4, got {d_at_4:.4f}. "
+            f"Knapsack would have returned D({'{B,C}'})={d_bc:.4f}."
+        )
+        assert set(by_c[4].facet_ids) == {"fa", "fc"}
 
 
 # ============= sample_schemas =============
@@ -576,7 +675,10 @@ class TestSampleSchemas:
 
 class TestSampleTargetItems:
     def test_no_collisions_returns_empty(self, three_unit_kb, f1, annotations_f1_f2):
-        result = sample_target_items(three_unit_kb, {"<Difficulty:a>": {"u1"}})
+        """Single-unit cell → no collision → empty result."""
+        # Only use f2 annotations which perfectly separate all 3 units
+        f2 = make_facet("f2", "Tool", ["x", "y", "z"])
+        result = sample_target_items(three_unit_kb, [f1, f2], annotations_f1_f2)
         assert result == []
 
     def test_returns_one_result_per_cell(self, three_unit_kb, f1, annotations_f1_f2):
@@ -584,16 +686,15 @@ class TestSampleTargetItems:
         Cell '<Difficulty:b>' has {u2,u3} — one colliding cell.
         Should return one (target_ids, cell_sig) tuple.
         """
-        cells = compute_cells(three_unit_kb, [f1], annotations_f1_f2)
         result = sample_target_items(
-            three_unit_kb, cells, max_cells=1
+            three_unit_kb, [f1], annotations_f1_f2, max_cells=1
         )
         assert len(result) == 1
         target_ids, cell_sig = result[0]
         assert len(target_ids) == 2  # one rep per unit (u2 and u3)
         assert set(target_ids) == {"item2", "item3"}
 
-    def test_max_cells_limits_output(self, f1, annotations_f1_f2):
+    def test_max_cells_limits_output(self, f1):
         """max_cells=0 means no cells are processed."""
         kb = KnowledgeBase(items=[
             make_item("i1", unit_id="u1"),
@@ -602,8 +703,7 @@ class TestSampleTargetItems:
         ])
         ann = AnnotationTable()
         ann[("i1", "f1")] = "a"; ann[("i2", "f1")] = "a"; ann[("i3", "f1")] = "a"
-        cells = compute_cells(kb, [f1], ann)
-        result = sample_target_items(kb, cells, max_cells=0)
+        result = sample_target_items(kb, [f1], ann, max_cells=0)
         assert result == []
 
     def test_skips_cells_with_fewer_than_two_representatives(self, f1):
@@ -616,37 +716,31 @@ class TestSampleTargetItems:
         ann = AnnotationTable()
         ann[("i1", "f1")] = "a"
         ann[("i2", "f1")] = "a"
-        cells = compute_cells(kb, [f1], ann)
-        result = sample_target_items(kb, cells, max_cells=1)
+        result = sample_target_items(kb, [f1], ann, max_cells=1)
         assert result == []
 
-    def test_largest_cell_sampled_first(self, f1):
+    def test_largest_cell_sampled_first(self):
         """Cells are sorted by collision size, largest first."""
+        # Two facets: f_coarse puts {u1,u2,u3} together, f_fine splits u3+u4 into their own cell
+        f_coarse = make_facet("fc", "Coarse", ["a", "b"])
+        f_fine = make_facet("ff", "Fine", ["x", "y"])
         kb = KnowledgeBase(items=[
             make_item("i1", unit_id="u1"),
             make_item("i2", unit_id="u2"),
             make_item("i3", unit_id="u3"),
             make_item("i4", unit_id="u4"),
+            make_item("i5", unit_id="u5"),
         ])
         ann = AnnotationTable()
-        # Cell "a": {u1,u2,u3} — size 3
-        ann[("i1", "f1")] = "a"; ann[("i2", "f1")] = "a"; ann[("i3", "f1")] = "a"
-        # Cell "b": {u4} — not a collision on its own, but we construct synthetic
-        ann[("i4", "f1")] = "b"
+        # Under {fc}: cell "a" has {u1,u2,u3} (size 3), cell "b" has {u4,u5} (size 2)
+        ann[("i1", "fc")] = "a"; ann[("i2", "fc")] = "a"; ann[("i3", "fc")] = "a"
+        ann[("i4", "fc")] = "b"; ann[("i5", "fc")] = "b"
 
-        cells = compute_cells(kb, [f1], ann)
-
-        # Add a second fake collision of size 2 for ordering test
-        cells_with_extra = cells.copy()
-        cells_with_extra["<Difficulty:b>"] = {"u3", "u4"}  # size 2
-
-        result = sample_target_items(
-            kb, cells_with_extra, max_cells=1, max_items_per_cell=3
-        )
+        result = sample_target_items(kb, [f_coarse], ann, max_cells=1, max_items_per_cell=5)
         assert len(result) == 1
         # Should pick the larger cell (size 3) first
-        _, sig = result[0]
-        assert "a" in sig
+        target_ids, _ = result[0]
+        assert len(target_ids) == 3
 
     def test_max_items_per_cell_limits_representatives(self, f1):
         """If a cell has more units than max_items_per_cell, subsample."""
@@ -656,10 +750,8 @@ class TestSampleTargetItems:
         for item in items:
             ann[(item.id, "f1")] = "same"
 
-        cells = compute_cells(kb, [f1], ann)
-
         result = sample_target_items(
-            kb, cells, max_cells=1, max_items_per_cell=3
+            kb, [f1], ann, max_cells=1, max_items_per_cell=3
         )
         assert len(result) == 1
         target_ids, _ = result[0]

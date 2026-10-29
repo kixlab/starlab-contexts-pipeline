@@ -10,7 +10,7 @@ Follows the same architectural pattern as VLMFacetVocabularyBuilder.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from knowledge_items.schema import KnowledgeBase
 
@@ -47,6 +47,7 @@ class VLMFacetLabeler:
         task: str,
         facets: List[Facet],
         knowledge_base: KnowledgeBase,
+        temperature: Optional[float] = None,
     ) -> AnnotationTable:
         """
         Label knowledge items with facet vocabulary labels.
@@ -54,6 +55,8 @@ class VLMFacetLabeler:
         Args:
             facets: Facets with vocabulary to label against.
             knowledge_base: Knowledge items to label.
+            temperature: Optional temperature override for LLM calls.
+                         None = use module default (0.0).
 
         Returns:
             AnnotationTable mapping (item_id, facet_id) -> label.
@@ -86,6 +89,7 @@ class VLMFacetLabeler:
             process_labeling_response,
             max_concurrency=self.max_concurrency,
             model_config=self.model_config,
+            temperature=temperature,
         )
 
         # Collect results into AnnotationTable
