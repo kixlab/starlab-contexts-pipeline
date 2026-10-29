@@ -6,7 +6,7 @@ from typing import List, Optional
 
 from .schema import KnowledgeItemType, KnowledgeBase, Video
 from .clustering import ClusterConfig
-from .vlm_extractor import VLMKnowledgeExtractor
+from .extractor import VLMKnowledgeExtractor
 from .io import get_clustering_cache_path, get_extraction_cache_path
 from .io import load_knowledge_items, save_knowledge_items
 from .clustering import cluster_knowledge_items

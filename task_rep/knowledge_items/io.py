@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 from typing import List, Optional
 
-from .schema import KnowledgeItem, KnowledgeItemType
+from .schema import KnowledgeItem, KnowledgeItemType, Video, VideoTranscriptSegment, VideoFrame
 from .clustering import ClusterConfig
 
 
@@ -117,3 +117,62 @@ def get_clustering_cache_path(
     task_dir = base_dir / task_id
     suffix = config.cache_suffix()
     return task_dir / f"clustered_{granularity.value}_{suffix}.jsonl"
+
+
+def load_dataset(dataset_path: str | Path) -> List[Video]:
+    """
+    Load videos from dataset JSON file.
+
+    Args:
+        dataset_path: Path to dataset JSON file (typically from data_prep)
+
+    Returns:
+        List of Video objects with transcript segments and frames
+
+    Example:
+        >>> videos = load_dataset("static/datasets/sushi_roll_3.json")
+        >>> len(videos)
+        5
+    """
+    dataset_path = Path(dataset_path)
+
+    if not dataset_path.exists():
+        raise FileNotFoundError(f"Dataset file not found: {dataset_path}")
+
+    with open(dataset_path, "r", encoding="utf-8") as f:
+        raw = json.load(f)
+
+    videos = []
+    for entry in raw:
+        transcript_segments = [
+            VideoTranscriptSegment(
+                text=seg["text"],
+                start=float(seg["start"]),
+                end=float(seg["end"]),
+            )
+            for seg in entry.get("transcript", [])
+        ]
+
+        frames = []
+        if "frames" in entry:
+            frames = [
+                VideoFrame(
+                    path=f["path"],
+                    time=float(f["time"]),
+                    caption=f.get("caption"),
+                )
+                for f in entry["frames"]
+            ]
+
+        video = Video(
+            id=entry["id"],
+            url=entry["url"],
+            title=entry["title"],
+            original_title=entry.get("original_title", entry["title"]),
+            content=entry.get("content", "") or "",
+            transcript=transcript_segments,
+            frames=frames,
+        )
+        videos.append(video)
+
+    return videos

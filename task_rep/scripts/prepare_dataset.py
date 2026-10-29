@@ -9,14 +9,14 @@ Usage:
     # Show task info
     python -m task_rep.scripts.prepare_dataset info sushi_v1
 
-    # Build dataset (Whisper transcripts by default)
+    # Build dataset (OpenAI transcripts by default)
     python -m task_rep.scripts.prepare_dataset build sushi_v1 --fps 1.0
 
     # Build all datasets at once
     python -m task_rep.scripts.prepare_dataset build-all --fps 1.0
 
     # Use YouTube transcripts when available
-    python -m task_rep.scripts.prepare_dataset build sushi_v1 --transcript-source youtube-or-whisper
+    python -m task_rep.scripts.prepare_dataset build sushi_v1 --transcript-source youtube-or-openai
 
     # Force rebuild everything
     python -m task_rep.scripts.prepare_dataset build sushi_v1 --force-all
@@ -155,9 +155,9 @@ def main():
     build_parser.add_argument("--fps", type=float, default=1.0, help="Frames per second (default: 1.0)")
     build_parser.add_argument(
         "--transcript-source",
-        choices=["whisper", "youtube-or-whisper"],
-        default="whisper",
-        help="Transcript source: 'whisper' (default, most reliable) or 'youtube-or-whisper' (prefer original)"
+        choices=["openai", "youtube-or-openai"],
+        default="openai",
+        help="Transcript source: 'openai' (default, most reliable) or 'youtube-or-openai' (prefer original)"
     )
     build_parser.add_argument("--force-download", action="store_true", help="Re-download videos")
     build_parser.add_argument("--force-extract", action="store_true", help="Re-extract frames")
@@ -169,9 +169,9 @@ def main():
     build_all_parser.add_argument("--fps", type=float, default=1.0, help="Frames per second (default: 1.0)")
     build_all_parser.add_argument(
         "--transcript-source",
-        choices=["whisper", "youtube-or-whisper"],
-        default="whisper",
-        help="Transcript source: 'whisper' (default, most reliable) or 'youtube-or-whisper' (prefer original)"
+        choices=["openai", "youtube-or-openai"],
+        default="openai",
+        help="Transcript source: 'openai' (default, most reliable) or 'youtube-or-openai' (prefer original)"
     )
     build_all_parser.add_argument("--force-download", action="store_true", help="Re-download videos")
     build_all_parser.add_argument("--force-extract", action="store_true", help="Re-extract frames")

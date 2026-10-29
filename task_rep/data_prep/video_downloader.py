@@ -6,6 +6,7 @@ Videos are stored centrally and shared across all tasks.
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 from dataclasses import dataclass
@@ -331,3 +332,69 @@ class VideoDownloader:
         """Check if frames are extracted."""
         frames_dir = self.get_video_dir(video_id) / "frames"
         return frames_dir.exists() and any(frames_dir.glob(f"{video_id}_frame_*"))
+
+    def get_transcript_path(self, video_id: str, source: str = "openai") -> Path:
+        """
+        Get transcript file path for a specific source.
+
+        Args:
+            video_id: Video ID
+            source: Transcript source ("openai", "youtube", or "none")
+        """
+        return self.get_video_dir(video_id) / f"transcript_{source}.json"
+
+    def has_transcript(self, video_id: str, source: str = "openai") -> bool:
+        """
+        Check if transcript exists for a specific source.
+
+        Args:
+            video_id: Video ID
+            source: Transcript source ("openai" or "youtube")
+        """
+        return self.get_transcript_path(video_id, source).exists()
+
+    def get_transcript(self, video_id: str, source: str = "openai") -> Optional[dict]:
+        """
+        Load transcript from file if it exists.
+
+        Args:
+            video_id: Video ID
+            source: Transcript source ("openai" or "youtube")
+
+        Returns:
+            Transcript dict with 'transcript', 'content', and 'transcript_source' fields,
+            or None if no transcript exists.
+        """
+        transcript_path = self.get_transcript_path(video_id, source)
+        if not transcript_path.exists():
+            return None
+
+        try:
+            with open(transcript_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"    Failed to load transcript: {e}")
+            return None
+
+    def save_transcript(self, video_id: str, transcript_data: dict) -> bool:
+        """
+        Save transcript to file based on its source.
+
+        Args:
+            video_id: Video ID
+            transcript_data: Dict with 'transcript', 'content', and 'transcript_source' fields
+
+        Returns:
+            True if successful, False otherwise
+        """
+        source = transcript_data.get("transcript_source", "openai")
+        transcript_path = self.get_transcript_path(video_id, source)
+        transcript_path.parent.mkdir(parents=True, exist_ok=True)
+
+        try:
+            with open(transcript_path, "w", encoding="utf-8") as f:
+                json.dump(transcript_data, f, indent=2, ensure_ascii=False)
+            return True
+        except Exception as e:
+            print(f"    Failed to save transcript: {e}")
+            return False

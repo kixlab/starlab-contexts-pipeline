@@ -16,6 +16,7 @@ import base64
 import json
 import os
 import random
+import re
 import threading
 import time
 from dataclasses import dataclass, field
@@ -42,8 +43,41 @@ DEFAULT_MODEL_ANTHROPIC = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
 # Generation parameters
 SEED = 13774
 TEMPERATURE = 0.0
-MAX_TOKENS = 32700
 REASONING_EFFORT = "low"  # For GPT-5 models: "minimal", "low", "medium", "high"
+
+# Model-specific max completion tokens
+MODEL_MAX_TOKENS = {
+    # OpenAI models
+    "gpt-4": 8192,
+    "gpt-4-turbo": 4096,
+    "gpt-4o": 16384,
+    "gpt-4o-mini": 16384,
+    "gpt-4.1-mini": 16384,
+    "gpt-5": 32768,
+    # Anthropic models (via Bedrock)
+    "claude-3-5-sonnet": 8192,
+    "claude-3-5-haiku": 8192,
+    "claude-3-opus": 4096,
+    "claude-3-sonnet": 4096,
+    "claude-3-haiku": 4096,
+}
+
+
+def get_max_tokens_for_model(model: str) -> int:
+    """Get the maximum completion tokens for a given model."""
+    # Check for exact match first
+    if model in MODEL_MAX_TOKENS:
+        return MODEL_MAX_TOKENS[model]
+
+    # Check for partial matches, sorted by length (longest first)
+    # This ensures "gpt-4o-mini" matches before "gpt-4o" before "gpt-4"
+    sorted_keys = sorted(MODEL_MAX_TOKENS.keys(), key=len, reverse=True)
+    for key in sorted_keys:
+        if key in model:
+            return MODEL_MAX_TOKENS[key]
+
+    # Default to conservative value for unknown models
+    return 4096
 
 # Rate limits (conservative defaults)
 MAX_REQUESTS_PER_MINUTE = 15000  # 50% of OpenAI's 30k limit
@@ -97,11 +131,6 @@ def encode_image(image_path: str | Path) -> str:
         return base64.b64encode(image_file.read()).decode("utf-8")
 
 
-def encode_image_bytes(image_bytes: bytes) -> str:
-    """Encode image bytes to base64."""
-    return base64.b64encode(image_bytes).decode("utf-8")
-
-
 @dataclass
 class MessageContent:
     """
@@ -110,7 +139,8 @@ class MessageContent:
     Content is specified as a list of blocks, where each block is a dict with uniform structure:
     - Text: {"type": "text", "text": "..."}
     - Image from path: {"type": "image_path", "path": "...", "detail": "auto"}
-    - Image from bytes: {"type": "image_bytes", "data": bytes, "detail": "auto"}
+
+    This format is JSON-serializable and suitable for logging.
 
     Usage:
         # Text only
@@ -132,19 +162,21 @@ class MessageContent:
             {"type": "text", "text": "At 5-10s, they say: 'Mix it with water'"},
             {"type": "image_path", "path": "frame_007.jpg"},
         ])
-
-        # With image bytes
-        MessageContent(content=[
-            {"type": "text", "text": "Analyze this"},
-            {"type": "image_bytes", "data": img_bytes}
-        ])
     """
 
     content: List[Dict[str, Any]]
 
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to a JSON-serializable dictionary."""
+        return {"content": self.content}
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "MessageContent":
+        """Create MessageContent from a dictionary."""
+        return cls(content=data["content"])
+
     def to_openai_content(self) -> List[Dict[str, Any]]:
         """Convert to OpenAI API content format."""
-        # If only one text item, return as string (for API simplicity)
         result: List[Dict[str, Any]] = []
 
         for block in self.content:
@@ -155,19 +187,6 @@ class MessageContent:
 
             elif block_type == "image_path":
                 encoded = encode_image(block["path"])
-                detail = block.get("detail", "auto")
-                result.append(
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{encoded}",
-                            "detail": detail,
-                        },
-                    }
-                )
-
-            elif block_type == "image_bytes":
-                encoded = encode_image_bytes(block["data"])
                 detail = block.get("detail", "auto")
                 result.append(
                     {
@@ -214,21 +233,62 @@ class MessageContent:
                     }
                 )
 
-            elif block_type == "image_bytes":
-                encoded = encode_image_bytes(block["data"])
-                result.append(
-                    {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": "image/jpeg",  # Assume JPEG for raw bytes
-                            "data": encoded,
-                        },
-                    }
-                )
-
         return result
 
+    def to_content(self) -> List[Dict[str, Any]]:
+        """Convert to content format."""
+        return self.content
+
+    @classmethod
+    def from_template(cls, template: str, **kwargs) -> "MessageContent":
+        """Build MessageContent from a template with mixed str and MessageContent values.
+
+        String values are substituted via str.format(). MessageContent values are
+        spliced in-place, so their blocks (text, images, ...) appear exactly where
+        the placeholder was in the template.
+
+        Usage:
+            MessageContent.from_template(
+                "Here is the video: {video}\\nNow answer: {question}",
+                video=video_mc,        # MessageContent — spliced in place
+                question="What tool?", # str — normal substitution
+            )
+        """
+        # Separate str vs MessageContent kwargs
+        str_kwargs: Dict[str, str] = {}
+        mc_kwargs: Dict[str, "MessageContent"] = {}
+        for k, v in kwargs.items():
+            if isinstance(v, MessageContent):
+                mc_kwargs[k] = v
+            else:
+                str_kwargs[k] = str(v)
+
+        if not mc_kwargs:
+            return cls(content=[{"type": "text", "text": template.format(**str_kwargs)}])
+
+        # Replace MC placeholders with null-byte markers before str.format()
+        markers: Dict[str, str] = {}
+        for key in mc_kwargs:
+            marker = f"\x00MC_{key}\x00"
+            markers[key] = marker
+            template = template.replace(f"{{{key}}}", marker)
+
+        # Format the remaining string placeholders
+        text = template.format(**str_kwargs)
+
+        # Split on markers (preserving them) and interleave
+        pattern = "(" + "|".join(re.escape(m) for m in markers.values()) + ")"
+        parts = re.split(pattern, text)
+        marker_to_key = {m: k for k, m in markers.items()}
+
+        content: List[Dict[str, Any]] = []
+        for part in parts:
+            if part in marker_to_key:
+                content.extend(mc_kwargs[marker_to_key[part]].to_content())
+            elif part:
+                content.append({"type": "text", "text": part})
+
+        return cls(content=content)
 
 # ============== API Wrappers ==============
 
@@ -283,7 +343,7 @@ def get_response_pydantic_openai(
         "model": model,
         "seed": SEED,
         "messages": messages,
-        "max_completion_tokens": MAX_TOKENS,
+        "max_completion_tokens": get_max_tokens_for_model(model),
         "response_format": response_format_dict,
     }
 
@@ -338,7 +398,7 @@ def get_response_pydantic_anthropic(
 
     completion = client.messages.create(
         model=model,
-        max_tokens=MAX_TOKENS,
+        max_tokens=get_max_tokens_for_model(model),
         system=system_prompt,
         messages=messages,
         temperature=TEMPERATURE,
@@ -478,7 +538,6 @@ def llm_enqueue_request(
     batch_id: str,
     messages: List[Dict[str, Any]],
     response_format: Any,
-    model: str,
     options: Optional[Dict[str, Any]] = None,
     request_id: Optional[str] = None,
 ) -> str:
@@ -493,10 +552,18 @@ def llm_enqueue_request(
         "schema": response_format.model_json_schema(),
         "name": response_format.__name__,
     }
+
+    # Convert MessageContent objects to dicts for JSON serialization
+    serializable_messages = []
+    for msg in messages:
+        content = msg["content"]
+        if isinstance(content, MessageContent):
+            content = content.to_dict()
+        serializable_messages.append({"role": msg["role"], "content": content})
+
     record = {
         "request_id": req_id,
-        "model": model,
-        "messages": messages,
+        "messages": serializable_messages,
         "response_format": response_format_dict,
         "options": options or {},
     }
@@ -648,7 +715,7 @@ class APIRequest:
     task_id: int
     request_json: dict
     attempts_left: int
-    token_consumption: int = field(default_factory=lambda: MAX_TOKENS)
+    token_consumption: int
 
 
 # ============== Token Estimation ==============
@@ -707,9 +774,8 @@ def estimate_prompt_tokens_from_messages(
     return total
 
 
-def estimate_token_consumption(request_json: dict) -> int:
+def estimate_token_consumption(request_json: dict, model: str | None) -> int:
     """Estimate total token consumption for a request."""
-    model = request_json.get("model")
     messages = request_json.get("messages", [])
     prompt_tokens = estimate_prompt_tokens_from_messages(messages, model)
 
@@ -728,8 +794,9 @@ def estimate_token_consumption(request_json: dict) -> int:
 async def process_api_requests(
     batch_id: str,
     max_concurrency: int = 64,
-    seconds_to_pause_after_limit_error: float = 60.0,
     provider: Literal["openai", "anthropic"] = "openai",
+    model: Optional[str] = None,
+    seconds_to_pause_after_limit_error: float = 60.0,
 ):
     """
     Process all enqueued requests in parallel with rate limiting and retries.
@@ -771,7 +838,7 @@ async def process_api_requests(
                     task_id=task_id,
                     request_json=record,
                     attempts_left=MAX_ATTEMPTS,
-                    token_consumption=estimate_token_consumption(record),
+                    token_consumption=estimate_token_consumption(record, model),
                 )
                 task_id += 1
                 status.num_tasks_started += 1
@@ -800,10 +867,24 @@ async def process_api_requests(
 
                     def _call():
                         r = req.request_json
-                        model = r.get("model")
                         messages = r.get("messages")
                         response_format = r.get("response_format")
-                        return call_function(messages, response_format, model=model)
+
+                        # Reconstruct MessageContent from serialized dicts
+                        processed_messages = []
+                        for msg in messages:
+                            content = msg["content"]
+                            # Check if content is a serialized MessageContent
+                            if isinstance(content, dict) and "content" in content and isinstance(content["content"], list):
+                                # Reconstruct MessageContent and convert to API format
+                                msg_content = MessageContent.from_dict(content)
+                                if provider == "openai":
+                                    content = msg_content.to_openai_content()
+                                else:
+                                    content = msg_content.to_anthropic_content()
+                            processed_messages.append({"role": msg["role"], "content": content})
+
+                        return call_function(processed_messages, response_format, model)
 
                     result = await asyncio.to_thread(_call)
                     _append_jsonl(responses_path, [req.request_json, result])
@@ -852,3 +933,38 @@ async def process_api_requests(
         f"Failed={status.num_tasks_failed} "
         f"RateLimitErrors={status.num_rate_limit_errors}"
     )
+
+def batch_run_llm_calls(
+    batch_id: str, 
+    request_args, 
+    func_request, 
+    func_response,
+    max_concurrency: int,
+    provider: Literal["openai", "anthropic"],
+    model: Optional[str],
+):
+    print(f"Batch ID for {func_request.__name__}: {batch_id}")
+    if len(request_args) == 0:
+        return []
+    req_ids = []
+    for request_arg in request_args:
+        api_args = func_request(**request_arg)
+        req_id = llm_enqueue_request(batch_id, **api_args)
+        req_ids.append(req_id)
+
+    asyncio.run(process_api_requests(
+        batch_id,
+        max_concurrency=max_concurrency,
+        provider=provider,
+        model=model,
+    ))
+    batch_responses = llm_get_responses(batch_id)
+
+    batch_results = []
+    for request_arg, req_id in zip(request_args, req_ids):
+        if req_id not in batch_responses:
+            raise ValueError(f"Request ID not found: {req_id}")
+        response = batch_responses[req_id]
+        result = func_response(response=response, **request_arg)
+        batch_results.append(result)
+    return batch_results

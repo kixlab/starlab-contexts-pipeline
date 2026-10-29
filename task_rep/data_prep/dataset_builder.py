@@ -15,7 +15,7 @@ from typing import Literal
 from .video_downloader import VideoDownloader, VideoDownloadConfig
 from .task_manager import Task
 
-from .whisper import transcribe_audio
+from .transcriber import transcribe_audio
 
 def _make_youtube_url(video_id: str) -> str:
     """Construct YouTube URL from video ID."""
@@ -83,7 +83,7 @@ def build_dataset(
     task: Task,
     base_dir: Path,
     video_download_config: VideoDownloadConfig,
-    transcript_source: Literal["whisper", "youtube-or-whisper"] = "whisper",
+    transcript_source: Literal["openai", "youtube-or-openai"] = "openai",
     force_download: bool = False,
     force_extract: bool = False,
     force_transcripts: bool = False,
@@ -104,8 +104,8 @@ def build_dataset(
         task_id: Task ID from tasks.json
         fps: Frames per second to extract
         transcript_source: How to get transcripts:
-            - "whisper": Always use Whisper API (default, most reliable)
-            - "youtube-or-whisper": Try YouTube transcript first, fall back to Whisper
+            - "openai": Always use OpenAI API (default, most reliable)
+            - "youtube-or-openai": Try YouTube transcript first, fall back to OpenAI
         force_download: Re-download videos even if they exist
         force_extract: Re-extract frames even if they exist
         force_transcripts: Re-fetch transcripts even if they exist
@@ -114,11 +114,11 @@ def build_dataset(
         Path to the output dataset file
 
     Example:
-        # Use Whisper (default)
+        # Use OpenAI (default)
         build_dataset("sushi_v1", fps=1.0)
 
         # Prefer YouTube transcripts
-        build_dataset("sushi_v1", transcript_source="youtube-or-whisper")
+        build_dataset("sushi_v1", transcript_source="youtube-or-openai")
     """
 
     output_path = base_dir / f"{task.id}.json"
@@ -217,19 +217,41 @@ def build_dataset(
             transcript_data = None
 
             # Try YouTube transcript first if requested
-            if transcript_source == "youtube-or-whisper":
-                print(f"    Trying YouTube transcript...")
-                transcript_data = _fetch_youtube_transcript(video_id)
-                if transcript_data and transcript_data.get("transcript"):
-                    print(f"    ✓ YouTube transcript: {len(transcript_data['transcript'])} segments")
+            if transcript_source == "youtube-or-openai":
+                # Check for existing YouTube transcript file
+                if downloader.has_transcript(video_id, "youtube") and not force_transcripts:
+                    print(f"    Loading existing YouTube transcript...")
+                    transcript_data = downloader.get_transcript(video_id, "youtube")
+                    if transcript_data and transcript_data.get("transcript"):
+                        print(f"    ✓ Loaded YouTube transcript: {len(transcript_data['transcript'])} segments")
 
-            # Fall back to Whisper if needed
+                # Fetch new YouTube transcript if needed
+                if not transcript_data or not transcript_data.get("transcript") or force_transcripts:
+                    print(f"    Fetching YouTube transcript...")
+                    transcript_data = _fetch_youtube_transcript(video_id)
+                    if transcript_data and transcript_data.get("transcript"):
+                        print(f"    ✓ YouTube transcript: {len(transcript_data['transcript'])} segments")
+                        downloader.save_transcript(video_id, transcript_data)
+                        print(f"    Saved YouTube transcript")
+
+            # Fall back to OpenAI if needed
             if not transcript_data or not transcript_data.get("transcript"):
-                if transcript_source == "whisper" or transcript_source == "youtube-or-whisper":
-                    if audio_path.exists():
-                        transcript_data = transcribe_audio(audio_path)
-                        if transcript_data.get("transcript"):
-                            print(f"    ✓ Whisper transcript: {len(transcript_data['transcript'])} segments")
+                if transcript_source == "openai" or transcript_source == "youtube-or-openai":
+                    # Check for existing OpenAI transcript file
+                    if downloader.has_transcript(video_id, "openai") and not force_transcripts:
+                        print(f"    Loading existing OpenAI transcript...")
+                        transcript_data = downloader.get_transcript(video_id, "openai")
+                        if transcript_data and transcript_data.get("transcript"):
+                            print(f"    ✓ Loaded OpenAI transcript: {len(transcript_data['transcript'])} segments")
+
+                    # Transcribe with OpenAI if needed
+                    if not transcript_data or not transcript_data.get("transcript") or force_transcripts:
+                        if audio_path.exists():
+                            transcript_data = transcribe_audio(audio_path)
+                            if transcript_data.get("transcript"):
+                                print(f"    ✓ OpenAI transcript: {len(transcript_data['transcript'])} segments")
+                                downloader.save_transcript(video_id, transcript_data)
+                                print(f"    Saved OpenAI transcript")
 
             # Update video data
             if transcript_data:
