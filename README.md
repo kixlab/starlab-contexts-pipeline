@@ -1,15 +1,21 @@
 # Starlab Contexts Pipeline
 
-Construct Context Information Maps (CIMs) from tutorial transcripts: extract
-knowledge, discover contextual factors, label items, and evaluate organizing
-schemas. The included explorer and the separate applications repo consume the
-same JSON bundle.
+Construct and interactively explore the **design space of contextual units** for
+tutorial system design. This repo contains the discovery Pipeline and the
+design-space explorer. The separate **TaskTailor** repo contains contextual
+retrieval, video segmentation, and coverage analysis.
 
-The workflow is **timed tutorial corpus → pipeline extraction and CU labeling →
-annotated bundle → graph exploration → three applications**. Contextual units
-(CUs) are stored as facets; a schema is a chosen set of CU IDs. The graph helps
-compare schemas, but applications can load any valid annotated bundle directly.
-Neither the graph nor the applications invoke the pipeline.
+The workflow is **tutorial corpus → knowledge-item extraction → contextual-unit
+discovery and annotation → design-space exploration → TaskTailor configuration**.
+Knowledge items retain source tutorials, descriptions, and timestamps; semantically
+related items can be grouped into knowledge units. Contextual units (CUs) describe
+items using named aspects, definitions, and canonical values. A candidate
+organization selects CUs whose value signatures group the annotated items.
+
+The explorer presents candidate organizations and refinement relationships in a
+directed acyclic graph (DAG). Inspect candidates and **Copy IDs** to configure
+TaskTailor. TaskTailor can also load annotated corpora directly. Building a graph
+or using a TaskTailor feature does not invoke discovery or labeling.
 
 Run the model-backed pipeline when a new corpus needs knowledge extraction,
 CU discovery, or labeling. Existing annotations can be loaded immediately.
@@ -59,13 +65,13 @@ npm --prefix ../starlab-contexts-applications run dev
 
 | URL | Interface | First action |
 | --- | --- | --- |
-| <http://localhost:3001/space> | Design-space explorer | Press **Build**, then select a graph node |
-| <http://localhost:3000/retrieval> | Retrieval | Select a chapter or another tutorial |
-| <http://localhost:3000/segmentation> | Segmentation and augmentation | Seek to a chapter and inspect related information |
-| <http://localhost:3000/analysis> | Context intersection analysis | Choose two CUs, or Temporal Position and a CU; click a bar/bubble |
+| <http://localhost:3001/space> | Pipeline: design-space exploration | Press **Build**, inspect a candidate, then **Copy IDs** |
+| <http://localhost:3000/retrieval> | TaskTailor: contextual retrieval | Play or seek to a knowledge item; inspect matches from other tutorials |
+| <http://localhost:3000/segmentation> | TaskTailor: video segmentation | Navigate the chapter timeline and expand other tutorials' chapter lists |
+| <http://localhost:3000/analysis> | TaskTailor: coverage analysis | Choose two CUs, or normalized temporal position and a CU; click a bar/bubble |
 
 Each interface opens **My tutorials** automatically. The generated
-bundle has four synthetic tutorials, sixteen steps, and two contextual factors.
+bundle has four synthetic tutorials, sixteen knowledge items, and two contextual units.
 Both viewers include the matching 20-second video title card. To run only the bundled sample, skip the
 bundle-copy and `.env.local` configuration steps.
 
@@ -109,12 +115,14 @@ live model APIs is a separate mode below.
    its cached extraction/units.
 4. Set `NEXT_PUBLIC_BUNDLE_URL=/data/local-bundle.json` and
    `NEXT_PUBLIC_DATASET_LABEL=My tutorials` in `explorer/.env.local`. Restart the
-   explorer; at `/space`, choose the dataset and press **Build**. `Max K` limits
-   CUs per schema; start at 1 or 2 for a large candidate pool. Select a node to
-   inspect its schema, then press **Copy IDs**.
+   explorer; at `/space`, choose the **Tutorial corpus** and press **Build**.
+   **Max CUs** limits contextual units per candidate; start at 1 or 2 for a large
+   pool. Nodes are arranged by vocabulary cost (canonical values excluding N/A).
+   Inspect a candidate's contextual units, value distributions, and effectiveness;
+   follow refinement links and press **Copy IDs** for your selection.
 5. Copy the same bundle into the applications repo and configure it there.
-   In retrieval, segmentation, or analysis, choose that dataset, paste the IDs
-   into the schema toolbar, and press **Apply**. See the
+   In any TaskTailor feature, choose that corpus, paste the IDs into
+   **Contextual unit IDs**, and press **Apply**. See the
    [applications dataset guide](https://github.com/kixlab/starlab-contexts-applications/blob/main/docs/DATASETS.md).
 
 Already have an annotated bundle? Start at step 4. Each viewer has its own JSON

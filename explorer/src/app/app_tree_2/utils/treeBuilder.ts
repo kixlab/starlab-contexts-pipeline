@@ -490,12 +490,12 @@ export async function enumerateSchemas(
 
     // Yield to event loop periodically
     if ((ci + 1) % YIELD_EVERY === 0) {
-      onProgress?.("Enumerating schemas", ci + 1, allCombos.length);
+      onProgress?.("Enumerating candidate organizations", ci + 1, allCombos.length);
       await new Promise<void>((r) => setTimeout(r, 0));
     }
   }
 
-  onProgress?.("Enumerating schemas", allCombos.length, allCombos.length);
+  onProgress?.("Enumerating candidate organizations", allCombos.length, allCombos.length);
   return {
     allNodes,
     validPiecesCount: rows.length,

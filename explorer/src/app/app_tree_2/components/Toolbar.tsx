@@ -52,12 +52,12 @@ export function Toolbar({
       <div className="flex items-center gap-3 text-sm">
         {/* Dataset selector */}
         <select
-          aria-label="Dataset"
+          aria-label="Tutorial corpus"
           value={selectedLabel ?? ""}
           onChange={(e) => e.target.value && onSelectDataset(e.target.value)}
           className="h-7 px-2 rounded bg-neutral-800 border border-neutral-700 text-white text-xs"
         >
-          <option value="">Select dataset…</option>
+          <option value="">Select tutorial corpus…</option>
           {datasetOptions.map((o) => (
             <option key={o.label} value={o.label}>{o.label}</option>
           ))}
@@ -82,7 +82,7 @@ export function Toolbar({
 
             {/* Tau */}
             <label className="flex items-center gap-1.5 text-xs text-neutral-400">
-              τ
+              θ
               <input
                 type="number"
                 min={0.5}
@@ -99,7 +99,7 @@ export function Toolbar({
 
             {/* Max K */}
             <label className="flex items-center gap-1.5 text-xs text-neutral-400">
-              Max K
+              Max CUs
               <input
                 type="number"
                 min={1}
@@ -115,7 +115,7 @@ export function Toolbar({
 
             {/* Min stability */}
             <label className="flex items-center gap-1.5 text-xs text-neutral-400">
-              Min stability
+              Min transition stability
               <input
                 type="number"
                 min={0}

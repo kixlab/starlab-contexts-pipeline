@@ -4,9 +4,9 @@ The system contains three component families:
 
 | Component | Location | Responsibility |
 | --- | --- | --- |
-| CIM framework construction | `legacy/` | Framework-split extraction and schema construction |
-| Task representation | `task_rep/` | Knowledge items, contextual factors, evaluation, and pipeline execution |
-| Design-space explorer | `explorer/` | Compare CU combinations and visualize schema refinement |
+| Legacy framework construction | `legacy/` | Framework-split knowledge extraction and contextual-unit construction |
+| Discovery Pipeline | `task_rep/` | Knowledge items and units, contextual units, canonical values, annotations, and evaluation |
+| Design-space explorer | `explorer/` | Compare candidate organizations and explore the contextual-unit refinement DAG |
 
 The task-representation modules share their development lineage with
 `probe/task_rep`. The explorer shares its interface foundations with

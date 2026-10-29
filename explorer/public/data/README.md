@@ -1,7 +1,7 @@
 # Example data
 
-`demo-bundle.json` contains four entirely synthetic tutorials, sixteen steps,
-and two contextual factors (`paper`, `stage`). It contains no real participants,
+`demo-bundle.json` contains four entirely synthetic tutorials, sixteen knowledge items,
+and two contextual units (`paper`, `stage`). It contains no real participants,
 study responses, third-party transcripts, or model request logs.
 
 `../media/folding-demo.mp4` is an original generated title card for local playback.

@@ -1,14 +1,16 @@
-# Pipeline explorer
+# Pipeline design-space explorer
 
 Use Node.js 22. From this directory, run `npm ci`, then
 `npm run dev -- --port 3001` and open <http://localhost:3001>.
 
-- `/space`: press **Build**, then select a schema node.
+- `/space`: press **Build**, then inspect a candidate organization in the refinement DAG.
 
 The bundled synthetic dataset and local video work without API keys. To use a
 generated bundle, follow the [root quick start](../README.md#quick-start-both-repos).
 The configured bundle is selected automatically. Select a graph node and press
-**Copy IDs** to use that CU combination in the applications' schema toolbar.
+**Copy IDs** to use that candidate's contextual units in TaskTailor's
+**Contextual unit IDs** field. TaskTailor contains contextual retrieval, video
+segmentation, and coverage analysis; it is separate from this Pipeline repo.
 Graph construction only reads existing annotations; it makes no model calls.
 For a new raw corpus, follow [corpus setup](../README.md#use-your-own-corpus).
 For an existing annotated bundle, copy it into `public/data/local-bundle.json`

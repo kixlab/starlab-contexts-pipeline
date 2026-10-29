@@ -1,6 +1,6 @@
-# Framework-split CIM construction
+# Legacy framework-split construction
 
-This implementation constructs context schemas from legacy-format tutorial
+This implementation constructs contextual-unit configurations from legacy-format tutorial
 datasets. The [root README](../README.md) describes the task-representation
 pipeline and its offline example. Use a separate virtual environment for the
 dependencies listed in this directory's `requirements.txt`.
