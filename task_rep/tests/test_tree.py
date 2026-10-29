@@ -28,8 +28,7 @@ from optimization.tree import (
     compute_signature_entropy,
     prune_and_connect,
     sample_schemas_from_tree,
-    is_tree_improved,
-    get_active_facet_ids,
+    compare_tree_quality,
     _transitive_reduction,
 )
 from optimization.metrics import compute_cells
@@ -674,23 +673,11 @@ class TestSampleFromTree:
     def test_empty_tree(self):
         """Empty tree → no samples."""
         tree = RefinementTree(nodes=[], edges=[])
-        result = sample_schemas_from_tree(tree, {}, target_d=0.5, k=2)
+        result = sample_schemas_from_tree(tree, {}, k=2)
         assert result == []
 
-    def test_all_resolved(self):
-        """All nodes below target_d → no samples."""
-        tree = RefinementTree(
-            nodes=[make_tree_node(["f1"], size=2, D=0.01)],
-            edges=[],
-        )
-        result = sample_schemas_from_tree(
-            tree, {"f1": make_facet("f1", "F", ["a"])},
-            target_d=0.5, k=2, metric_mode="entropy",
-        )
-        assert result == []
-
-    def test_samples_unresolved_leaves(self):
-        """Should only sample leaf nodes that are unresolved."""
+    def test_samples_leaf_nodes(self):
+        """Should only sample leaf nodes (no outgoing edges)."""
         parent = make_tree_node([], size=0, D=1.5)
         child = make_tree_node(["f1"], size=2, D=0.8)
         tree = RefinementTree(
@@ -701,15 +688,14 @@ class TestSampleFromTree:
         )
         f1_facet = make_facet("f1", "F", ["a", "b"])
         result = sample_schemas_from_tree(
-            tree, {"f1": f1_facet},
-            target_d=0.5, k=2, metric_mode="entropy",
+            tree, {"f1": f1_facet}, k=2,
         )
         # Parent has outgoing edge → not a leaf. Only child is a leaf.
         assert len(result) == 1
         assert result[0][1].id == "f1"
 
     def test_k_limits_samples(self):
-        """When more unresolved leaves exist than k, only k are returned."""
+        """When more leaves exist than k, only k are returned."""
         nodes = [
             make_tree_node(["f1"], size=2, D=0.8),
             make_tree_node(["f2"], size=3, D=0.7),
@@ -722,18 +708,18 @@ class TestSampleFromTree:
             "f3": make_facet("f3", "F3", ["lo", "hi"]),
         }
         result = sample_schemas_from_tree(
-            tree, facets_by_id, target_d=0.5, k=2, metric_mode="entropy",
+            tree, facets_by_id, k=2,
         )
         assert len(result) == 2
 
-    def test_mixed_resolved_and_unresolved_leaves(self):
-        """Only unresolved leaf nodes should be sampled."""
-        resolved_leaf = make_tree_node(["f1"], size=2, D=0.01)
-        unresolved_leaf1 = make_tree_node(["f2"], size=3, D=0.8)
-        unresolved_leaf2 = make_tree_node(["f3"], size=2, D=0.6)
+    def test_all_leaves_sampled(self):
+        """All leaf nodes are candidates for sampling."""
+        leaf1 = make_tree_node(["f1"], size=2, D=0.01)
+        leaf2 = make_tree_node(["f2"], size=3, D=0.8)
+        leaf3 = make_tree_node(["f3"], size=2, D=0.6)
         interior = make_tree_node([], size=0, D=1.5)
         tree = RefinementTree(
-            nodes=[interior, resolved_leaf, unresolved_leaf1, unresolved_leaf2],
+            nodes=[interior, leaf1, leaf2, leaf3],
             edges=[TreeEdge("", "f1", MI=0.5, refinement_score=0.5,
                            marginal_D_gain=1.49, marginal_eta2_gain=0.0,
                            added_facets=["f1"], removed_facets=[])],
@@ -744,135 +730,69 @@ class TestSampleFromTree:
             "f3": make_facet("f3", "F3", ["lo", "hi"]),
         }
         result = sample_schemas_from_tree(
-            tree, facets_by_id, target_d=0.5, k=10, metric_mode="entropy",
+            tree, facets_by_id, k=10,
         )
         sampled_ids = {node.id for _, node in result}
-        # resolved leaf (D=0.01) and interior (has outgoing edge) should NOT be sampled
-        assert "f1" not in sampled_ids
+        # interior (has outgoing edge) should NOT be sampled
         assert "" not in sampled_ids
-        # unresolved leaves should be sampled
+        # all leaves (including resolved ones) should be candidates
         assert "f2" in sampled_ids
         assert "f3" in sampled_ids
 
 
 # ============= Tests: is_tree_improved =============
 
-class TestIsTreeImproved:
-    def test_same_tree(self):
-        """Identical trees → no improvement."""
-        tree = RefinementTree(
-            nodes=[make_tree_node(["f1"], size=2, D=0.5)],
-            edges=[],
-        )
-        assert not is_tree_improved(tree, tree, metric_mode="entropy")
-
-    def test_new_node_added(self):
-        """New surviving node → improvement."""
-        old = RefinementTree(
-            nodes=[make_tree_node(["f1"], size=2, D=0.5)],
-            edges=[],
-        )
-        new = RefinementTree(
+class TestCompareTreeQuality:
+    def test_more_nodes_wins(self):
+        """Tree with more surviving nodes is better."""
+        a = RefinementTree(
             nodes=[
                 make_tree_node(["f1"], size=2, D=0.5),
                 make_tree_node(["f2"], size=3, D=0.3),
             ],
             edges=[],
         )
-        assert is_tree_improved(old, new, metric_mode="entropy")
-
-    def test_quality_improved(self):
-        """Same node with better D → improvement."""
-        old = RefinementTree(
+        b = RefinementTree(
             nodes=[make_tree_node(["f1"], size=2, D=0.5)],
             edges=[],
         )
-        new = RefinementTree(
-            nodes=[make_tree_node(["f1"], size=2, D=0.3)],
-            edges=[],
-        )
-        assert is_tree_improved(old, new, metric_mode="entropy")
+        assert compare_tree_quality(a, b) == 1
+        assert compare_tree_quality(b, a) == -1
 
-    def test_quality_worse(self):
-        """Same node with worse D → no improvement."""
-        old = RefinementTree(
-            nodes=[make_tree_node(["f1"], size=2, D=0.3)],
-            edges=[],
-        )
-        new = RefinementTree(
-            nodes=[make_tree_node(["f1"], size=2, D=0.5)],
-            edges=[],
-        )
-        assert not is_tree_improved(old, new, metric_mode="entropy")
-
-    def test_node_replaced_by_different_better_node(self):
-        """
-        Old tree has f1 (D=0.5). New tree has f1 pruned but f2 (D=0.2) added.
-        Different node IDs → counts as new node → improvement.
-        """
-        old = RefinementTree(
-            nodes=[make_tree_node(["f1"], size=2, D=0.5)],
-            edges=[],
-        )
-        new = RefinementTree(
-            nodes=[make_tree_node(["f2"], size=3, D=0.2)],
-            edges=[],
-        )
-        assert is_tree_improved(old, new, metric_mode="entropy")
-
-    def test_node_lost_no_gain(self):
-        """
-        Old tree has f1 and f2. New tree has only f1 (f2 pruned away),
-        but f1's quality didn't improve. This is NOT an improvement.
-        """
-        old = RefinementTree(
+    def test_same_nodes_fewer_facets_wins(self):
+        """Same node count, fewer unique facets is better."""
+        # a: 2 nodes using facets f1, f2 (2 unique)
+        a = RefinementTree(
             nodes=[
                 make_tree_node(["f1"], size=2, D=0.5),
                 make_tree_node(["f2"], size=3, D=0.3),
             ],
             edges=[],
         )
-        new = RefinementTree(
-            nodes=[make_tree_node(["f1"], size=2, D=0.5)],
-            edges=[],
-        )
-        assert not is_tree_improved(old, new, metric_mode="entropy")
-
-    def test_eta2_mode(self):
-        """Improvement detection works with coherence metric too."""
-        old = RefinementTree(
-            nodes=[make_tree_node(["f1"], size=2, D=0.5, eta2=0.6)],
-            edges=[],
-        )
-        new = RefinementTree(
-            nodes=[make_tree_node(["f1"], size=2, D=0.5, eta2=0.3)],
-            edges=[],
-        )
-        # D didn't change, but eta2 improved (lower is better)
-        assert not is_tree_improved(old, new, metric_mode="entropy")
-        assert is_tree_improved(old, new, metric_mode="coherence_ordinal")
-
-
-# ============= Tests: get_active_facet_ids =============
-
-class TestGetActiveFacetIds:
-    def test_filters_resolved(self):
-        """Only facets from unresolved nodes should be active."""
-        tree = RefinementTree(
+        # b: 2 nodes using facets f1, f2, f3 (3 unique)
+        b = RefinementTree(
             nodes=[
-                make_tree_node(["f1"], size=2, D=0.5),       # unresolved
-                make_tree_node(["f2"], size=3, D=0.005),      # resolved
-                make_tree_node(["f1", "f3"], size=4, D=0.3),  # unresolved
+                make_tree_node(["f1"], size=2, D=0.5),
+                make_tree_node(["f2", "f3"], size=4, D=0.2),
             ],
             edges=[],
         )
-        active = get_active_facet_ids(tree, min_d=0.01, metric_mode="entropy")
-        assert active == {"f1", "f3"}
+        assert compare_tree_quality(a, b) == 1
+        assert compare_tree_quality(b, a) == -1
 
-    def test_empty_tree(self):
-        """Empty tree → no active facets."""
-        tree = RefinementTree(nodes=[], edges=[])
-        assert get_active_facet_ids(tree, min_d=0.01) == set()
+    def test_equal_trees(self):
+        """Same node count and same unique facets → tie."""
+        tree = RefinementTree(
+            nodes=[make_tree_node(["f1"], size=2, D=0.5)],
+            edges=[],
+        )
+        assert compare_tree_quality(tree, tree) == 0
+
+    def test_empty_trees(self):
+        """Two empty trees are equal."""
+        a = RefinementTree(nodes=[], edges=[])
+        b = RefinementTree(nodes=[], edges=[])
+        assert compare_tree_quality(a, b) == 0
 
 
 # ============= Tests: serialization =============
@@ -952,8 +872,8 @@ class TestIntegration:
 
         # Sample
         sampled = sample_schemas_from_tree(
-            tree, facets_by_id, target_d=0.1, k=2, metric_mode="entropy",
+            tree, facets_by_id, k=2,
         )
-        # Some leaves may be resolved (D=0), so sampled could be empty
+        # All sampled should be leaf nodes
         for facet_list, node in sampled:
-            assert node.discriminativeness > 0.1
+            assert node.id in surviving_ids

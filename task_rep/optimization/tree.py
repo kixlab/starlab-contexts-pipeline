@@ -489,22 +489,17 @@ def _transitive_reduction(
 def sample_schemas_from_tree(
     tree: RefinementTree,
     facets_by_id: Dict[str, Facet],
-    target_d: float = 0.8,
     k: int = 2,
-    metric_mode: str = "entropy",
 ) -> List[Tuple[List[Facet], TreeNode]]:
     """
-    Sample k schemas from unresolved leaf nodes of the tree.
+    Sample k schemas from leaf nodes of the tree.
 
     A leaf node has no outgoing edges (no child refines it).
-    An unresolved node has quality worse than target_d.
 
     Args:
         tree: The refinement tree.
         facets_by_id: Facet lookup.
-        target_d: Quality threshold (lower is resolved).
         k: Number of schemas to sample.
-        metric_mode: Which quality metric to check.
 
     Returns:
         List of (facet_list, tree_node) tuples.
@@ -516,13 +511,10 @@ def sample_schemas_from_tree(
     has_outgoing: Set[str] = {e.source_id for e in tree.edges}
     leaves = [n for n in tree.nodes if n.id not in has_outgoing]
 
-    # Filter to unresolved (quality > target_d)
-    unresolved = [n for n in leaves if _node_quality_value(n, metric_mode) > target_d]
-
-    if not unresolved:
+    if not leaves:
         return []
 
-    sampled = random.sample(unresolved, min(k, len(unresolved)))
+    sampled = random.sample(leaves, min(k, len(leaves)))
 
     return [
         (
@@ -537,56 +529,26 @@ def sample_schemas_from_tree(
 # Improvement detection
 # ---------------------------------------------------------------------------
 
-def is_tree_improved(
-    old_tree: RefinementTree,
-    new_tree: RefinementTree,
-    metric_mode: str = "entropy",
-) -> bool:
+def compare_tree_quality(tree_a: RefinementTree, tree_b: RefinementTree) -> int:
     """
-    Check whether the new tree is an improvement over the old one.
+    Compare two trees by quality.
 
-    Returns True if:
-    - New tree has surviving nodes not present in old tree, OR
-    - Any shared node has strictly better quality in the new tree.
+    Returns 1 if tree_a is better, -1 if tree_b is better, 0 if equal.
+
+    Primary criterion: more surviving nodes is better.
+    Tiebreaker: fewer unique facet IDs across all nodes is better.
     """
-    old_nodes = {n.id: n for n in old_tree.nodes}
-    new_nodes = {n.id: n for n in new_tree.nodes}
+    nodes_a = len(tree_a.nodes)
+    nodes_b = len(tree_b.nodes)
+    if nodes_a != nodes_b:
+        return 1 if nodes_a > nodes_b else -1
 
-    # New surviving nodes appeared
-    new_ids = set(new_nodes.keys()) - set(old_nodes.keys())
-    if new_ids:
-        return True
+    unique_a = len({fid for node in tree_a.nodes for fid in node.facet_ids})
+    unique_b = len({fid for node in tree_b.nodes for fid in node.facet_ids})
+    if unique_a != unique_b:
+        return 1 if unique_a < unique_b else -1
 
-    # Any shared node improved quality
-    for nid, new_node in new_nodes.items():
-        if nid in old_nodes:
-            old_q = _node_quality_value(old_nodes[nid], metric_mode)
-            new_q = _node_quality_value(new_node, metric_mode)
-            if new_q < old_q:  # lower is better
-                return True
-
-    return False
-
-
-# ---------------------------------------------------------------------------
-# Active facet extraction
-# ---------------------------------------------------------------------------
-
-def get_active_facet_ids(
-    tree: RefinementTree,
-    min_d: float = 0.01,
-    metric_mode: str = "entropy",
-) -> Set[str]:
-    """
-    Return facet_ids from all surviving nodes with quality > min_d.
-
-    Mirrors the Pareto approach's active_ids logic.
-    """
-    active: Set[str] = set()
-    for node in tree.nodes:
-        if _node_quality_value(node, metric_mode) > min_d:
-            active.update(node.facet_ids)
-    return active
+    return 0
 
 
 def compute_tree_depth(tree: RefinementTree) -> int:

@@ -18,7 +18,7 @@ class RevisedFacetCandidate(BaseModel):
     title_plural: str = Field(description="Plural form")
     scope: str = Field(description="global, mid-level, or fine-grained")
     justification: str = Field(
-        description="Brief justification of changes and why this facet is (1) data-grounded, (2) task-relevant, (3) monolithic, (4) piecewise-stable, and (5) target-independent."
+        description="Brief justification of changes and why this facet is (1) data-grounded, (2) consequential, (3) monolithic, (4) piecewise-stable, and (5) target-independent."
     )
     definition: str = Field(description="Updated definition")
     guidelines: List[str] = Field(description="Updated instructions for labeling")
@@ -81,7 +81,7 @@ class FacetCandidate(BaseModel):
     title_plural: str = Field(description="Plural form of the title")
     scope: str = Field(description="global, mid-level, or fine-grained")
     justification: str = Field(
-        description="Why this facet was chosen: (1) satisfies data-grounded, task-relevant, monolithic, piecewise-stable, and target-independent, (2) how it separates colliding items, (3) why it is distinct from previous factors"
+        description="Why this facet was chosen: (1) satisfies data-grounded, consequential, monolithic, piecewise-stable, and target-independent, (2) how it separates colliding items, (3) why it is distinct from previous factors"
     )
     definition: str = Field(description="What this facet captures")
     guidelines: List[str] = Field(description="Instructions for labeling")
@@ -120,7 +120,7 @@ class FacetInitCandidate(BaseModel):
     title_plural: str = Field(description="Plural form of the title")
     scope: str = Field(description="global, mid-level, or fine-grained")
     justification: str = Field(
-        description="Why this facet was chosen: (1) satisfies data-grounded, task-relevant, monolithic, piecewise-stable, and target-independent, and (2) why it is distinct from previous factors"
+        description="Why this facet was chosen: (1) satisfies data-grounded, consequential, monolithic, piecewise-stable, and target-independent, and (2) why it is distinct from previous factors"
     )
     definition: str = Field(description="What this facet captures")
     guidelines: List[str] = Field(description="Instructions for labeling")

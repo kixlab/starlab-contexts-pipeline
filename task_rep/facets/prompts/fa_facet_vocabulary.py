@@ -36,12 +36,12 @@ PROPOSAL_SYSTEM_PROMPT = """You are an expert at analyzing tutorial content and 
 PROPOSAL_USER_PROMPT = """You are given a contextual factor (facet) and knowledge items extracted from a tutorial video. Propose vocabulary labels that capture the distinct values this facet takes within the video content.
 
 DEFINITIONS
-- A contextual factor is a domain-grounded, task-relevant, monolithic, piecewise-stable, and target-independent variable that describes the procedural situation of the task at a given moment or over a meaningful span.
-    - Domain-grounded: the factor is anchored in the task-world and describes a real aspect of the procedure as it unfolds, such as procedural stage, material state, tool state, object configuration, environmental condition, or service context. It does not describe the media, editorial, or presentation format through which the procedure is shown.
-    - Task-relevant: the factor changes what actions, constraints, interpretations, or information are applicable in that part of the task.
-    - Monolithic: the factor captures one coherent semantic concept rather than combining multiple distinct concepts.
-    - Piecewise-stable: the factor remains constant over meaningful temporal segments and changes at identifiable boundaries.
-    - Target-independent: the factor is determined by the broader procedural context, not by the specific information unit being labeled; removing that unit would not change the factor value.
+- A valid contextual factor is a variable describing the procedural situation at a given moment or span. It must be:
+    - Domain-grounded: anchored in the task-world (e.g., procedural stage, material state, tool state, object configuration, environmental condition, operating mode, verification state, service context) — NOT in media, narration, editing, presentation, or social framing.
+    - Consequential: changes what actions, constraints, interpretations, checks, or information apply.
+    - Monolithic: captures one coherent semantic concept, not a bundle.
+    - Piecewise-stable: remains constant over meaningful spans; changes at identifiable boundaries.
+    - Target-independent: determined by the broader procedural context; removing the target item would not change the factor's value.
 - A vocabulary label is one possible value a facet can take. Labels must be mutually exclusive and collectively cover all content relevant to the facet.
 
 REQUIREMENTS
