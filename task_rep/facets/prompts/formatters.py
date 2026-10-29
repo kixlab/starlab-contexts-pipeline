@@ -43,7 +43,7 @@ def format_guidelines(guidelines: List[str]) -> str:
         return "No guidelines are available."
     return "\n".join([_GUIDELINE_STR_FORMAT.format(guideline=guideline) for guideline in guidelines])
 
-_LABEL_STR_FORMAT = """<label id="{label}">{definition}</label>"""
+_LABEL_STR_FORMAT = """<label><name>{label}</name> — {definition}</label>"""
 
 def format_facet_label(label: FacetLabel) -> str:
     return _LABEL_STR_FORMAT.format(

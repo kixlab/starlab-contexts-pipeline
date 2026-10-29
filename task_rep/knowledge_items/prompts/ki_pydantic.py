@@ -44,7 +44,7 @@ class StepInformation(BaseModel):
     """Information about a single step (used for both discovery and detailed extraction)."""
     model_config = ConfigDict(extra='forbid')
 
-    name: str = Field(description="Name of this step (e.g., 'Prepare rice')")
+    name: str = Field(description="Name of this step")
     content: str = Field(description="Natural text content describing this step")
     start: float = Field(description="Start time of the step in the video")
     end: float = Field(description="End time of the step in the video")

@@ -34,7 +34,7 @@ DEFINITIONS
 
 REQUIREMENTS
 - Assign exactly one label to each knowledge item.
-- The label MUST be one of the labels in the facet's vocabulary (use the exact label text).
+- The label MUST be one of the labels in the facet's vocabulary (use the exact text inside the <name> tag, not the definition text).
 - If none of the labels clearly apply, choose the closest match.
 - Every item must receive a label — do not skip any items.
 

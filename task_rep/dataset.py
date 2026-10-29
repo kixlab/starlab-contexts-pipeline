@@ -15,6 +15,9 @@ Usage:
     # Build all datasets at once
     python -m task_rep.scripts.prepare_dataset build-all --fps 1.0
 
+    # Build only specific tasks
+    python -m task_rep.scripts.prepare_dataset build-some makeup caramel_apples --fps 1.0
+
     # Use YouTube transcripts when available
     python -m task_rep.scripts.prepare_dataset build sushi_v1 --transcript-source youtube-or-openai
 
@@ -105,6 +108,63 @@ def cmd_build_all(args):
             failed_tasks.append((task.id, str(e)))
 
     # Summary
+    print(f"\n{'='*60}")
+    print(f"Build Summary")
+    print(f"{'='*60}")
+    print(f"  Total tasks: {len(tasks)}")
+    print(f"  Successful: {success_count}")
+    print(f"  Failed: {len(failed_tasks)}")
+
+    if failed_tasks:
+        print(f"\nFailed tasks:")
+        for task_id, error in failed_tasks:
+            print(f"  - {task_id}: {error}")
+
+
+def cmd_build_some(args):
+    """Build datasets for a specified subset of tasks."""
+    manager = TaskManager(tasks_file=Config.TASKS_FILE)
+    tasks = [manager.get_task(task_id) for task_id in args.task_ids]
+
+    print(f"\n{'='*60}")
+    print(f"Building {len(tasks)} task(s)")
+    print(f"{'='*60}")
+
+    transcript_source = args.transcript_source
+    force_download = args.force_download
+    fps = args.fps
+    narration_check = not args.no_narration_check
+    min_word_count = args.min_word_count
+    min_words_per_minute = args.min_words_per_minute
+
+    success_count = 0
+    failed_tasks = []
+
+    for i, task in enumerate(tasks, 1):
+        print(f"\n{'='*60}")
+        print(f"[{i}/{len(tasks)}] Building task: {task.id}")
+        print(f"{'='*60}")
+
+        try:
+            downloader = VideoDownloader(videos_dir=Config.VIDEOS_DIR)
+
+            output_path = build_task_dataset(
+                task=task,
+                downloader=downloader,
+                dataset_dir=Config.TASK_DATASETS_DIR,
+                fps=fps,
+                transcript_source=transcript_source,
+                force_download=force_download,
+                narration_check=narration_check,
+                min_word_count=min_word_count,
+                min_words_per_minute=min_words_per_minute,
+            )
+            print(f"\n✓ Dataset ready: {output_path}")
+            success_count += 1
+        except Exception as e:
+            print(f"\n✗ Task {task.id} failed: {e}")
+            failed_tasks.append((task.id, str(e)))
+
     print(f"\n{'='*60}")
     print(f"Build Summary")
     print(f"{'='*60}")
@@ -260,6 +320,21 @@ def main():
     build_all_parser.add_argument("--min-word-count", type=int, default=DEFAULT_MIN_WORD_COUNT, help=f"Minimum word count to pass narration check (default: {DEFAULT_MIN_WORD_COUNT})")
     build_all_parser.add_argument("--min-words-per-minute", type=float, default=DEFAULT_MIN_WORDS_PER_MINUTE, help=f"Minimum words/min to pass narration check (default: {DEFAULT_MIN_WORDS_PER_MINUTE})")
 
+    # Build some command
+    build_some_parser = subparsers.add_parser("build-some", help="Build datasets for specified tasks")
+    build_some_parser.add_argument("task_ids", nargs="+", help="Task IDs to build")
+    build_some_parser.add_argument("--fps", type=float, default=1.0, help="Frames per second (default: 1.0)")
+    build_some_parser.add_argument(
+        "--transcript-source",
+        choices=["openai", "youtube"],
+        default="openai",
+        help="Transcript source: 'openai' (default, most reliable) or 'youtube' (prefer YouTube)"
+    )
+    build_some_parser.add_argument("--force-download", action="store_true", help="Re-do everything (download, extract frames, get transcript)")
+    build_some_parser.add_argument("--no-narration-check", action="store_true", help="Disable narration quality filter")
+    build_some_parser.add_argument("--min-word-count", type=int, default=DEFAULT_MIN_WORD_COUNT, help=f"Minimum word count to pass narration check (default: {DEFAULT_MIN_WORD_COUNT})")
+    build_some_parser.add_argument("--min-words-per-minute", type=float, default=DEFAULT_MIN_WORDS_PER_MINUTE, help=f"Minimum words/min to pass narration check (default: {DEFAULT_MIN_WORDS_PER_MINUTE})")
+
     # Status command
     status_parser = subparsers.add_parser("status", help="Show download/processing status")
     status_parser.add_argument("task_id", nargs="?", help="Task ID (omit to show all tasks)")
@@ -277,6 +352,8 @@ def main():
         cmd_build(args)
     elif args.command == "build-all":
         cmd_build_all(args)
+    elif args.command == "build-some":
+        cmd_build_some(args)
     elif args.command == "status":
         cmd_status(args)
     elif args.command == "list":
