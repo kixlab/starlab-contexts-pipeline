@@ -1,17 +1,19 @@
 {
-  "name": "tutorial-analysis",
+  "name": "starlab-contexts-explorer",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --port 7777",
-    "build": "next build --turbopack",
-    "start": "next start",
-    "lint": "eslint"
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test:smoke": "node scripts/smoke.mjs"
   },
   "dependencies": {
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "next": "15.5.3"
+    "react": "19.1.10",
+    "react-dom": "19.1.10",
+    "next": "15.5.28"
   },
   "devDependencies": {
     "typescript": "^5",
@@ -21,7 +23,18 @@
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4",
     "eslint": "^9",
-    "eslint-config-next": "15.5.3",
-    "@eslint/eslintrc": "^3"
+    "eslint-config-next": "15.5.28",
+    "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.61.0"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "packageManager": "npm@10.9.2",
+  "overrides": {
+    "postcss": "^8.5.23",
+    "nanoid": "^3.3.18",
+    "source-map-js": "^1.2.2",
+    "sharp": "^0.35.5"
   }
 }

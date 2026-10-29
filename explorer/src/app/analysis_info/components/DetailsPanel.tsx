@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { DatasetVideo, TranscriptEntry, Facet } from "../types";
+import type { DatasetVideo, TranscriptEntry, Facet } from "@/app/types";
 import { VideoPlayer } from "./VideoPlayer";
 
 export function DetailsPanel({

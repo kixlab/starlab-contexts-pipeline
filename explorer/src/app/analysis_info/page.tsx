@@ -66,14 +66,15 @@ export default function Home() {
           const contextSchema = (bundle.context_schema ?? []) as Facet[];
           const candidates = (bundle.facet_candidates ?? []) as Facet[];
 
-          // Start minimal: show no facets by default (user will add from candidates).
           const initialCandidates = candidates.length ? candidates : contextSchema;
-          setShownFacets([]);
+          setShownFacets(contextSchema);
           setFacetCandidates(initialCandidates);
 
           // Derive infoTypes from data when config is null (step/tutorial datasets).
           if (selectedDataset.infoTypes === null) {
-            setAvailableInfoTypes(deriveInfoTypesFromDataset(ds));
+            const types = deriveInfoTypesFromDataset(ds);
+            setAvailableInfoTypes(types);
+            setSelectedInfoTypes(types.includes("Method - Instruction") ? ["Method - Instruction"] : types.slice(0, 1));
           }
         }
       } catch (error) {

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Tooltip } from "@/app/components/Tooltip";
 import { FacetDetailContent } from "@/app/components/FacetListPanel";
 import { FACET_VALUE_PERCENTAGE_EXPLANATION, DENOMINATOR_TOOLTIP, NO_CONTEXTS_MESSAGE, DENOMINATOR_TOOLTIP_RELATIVE, DENOMINATOR_TOOLTIP_THEORETICAL } from "@/app/constants/facetValueTooltip";
-import type { Facet, DatasetVideo } from "../types";
+import type { Facet, DatasetVideo } from "@/app/types";
 import { computeFacetImpactStats, computeDiscriminativeness, facetToLabelKey as facetToLabelKeyUtil, normalizeFacetVals as normalizeFacetValsUtil } from "@/app/utils/facetStats";
 
 type SelectedFacets = Record<string, { label: string; title: string }>;

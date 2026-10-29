@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { LocalClip } from "@/app/components/LocalClip";
 
 interface VideoPlayerProps {
   videoUrl: string;
@@ -83,13 +84,7 @@ export function VideoPlayer({ videoUrl, startTime, endTime, className = "", maxW
     setIsLoading(false);
   };
 
-  if (!videoId) {
-    return (
-      <div className={`w-full h-28 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-xs text-red-600 dark:text-red-400 ${className}`}>
-        Invalid YouTube URL
-      </div>
-    );
-  }
+  if (!videoId) return <LocalClip src={videoUrl} startTime={startTime} />;
 
   if (error) {
     return (
