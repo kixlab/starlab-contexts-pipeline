@@ -13,6 +13,10 @@ The commands below use a macOS/Linux shell. No GPU or API key is needed.
 
 From a parent folder, clone both repos side by side and set up the pipeline:
 
+For existing clones, skip the two clone commands. Preserve existing `.env.local`
+files: set `NEXT_PUBLIC_BUNDLE_URL=/data/local-bundle.json` in place of copying the
+example file over them. Stop existing dev servers before running setup.
+
 ```bash
 git clone https://github.com/kixlab/starlab-contexts-pipeline.git
 git clone https://github.com/kixlab/starlab-contexts-applications.git
@@ -29,10 +33,6 @@ cp ../starlab-contexts-applications/.env.local.example ../starlab-contexts-appli
 npm --prefix explorer ci
 npm --prefix ../starlab-contexts-applications ci
 ```
-
-If the repos are already cloned, skip the two clone commands. If you already
-have `.env.local` files, preserve their other settings and set
-`NEXT_PUBLIC_BUNDLE_URL=/data/local-bundle.json` instead of replacing them.
 
 Keep these commands running in **two terminals**, both starting from the
 pipeline repo root:
@@ -58,8 +58,8 @@ npm --prefix ../starlab-contexts-applications run dev
 Each interface opens **Local pipeline output** automatically. The generated
 bundle has four synthetic tutorials, sixteen steps, and two contextual factors.
 Both viewers include the matching 20-second video title card. Analysis also adds
-a Content Type facet for comparison. To use only the bundled sample, omit the
-copy/configuration steps and use the dataset controls to switch between samples.
+a Content Type facet for comparison. To run only the bundled sample, skip the
+bundle-copy and `.env.local` configuration steps.
 
 The demo runs the real proposal/evaluation/checkpoint pipeline with scripted
 model services. It writes `demo-bundle.json`, `knowledge-base.json`, and a run
@@ -79,8 +79,11 @@ python main.py show paper_folding_demo
 
 This uses synthetic transcripts but makes paid model calls. Adjust models and
 budgets in `task_rep/experiments/paper_folding_demo.json`. `run` resumes interrupted
-runs; `--fresh` starts a new one. For your corpus, supply a task definition and
-transcript dataset matching `examples/demo-dataset.json`. See
+runs; `--fresh` starts a new one. For your corpus, add a task to
+`task_rep/data/tasks.json` and place its transcripts at
+`task_rep/static/task-datasets/<task_id>.json`, following `examples/demo-dataset.json`.
+Copy the example experiment under `task_rep/experiments/`, set its `task_id` to
+your task, and keep its filename and `name` consistent. See
 [task preparation](task_rep/data_prep/README.md) and [.env.example](.env.example)
 for optional downloads, providers, and external storage configuration.
 
@@ -104,13 +107,14 @@ The [bundle contract](docs/BUNDLE_FORMAT.md) describes the shared format.
 
 ## Checks and other entry points
 
+Stop dev servers with **Ctrl+C** before building or running these checks.
+
 ```bash
 python -m pytest -q
 python scripts/check_public.py --history
 npm --prefix explorer run build
-cd explorer
-npx playwright install chromium
-npm run test:smoke
+npm --prefix explorer exec -- playwright install chromium
+npm --prefix explorer run test:smoke
 ```
 
 For production, run `npm run build` and then `npm run start` in each web app; use

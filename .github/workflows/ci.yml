@@ -52,6 +52,8 @@ jobs:
         working-directory: explorer
       - run: npm run build
         working-directory: explorer
+      - run: npm run lint
+        working-directory: explorer
       - run: npx playwright install --with-deps chromium
         working-directory: explorer
       - run: npm run test:smoke
@@ -59,6 +61,8 @@ jobs:
       - run: npm ci
         working-directory: applications
       - run: npm run build
+        working-directory: applications
+      - run: npm run lint
         working-directory: applications
       - run: npx playwright install --with-deps chromium
         working-directory: applications
