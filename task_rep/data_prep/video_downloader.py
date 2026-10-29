@@ -268,10 +268,11 @@ class VideoDownloader:
         """Download video file only."""
         # Try multiple format selectors with fallbacks
         format_selectors = [
-            "bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]/best[height<=720]",
-            "bestvideo[height<=720]+bestaudio/best[height<=720]",
-            "best[height<=1080]",
-            "best",
+            "bestvideo[height<=720][ext=mp4][vcodec!=av01]+bestaudio[ext=m4a]/best[height<=720][ext=mp4][vcodec!=av01]/best[height<=720][vcodec!=av01]",
+            "bestvideo[height<=720][vcodec!=av01]+bestaudio/best[height<=720][vcodec!=av01]",
+            "best[height<=1080][vcodec!=av01]",
+            "best[vcodec!=av01]",
+            "best",  # last resort: no codec restriction
         ]
 
         for i, format_selector in enumerate(format_selectors):
@@ -471,8 +472,9 @@ class VideoDownloader:
         # Open video
         cap = cv2.VideoCapture(str(video_path))
         if not cap.isOpened():
-            print(f"Failed to open video `{video_path}`")
-            return []
+            print(f"Failed to open video `{video_path}` with OpenCV, trying ffmpeg fallback")
+            cap.release()
+            return self._extract_frames_ffmpeg(video_id, video_path, frames_dir, fps)
 
         # Get video properties
         video_fps = cap.get(cv2.CAP_PROP_FPS)
@@ -526,7 +528,50 @@ class VideoDownloader:
             frame_count += 1
 
         cap.release()
+
+        if extracted_count == 0:
+            print(f"OpenCV extracted 0 frames from `{video_path}` (possible AV1 codec issue), trying ffmpeg fallback")
+            return self._extract_frames_ffmpeg(video_id, video_path, frames_dir, fps)
+
         print(f"Extracted {extracted_count} frames from {video_id}")
+        return frames
+
+    def _extract_frames_ffmpeg(self, video_id: str, video_path: Path, frames_dir: Path, fps: float) -> List[dict]:
+        """Extract frames using ffmpeg subprocess (handles AV1 and other codecs OpenCV struggles with)."""
+        scale_filter = (
+            f"scale='if(gt(iw,ih),min({self.frame_max_dimension},iw),-2):"
+            f"if(gt(iw,ih),-2,min({self.frame_max_dimension},ih))'"
+        )
+        output_pattern = str(frames_dir / f"{video_id}_frame_%05d.{self.frame_format}")
+        cmd = [
+            "ffmpeg",
+            "-hwaccel", "none",  # force software decoding to avoid AV1 hw-accel failures
+            "-i", str(video_path),
+            "-vf", f"fps={fps},{scale_filter}",
+            "-q:v", str(max(1, int((100 - self.frame_quality) / 10) + 1)),  # map 0-100 quality to ffmpeg 1-10 scale
+            "-start_number", "0",
+            output_pattern,
+            "-y",
+        ]
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+            if result.returncode != 0:
+                print(f"ffmpeg frame extraction failed for `{video_path}`: {result.stderr}")
+                return []
+        except FileNotFoundError:
+            print("ffmpeg not found; cannot extract frames")
+            return []
+        except subprocess.TimeoutExpired:
+            print(f"ffmpeg timed out extracting frames from `{video_path}`")
+            return []
+
+        # Collect saved frames in order and compute timestamps
+        saved = sorted(frames_dir.glob(f"{video_id}_frame_*.{self.frame_format}"), key=lambda p: p.name)
+        frames = [
+            {"path": str(p), "time": round(i / fps, 3), "frame_number": i}
+            for i, p in enumerate(saved)
+        ]
+        print(f"Extracted {len(frames)} frames from {video_id} (via ffmpeg)")
         return frames
 
     def get_transcript(self, video_id: str, source: Literal["openai", "youtube"] = "openai") -> Optional[dict]:

@@ -6,11 +6,21 @@ from .extractor import (  # noqa: F401
 
 from .taxonomy import (  # noqa: F401
     AtomicType,
+    TaxonomyCategoryInfo,
     AtomicCategory,
+    AtomicSubtypeConfig,
+    ATOMIC_ALL,
+    ATOMIC_SEMI_IMPORTANT,
+    ATOMIC_MOST_IMPORTANT,
+    ATOMIC_SUBTYPE_PRESETS,
     TYPE_DESCRIPTIONS,
     TYPE_TO_CATEGORY,
     get_category,
     get_types_in_category,
+)
+
+from .item_scope import (  # noqa: F401
+    ItemScopeConfig,
 )
 
 from .schema import (  # noqa: F401

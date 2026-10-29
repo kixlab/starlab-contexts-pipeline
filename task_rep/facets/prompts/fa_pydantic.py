@@ -36,7 +36,7 @@ class SegmentationEntry(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
     item_id: str = Field(description="ID of the knowledge item")
-    label: str = Field(description="Assigned label from the proposed vocabulary")
+    label: str = Field(description="Label name from the vocabulary — the exact text inside the <name> tag")
 
 class Segmentation(BaseModel):
     """A segmentation of items by a single facet."""

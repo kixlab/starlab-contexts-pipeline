@@ -34,6 +34,10 @@ from data_prep import (
 from knowledge_items import (
     KnowledgeBase,
     KnowledgeItemType,
+    KnowledgeItemSubtype,
+    ItemScopeConfig,
+    ATOMIC_ALL,
+    ATOMIC_SUBTYPE_PRESETS,
 )
 
 from facets import (
@@ -66,11 +70,11 @@ class DiscoveryConfig:
     vocab_model: ModelConfig      # VLMFacetVocabularyBuilder
     labeling_model: ModelConfig   # VLMFacetLabeler
     
-    # Item type filter — when set, only items of this type are used for
-    # discovery, vocabulary building, labeling, and metric computation.
-    # Run the algorithm once per type to discover type-specific facets.
-    # Cache paths are automatically sub-scoped by type value.
-    item_type: KnowledgeItemType
+    # Item scope — defines which items the algorithm processes.
+    # item_scope.item_type selects ATOMIC / STEP / TUTORIAL.
+    # item_scope.atomic_subtype restricts *optimization* (frontier / cells / target sampling) to a named preset of atomic subtypes; discovery, vocabulary, and
+    # labeling always operate on the full knowledge base for richer context.
+    item_scope: ItemScopeConfig
 
     # Caching — set both to enable per-iteration checkpointing
     use_cache: bool = True
@@ -100,7 +104,7 @@ class DiscoveryConfig:
     vocab_sample_videos: int = 0
 
     def cache_suffix(self) -> str:
-        item_type = self.item_type.value.lower().replace(" ", "_")
+        item_scope = self.item_scope.cache_suffix()
         discovery_model_suffix = self.discovery_model.cache_suffix()
         vocab_model_suffix = self.vocab_model.cache_suffix()
         labeling_model_suffix = self.labeling_model.cache_suffix()
@@ -111,11 +115,11 @@ class DiscoveryConfig:
         max_items_per_cell = str(self.max_items_per_cell)
         vocab_sample_videos = str(self.vocab_sample_videos) if self.vocab_sample_videos != 0 else "all"
 
-        return f"{item_type}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}"
+        return f"{item_scope}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "item_type": self.item_type.value,
+            "item_scope": self.item_scope.to_dict(),
             "use_cache": self.use_cache,
             "max_iterations": self.max_iterations,
             "k_schemas_to_sample": self.k_schemas_to_sample,
@@ -133,7 +137,7 @@ class DiscoveryConfig:
     @staticmethod
     def from_dict(data: Dict[str, Any]) -> "DiscoveryConfig":
         return DiscoveryConfig(
-            item_type=KnowledgeItemType(data["item_type"]),
+            item_scope=ItemScopeConfig.from_dict(data["item_scope"]),
             discovery_model=ModelConfig.from_dict(data["discovery_model"]),
             vocab_model=ModelConfig.from_dict(data["vocab_model"]),
             labeling_model=ModelConfig.from_dict(data["labeling_model"]),
@@ -225,16 +229,27 @@ class IterativeSchemaDiscovery:
             DiscoveryResult with final facets, frontier, annotations, and knowledge base.
         """
         use_cache = self.config.use_cache
-        item_type = self.config.item_type
+        item_type = self.config.item_scope.item_type
         cache_dir = constructor.get_cache_dir(task)
         self._knowledge_base = constructor.get_knowledge_base(task, item_type)
         logger.info("Knowledge base: %d items of type '%s'.", len(self._knowledge_base), item_type.value)
+
+        # Focused KB for optimization (frontier / cells / target sampling).
+        # Discovery, vocab, and labeling always use the full self._knowledge_base.
+        focused_kb = self._knowledge_base
+        subtype_filter = self.config.item_scope.atomic_subtype
+        if subtype_filter.subtypes:
+            focused_kb = self._knowledge_base.filter_subtypes(subtype_filter.subtypes)
+            logger.info(
+                "Subtype focus '%s': %d/%d items in optimization scope.",
+                subtype_filter.name, len(focused_kb), len(self._knowledge_base),
+            )
 
         if use_cache:
             self._restore_cache(cache_dir)
 
         self._frontier = compute_frontier(
-            self._knowledge_base,
+            focused_kb,
             list(self._facets.values()),
             self._annotations,
         )
@@ -260,7 +275,7 @@ class IterativeSchemaDiscovery:
 
             # Print distribution of cell sizes
             cells = compute_cells(
-                self._knowledge_base, list(self._facets.values()), self._annotations
+                focused_kb, list(self._facets.values()), self._annotations
             )
             size_counts = defaultdict(int)
             for _, units in cells.items():
@@ -292,10 +307,10 @@ class IterativeSchemaDiscovery:
                 # 2a: Discover new facets from collision sites when D is still high
                 if point.discriminativeness > target_d:
                     cells = compute_cells(
-                        self._knowledge_base, schema_facets, self._annotations
+                        focused_kb, schema_facets, self._annotations
                     )
                     targets = sample_target_items(
-                        self._knowledge_base,
+                        focused_kb,
                         cells,
                         max_cells=max_cells_per_iteration,
                         max_items_per_cell=max_items_per_cell,
@@ -357,7 +372,7 @@ class IterativeSchemaDiscovery:
             combined_facets = list(self._facets.values()) + unique_new
             combined_annotations = self._annotations.merge(new_annotations)
             new_frontier = compute_frontier(
-                self._knowledge_base, combined_facets, combined_annotations
+                focused_kb, combined_facets, combined_annotations
             )
 
             # Step 6: Accept if the clipped frontier before target_d is improved

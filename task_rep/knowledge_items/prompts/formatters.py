@@ -90,12 +90,31 @@ def knowledge_item_to_message_content(
     """Format a KnowledgeItem as MessageContent for prompt inclusion."""
     return MessageContent(content=[{"type": "text", "text": format_item(item, display_id, with_type)}])
 
-_TAXONOMY_ITEM_FORMAT = """<category id="{name}">{definition}</category>"""
+def _format_taxonomy_item(name: str, definition: str, examples: List[str]) -> str:
+    """Format one taxonomy entry as an XML element with optional examples."""
+    body = f"Definition: {definition}"
+    if examples:
+        example_lines = "\n".join(f"- {ex}" for ex in examples)
+        body += f"\nExamples:\n{example_lines}"
+    return f'<category id="{name}">{body}</category>'
+
 def taxonomy_to_message_content(taxonomy: List[Dict[str, Any]]) -> MessageContent:
-    """Format a taxonomy list as MessageContent for prompts."""
+    """Format a taxonomy list as MessageContent for prompts.
+
+    Each entry should have 'name', 'definition', and optionally 'examples'
+    (list of strings). Entries without 'examples' or with an empty list omit
+    the Examples section entirely.
+    """
     if not taxonomy:
         return MessageContent(content=[{"type": "text", "text": "(No taxonomy provided)"}])
-    lines = [_TAXONOMY_ITEM_FORMAT.format(name=item.get('name'), definition=item.get('definition')) for item in taxonomy]
+    lines = [
+        _format_taxonomy_item(
+            name=item.get("name", ""),
+            definition=item.get("definition", ""),
+            examples=item.get("examples", []),
+        )
+        for item in taxonomy
+    ]
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 _STEP_FORMAT = """<step id="{id}" name="{step_id}">{text}</step>"""
