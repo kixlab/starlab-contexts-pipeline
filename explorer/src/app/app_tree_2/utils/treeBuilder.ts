@@ -31,7 +31,7 @@ export type TreeNode = {
   H: number;
 };
 
-export type EdgeType = "add" | "restructure";
+export type EdgeType = "add" | "refine";
 
 export type TreeEdge = {
   sourceId: string;
@@ -71,6 +71,10 @@ export type CachedSchemas = {
   allNodes: TreeNode[];
   validPiecesCount: number;
   numUniqueUnits: number;
+  /** Per-piece encoded unit ID (index into unitTotals). */
+  pieceUnitIds: Uint32Array;
+  /** Total piece count per unit (indexed by encoded unit ID). */
+  unitTotals: Uint32Array;
 };
 
 /** Organization Effectiveness: percentage (0–100), higher = better discrimination. */
@@ -109,18 +113,16 @@ function combinations(n: number, k: number): number[][] {
   return out;
 }
 
-/** Encode string keys → Uint32Array ids + compute entropy in one pass. */
-function encodeAndEntropy(keys: string[]): {
+/** Encode string keys → Uint32Array ids (no entropy — use unit-weighted helpers). */
+function encodePartition(keys: string[]): {
   ids: Uint32Array;
   cardinality: number;
-  H: number;
 } {
   const N = keys.length;
-  if (N === 0) return { ids: new Uint32Array(0), cardinality: 0, H: 0 };
+  if (N === 0) return { ids: new Uint32Array(0), cardinality: 0 };
 
   const dict = new Map<string, number>();
   const ids = new Uint32Array(N);
-  const counts: number[] = [];
   let nextId = 0;
 
   for (let i = 0; i < N; i++) {
@@ -128,19 +130,89 @@ function encodeAndEntropy(keys: string[]): {
     if (id === undefined) {
       id = nextId++;
       dict.set(keys[i], id);
-      counts.push(0);
     }
     ids[i] = id;
-    counts[id]++;
+  }
+
+  return { ids, cardinality: nextId };
+}
+
+/**
+ * Unit-weighted entropy H(S).
+ *
+ *   P(S=s) = (1/numUnits) * Σ_u (count_{u,s} / total_u)
+ *   H      = -Σ_s P(s) * log₂(P(s))
+ */
+function computeUnitWeightedEntropy(
+  partitionIds: Uint32Array,
+  partitionCardinality: number,
+  pieceUnitIds: Uint32Array,
+  unitTotals: Uint32Array,
+  numUnits: number,
+): number {
+  if (numUnits === 0 || partitionCardinality === 0) return 0;
+  const N = partitionIds.length;
+
+  // For each partition cell, accumulate per-unit counts:
+  // cellUnitCounts[cell * numUnits + unit] = count
+  const cellUnitCounts = new Float64Array(partitionCardinality * numUnits);
+  for (let i = 0; i < N; i++) {
+    cellUnitCounts[partitionIds[i] * numUnits + pieceUnitIds[i]]++;
   }
 
   let H = 0;
-  for (let i = 0; i < counts.length; i++) {
-    const p = counts[i] / N;
-    if (p > 0) H -= p * Math.log2(p);
+  for (let s = 0; s < partitionCardinality; s++) {
+    let wSum = 0;
+    const base = s * numUnits;
+    for (let u = 0; u < numUnits; u++) {
+      const c = cellUnitCounts[base + u];
+      if (c > 0) wSum += c / unitTotals[u];
+    }
+    const pS = wSum / numUnits;
+    if (pS > 0) H -= pS * Math.log2(pS);
   }
+  return H;
+}
 
-  return { ids, cardinality: nextId, H };
+/**
+ * Unit-weighted discriminativeness D = H(U|C).
+ *
+ *   w_u(c)      = m_{u,c} / m_{u,*}
+ *   P(C=c)      = (1/N) * Σ_u w_u(c)
+ *   P(U=u|C=c)  = w_u(c) / Σ_{u'} w_{u'}(c)
+ *   D            = Σ_c P(C=c) * H(U|C=c)
+ */
+function computeUnitWeightedD(
+  cellUnits: Map<string, Map<string, number>>,
+  globalUnitTotals: Map<string, number>,
+): number {
+  const numUnits = globalUnitTotals.size;
+  if (numUnits === 0) return 0;
+
+  let D = 0;
+  for (const unitMap of cellUnits.values()) {
+    // Compute weights w_u = m_{u,c} / m_{u,*}
+    const weights: number[] = [];
+    const entries: [string, number][] = [];
+    for (const [uid, count] of unitMap) {
+      if (count > 0) {
+        const w = count / globalUnitTotals.get(uid)!;
+        weights.push(w);
+        entries.push([uid, w]);
+      }
+    }
+    const wSum = weights.reduce((a, b) => a + b, 0);
+    if (wSum === 0) continue;
+
+    const pC = wSum / numUnits;
+    let hC = 0;
+    for (const w of weights) {
+      const pUgivenC = w / wSum;
+      if (pUgivenC > 0) hC -= pUgivenC * Math.log2(pUgivenC);
+    }
+    D += pC * hC;
+  }
+  return D;
 }
 
 // ---------------------------------------------------------------------------
@@ -148,79 +220,90 @@ function encodeAndEntropy(keys: string[]): {
 // ---------------------------------------------------------------------------
 
 /**
- * Mutual information MI(A, B) = H(A) + H(B) - H(A,B).
- * Uses typed array for joint counting when cardA*cardB < 50000.
+ * Unit-weighted joint entropy H(A,B).
+ *
+ *   P(A=a,B=b) = (1/numUnits) * Σ_u (count_{u,(a,b)} / total_u)
+ *
+ * Shared implementation for computeMI and computeJointEntropy.
  */
-export function computeMI(a: TreeNode, b: TreeNode, N: number): number {
-  if (N === 0) return 0;
-  const product = a.partitionCardinality * b.partitionCardinality;
-  let H_joint: number;
+function unitWeightedJointEntropy(
+  a: TreeNode,
+  b: TreeNode,
+  pieceUnitIds: Uint32Array,
+  unitTotals: Uint32Array,
+  numUnits: number,
+): number {
+  const N = pieceUnitIds.length;
+  if (N === 0 || numUnits === 0) return 0;
+  const cardB = b.partitionCardinality;
+  const product = a.partitionCardinality * cardB;
 
-  if (product < 50_000) {
-    // Fast path: typed array
-    const joint = new Uint32Array(product);
-    const cardB = b.partitionCardinality;
+  // Accumulate per-unit counts for each joint cell.
+  // jointUnitCounts[(a*cardB + b) * numUnits + u] = count
+  if (product * numUnits < 500_000) {
+    // Fast path: flat typed array
+    const jointUC = new Float64Array(product * numUnits);
     for (let i = 0; i < N; i++) {
-      joint[a.partitionIds[i] * cardB + b.partitionIds[i]]++;
-    }
-    H_joint = 0;
-    for (let i = 0; i < product; i++) {
-      if (joint[i] > 0) {
-        const p = joint[i] / N;
-        H_joint -= p * Math.log2(p);
-      }
-    }
-  } else {
-    // Fallback: Map
-    const joint = new Map<number, number>();
-    const cardB = b.partitionCardinality;
-    for (let i = 0; i < N; i++) {
-      const k = a.partitionIds[i] * cardB + b.partitionIds[i];
-      joint.set(k, (joint.get(k) ?? 0) + 1);
-    }
-    H_joint = 0;
-    for (const c of joint.values()) {
-      const p = c / N;
-      if (p > 0) H_joint -= p * Math.log2(p);
-    }
-  }
-
-  return Math.max(0, a.H + b.H - H_joint);
-}
-
-/** Joint entropy H(A,B). Used by InspectionPanel comparison mode. */
-export function computeJointEntropy(a: TreeNode, b: TreeNode, N: number): number {
-  if (N === 0) return 0;
-  const product = a.partitionCardinality * b.partitionCardinality;
-
-  if (product < 50_000) {
-    const joint = new Uint32Array(product);
-    const cardB = b.partitionCardinality;
-    for (let i = 0; i < N; i++) {
-      joint[a.partitionIds[i] * cardB + b.partitionIds[i]]++;
+      const jCell = a.partitionIds[i] * cardB + b.partitionIds[i];
+      jointUC[jCell * numUnits + pieceUnitIds[i]]++;
     }
     let H = 0;
-    for (let i = 0; i < product; i++) {
-      if (joint[i] > 0) {
-        const p = joint[i] / N;
-        H -= p * Math.log2(p);
+    for (let j = 0; j < product; j++) {
+      let wSum = 0;
+      const base = j * numUnits;
+      for (let u = 0; u < numUnits; u++) {
+        const c = jointUC[base + u];
+        if (c > 0) wSum += c / unitTotals[u];
       }
+      const p = wSum / numUnits;
+      if (p > 0) H -= p * Math.log2(p);
     }
     return H;
   }
 
-  const joint = new Map<number, number>();
-  const cardB = b.partitionCardinality;
+  // Fallback: Map of joint cell → Map<unit, count>
+  const jointMap = new Map<number, Float64Array>();
   for (let i = 0; i < N; i++) {
-    const k = a.partitionIds[i] * cardB + b.partitionIds[i];
-    joint.set(k, (joint.get(k) ?? 0) + 1);
+    const jCell = a.partitionIds[i] * cardB + b.partitionIds[i];
+    let uc = jointMap.get(jCell);
+    if (!uc) { uc = new Float64Array(numUnits); jointMap.set(jCell, uc); }
+    uc[pieceUnitIds[i]]++;
   }
   let H = 0;
-  for (const c of joint.values()) {
-    const p = c / N;
+  for (const uc of jointMap.values()) {
+    let wSum = 0;
+    for (let u = 0; u < numUnits; u++) {
+      if (uc[u] > 0) wSum += uc[u] / unitTotals[u];
+    }
+    const p = wSum / numUnits;
     if (p > 0) H -= p * Math.log2(p);
   }
   return H;
+}
+
+/**
+ * Unit-weighted mutual information MI(A, B) = H(A) + H(B) - H(A,B).
+ */
+export function computeMI(
+  a: TreeNode,
+  b: TreeNode,
+  pieceUnitIds: Uint32Array,
+  unitTotals: Uint32Array,
+  numUnits: number,
+): number {
+  const H_joint = unitWeightedJointEntropy(a, b, pieceUnitIds, unitTotals, numUnits);
+  return Math.max(0, a.H + b.H - H_joint);
+}
+
+/** Unit-weighted joint entropy H(A,B). Used by InspectionPanel comparison mode. */
+export function computeJointEntropy(
+  a: TreeNode,
+  b: TreeNode,
+  pieceUnitIds: Uint32Array,
+  unitTotals: Uint32Array,
+  numUnits: number,
+): number {
+  return unitWeightedJointEntropy(a, b, pieceUnitIds, unitTotals, numUnits);
 }
 
 // ---------------------------------------------------------------------------
@@ -282,6 +365,26 @@ export async function enumerateSchemas(
 
   if (rows.length === 0 || unitIds.size === 0) return null;
 
+  // Encode unit IDs → Uint32Array + compute per-unit totals
+  const unitDict = new Map<string, number>();
+  let nextUnitId = 0;
+  const pieceUnitIds = new Uint32Array(rows.length);
+  for (let i = 0; i < rows.length; i++) {
+    let uid = unitDict.get(rows[i].unitId);
+    if (uid === undefined) {
+      uid = nextUnitId++;
+      unitDict.set(rows[i].unitId, uid);
+    }
+    pieceUnitIds[i] = uid;
+  }
+  const numUnits = nextUnitId;
+  const unitTotals = new Uint32Array(numUnits);
+  for (let i = 0; i < rows.length; i++) unitTotals[pieceUnitIds[i]]++;
+
+  // Also build a string-keyed unit totals map for D computation
+  const globalUnitTotals = new Map<string, number>();
+  for (const [uid, idx] of unitDict) globalUnitTotals.set(uid, unitTotals[idx]);
+
   // Generate all combos 1..maxK
   const allCombos: number[][] = [];
   for (let k = 1; k <= Math.min(maxK, facets.length); k++) {
@@ -323,28 +426,8 @@ export async function enumerateSchemas(
       vg.push({ position: row.position, key });
     }
 
-    // --- Compute D (H(U|C)) inline ---
-    let totalItems = 0;
-    for (const uc of cellUnits.values()) {
-      for (const c of uc.values()) totalItems += c;
-    }
-    let D = 0;
-    if (totalItems > 0) {
-      for (const uc of cellUnits.values()) {
-        let mc = 0;
-        for (const c of uc.values()) mc += c;
-        if (mc === 0) continue;
-        const pc = mc / totalItems;
-        let hc = 0;
-        for (const c of uc.values()) {
-          if (c > 0) {
-            const pu = c / mc;
-            hc -= pu * Math.log2(pu);
-          }
-        }
-        D += pc * hc;
-      }
-    }
+    // --- Compute D (H(U|C)) using unit-weighted probabilities ---
+    const D = computeUnitWeightedD(cellUnits, globalUnitTotals);
 
     // --- Compute eta2 and stability from videoGroups ---
     let eta2Sum = 0, eta2Count = 0;
@@ -384,9 +467,12 @@ export async function enumerateSchemas(
     const eta2 = eta2Count > 0 ? eta2Sum / eta2Count : 0;
     const stability = 1 - (stabCount > 0 ? stabSum / stabCount : 0);
 
-    // --- Encode partition + entropy in one pass ---
-    const { ids: partitionIds, cardinality: partitionCardinality, H } =
-      encodeAndEntropy(partitionKeys);
+    // --- Encode partition + compute unit-weighted entropy ---
+    const { ids: partitionIds, cardinality: partitionCardinality } =
+      encodePartition(partitionKeys);
+    const H = computeUnitWeightedEntropy(
+      partitionIds, partitionCardinality, pieceUnitIds, unitTotals, numUnits,
+    );
 
     allNodes.push({
       id,
@@ -410,7 +496,13 @@ export async function enumerateSchemas(
   }
 
   onProgress?.("Enumerating schemas", allCombos.length, allCombos.length);
-  return { allNodes, validPiecesCount: rows.length, numUniqueUnits: unitIds.size };
+  return {
+    allNodes,
+    validPiecesCount: rows.length,
+    numUniqueUnits: unitIds.size,
+    pieceUnitIds,
+    unitTotals,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -426,7 +518,7 @@ export function buildTreeFromCachedSchemas(
   cached: CachedSchemas,
   config: TreeBuildConfig,
 ): RefinementTree {
-  const N = cached.validPiecesCount;
+  const { pieceUnitIds, unitTotals, numUniqueUnits: numUnits } = cached;
 
   // Step 1: filter by stability
   const nodes = cached.allNodes
@@ -434,14 +526,16 @@ export function buildTreeFromCachedSchemas(
     .map((n) => ({ ...n, sizeBand: n.size }));
 
   // Step 2+3: prune & connect
-  const { survivors, edges: rawEdges } = pruneAndConnect(nodes, config, N);
+  const { survivors, edges: rawEdges } = pruneAndConnect(
+    nodes, config, pieceUnitIds, unitTotals, numUnits,
+  );
 
-  // Step 4: transitive reduction
-  const reduced = transitiveReduction(rawEdges);
-
-  // Step 5: annotate + find roots
+  // Step 4: annotate edges (before reduction so edge types are available)
   const nodeMap = new Map(survivors.map((n) => [n.id, n]));
-  const edges = annotateEdges(reduced, nodeMap);
+  const annotated = annotateEdges(rawEdges, nodeMap);
+
+  // Step 5: type-aware transitive reduction
+  const edges = transitiveReduction(annotated);
   const incoming = new Set(edges.map((e) => e.targetId));
   const roots = survivors.filter((n) => !incoming.has(n.id)).map((n) => n.id);
 
@@ -455,7 +549,9 @@ export function buildTreeFromCachedSchemas(
 function pruneAndConnect(
   nodes: TreeNode[],
   config: TreeBuildConfig,
-  N: number,
+  pieceUnitIds: Uint32Array,
+  unitTotals: Uint32Array,
+  numUnits: number,
 ): { survivors: TreeNode[]; edges: TreeEdge[] } {
   const τ = config.refinementThreshold;
 
@@ -473,7 +569,7 @@ function pruneAndConnect(
     const key = a.id < b.id ? `${a.id}\0${b.id}` : `${b.id}\0${a.id}`;
     let v = miCache.get(key);
     if (v === undefined) {
-      v = computeMI(a, b, N);
+      v = computeMI(a, b, pieceUnitIds, unitTotals, numUnits);
       miCache.set(key, v);
     }
     return v;
@@ -546,17 +642,24 @@ function makeEdge(
 // ---------------------------------------------------------------------------
 
 function transitiveReduction(edges: TreeEdge[]): TreeEdge[] {
-  // Build adjacency
-  const adj = new Map<string, Set<string>>();
+  // Build per-type adjacency: only follow edges of the same type during BFS.
+  // This preserves edges whose target is reachable only via mixed-type paths,
+  // since those paths carry different semantic information.
+  const adjByType = new Map<EdgeType, Map<string, Set<string>>>();
   for (const e of edges) {
-    let s = adj.get(e.sourceId);
-    if (!s) { s = new Set(); adj.set(e.sourceId, s); }
+    let typeAdj = adjByType.get(e.edgeType);
+    if (!typeAdj) { typeAdj = new Map(); adjByType.set(e.edgeType, typeAdj); }
+    let s = typeAdj.get(e.sourceId);
+    if (!s) { s = new Set(); typeAdj.set(e.sourceId, s); }
     s.add(e.targetId);
   }
 
-  // For each edge A→B, check if B is reachable from A via other paths
+  // For each edge A→B of type T, check if B is reachable from A
+  // via other same-type paths only
   return edges.filter((e) => {
-    const children = adj.get(e.sourceId);
+    const typeAdj = adjByType.get(e.edgeType);
+    if (!typeAdj) return true;
+    const children = typeAdj.get(e.sourceId);
     if (!children || children.size <= 1) return true;
     const visited = new Set<string>();
     const queue: string[] = [];
@@ -568,7 +671,7 @@ function transitiveReduction(edges: TreeEdge[]): TreeEdge[] {
       if (cur === e.targetId) return false;
       if (visited.has(cur)) continue;
       visited.add(cur);
-      const next = adj.get(cur);
+      const next = typeAdj.get(cur);
       if (next) {
         for (const n of next) {
           if (!visited.has(n)) queue.push(n);
@@ -597,7 +700,7 @@ function annotateEdges(
     const edgeType: EdgeType =
       removedFacets.length === 0 && addedFacets.length > 0
         ? "add"
-        : "restructure";
+        : "refine";
     return {
       ...e,
       marginalDGain: src.D - tgt.D,
