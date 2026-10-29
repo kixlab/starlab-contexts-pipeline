@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import type { DatasetVideo, Facet } from "@/app/types";
 import { normalizeBundle } from "@/app/utils/bundleConverter";
@@ -13,8 +14,8 @@ import {
   type RefinementTree,
   type TreeBuildConfig,
 } from "./utils/treeBuilder";
-import { computeGlobalOrder, computePositions, type LayoutResult } from "./utils/stableLayout";
-import { computeHighlightedNodeIds } from "./utils/visibility";
+import { computeDOrder, computePositions } from "./utils/xyLayout";
+import { computeHighlightedNodeIds, computeVisibleEdges } from "./utils/visibility";
 import { Toolbar } from "./components/Toolbar";
 import { TreeCanvas } from "./components/TreeCanvas";
 import { InspectionPanel } from "./components/InspectionPanel";
@@ -23,9 +24,27 @@ import type { DatasetStatus } from "./types";
 const LOADABLE_OPTIONS = DATASET_OPTIONS.filter((o) => !!o.bundleUrl);
 const EMPTY_TREE: RefinementTree = { nodes: [], edges: [], roots: [] };
 
+function configFromParams(params: URLSearchParams): { label: string | null; config: TreeBuildConfig } {
+  const label = params.get("dataset") || null;
+  const maxK = params.has("maxK") ? Math.max(1, Math.min(5, Number(params.get("maxK")))) : DEFAULT_TREE_CONFIG.maxK;
+  const tau = params.has("tau") ? Math.max(0.5, Math.min(1, Number(params.get("tau")))) : DEFAULT_TREE_CONFIG.refinementThreshold;
+  const stability = params.has("stability") ? Math.max(0, Math.min(1, Number(params.get("stability")))) : DEFAULT_TREE_CONFIG.stabilityThreshold;
+  return {
+    label: label && LOADABLE_OPTIONS.some((o) => o.label === label) ? label : null,
+    config: { ...DEFAULT_TREE_CONFIG, maxK: isNaN(maxK) ? DEFAULT_TREE_CONFIG.maxK : maxK, refinementThreshold: isNaN(tau) ? DEFAULT_TREE_CONFIG.refinementThreshold : tau, stabilityThreshold: isNaN(stability) ? DEFAULT_TREE_CONFIG.stabilityThreshold : stability },
+  };
+}
+
 export default function AppTree2() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // --- Initialise from URL params ---
+  const initial = useMemo(() => configFromParams(searchParams), []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // --- Dataset state ---
-  const [selectedLabel, setSelectedLabel] = useState<string | null>(null);
+  const [selectedLabel, setSelectedLabel] = useState<string | null>(initial.label);
   const [datasetStatus, setDatasetStatus] = useState<DatasetStatus>("idle");
   const [loadProgress, setLoadProgress] = useState<number | null>(null);
   const [dataset, setDataset] = useState<DatasetVideo[]>([]);
@@ -33,7 +52,7 @@ export default function AppTree2() {
   const [infoTypes, setInfoTypes] = useState<string[] | null>(null);
 
   // --- Tree config + build ---
-  const [config, setConfig] = useState<TreeBuildConfig>(DEFAULT_TREE_CONFIG);
+  const [config, setConfig] = useState<TreeBuildConfig>(initial.config);
   const [lastBuiltConfig, setLastBuiltConfig] = useState<TreeBuildConfig | null>(null);
   const [tree, setTree] = useState<RefinementTree>(EMPTY_TREE);
   const [computeStatus, setComputeStatus] = useState("");
@@ -53,12 +72,29 @@ export default function AppTree2() {
   // Derived: dirty flag
   const configDirty = lastBuiltConfig === null || JSON.stringify(config) !== JSON.stringify(lastBuiltConfig);
 
+  // --- Sync config to URL ---
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (selectedLabel) params.set("dataset", selectedLabel);
+    if (config.maxK !== DEFAULT_TREE_CONFIG.maxK) params.set("maxK", String(config.maxK));
+    if (config.refinementThreshold !== DEFAULT_TREE_CONFIG.refinementThreshold) params.set("tau", String(config.refinementThreshold));
+    if (config.stabilityThreshold !== DEFAULT_TREE_CONFIG.stabilityThreshold) params.set("stability", String(config.stabilityThreshold));
+    const qs = params.toString();
+    const newUrl = qs ? `${pathname}?${qs}` : pathname;
+    router.replace(newUrl, { scroll: false });
+  }, [selectedLabel, config, pathname, router]);
+
   // --- Global order (stable, computed once after build) ---
   const [globalOrder, setGlobalOrder] = useState<Map<string, number>>(new Map());
   const [allBands, setAllBands] = useState<number[]>([]);
 
   const highlightedNodeIds = useMemo(
     () => computeHighlightedNodeIds(selectedNodeIds, tree.edges),
+    [selectedNodeIds, tree.edges],
+  );
+
+  const visibleEdges = useMemo(
+    () => computeVisibleEdges(selectedNodeIds, tree.edges),
     [selectedNodeIds, tree.edges],
   );
 
@@ -185,7 +221,7 @@ export default function AppTree2() {
       const newTree = buildTreeFromCachedSchemas(cachedRef.current!, cfg);
       setTree(newTree);
       setLastBuiltConfig(cfg);
-      setGlobalOrder(computeGlobalOrder(newTree, cfg.qualityMetric));
+      setGlobalOrder(computeDOrder(newTree));
       const ids = new Set(newTree.nodes.map((n) => n.id));
       setSelectedNodeIds((prev) => prev.filter((id) => ids.has(id)));
       setSelectedEdgeKey((prev) => {
@@ -241,7 +277,14 @@ export default function AppTree2() {
 
   const handleEdgeClick = useCallback((edgeKey: string | null) => {
     setSelectedEdgeKey(edgeKey);
-    if (edgeKey) setSelectedNodeIds([]);
+    if (edgeKey) {
+      const [srcId, tgtId] = edgeKey.split('->');
+      setSelectedNodeIds((prev) => {
+        if (prev.includes(srcId)) return [srcId];
+        if (prev.includes(tgtId)) return [tgtId];
+        return [srcId];
+      });
+    }
   }, []);
 
   const handleDeselectAll = useCallback(() => {
@@ -250,6 +293,7 @@ export default function AppTree2() {
   }, []);
 
   const validPiecesCount = cachedRef.current?.validPiecesCount ?? 0;
+  const numUniqueUnits = cachedRef.current?.numUniqueUnits ?? 0;
 
   return (
     <div className="flex h-screen bg-neutral-950 text-white overflow-hidden">
@@ -283,10 +327,11 @@ export default function AppTree2() {
           {datasetStatus === "loaded" ? (
             <TreeCanvas
               tree={tree}
+              visibleEdges={visibleEdges}
               positions={layout.positions}
               bandRows={layout.bandRows}
               rowHeight={layout.rowHeight}
-              qualityMetric={config.qualityMetric}
+              numUniqueUnits={numUniqueUnits}
               selectedNodeIds={selectedNodeIds}
               selectedEdgeKey={selectedEdgeKey}
               hoveredNodeId={hoveredNodeId}
@@ -318,7 +363,7 @@ export default function AppTree2() {
         selectedEdgeKey={selectedEdgeKey}
         dataset={dataset}
         infoTypes={infoTypes}
-        qualityMetric={config.qualityMetric}
+        numUniqueUnits={numUniqueUnits}
         validPiecesCount={validPiecesCount}
         onNodeClick={handleNodeClickFromPanel}
         onClose={handleDeselectAll}

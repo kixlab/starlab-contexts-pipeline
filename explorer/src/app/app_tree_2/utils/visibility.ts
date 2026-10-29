@@ -15,3 +15,13 @@ export function computeHighlightedNodeIds(
   for (const nodeId of selectedNodeIds) set.delete(nodeId);
   return set;
 }
+
+/** Edges whose source or target is a selected node. Empty when nothing selected. */
+export function computeVisibleEdges(
+  selectedNodeIds: string[],
+  edges: TreeEdge[],
+): TreeEdge[] {
+  if (selectedNodeIds.length === 0) return [];
+  const sel = new Set(selectedNodeIds);
+  return edges.filter((e) => sel.has(e.sourceId) || sel.has(e.targetId));
+}

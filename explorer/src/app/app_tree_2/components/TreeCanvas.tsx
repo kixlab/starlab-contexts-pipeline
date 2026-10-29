@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { TreeNode, TreeEdge, RefinementTree } from "../utils/treeBuilder";
-import { NODE_WIDTH, NODE_HEIGHT, MARGIN, type LayoutResult } from "../utils/stableLayout";
+import { computeEffectiveness } from "../utils/treeBuilder";
+import { NODE_WIDTH, NODE_HEIGHT, MARGIN, type LayoutResult } from "../utils/xyLayout";
 import type { NodePosition } from "../types";
-import {
-  facetIdToChipColor,
-  computeFacetAbbreviations,
-} from "@/app/app_analysis/utils/metricsUtils";
+import { facetIdToChipColor } from "@/app/app_analysis/utils/metricsUtils";
+
+// Adaptive node height constants
+const CHIP_H = 20;
+const BASE_H = 20; // thin footer for metrics
 
 // ---------------------------------------------------------------------------
 // Props
@@ -15,10 +17,11 @@ import {
 
 type TreeCanvasProps = {
   tree: RefinementTree;
+  visibleEdges: TreeEdge[];
   positions: Map<string, NodePosition>;
   bandRows: LayoutResult["bandRows"];
   rowHeight: number;
-  qualityMetric: "D" | "eta2";
+  numUniqueUnits: number;
   selectedNodeIds: string[];
   selectedEdgeKey: string | null;
   hoveredNodeId: string | null;
@@ -38,10 +41,11 @@ type TreeCanvasProps = {
 
 export function TreeCanvas({
   tree,
+  visibleEdges,
   positions,
   bandRows,
   rowHeight,
-  qualityMetric,
+  numUniqueUnits,
   selectedNodeIds,
   selectedEdgeKey,
   hoveredNodeId,
@@ -55,7 +59,8 @@ export function TreeCanvas({
   scrollToNodeId,
 }: TreeCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; title?: string; text: string } | null>(null);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   // Resize observer
   useEffect(() => {
@@ -69,6 +74,15 @@ export function TreeCanvas({
     return () => obs.disconnect();
   }, [onContainerResize]);
 
+  // Track vertical scroll for sticky y-axis labels
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onScroll = () => setScrollLeft(el.scrollLeft);
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
+
   // SVG dimensions from positions
   const svgWidth = useMemo(() => {
     let maxX = 800;
@@ -80,11 +94,14 @@ export function TreeCanvas({
 
   const svgHeight = useMemo(() => {
     let maxY = 600;
+    // Use max possible node height for bottom padding
+    let maxH = NODE_HEIGHT;
+    for (const n of tree.nodes) maxH = Math.max(maxH, BASE_H + n.facetSubset.length * CHIP_H);
     for (const pos of positions.values()) {
-      maxY = Math.max(maxY, pos.y + NODE_HEIGHT / 2 + MARGIN.bottom);
+      maxY = Math.max(maxY, pos.y + maxH / 2 + MARGIN.bottom);
     }
     return maxY;
-  }, [positions]);
+  }, [positions, tree.nodes]);
 
   // Layers for background stripes + labels (from layout)
   const layers = bandRows;
@@ -103,24 +120,28 @@ export function TreeCanvas({
   }, [scrollToNodeId, positions]);
 
 
-  // Children count (for display)
-  const childrenCountMap = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const n of tree.nodes) map.set(n.id, 0);
-    for (const e of tree.edges) map.set(e.sourceId, (map.get(e.sourceId) ?? 0) + 1);
-    return map;
-  }, [tree]);
+  // Adaptive node height: footer + per-chip height
+  const nodeHeight = useCallback((n: TreeNode) => BASE_H + n.facetSubset.length * CHIP_H, []);
+
+  // Pre-compute heights for edge routing
+  const nodeHeightMap = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const n of tree.nodes) m.set(n.id, nodeHeight(n));
+    return m;
+  }, [tree.nodes, nodeHeight]);
 
   // Edge helpers
   const edgePath = useCallback((e: TreeEdge) => {
     const src = positions.get(e.sourceId);
     const tgt = positions.get(e.targetId);
     if (!src || !tgt) return "";
-    const sy = src.y + NODE_HEIGHT / 2;
-    const ty = tgt.y - NODE_HEIGHT / 2;
+    const srcH = nodeHeightMap.get(e.sourceId) ?? NODE_HEIGHT;
+    const tgtH = nodeHeightMap.get(e.targetId) ?? NODE_HEIGHT;
+    const sy = src.y + srcH / 2;
+    const ty = tgt.y - tgtH / 2;
     const midY = (sy + ty) / 2;
     return `M ${src.x} ${sy} C ${src.x} ${midY}, ${tgt.x} ${midY}, ${tgt.x} ${ty}`;
-  }, [positions]);
+  }, [positions, nodeHeightMap]);
 
   const EDGE_COLORS: Record<string, string> = { add: "#60a5fa", restructure: "#facc15" };
 
@@ -129,15 +150,10 @@ export function TreeCanvas({
     onDeselectAll();
   }, [onEdgeClick, onDeselectAll]);
 
-  // Metric helpers
-  const metricVal = (n: TreeNode) => qualityMetric === "D" ? n.D : n.eta2;
-  const metricLabel = (n: TreeNode) => {
-    const v = metricVal(n);
-    return qualityMetric === "D" ? `D=${v.toFixed(3)}` : `η²=${v.toFixed(3)}`;
-  };
+  // Node fill based on effectiveness
   const nodeFill = (n: TreeNode) => {
-    const v = metricVal(n);
-    const t = qualityMetric === "D" ? 1 - Math.min(1, v / 4) : Math.min(1, v);
+    const eff = computeEffectiveness(n.D, numUniqueUnits);
+    const t = eff / 100;
     return `rgb(${30 + t * 30},${30 + t * 60},${50 + t * 80})`;
   };
 
@@ -157,7 +173,7 @@ export function TreeCanvas({
           <div
             key={`stripe-${l.band}`}
             className={`absolute left-0 border-b border-neutral-700/40 ${i % 2 === 0 ? "bg-neutral-950" : "bg-neutral-800/25"}`}
-            style={{ top: l.y - rowHeight / 2, height: rowHeight, width: "100%" }}
+            style={{ top: l.y - (l.height ?? rowHeight) / 2, height: l.height ?? rowHeight, width: "100%" }}
           />
         ))}
       </div>
@@ -176,8 +192,8 @@ export function TreeCanvas({
           </marker>
         </defs>
 
-        {/* Edges */}
-        {tree.edges.map((e) => {
+        {/* Edges (only for selected node's neighbours) */}
+        {visibleEdges.map((e) => {
           const key = `${e.sourceId}->${e.targetId}`;
           const isSel = key === selectedEdgeKey;
           const color = EDGE_COLORS[e.edgeType] ?? "#6b7280";
@@ -193,7 +209,7 @@ export function TreeCanvas({
                     setTooltip({
                       x: ev.clientX - rect.left + (containerRef.current?.scrollLeft ?? 0),
                       y: ev.clientY - rect.top + (containerRef.current?.scrollTop ?? 0) - 10,
-                      text: `[${e.edgeType}] MI=${e.MI.toFixed(3)}  ref=${e.refinementScore.toFixed(3)}\nΔD=${e.marginalDGain.toFixed(3)}  Δη²=${e.marginalEta2Gain.toFixed(3)}`,
+                      text: `[${e.edgeType}] Refinement=${Math.round(e.refinementScore * 100)}%`,
                     });
                   }
                 }}
@@ -220,14 +236,14 @@ export function TreeCanvas({
           const isSel = selIdx >= 0;
           const isHov = node.id === hoveredNodeId;
           const isHi = highlightedNodeIds.has(node.id);
-          const numCh = childrenCountMap.get(node.id) ?? 0;
-          const abbrevs = computeFacetAbbreviations(node.facetSubset);
+          const eff = computeEffectiveness(node.D, numUniqueUnits);
           const selColor = selIdx === 0 ? "#f59e0b" : selIdx === 1 ? "#22d3ee" : null;
+          const nh = nodeHeight(node);
 
           return (
             <g
               key={node.id}
-              transform={`translate(${pos.x - NODE_WIDTH / 2}, ${pos.y - NODE_HEIGHT / 2})`}
+              transform={`translate(${pos.x - NODE_WIDTH / 2}, ${pos.y - nh / 2})`}
               className="cursor-pointer"
               onClick={(ev) => { ev.stopPropagation(); onNodeClick(node.id, ev.shiftKey); }}
               onMouseEnter={() => onNodeHover(node.id)}
@@ -235,12 +251,12 @@ export function TreeCanvas({
             >
               {/* Highlight ring */}
               {isHi && !isSel && (
-                <rect x={-4} y={-4} width={NODE_WIDTH + 8} height={NODE_HEIGHT + 8} rx={11}
+                <rect x={-4} y={-4} width={NODE_WIDTH + 8} height={nh + 8} rx={11}
                   fill="none" stroke="#60a5fa" strokeWidth={2} strokeDasharray="4 2" strokeOpacity={0.8} />
               )}
 
               {/* Background */}
-              <rect width={NODE_WIDTH} height={NODE_HEIGHT} rx={8} fill={nodeFill(node)}
+              <rect width={NODE_WIDTH} height={nh} rx={8} fill={nodeFill(node)}
                 stroke={selColor ?? (isHov ? "#525252" : isRoot ? "#3b82f6" : "#404040")}
                 strokeWidth={isSel ? 2.5 : isRoot ? 2 : 1} />
 
@@ -264,37 +280,39 @@ export function TreeCanvas({
                 </>
               )}
 
-              {/* Facet chips */}
-              <g transform="translate(6, 8)">
+              {/* Facet chips — stacked vertically, bigger text */}
+              <g transform="translate(6, 4)">
                 {node.facetSubset.map((facet, fi) => {
                   const c = facetIdToChipColor(facet.id);
-                  const abbr = abbrevs.get(facet.id) ?? facet.title.slice(0, 3);
-                  const cx = fi * 34;
-                  if (cx + 30 > NODE_WIDTH - 12) return null;
+                  const chipW = NODE_WIDTH - 12;
+                  const maxChars = Math.floor((chipW - 10) / 6.5);
+                  const displayTitle = facet.title.length > maxChars ? facet.title.slice(0, maxChars - 1) + "…" : facet.title;
                   return (
-                    <g key={facet.id} transform={`translate(${cx}, 0)`}>
-                      <rect width={30} height={14} rx={3} fill={c + "30"} stroke={c + "60"} strokeWidth={0.5} />
-                      <text x={15} y={10} textAnchor="middle" className="text-[8px] font-medium" fill={c}>{abbr}</text>
+                    <g key={facet.id} transform={`translate(0, ${fi * CHIP_H})`}
+                      onMouseEnter={(ev) => {
+                        const rect = containerRef.current?.getBoundingClientRect();
+                        if (rect) {
+                          setTooltip({
+                            x: ev.clientX - rect.left + (containerRef.current?.scrollLeft ?? 0),
+                            y: ev.clientY - rect.top + (containerRef.current?.scrollTop ?? 0) - 10,
+                            title: facet.title,
+                            text: facet.definition,
+                          });
+                        }
+                      }}
+                      onMouseLeave={() => setTooltip(null)}
+                    >
+                      <rect width={chipW} height={17} rx={3} fill={c + "30"} stroke={c + "60"} strokeWidth={0.5} />
+                      <text x={chipW / 2} y={12} textAnchor="middle" className="text-[10px] font-medium" fill={c}>{displayTitle}</text>
                     </g>
                   );
                 })}
               </g>
 
-              {/* Metrics */}
-              <text x={NODE_WIDTH / 2} y={35} textAnchor="middle" className="text-[9px]" fill="#a3a3a3">
-                C={node.size} · {metricLabel(node)}
+              {/* Footer: compact metrics */}
+              <text x={NODE_WIDTH / 2} y={nh - 5} textAnchor="middle" className="text-[8px]" fill="#737373">
+                {node.size} · {eff.toFixed(0)}%
               </text>
-
-              {/* Bottom: children count or cell stats */}
-              {numCh > 0 ? (
-                <text x={NODE_WIDTH / 2} y={50} textAnchor="middle" className="text-[8px]" fill="#737373">
-                  {numCh} children
-                </text>
-              ) : (
-                <text x={NODE_WIDTH / 2} y={50} textAnchor="middle" className="text-[8px]" fill="#737373">
-                  cells={node.cellCount} · stab={node.stability.toFixed(2)}
-                </text>
-              )}
             </g>
           );
         })}
@@ -304,16 +322,17 @@ export function TreeCanvas({
       {tooltip && (
         <div className="absolute pointer-events-none bg-neutral-800 border border-neutral-700 rounded-md px-3 py-2 text-xs text-neutral-200 whitespace-pre-wrap max-w-[280px] z-50 shadow-lg"
           style={{ left: tooltip.x + 12, top: tooltip.y }}>
+          {tooltip.title && <div className="font-semibold text-white mb-0.5">{tooltip.title}</div>}
           {tooltip.text}
         </div>
       )}
 
-      {/* Layer labels */}
-      <div className="absolute top-0 left-0 pointer-events-none" style={{ width: MARGIN.left, height: svgHeight }}>
+      {/* Layer labels — sticky: stays at left edge when scrolling horizontally */}
+      <div className="absolute top-0 pointer-events-none z-10" style={{ left: scrollLeft, width: MARGIN.left, height: svgHeight }}>
         {layers.map((l) => (
           <div key={`cl-${l.band}`} className="absolute" style={{ top: l.y - 10, left: 8 }}>
             <div className={`text-[10px] font-mono whitespace-nowrap px-1.5 py-0.5 rounded border border-neutral-800/60 ${l.count > 0 ? "text-neutral-400 bg-neutral-900/90 backdrop-blur-sm" : "text-neutral-600 bg-neutral-900/60"}`}>
-              C={l.band}
+              Size={l.band}
               <span className="text-neutral-600 ml-1">({l.count})</span>
             </div>
           </div>

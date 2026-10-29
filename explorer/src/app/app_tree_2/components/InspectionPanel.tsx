@@ -2,13 +2,53 @@
 
 import { useMemo, useState } from "react";
 import type { DatasetVideo, Facet } from "@/app/types";
+import { facetToLabelKey } from "@/app/utils/facetStats";
 import type { RefinementTree, TreeNode, TreeEdge } from "../utils/treeBuilder";
-import { computeMI, computeJointEntropy } from "../utils/treeBuilder";
+import { computeMI, computeEffectiveness } from "../utils/treeBuilder";
 import {
   facetIdToChipColor,
   computeFacetDistributions,
   type FacetValueDist,
 } from "@/app/app_analysis/utils/metricsUtils";
+
+// ---------------------------------------------------------------------------
+// Metric tooltip text
+// ---------------------------------------------------------------------------
+
+const METRIC_TOOLTIPS: Record<string, string> = {
+  Size: "Number of values in the schema. More values enable finer annotations.",
+  Effectiveness: "How precisely the schema identifies content. Higher = viewers find specific content more easily.",
+  Refinement: "How much a child preserves its parent's organization. Higher = more consistent structure.",
+};
+
+// ---------------------------------------------------------------------------
+// Instant tooltip wrapper (no delay, unlike native title)
+// ---------------------------------------------------------------------------
+
+function Tip({ title, text, children, as: Tag = "div" }: { title?: string; text: string; children: React.ReactNode; as?: "div" | "span" }) {
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  return (
+    <Tag
+      className="relative"
+      onMouseEnter={(e: React.MouseEvent) => {
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        setPos({ x: rect.left + rect.width / 2, y: rect.top });
+      }}
+      onMouseLeave={() => setPos(null)}
+    >
+      {children}
+      {pos && (
+        <div
+          className="fixed z-[100] pointer-events-none px-2.5 py-1.5 rounded bg-neutral-800 border border-neutral-700 text-xs text-neutral-200 shadow-lg max-w-[280px]"
+          style={{ left: pos.x, top: pos.y - 4, transform: "translate(-50%, -100%)" }}
+        >
+          {title && <div className="font-semibold text-white mb-0.5 whitespace-nowrap">{title}</div>}
+          <div className="whitespace-pre-wrap">{text}</div>
+        </div>
+      )}
+    </Tag>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Props
@@ -20,7 +60,7 @@ type InspectionPanelProps = {
   selectedEdgeKey: string | null;
   dataset: DatasetVideo[];
   infoTypes: string[] | null;
-  qualityMetric: "D" | "eta2";
+  numUniqueUnits: number;
   validPiecesCount: number;
   onNodeClick: (nodeId: string) => void;
   onClose: () => void;
@@ -36,7 +76,7 @@ export function InspectionPanel({
   selectedEdgeKey,
   dataset,
   infoTypes,
-  qualityMetric,
+  numUniqueUnits,
   validPiecesCount,
   onNodeClick,
   onClose,
@@ -54,11 +94,9 @@ export function InspectionPanel({
   const isEdge = selEdge !== null;
   const isEmpty = !isSingle && !isCompare && !isEdge;
 
-  const width = isCompare ? "w-[480px]" : "w-96";
-
   if (isEmpty) {
     return (
-      <div className="w-80 flex-shrink-0 border-l border-neutral-800 bg-neutral-950 flex items-center justify-center">
+      <div className="w-96 flex-shrink-0 border-l border-neutral-800 bg-neutral-950 flex items-center justify-center">
         <p className="text-neutral-600 text-sm text-center px-6">
           Click a node to inspect it.<br />
           Shift+click two nodes to compare.
@@ -68,7 +106,7 @@ export function InspectionPanel({
   }
 
   return (
-    <div className={`${width} flex-shrink-0 border-l border-neutral-800 bg-neutral-950 overflow-y-auto`}>
+    <div className="w-96 flex-shrink-0 border-l border-neutral-800 bg-neutral-950 overflow-y-auto">
       {/* Close button */}
       <div className="sticky top-0 z-10 flex justify-end p-2 bg-neutral-950/90 backdrop-blur-sm">
         <button onClick={onClose} className="text-neutral-500 hover:text-white text-xs px-2 py-1 rounded hover:bg-neutral-800">
@@ -83,7 +121,7 @@ export function InspectionPanel({
             tree={tree}
             dataset={dataset}
             infoTypes={infoTypes}
-            qualityMetric={qualityMetric}
+            numUniqueUnits={numUniqueUnits}
             nodeMap={nodeMap}
             onNodeClick={onNodeClick}
           />
@@ -92,10 +130,9 @@ export function InspectionPanel({
           <ComparisonView
             nodeA={selNodes[0]}
             nodeB={selNodes[1]}
-            tree={tree}
             dataset={dataset}
             infoTypes={infoTypes}
-            qualityMetric={qualityMetric}
+            numUniqueUnits={numUniqueUnits}
             validPiecesCount={validPiecesCount}
           />
         )}
@@ -103,7 +140,7 @@ export function InspectionPanel({
           <EdgeView
             edge={selEdge!}
             nodeMap={nodeMap}
-            qualityMetric={qualityMetric}
+            numUniqueUnits={numUniqueUnits}
             onNodeClick={onNodeClick}
           />
         )}
@@ -121,7 +158,7 @@ function SingleNodeView({
   tree,
   dataset,
   infoTypes,
-  qualityMetric,
+  numUniqueUnits,
   nodeMap,
   onNodeClick,
 }: {
@@ -129,7 +166,7 @@ function SingleNodeView({
   tree: RefinementTree;
   dataset: DatasetVideo[];
   infoTypes: string[] | null;
-  qualityMetric: "D" | "eta2";
+  numUniqueUnits: number;
   nodeMap: Map<string, TreeNode>;
   onNodeClick: (id: string) => void;
 }) {
@@ -151,27 +188,24 @@ function SingleNodeView({
           {node.facetSubset.map((f) => {
             const c = facetIdToChipColor(f.id);
             return (
-              <span key={f.id} className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded"
-                title={f.id}
-                style={{ backgroundColor: c + "20", color: c, border: `1px solid ${c}40` }}>
-                {f.title}
-                <span className="text-[10px] opacity-60">({f.vocabulary.length})</span>
-              </span>
+              <Tip key={f.id} title={f.title} text={f.definition} as="span">
+                <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded"
+                  style={{ backgroundColor: c + "20", color: c, border: `1px solid ${c}40` }}>
+                  {f.title}
+                  <span className="text-[11px] opacity-60">({f.vocabulary.length})</span>
+                </span>
+              </Tip>
             );
           })}
         </div>
-        {isRoot && <span className="text-blue-400 text-[10px] font-medium mt-1 block">ROOT</span>}
+        {isRoot && <span className="text-blue-400 text-xs font-medium mt-1 block">ROOT</span>}
       </Section>
 
       {/* Metrics */}
       <Section title="Metrics">
         <MetricGrid>
-          <MetricCell label="C" value={node.size} />
-          <MetricCell label="D" value={node.D.toFixed(3)} highlight={qualityMetric === "D"} />
-          <MetricCell label="η²" value={node.eta2.toFixed(3)} highlight={qualityMetric === "eta2"} />
-          <MetricCell label="Stab" value={node.stability.toFixed(3)} />
-          <MetricCell label="Cells" value={node.cellCount} />
-          <MetricCell label="H" value={node.H.toFixed(3)} />
+          <MetricCell label="Size" value={node.size} tooltip={METRIC_TOOLTIPS.Size} />
+          <MetricCell label="Effectiveness" value={`${computeEffectiveness(node.D, numUniqueUnits).toFixed(0)}%`} tooltip={METRIC_TOOLTIPS.Effectiveness} />
         </MetricGrid>
       </Section>
 
@@ -179,7 +213,7 @@ function SingleNodeView({
       {inEdges.length > 0 && (
         <Section title={`Parents (${inEdges.length})`}>
           {inEdges.map((e) => (
-            <EdgeLink key={e.sourceId} nodeId={e.sourceId} edge={e} direction="parent" nodeMap={nodeMap} onClick={onNodeClick} />
+            <EdgeLink key={e.sourceId} nodeId={e.sourceId} edge={e} nodeMap={nodeMap} onClick={onNodeClick} />
           ))}
         </Section>
       )}
@@ -188,16 +222,16 @@ function SingleNodeView({
       {outEdges.length > 0 && (
         <Section title={`Children (${outEdges.length})`}>
           {outEdges.map((e) => (
-            <EdgeLink key={e.targetId} nodeId={e.targetId} edge={e} direction="child" nodeMap={nodeMap} onClick={onNodeClick} />
+            <EdgeLink key={e.targetId} nodeId={e.targetId} edge={e} nodeMap={nodeMap} onClick={onNodeClick} />
           ))}
         </Section>
       )}
 
       {/* Distributions */}
       {dists.length > 0 && (
-        <Section title="Value Distributions">
+        <Section title="Definitions & Distributions" extra={<span className="text-[9px] text-neutral-600 font-normal normal-case tracking-normal">click facets to expand</span>}>
           {dists.map((d) => (
-            <FacetDistBar key={d.facet.id} dist={d} />
+            <FacetDistBar key={d.facet.id} dist={d} dataset={dataset} infoTypes={infoTypes} />
           ))}
         </Section>
       )}
@@ -212,23 +246,20 @@ function SingleNodeView({
 function ComparisonView({
   nodeA,
   nodeB,
-  tree,
   dataset,
   infoTypes,
-  qualityMetric,
+  numUniqueUnits,
   validPiecesCount,
 }: {
   nodeA: TreeNode;
   nodeB: TreeNode;
-  tree: RefinementTree;
   dataset: DatasetVideo[];
   infoTypes: string[] | null;
-  qualityMetric: "D" | "eta2";
+  numUniqueUnits: number;
   validPiecesCount: number;
 }) {
   const N = validPiecesCount;
   const mi = useMemo(() => computeMI(nodeA, nodeB, N), [nodeA, nodeB, N]);
-  const jointH = useMemo(() => computeJointEntropy(nodeA, nodeB, N), [nodeA, nodeB, N]);
 
   const aIds = new Set(nodeA.facetSubset.map((f) => f.id));
   const bIds = new Set(nodeB.facetSubset.map((f) => f.id));
@@ -263,20 +294,16 @@ function ComparisonView({
           <span className="text-amber-400 text-right">#1</span>
           <span className="text-cyan-400 text-right">#2</span>
           <span className="text-neutral-400 text-right">Δ</span>
-          <CompRow label="C" a={nodeA.size} b={nodeB.size} />
-          <CompRow label="D" a={nodeA.D} b={nodeB.D} fmt={3} lower />
-          <CompRow label="η²" a={nodeA.eta2} b={nodeB.eta2} fmt={3} />
-          <CompRow label="Stab" a={nodeA.stability} b={nodeB.stability} fmt={3} />
+          <CompRow label="Size" a={nodeA.size} b={nodeB.size} tooltip={METRIC_TOOLTIPS.Size} />
+          <CompRow label="Effectiveness" a={computeEffectiveness(nodeA.D, numUniqueUnits)} b={computeEffectiveness(nodeB.D, numUniqueUnits)} fmt={0} suffix="%" tooltip={METRIC_TOOLTIPS.Effectiveness} />
         </div>
       </Section>
 
-      {/* MI */}
-      <Section title="Mutual Information">
+      {/* Overlap */}
+      <Section title="Overlap">
         <MetricGrid>
-          <MetricCell label="MI" value={mi.toFixed(3)} />
-          <MetricCell label="MI/H(#1)" value={nodeA.H > 0 ? (mi / nodeA.H).toFixed(3) : "—"} />
-          <MetricCell label="MI/H(#2)" value={nodeB.H > 0 ? (mi / nodeB.H).toFixed(3) : "—"} />
-          <MetricCell label="H(joint)" value={jointH.toFixed(3)} />
+          <MetricCell label="Overlap with #1" value={nodeA.H > 0 ? `${Math.round((mi / nodeA.H) * 100)}%` : "—"} />
+          <MetricCell label="Overlap with #2" value={nodeB.H > 0 ? `${Math.round((mi / nodeB.H) * 100)}%` : "—"} />
         </MetricGrid>
       </Section>
 
@@ -284,12 +311,12 @@ function ComparisonView({
       <Section title="Distributions">
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
-            <span className="text-amber-400 text-[10px] font-medium">#1</span>
-            {distsA.map((d) => <FacetDistBar key={d.facet.id} dist={d} compact />)}
+            <span className="text-amber-400 text-xs font-medium">#1</span>
+            {distsA.map((d) => <FacetDistBar key={d.facet.id} dist={d} dataset={dataset} infoTypes={infoTypes} />)}
           </div>
           <div className="space-y-2">
-            <span className="text-cyan-400 text-[10px] font-medium">#2</span>
-            {distsB.map((d) => <FacetDistBar key={d.facet.id} dist={d} compact />)}
+            <span className="text-cyan-400 text-xs font-medium">#2</span>
+            {distsB.map((d) => <FacetDistBar key={d.facet.id} dist={d} dataset={dataset} infoTypes={infoTypes} />)}
           </div>
         </div>
       </Section>
@@ -304,12 +331,12 @@ function ComparisonView({
 function EdgeView({
   edge,
   nodeMap,
-  qualityMetric,
+  numUniqueUnits,
   onNodeClick,
 }: {
   edge: TreeEdge;
   nodeMap: Map<string, TreeNode>;
-  qualityMetric: "D" | "eta2";
+  numUniqueUnits: number;
   onNodeClick: (id: string) => void;
 }) {
   const src = nodeMap.get(edge.sourceId);
@@ -349,10 +376,7 @@ function EdgeView({
       {/* Edge metrics */}
       <Section title="Edge Metrics">
         <MetricGrid>
-          <MetricCell label="MI" value={edge.MI.toFixed(3)} />
-          <MetricCell label="Refinement" value={edge.refinementScore.toFixed(3)} />
-          <MetricCell label="ΔD" value={edge.marginalDGain.toFixed(3)} />
-          <MetricCell label="Δη²" value={edge.marginalEta2Gain.toFixed(3)} />
+          <MetricCell label="Refinement" value={`${Math.round(edge.refinementScore * 100)}%`} tooltip={METRIC_TOOLTIPS.Refinement} />
         </MetricGrid>
       </Section>
 
@@ -367,10 +391,8 @@ function EdgeView({
           <span className="text-neutral-300 text-right">Parent</span>
           <span className="text-neutral-300 text-right">Child</span>
           <span className="text-neutral-400 text-right">Δ</span>
-          <CompRow label="C" a={src.size} b={tgt.size} />
-          <CompRow label="D" a={src.D} b={tgt.D} fmt={3} lower />
-          <CompRow label="η²" a={src.eta2} b={tgt.eta2} fmt={3} />
-          <CompRow label="Stab" a={src.stability} b={tgt.stability} fmt={3} />
+          <CompRow label="Size" a={src.size} b={tgt.size} tooltip={METRIC_TOOLTIPS.Size} />
+          <CompRow label="Effectiveness" a={computeEffectiveness(src.D, numUniqueUnits)} b={computeEffectiveness(tgt.D, numUniqueUnits)} fmt={0} suffix="%" tooltip={METRIC_TOOLTIPS.Effectiveness} />
         </div>
       </Section>
     </>
@@ -391,7 +413,20 @@ function CopyFacetIdsButton({ facets }: { facets: Facet[] }) {
     <button
       onClick={() => {
         const ids = facets.map((f) => f.id).join(", ");
-        navigator.clipboard.writeText(ids).then(() => {
+        const write = navigator.clipboard?.writeText
+          ? navigator.clipboard.writeText(ids)
+          : new Promise<void>((resolve) => {
+              const ta = document.createElement("textarea");
+              ta.value = ids;
+              ta.style.position = "fixed";
+              ta.style.opacity = "0";
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              document.body.removeChild(ta);
+              resolve();
+            });
+        write.then(() => {
           setCopied(true);
           setTimeout(() => setCopied(false), 1500);
         });
@@ -407,7 +442,7 @@ function Section({ title, extra, children }: { title: string; extra?: React.Reac
   return (
     <div>
       <div className="flex items-center gap-2 mb-1.5">
-        <h3 className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider">{title}</h3>
+        <h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">{title}</h3>
         {extra}
       </div>
       {children}
@@ -419,16 +454,18 @@ function MetricGrid({ children }: { children: React.ReactNode }) {
   return <div className="grid grid-cols-3 gap-2">{children}</div>;
 }
 
-function MetricCell({ label, value, highlight }: { label: string; value: string | number; highlight?: boolean }) {
-  return (
+function MetricCell({ label, value, highlight, tooltip }: { label: string; value: string | number; highlight?: boolean; tooltip?: string }) {
+  const inner = (
     <div className={`rounded px-2 py-1 ${highlight ? "bg-blue-900/30 border border-blue-700/40" : "bg-neutral-900 border border-neutral-800"}`}>
       <div className="text-[9px] text-neutral-500">{label}</div>
       <div className="text-xs font-mono text-neutral-200">{value}</div>
     </div>
   );
+  return tooltip ? <Tip text={tooltip}>{inner}</Tip> : inner;
 }
 
-function CompRow({ label, a, b, fmt, lower }: { label: string; a: number; b: number; fmt?: number; lower?: boolean }) {
+function CompRow({ label, a, b, fmt, lower, suffix, tooltip }: { label: string; a: number; b: number; fmt?: number; lower?: boolean; suffix?: string; tooltip?: string }) {
+  const s = suffix ?? "";
   const fa = fmt != null ? a.toFixed(fmt) : a;
   const fb = fmt != null ? b.toFixed(fmt) : b;
   const delta = b - a;
@@ -437,11 +474,15 @@ function CompRow({ label, a, b, fmt, lower }: { label: string; a: number; b: num
   const worse = lower ? delta > 0.001 : delta < -0.001;
   return (
     <>
-      <span className="text-neutral-400">{label}</span>
-      <span className="text-right font-mono text-neutral-200">{fa}</span>
-      <span className="text-right font-mono text-neutral-200">{fb}</span>
+      {tooltip ? (
+        <Tip text={tooltip} as="span"><span className="text-neutral-400">{label}</span></Tip>
+      ) : (
+        <span className="text-neutral-400">{label}</span>
+      )}
+      <span className="text-right font-mono text-neutral-200">{fa}{s}</span>
+      <span className="text-right font-mono text-neutral-200">{fb}{s}</span>
       <span className={`text-right font-mono ${better ? "text-green-400" : worse ? "text-red-400" : "text-neutral-500"}`}>
-        {delta > 0 ? "+" : ""}{fd}
+        {delta > 0 ? "+" : ""}{fd}{s}
       </span>
     </>
   );
@@ -451,7 +492,7 @@ function SchemaCard({ node, label, color }: { node: TreeNode; label: string; col
   return (
     <div className="rounded border border-neutral-800 p-2 bg-neutral-900">
       <div className="flex items-center gap-1.5 mb-1">
-        <span className="text-[10px] font-medium" style={{ color }}>{label} · C={node.size}</span>
+        <span className="text-xs font-medium" style={{ color }}>{label} · Size={node.size}</span>
         <CopyFacetIdsButton facets={node.facetSubset} />
       </div>
       <div className="flex flex-wrap gap-1">
@@ -473,13 +514,11 @@ function SchemaCard({ node, label, color }: { node: TreeNode; label: string; col
 function EdgeLink({
   nodeId,
   edge,
-  direction,
   nodeMap,
   onClick,
 }: {
   nodeId: string;
   edge: TreeEdge;
-  direction: "parent" | "child";
   nodeMap: Map<string, TreeNode>;
   onClick: (id: string) => void;
 }) {
@@ -492,7 +531,7 @@ function EdgeLink({
     >
       <span className="text-blue-400 truncate flex-1">{label}</span>
       <EdgeTypeBadge type={edge.edgeType} />
-      <span className="text-neutral-500 text-[10px]">ref={edge.refinementScore.toFixed(2)}</span>
+      <span className="text-neutral-500 text-[11px]">Ref={Math.round(edge.refinementScore * 100)}%</span>
     </button>
   );
 }
@@ -502,28 +541,99 @@ function EdgeTypeBadge({ type }: { type: string }) {
   return <span className={`text-[9px] px-1 py-0 rounded border ${color}`}>{type}</span>;
 }
 
-function FacetDistBar({ dist, compact }: { dist: FacetValueDist; compact?: boolean }) {
-  const [expanded, setExpanded] = useState(false);
+function FacetDistBar({
+  dist,
+  dataset,
+  infoTypes,
+}: {
+  dist: FacetValueDist;
+  dataset: DatasetVideo[];
+  infoTypes: string[] | null;
+}) {
+  const [showDetails, setShowDetails] = useState(false);
   const c = facetIdToChipColor(dist.facet.id);
   const sorted = [...dist.valueCounts].sort((a, b) => b.count - a.count);
-  const shown = expanded ? sorted : sorted.slice(0, compact ? 3 : 5);
+
+  // Vocabulary lookup: label → definition
+  const vocabMap = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const v of dist.facet.vocabulary) m.set(v.label, v.definition);
+    return m;
+  }, [dist.facet.vocabulary]);
+
+  // Compute up to 2 example contents per value (only when details shown)
+  const examples = useMemo(() => {
+    if (!showDetails) return new Map<string, string[]>();
+    const key = facetToLabelKey(dist.facet);
+    const rawPieces = dataset.flatMap((v) => v.pieces ?? []);
+    const pieces = infoTypes?.length
+      ? rawPieces.filter((p) => infoTypes.includes(p.content_type ?? ""))
+      : rawPieces;
+    const result = new Map<string, string[]>();
+    for (const piece of pieces) {
+      const vals = (piece.labels?.[key] as string[] | undefined) ?? [];
+      for (const val of vals) {
+        const arr = result.get(val);
+        if (!arr) {
+          result.set(val, [piece.content]);
+        } else if (arr.length < 2) {
+          arr.push(piece.content);
+        }
+      }
+    }
+    return result;
+  }, [showDetails, dist.facet, dataset, infoTypes]);
 
   return (
     <div className="text-xs">
-      <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-1 text-neutral-300 hover:text-white mb-0.5">
-        <span className="text-[10px]" style={{ color: c }}>{dist.facet.title}</span>
-        {sorted.length > (compact ? 3 : 5) && (
-          <span className="text-neutral-600 text-[9px]">{expanded ? "▾" : `▸ ${sorted.length}`}</span>
-        )}
+      {/* Facet title — click to toggle details */}
+      <button
+        onClick={() => setShowDetails(!showDetails)}
+        className="flex items-center gap-1.5 text-neutral-300 hover:text-white mb-0.5 group"
+      >
+        <span className="text-neutral-500 text-[10px] group-hover:text-neutral-300 transition-colors">{showDetails ? "▾" : "▸"}</span>
+        <span className="text-xs font-semibold group-hover:underline" style={{ color: c }}>{dist.facet.title}</span>
       </button>
+
+      {/* Expanded facet details: definition + guidelines */}
+      {showDetails && (
+        <div className="ml-3 mb-1.5 space-y-1 text-xs text-neutral-300 border-l border-neutral-800 pl-2">
+          <p>{dist.facet.definition}</p>
+          {dist.facet.guidelines && dist.facet.guidelines.length > 0 && (
+            <ul className="list-disc list-inside space-y-0.5 text-neutral-500">
+              {dist.facet.guidelines.map((g, i) => (
+                <li key={i}>{g}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {/* All values — always shown */}
       <div className="space-y-0.5">
-        {shown.map((v) => (
-          <div key={v.label} className="flex items-center gap-1">
-            <span className="text-neutral-500 w-16 truncate text-[10px]">{v.label}</span>
-            <div className="flex-1 h-2 bg-neutral-800 rounded overflow-hidden">
-              <div className="h-full rounded" style={{ width: `${v.percentage}%`, backgroundColor: c + "80" }} />
+        {sorted.map((v) => (
+          <div key={v.label}>
+            <div className="flex items-center gap-1">
+              <span className="text-neutral-400 w-20 truncate text-xs" title={v.label}>{v.label}</span>
+              <div className="flex-1 h-2 bg-neutral-800 rounded overflow-hidden">
+                <div className="h-full rounded" style={{ width: `${v.percentage}%`, backgroundColor: c + "80" }} />
+              </div>
+              <span className="text-neutral-600 text-[9px] w-8 text-right">{v.percentage.toFixed(0)}%</span>
             </div>
-            <span className="text-neutral-600 text-[9px] w-8 text-right">{v.percentage.toFixed(0)}%</span>
+            {/* Expanded value details */}
+            {showDetails && (
+              <div className="ml-3 mb-1 text-[11px] text-neutral-400 border-l border-neutral-800 pl-2 space-y-0.5">
+                <div><span className="text-neutral-600">Name:</span> {v.label}</div>
+                {vocabMap.has(v.label) && (
+                  <div><span className="text-neutral-600">Def:</span> {vocabMap.get(v.label)}</div>
+                )}
+                {(examples.get(v.label) ?? []).map((ex, i) => (
+                  <div key={i} className="text-neutral-600 italic truncate" title={ex}>
+                    e.g. &ldquo;{ex}&rdquo;
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -538,7 +648,7 @@ function FacetList({ label, facets }: { label: string; facets: Facet[] }) {
       {facets.map((f) => {
         const c = facetIdToChipColor(f.id);
         return (
-          <span key={f.id} className="inline-block text-[10px] px-1.5 py-0 rounded mr-1"
+          <span key={f.id} className="inline-block text-xs px-1.5 py-0.5 rounded mr-1"
             style={{ backgroundColor: c + "20", color: c }}>
             {f.title}
           </span>
