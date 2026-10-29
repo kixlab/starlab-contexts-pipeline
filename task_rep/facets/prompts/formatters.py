@@ -6,12 +6,13 @@ for inclusion in LLM prompts. Formatting logic lives here (not on domain classes
 so that display IDs can be controlled independently of real object IDs.
 """
 
-from typing import Dict, List, Optional
+from collections import Counter
+from typing import Any, Dict, List, Optional
 
 from utils import MessageContent
 
-from facets.schema import Facet, FacetLabel
-from knowledge_items.schema import KnowledgeItem
+from facets.schema import Facet, FacetLabel, AnnotationTable
+from knowledge_items.schema import KnowledgeBase, KnowledgeItem
 
 
 # ============= ID mapping helpers =============
@@ -34,46 +35,98 @@ def reverse_id_map(id_map: Dict[str, str]) -> Dict[str, str]:
 # ============= Text-level formatters (controllable display IDs) =============
 
 
-_GUIDELINE_STR_FORMAT = """- {guideline}"""
+_GUIDELINE_STR_FORMAT = """[{idx}] {guideline}"""
 
 def format_guidelines(guidelines: List[str]) -> str:
     """Format the guidelines for the facet."""
     if len(guidelines) == 0:
         return "No guidelines are available."
-    return "\n".join([_GUIDELINE_STR_FORMAT.format(guideline=guideline) for guideline in guidelines])
+    return "\n".join([_GUIDELINE_STR_FORMAT.format(idx=i+1, guideline=guideline) for i, guideline in enumerate(guidelines)])
 
-_LABEL_STR_FORMAT = """<label><name>{label}</name> — {definition}</label>"""
+_LABEL_STR_FORMAT = """<label><name>{label}</name><definition>{definition}</definition></label>"""
+_LABEL_WITH_FREQUENCY_STR_FORMAT = """<label><name>{label}</name><definition>{definition}</definition><frequency>{frequency}</frequency></label>"""
 
-def format_facet_label(label: FacetLabel) -> str:
-    return _LABEL_STR_FORMAT.format(
+def format_facet_label(label: FacetLabel, frequency: Optional[int] = None) -> str:
+    if frequency is None:
+        return _LABEL_STR_FORMAT.format(
+            label=label.label,
+            definition=label.definition,
+        )
+    return _LABEL_WITH_FREQUENCY_STR_FORMAT.format(
         label=label.label,
         definition=label.definition,
+        frequency=frequency,
     )
 
-def format_vocabulary(vocabulary: List[FacetLabel]) -> str:
+def format_vocabulary(
+    vocabulary: List[FacetLabel],
+    label_frequencies: Optional[Dict[str, int]] = None,
+) -> str:
     """Format the vocabulary for the facet."""
     if len(vocabulary) == 0:
         return "No labels are available."
-    return "\n".join([format_facet_label(label) for label in vocabulary])
+    lines = [
+        format_facet_label(
+            label,
+            label_frequencies.get(label.label, 0) if label_frequencies is not None else None,
+        )
+        for label in vocabulary
+    ]
+    if label_frequencies is not None:
+        vocab_labels = {label.label for label in vocabulary}
+        for label, frequency in sorted(label_frequencies.items()):
+            if label not in vocab_labels:
+                lines.append(
+                    _LABEL_WITH_FREQUENCY_STR_FORMAT.format(
+                        label=label,
+                        definition="Observed annotation outside this vocabulary.",
+                        frequency=frequency,
+                    )
+                )
+    return "\n".join(lines)
 
 
-_FACET_FORMAT = """<facet id="{display_id}">
-{title_plural}: {definition}
-**Guidelines for labeling segments**:
+def facet_label_frequencies(
+    facet: Facet,
+    knowledge_base: KnowledgeBase,
+    annotations: AnnotationTable,
+) -> Dict[str, int]:
+    """Count raw item frequencies for a facet's labels in the active item scope."""
+    counts = Counter({label.label: 0 for label in facet.vocabulary})
+    for item in knowledge_base:
+        if item.unit_id is None:
+            continue
+        label = annotations.by_item(item.id).get(facet.id, "na")
+        counts[label] += 1
+    return dict(counts)
+
+
+_FACET_FORMAT = """<factor id="{display_id}">
+<title>{title_plural}</title>
+<user_question>{user_question}</user_question>
+<definition>{definition}</definition>
+<guidelines>
 {guidelines}
-**Vocabulary**:
+</guidelines>
+<vocabulary>
 {vocabulary}
-</facet>"""
+</vocabulary>
+</factor>"""
 
-def format_facet(facet: Facet, display_id: Optional[str] = None) -> str:
+def format_facet(
+    facet: Facet,
+    display_id: Optional[str] = None,
+    label_frequencies: Optional[Dict[str, int]] = None,
+) -> str:
     """Format a Facet as text using display_id instead of facet.id."""
     did = display_id if display_id is not None else facet.id
     return _FACET_FORMAT.format(
         display_id=did,
         title_plural=facet.title_plural,
+        user_question=facet.user_question or "No user-facing question is available.",
         definition=facet.definition,
         guidelines=format_guidelines(facet.guidelines),
-        vocabulary=format_vocabulary(facet.vocabulary),
+        vocabulary=format_vocabulary(facet.vocabulary, label_frequencies),
     )
 
 _TUTORIAL_SEGMENT_FORMAT = """<segment id="{display_id}">
@@ -96,16 +149,35 @@ def format_segment(
 # ============= MessageContent formatters =============
 
 
-def facet_to_message_content(facet: Facet, display_id: Optional[str] = None) -> MessageContent:
+def facet_to_message_content(
+    facet: Facet,
+    display_id: Optional[str] = None,
+    label_frequencies: Optional[Dict[str, int]] = None,
+) -> MessageContent:
     """Format a single Facet as MessageContent."""
-    return MessageContent(content=[{"type": "text", "text": format_facet(facet, display_id)}])
+    return MessageContent(content=[{
+        "type": "text",
+        "text": format_facet(facet, display_id, label_frequencies),
+    }])
 
+def facet_display_id(index: int) -> str:
+    """Get the display ID for a facet given its index in the list."""
+    return f"F{index + 1}"
 
-def facets_to_message_content(facets: List[Facet]) -> MessageContent:
+def facets_to_message_content(
+    facets: List[Facet],
+    annotations: Optional[AnnotationTable] = None,
+    knowledge_base: Optional[KnowledgeBase] = None,
+) -> MessageContent:
     """Format a list of Facets using sequential F1, F2 display IDs."""
     lines = []
     for i, facet in enumerate(facets):
-        lines.append(format_facet(facet, f"F{i + 1}"))
+        frequencies = None
+        if annotations is not None and knowledge_base is not None:
+            frequencies = facet_label_frequencies(facet, knowledge_base, annotations)
+        lines.append(format_facet(facet, facet_display_id(i), frequencies))
+    if len(lines) == 0:
+        lines.append("No existing contextual factors.")
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
@@ -153,6 +225,203 @@ def videos_to_message_content(
         for item in items:
             display_id = id_map[item.id] if id_map else None
             lines.append(format_segment(item, display_id))
+    return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
+
+
+_ANNOTATED_SEGMENT_FORMAT = """<segment id="{display_id}">
+{text}
+<factor_labels>{labels}</factor_labels>
+</segment>"""
+
+def format_segment_annotated(
+    segment: KnowledgeItem,
+    facets: List[Facet],
+    annotations: AnnotationTable,
+    display_id: Optional[str] = None,
+    with_type: bool = True,
+) -> str:
+    """Format a KnowledgeItem with its pool annotation labels appended."""
+    did = display_id if display_id is not None else segment.id
+    text = segment.text
+    if with_type and segment.subtype:
+        subtype_val = segment.subtype.value if hasattr(segment.subtype, "value") else str(segment.subtype)
+        text = f"({subtype_val}) {text}"
+    labels_parts = [
+        f"{facet_display_id(idx)}: {annotations[segment.id, facet.id]}"
+        for idx, facet in enumerate(facets)
+        if (segment.id, facet.id) in annotations
+    ]
+    labels_str = ", ".join(labels_parts) if labels_parts else ""
+    return _ANNOTATED_SEGMENT_FORMAT.format(display_id=did, text=text, labels=labels_str)
+
+
+def annotated_videos_to_message_content(
+    videos: Dict[str, List[KnowledgeItem]],
+    facets: List[Facet],
+    annotations: AnnotationTable,
+    id_map: Optional[Dict[str, str]] = None,
+) -> MessageContent:
+    """Like videos_to_message_content but appends per-facet pool labels to each segment."""
+    lines = []
+    for video_id, items in videos.items():
+        lines.append(f"Video {video_id}:")
+        for item in items:
+            display_id = id_map[item.id] if id_map else None
+            lines.append(format_segment_annotated(item, facets, annotations, display_id))
+    if len(lines) == 0:
+        lines.append("No tutorial segments.")
+    return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
+
+
+def tree_stats_to_message_content(tree_stats: Dict[str, Any]) -> MessageContent:
+    """Format refinement-tree statistics as MessageContent."""
+    used = ", ".join(tree_stats.get("facets_used", [])) or "none"
+    unused = ", ".join(tree_stats.get("facets_unused", [])) or "none"
+    lines = [
+        f"Total nodes: {tree_stats.get('total_nodes', 0)}",
+        f"Contextual factors used in tree: {used}",
+        f"Contextual factors not in tree: {unused}",
+    ]
+    return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
+
+
+_SIGNATURE_WITH_FREQUENCY_STR_FORMAT = """<signature><value>{signature}</value><frequency>{frequency}</frequency></signature>"""
+
+def _format_signature_frequencies(
+    schema: Any,
+    facets: List[Facet],
+    annotations: AnnotationTable,
+    knowledge_base: KnowledgeBase,
+) -> str:
+    schema_facet_ids = set(getattr(schema, "facet_ids", []))
+    schema_facets = [facet for facet in facets if facet.id in schema_facet_ids]
+    if not schema_facets:
+        return "No facet labels."
+
+    counts = Counter()
+    for item in knowledge_base:
+        if item.unit_id is None:
+            continue
+        counts[annotations.signature(item.id, schema_facets)] += 1
+
+    if not counts:
+        return "No labeled segments."
+
+    return "\n".join(
+        _SIGNATURE_WITH_FREQUENCY_STR_FORMAT.format(
+            signature=signature,
+            frequency=frequency,
+        )
+        for signature, frequency in sorted(counts.items())
+    )
+
+def _format_facet_combination(
+    schema: Any,
+    schema_label: str,
+    status: str,
+    facets: List[Facet],
+    facet_display_ids: Dict[str, str],
+    annotations: AnnotationTable,
+    knowledge_base: KnowledgeBase,
+    rejected_by_label: Optional[str] = None,
+) -> str:
+    lines = []
+    lines.append(f'<facet_combination id="{schema_label}" status="{status}">')
+    lines.append(
+        "<metrics "
+        f"size=\"{getattr(schema, 'size', 0)}\" "
+        f"D=\"{getattr(schema, 'D', 0.0):.4f}\" "
+        f"eta2=\"{getattr(schema, 'eta2', 0.0):.4f}\" "
+        f"H=\"{getattr(schema, 'H', 0.0):.4f}\"/>"
+    )
+    lines.append("<facets>")
+    schema_facet_ids = set(getattr(schema, "facet_ids", []))
+    if not schema_facet_ids:
+        lines.append("No factors.")
+    for facet in facets:
+        if facet.id not in schema_facet_ids:
+            continue
+        lines.append(format_facet(
+            facet,
+            display_id=facet_display_ids[facet.id],
+            label_frequencies=facet_label_frequencies(facet, knowledge_base, annotations),
+        ))
+    lines.append("</facets>")
+    lines.append("<signature_frequencies>")
+    lines.append(_format_signature_frequencies(schema, facets, annotations, knowledge_base))
+    lines.append("</signature_frequencies>")
+    
+    if rejected_by_label is not None:
+        lines.append(
+            f'<rejected_by id="{rejected_by_label}"/>'
+        )
+        lines.append(
+            "<rejection_reason>"
+            f"Redundant with accepted facet combination {rejected_by_label}: "
+            f"refinement_score={getattr(schema, 'refinement_score', 0.0):.4f} "
+            f"exceeded threshold={getattr(schema, 'refinement_threshold', 0.0):.4f}."
+            "</rejection_reason>"
+        )
+    lines.append("</facet_combination>")
+    return "\n".join(lines)
+
+def schemas_to_message_content(
+    accepted_schemas: List[Any],
+    rejected_schemas: List[Any],
+    facets: List[Facet],
+    annotations: AnnotationTable,
+    knowledge_base: KnowledgeBase,
+) -> MessageContent:
+    """Format accepted/rejected facet combinations with signature frequencies."""
+    accepted_schemas = [
+        schema for schema in accepted_schemas
+        if getattr(schema, "facet_ids", [])
+    ]
+    facet_display_ids = {
+        facet.id: facet_display_id(idx)
+        for idx, facet in enumerate(facets)
+    }
+    accepted_label_by_id = {
+        getattr(schema, "id", ""): f"A{idx}"
+        for idx, schema in enumerate(accepted_schemas, start=1)
+    }
+    rejected_label_by_id = {
+        getattr(schema, "id", ""): f"R{idx}"
+        for idx, schema in enumerate(rejected_schemas, start=1)
+    }
+    lines = ["Accepted facet combinations:"]
+    if accepted_schemas:
+        for schema in accepted_schemas:
+            lines.append(_format_facet_combination(
+                schema,
+                accepted_label_by_id.get(getattr(schema, "id", ""), "A?"),
+                "accepted",
+                facets,
+                facet_display_ids,
+                annotations,
+                knowledge_base,
+            ))
+    else:
+        lines.append("No accepted facet combinations.")
+
+    lines.append("Rejected facet combinations:")
+    if rejected_schemas:
+        for schema in rejected_schemas:
+            rejected_by_id = getattr(schema, "rejected_by_id", "")
+            rejected_by_label = accepted_label_by_id.get(rejected_by_id, "unknown")
+            lines.append(_format_facet_combination(
+                schema,
+                rejected_label_by_id.get(getattr(schema, "id", ""), "R?"),
+                "rejected",
+                facets,
+                facet_display_ids,
+                annotations,
+                knowledge_base,
+                rejected_by_label=rejected_by_label,
+            ))
+    else:
+        lines.append("No rejected facet combinations.")
+
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 

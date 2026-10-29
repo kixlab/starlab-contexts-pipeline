@@ -14,7 +14,7 @@ from __future__ import annotations
 import logging
 import random
 from collections import defaultdict
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from typing import Dict, List
 
 from knowledge_items.schema import KnowledgeBase
@@ -113,18 +113,28 @@ class VLMFacetVocabularyBuilder:
         # Re-group proposal results by facet
         proposals_by_facet: Dict[str, Dict[str, List[FacetLabel]]] = defaultdict(dict)
         for (facet_id, video_id), result in zip(request_keys, batch_results):
-            proposals_by_facet[facet_id][video_id] = result
+            if result:  # only store non-empty proposals
+                proposals_by_facet[facet_id][video_id] = result
 
-        # Phase 2: Per-facet consolidation
+        # Phase 2: Per-facet consolidation (revises definition, guidelines, and vocabulary together)
         batch_id = f"vocab_consolidation_{random_uid()}"
 
         request_args = []
+        consolidated_facet_ids: List[str] = []  # facets that have a consolidation request, in request order
 
         for facet in facets:
+            proposals_by_video = proposals_by_facet.get(facet.id, {})
+            if not proposals_by_video:
+                logger.info(
+                    "No vocabulary proposals for facet %s; skipping consolidation.",
+                    facet.id,
+                )
+                continue
+            consolidated_facet_ids.append(facet.id)
             request_args.append({
                 "task": task,
                 "facet": facet,
-                "proposals_by_video": proposals_by_facet.get(facet.id, {}),
+                "proposals_by_video": proposals_by_video,
             })
 
         batch_results = batch_run_llm_calls(
@@ -136,8 +146,6 @@ class VLMFacetVocabularyBuilder:
             model_config=self.model_config,
         )
 
-        updated_facets = []
-        for facet, result in zip(facets, batch_results):
-            updated_facets.append(replace(facet, vocabulary=result))
-
-        return updated_facets
+        # process_vocabulary_consolidation_response returns a fully-revised Facet.
+        revised_by_id: Dict[str, Facet] = dict(zip(consolidated_facet_ids, batch_results))
+        return [revised_by_id.get(facet.id, facet) for facet in facets]
