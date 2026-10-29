@@ -284,10 +284,11 @@ def test_a1_context_has_items_and_pool(tmp_path):
     _runner(tmp_path, proposer, proposal_budget=2, pool_size=2).run()
 
     first, second = proposer.iterative_contexts
-    assert first.components == frozenset({ContextComponent.FACETS, ContextComponent.ITEMS})
+    assert first.components == frozenset({ContextComponent.FACETS, ContextComponent.ITEMS, ContextComponent.HISTORY})
     assert first.pool == [] and first.videos  # empty-pool cold start, segments shown
     assert [f.id for f in second.pool] == ["A"]
-    assert first.history == [] and second.history == []
+    assert first.history == [] and second.history == []  # nothing failed yet
+    assert first.last_submission is None and second.last_submission is None  # SCHEMAS only
 
 
 def test_a2_context_has_no_segments(tmp_path):
@@ -296,10 +297,27 @@ def test_a2_context_has_no_segments(tmp_path):
             pool_size=2).run()
 
     first, second = proposer.iterative_contexts
-    assert first.components == frozenset({ContextComponent.SCHEMAS})
+    assert first.components == frozenset({ContextComponent.SCHEMAS, ContextComponent.HISTORY})
     assert first.videos is None
     assert first.pool == [] and first.accepted_schemas == []
+    assert first.last_submission is None
     assert second.accepted_schemas  # schema feedback after the first facet
+    assert second.refinement_threshold == 0.2
+    last = second.last_submission
+    assert last.title == "A" and last.entered and last.outcome == "accepted into the pool"
+    assert last.previous_schema_ids == []  # empty pool before A
+
+
+def test_a2_last_submission_reports_failures(tmp_path):
+    proposer = ScriptedProposer([[make_facet("A")], [make_facet("V")], [make_facet("B")]])
+    _runner(tmp_path, proposer, vocab=ScriptedVocabBuilder(fail_ids={"V"}),
+            context=A2_CONTEXT, proposal_budget=3, pool_size=3).run()
+    third = proposer.iterative_contexts[2]
+    assert third.last_submission.title == "V" and not third.last_submission.entered
+    assert "vocabulary" in third.last_submission.outcome
+    # the failure did not change the design space
+    assert third.last_submission.previous_schema_ids == [s.id for s in third.accepted_schemas]
+    assert [h.title for h in third.history] == ["V"]
 
 
 def test_history_lists_non_accepted_candidates_when_enabled(tmp_path):
@@ -318,9 +336,10 @@ def test_history_lists_non_accepted_candidates_when_enabled(tmp_path):
     assert entry.scope == "global" and entry.definition == "Definition of V"
 
 
-def test_history_off_by_default(tmp_path):
+def test_history_off_without_component(tmp_path):
     proposer = ScriptedProposer([[make_facet("V")], [make_facet("A")]])
-    _runner(tmp_path, proposer, vocab=ScriptedVocabBuilder(fail_ids={"V"})).run()
+    _runner(tmp_path, proposer, vocab=ScriptedVocabBuilder(fail_ids={"V"}),
+            context=frozenset({ContextComponent.FACETS, ContextComponent.ITEMS})).run()
     assert proposer.iterative_contexts[1].history == []
 
 

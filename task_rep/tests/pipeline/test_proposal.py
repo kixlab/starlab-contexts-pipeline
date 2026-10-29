@@ -25,7 +25,7 @@ from tests.pipeline.helpers import label_book, make_config, make_facet, make_kb
 
 SECTION_FACETS = "- Existing contextual factors:"
 SECTION_ITEMS = "- Tutorial segments (with current pool labels):"
-SECTION_SCHEMAS = "- Accepted and rejected facet combinations:"
+SECTION_SCHEMAS = "- The current design space of factor combinations."
 SECTION_HISTORY = "- Previously tried factors that were not kept:"
 ALL_SECTIONS = {
     "facets": SECTION_FACETS,
@@ -102,16 +102,17 @@ def test_a1_empty_pool_first_iteration():
 
 def test_a2_empty_pool_first_iteration_has_no_data():
     text = _render({"schemas"}, pool=[], history=[])
-    assert "No accepted facet combinations." in text
-    assert "No rejected facet combinations." in text
+    assert "Kept combinations:\n- none yet" in text
+    assert "Pruned single factors:\n- none" in text
+    assert "Last submission:" not in text
     assert SECTION_ITEMS not in text and "Segment i1" not in text
 
 
 def test_a2_renders_schema_feedback():
     text = _render({"schemas"})
-    assert '<facet_combination id="A1" status="accepted">' in text
-    assert "Redundant with accepted facet combination A1" in text
-    assert "<signature_frequencies>" in text
+    assert "Kept combinations:\n- C1: F1 (As), 2 cells" in text
+    assert "- F2 (Bs): pruned; C1 (F1 (As)) already carries 90%" in text
+    assert "<signature_frequencies>" not in text
 
 
 def test_history_renders_title_definition_and_outcome():
@@ -137,13 +138,20 @@ def test_refusal_parsing():
 # Config: component sets and defaults
 # ---------------------------------------------------------------------------
 
+def test_batch_identity_ignores_context():
+    a = make_config(strategy=ProposalStrategy.BATCH, context=A1_CONTEXT)
+    b = make_config(strategy=ProposalStrategy.BATCH, context=["facets", "items"])
+    assert a.semantic_dict() == b.semantic_dict() and "context" not in a.semantic_dict()
+    assert "context" in make_config(context=A2_CONTEXT).semantic_dict()
+
+
 def test_canonical_context_sets():
-    assert A1_CONTEXT == frozenset({ContextComponent.FACETS, ContextComponent.ITEMS})
-    assert A2_CONTEXT == frozenset({ContextComponent.SCHEMAS})
+    assert A1_CONTEXT == frozenset({ContextComponent.FACETS, ContextComponent.ITEMS, ContextComponent.HISTORY})
+    assert A2_CONTEXT == frozenset({ContextComponent.SCHEMAS, ContextComponent.HISTORY})
 
 
 def test_context_accepts_strings_and_normalizes():
-    cfg = make_config(context=["items", "facets"])
+    cfg = make_config(context=["items", "facets", "history", "facets"])
     assert cfg.context == A1_CONTEXT
 
 
@@ -156,7 +164,7 @@ def test_invalid_context_rejected(bad):
 def test_config_round_trip_and_defaults():
     cfg = make_config(context=A2_CONTEXT, irr_sample_videos=3)
     data = cfg.to_dict()
-    assert data["context"] == ["schemas"]
+    assert data["context"] == ["history", "schemas"]
     assert PipelineConfig.from_dict(data).to_dict() == data
 
     defaults = PipelineConfig.from_dict({

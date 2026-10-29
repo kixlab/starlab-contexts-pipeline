@@ -27,7 +27,8 @@ from knowledge_items.schema import (
     KnowledgeItemType,
     KnowledgeSource,
 )
-from optimization import AcceptedSchemaSummary, RejectedSchemaSummary
+from contextual.feedback import LastSubmission
+from optimization import AcceptedSchemaSummary, RefinementTree, RejectedSchemaSummary, TreeEdge
 from utils.llm import MessageContent
 
 FIXTURE_TASK = "fingerprint task"
@@ -46,7 +47,7 @@ def fixture() -> Dict[str, Any]:
     ]
     kb = KnowledgeBase(items=items)
 
-    def facet(fid: str, title: str, labels: List[str]) -> Facet:
+    def facet(fid: str, title: str, labels: List[str], kind: str) -> Facet:
         return Facet(
             id=fid,
             title=title,
@@ -57,25 +58,38 @@ def fixture() -> Dict[str, Any]:
             justification="Fixture.",
             guidelines=[f"Label the {title.lower()} shown."],
             vocabulary=[FacetLabel(label=l, definition=f"{l} {title.lower()}") for l in labels],
+            kind=kind,
         )
 
-    f1 = facet("f1", "Rice Type", ["white", "brown"])
-    f2 = facet("f2", "Knife", ["chef", "paring"])
+    f1 = facet("f1", "Rice Type", ["white", "brown"], "situation")
+    f2 = facet("f2", "Knife", ["chef", "paring"], "moment")
     ann = AnnotationTable()
     for item, (l1, l2) in zip(items, [("white", "chef"), ("brown", "chef"),
                                       ("white", "paring"), ("brown", "paring")]):
         ann[(item.id, "f1")] = l1
         ann[(item.id, "f2")] = l2
 
-    accepted = [AcceptedSchemaSummary(id="f1", facet_ids=["f1"], size=2, D=0.5,
-                                      eta2=0.9, H=1.0)]
+    accepted = [
+        AcceptedSchemaSummary(id="f1", facet_ids=["f1"], size=2, D=0.5, eta2=0.9, H=1.0),
+        AcceptedSchemaSummary(id="f1|f2", facet_ids=["f1", "f2"], size=4, D=0.0,
+                              eta2=0.5, H=2.0, closest_id="f1", closest_facet_ids=["f1"],
+                              closest_overlap=0.5, member_overlaps={"f1": 0.5, "f2": 0.5}),
+    ]
     rejected = [RejectedSchemaSummary(
         id="f2", facet_ids=["f2"], size=2, D=0.5, eta2=0.9, H=1.0,
         rejected_by_id="f1", rejected_by_facet_ids=["f1"], MI=0.5,
         refinement_score=0.5, refinement_threshold=0.2,
     )]
+    tree = RefinementTree(nodes=[], edges=[TreeEdge(
+        source_id="f1", target_id="f1|f2", MI=1.0, refinement_score=1.0,
+        marginal_D_gain=0.5, marginal_eta2_gain=0.4, added_facets=["f2"], removed_facets=[],
+    )])
     return dict(kb=kb, facets=[f1, f2], annotations=ann, accepted=accepted,
-                rejected=rejected)
+                rejected=rejected, tree=tree,
+                edges=[(e.source_id, e.target_id) for e in tree.edges],
+                schema_ids_before_last=["", "f1"],
+                last=LastSubmission(title=f2.title, facet_id="f2", outcome="accepted into the pool",
+                                    entered=True, previous_schema_ids=["", "f1"]))
 
 
 def lifecycle_requests(fx: Dict[str, Any]) -> List[Dict[str, Any]]:

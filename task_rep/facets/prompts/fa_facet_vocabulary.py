@@ -44,6 +44,7 @@ REQUIREMENTS
 - If the factor already has vocabulary labels, propose additional labels only when the provided content reveals values not covered by the existing vocabulary. Do not repeat or rename existing labels.
 - Labels should be concise (1 to 3 words) and include a short definition.
 - Labels should be mutually exclusive.
+- Respect the factor's kind: a situation factor may have an "unspecified" value, a moment factor has a "not applicable" value, and a progress factor has neither.
 - If no new labels are needed, return an empty list.
 
 INPUTS
@@ -109,6 +110,7 @@ CONSOLIDATE THE VOCABULARY
 - Keep the final labels mutually exclusive, interpretable, and at a single level of abstraction suitable for consistent segmentation.
 - Use concise canonical names and track provenance by listing the original proposed labels that map to each final label in `source_labels`.
 - When multiple valid vocabularies are possible, choose the one that is simplest, most reusable, and most consistent with the initial vocabulary.
+- Respect the factor's kind: keep one "unspecified" value for a situation factor and one "not applicable" value for a moment factor if the vocabulary has them; a progress factor has neither.
 
 REALIGN DEFINITION AND GUIDELINES
 - Align the definition and guidelines with the consolidated vocabulary, while keeping the contextual factor's scope and underlying meaning consistent. Make the minimal necessary revisions. 

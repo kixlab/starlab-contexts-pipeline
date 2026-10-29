@@ -11,7 +11,7 @@ import pytest
 from knowledge_items import KnowledgeItemType
 
 from pipeline import experiments as experiments_mod
-from pipeline.config import A2_CONTEXT, ProposalStrategy
+from pipeline.config import ContextComponent, ProposalStrategy
 from contextual.reporting import summarize
 from pipeline.experiments import (
     EXPERIMENTS_DIR,
@@ -80,7 +80,7 @@ def test_spec_round_trip():
     spec = ExperimentSpec.from_dict(data)
     again = ExperimentSpec.from_dict(spec.to_dict())
     assert again.to_dict() == spec.to_dict()
-    assert again.pipeline.context == A2_CONTEXT
+    assert again.pipeline.context == frozenset({ContextComponent.SCHEMAS})
     assert again.pipeline.strategy == ProposalStrategy.BATCH
     assert "embedding_model" not in spec.to_dict()["pipeline"]
 

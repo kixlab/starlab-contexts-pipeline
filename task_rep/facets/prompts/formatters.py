@@ -7,7 +7,7 @@ so that display IDs can be controlled independently of real object IDs.
 """
 
 from collections import Counter
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from utils import MessageContent
 
@@ -102,7 +102,7 @@ def facet_label_frequencies(
 
 
 _FACET_FORMAT = """<factor id="{display_id}">
-<title>{title_plural}</title>
+<title>{title_plural}</title>{kind}
 <user_question>{user_question}</user_question>
 <definition>{definition}</definition>
 <guidelines>
@@ -123,6 +123,7 @@ def format_facet(
     return _FACET_FORMAT.format(
         display_id=did,
         title_plural=facet.title_plural,
+        kind=f"\n<kind>{facet.kind}</kind>" if facet.kind else "",
         user_question=facet.user_question or "No user-facing question is available.",
         definition=facet.definition,
         guidelines=format_guidelines(facet.guidelines),
@@ -274,85 +275,14 @@ def annotated_videos_to_message_content(
 
 
 _HISTORY_ENTRY_FORMAT = """<tried_factor><title>{title}</title><scope>{scope}</scope><definition>{definition}</definition><outcome>{outcome}</outcome></tried_factor>"""
-_SIGNATURE_WITH_FREQUENCY_STR_FORMAT = """<signature><value>{signature}</value><frequency>{frequency}</frequency></signature>"""
 
-def _format_signature_frequencies(
-    schema: Any,
-    facets: List[Facet],
-    annotations: AnnotationTable,
-    knowledge_base: KnowledgeBase,
-) -> str:
-    schema_facet_ids = set(getattr(schema, "facet_ids", []))
-    schema_facets = [facet for facet in facets if facet.id in schema_facet_ids]
-    if not schema_facets:
-        return "No facet labels."
+_DESIGN_SPACE_GUIDE = """HOW THE DESIGN SPACE IS BUILT
+- A combination is {combos}. It splits the segments into cells: one cell for each combination of values that occurs.
+- Overlap: how much of a combination's information another combination already carries (their shared information divided by the combination's own information). 100% means the other combination fully determines it; 0% means they are unrelated.
+- Combinations are checked from fewest values to most. A combination is kept unless an already-kept combination with no more values has an overlap above {limit} with it; otherwise it is pruned.
+- A kept combination B refines a kept combination A when B carries more than {limit} of A's information and has more values.
+- The design space is rebuilt from scratch after every submission, so earlier decisions can change."""
 
-    counts = Counter()
-    for item in knowledge_base:
-        if item.unit_id is None:
-            continue
-        counts[annotations.signature(item.id, schema_facets)] += 1
-
-    if not counts:
-        return "No labeled segments."
-
-    return "\n".join(
-        _SIGNATURE_WITH_FREQUENCY_STR_FORMAT.format(
-            signature=signature,
-            frequency=frequency,
-        )
-        for signature, frequency in sorted(counts.items())
-    )
-
-def _format_facet_combination(
-    schema: Any,
-    schema_label: str,
-    status: str,
-    facets: List[Facet],
-    facet_display_ids: Dict[str, str],
-    annotations: AnnotationTable,
-    knowledge_base: KnowledgeBase,
-    rejected_by_label: Optional[str] = None,
-) -> str:
-    lines = []
-    lines.append(f'<facet_combination id="{schema_label}" status="{status}">')
-    lines.append(
-        "<metrics "
-        f"size=\"{getattr(schema, 'size', 0)}\" "
-        f"D=\"{getattr(schema, 'D', 0.0):.4f}\" "
-        f"eta2=\"{getattr(schema, 'eta2', 0.0):.4f}\" "
-        f"H=\"{getattr(schema, 'H', 0.0):.4f}\"/>"
-    )
-    lines.append("<facets>")
-    schema_facet_ids = set(getattr(schema, "facet_ids", []))
-    if not schema_facet_ids:
-        lines.append("No factors.")
-    for facet in facets:
-        if facet.id not in schema_facet_ids:
-            continue
-        lines.append(format_facet(
-            facet,
-            display_id=facet_display_ids[facet.id],
-            label_frequencies=facet_label_frequencies(facet, knowledge_base, annotations),
-        ))
-    lines.append("</facets>")
-    lines.append("<signature_frequencies>")
-    lines.append(_format_signature_frequencies(schema, facets, annotations, knowledge_base))
-    lines.append("</signature_frequencies>")
-    
-    if rejected_by_label is not None:
-        lines.append(
-            f'<rejected_by id="{rejected_by_label}"/>'
-        )
-        lines.append(
-            "<rejection_reason>"
-            f"Redundant with accepted facet combination {rejected_by_label}: "
-            f"refinement_score={getattr(schema, 'refinement_score', 0.0):.4f} "
-            f"exceeded threshold={getattr(schema, 'refinement_threshold', 0.0):.4f}."
-            "</rejection_reason>"
-        )
-    lines.append("</facet_combination>")
-    return "\n".join(lines)
 
 def schemas_to_message_content(
     accepted_schemas: List[Any],
@@ -360,58 +290,170 @@ def schemas_to_message_content(
     facets: List[Facet],
     annotations: AnnotationTable,
     knowledge_base: KnowledgeBase,
+    refinement_edges: Optional[List[Tuple[str, str]]] = None,
+    refinement_threshold: Optional[float] = None,
+    last_submission: Optional[Any] = None,
 ) -> MessageContent:
-    """Format accepted/rejected facet combinations with signature frequencies."""
-    accepted_schemas = [
-        schema for schema in accepted_schemas
-        if getattr(schema, "facet_ids", [])
-    ]
-    facet_display_ids = {
-        facet.id: facet_display_id(idx)
-        for idx, facet in enumerate(facets)
-    }
-    accepted_label_by_id = {
-        getattr(schema, "id", ""): f"A{idx}"
-        for idx, schema in enumerate(accepted_schemas, start=1)
-    }
-    rejected_label_by_id = {
-        getattr(schema, "id", ""): f"R{idx}"
-        for idx, schema in enumerate(rejected_schemas, start=1)
-    }
-    lines = ["Accepted facet combinations:"]
-    if accepted_schemas:
-        for schema in accepted_schemas:
-            lines.append(_format_facet_combination(
-                schema,
-                accepted_label_by_id.get(getattr(schema, "id", ""), "A?"),
-                "accepted",
-                facets,
-                facet_display_ids,
-                annotations,
-                knowledge_base,
-            ))
-    else:
-        lines.append("No accepted facet combinations.")
+    """Format the design space (DAG) of factor combinations.
 
-    lines.append("Rejected facet combinations:")
-    if rejected_schemas:
-        for schema in rejected_schemas:
-            rejected_by_id = getattr(schema, "rejected_by_id", "")
-            rejected_by_label = accepted_label_by_id.get(rejected_by_id, "unknown")
-            lines.append(_format_facet_combination(
-                schema,
-                rejected_label_by_id.get(getattr(schema, "id", ""), "R?"),
-                "rejected",
-                facets,
-                facet_display_ids,
-                annotations,
-                knowledge_base,
-                rejected_by_label=rejected_by_label,
-            ))
-    else:
-        lines.append("No rejected facet combinations.")
+    Shows how it is built, each factor once, the kept combinations (why each
+    was kept and what it refines), the pruned single factors (and whether they
+    are used anywhere), one summary line for pruned pairs, and what the last
+    submission changed. Linear in the number of factors and kept
+    combinations; nothing grows with the number of segments.
 
+    ``last_submission`` needs ``title``, ``facet_id``, ``outcome``,
+    ``entered`` and ``previous_schema_ids`` (see ``contextual.feedback``).
+    """
+    display = {facet.id: facet_display_id(idx) for idx, facet in enumerate(facets)}
+    order = {facet.id: idx for idx, facet in enumerate(facets)}
+    by_id = {facet.id: facet for facet in facets}
+
+    def rank(facet_ids) -> List[int]:
+        return sorted(order[fid] for fid in facet_ids if fid in order)
+
+    def factor(fid: str) -> str:
+        return f"{display[fid]} ({by_id[fid].title_plural or by_id[fid].title})"
+
+    def name(facet_ids) -> str:
+        ids = sorted((fid for fid in facet_ids if fid in by_id), key=order.__getitem__)
+        return " + ".join(factor(fid) for fid in ids) if ids else "(no factors)"
+
+    def cell_count(facet_ids) -> int:
+        node_facets = [by_id[fid] for fid in facet_ids if fid in by_id]
+        return len({
+            annotations.signature(item.id, node_facets)
+            for item in knowledge_base if item.unit_id is not None
+        })
+
+    tau = refinement_threshold
+    if tau is None and rejected_schemas:
+        tau = getattr(rejected_schemas[0], "refinement_threshold", None)
+    limit = f"{tau:.0%}" if tau is not None else "the limit"
+    all_schemas = list(accepted_schemas) + list(rejected_schemas)
+    max_facets = max((len(s.facet_ids) for s in all_schemas), default=1)
+    with_pairs = max_facets >= 2
+
+    kept = sorted((s for s in accepted_schemas if s.facet_ids),
+                  key=lambda s: (len(s.facet_ids), rank(s.facet_ids)))
+    labels = {s.id: f"C{i}" for i, s in enumerate(kept, start=1)}
+
+    def ref(schema_id: str, facet_ids) -> str:
+        return f"{labels.get(schema_id, 'a kept combination')} ({name(facet_ids)})"
+
+    parents: Dict[str, List[str]] = {}
+    for source, target in refinement_edges or []:
+        if source in labels and target in labels:
+            parents.setdefault(target, []).append(labels[source])
+
+    lines = [_DESIGN_SPACE_GUIDE.format(
+        combos="a single factor or a pair of factors" if with_pairs else "a single factor",
+        limit=limit), "", "Factors:"]
+    lines += [b["text"] for b in facets_to_message_content(
+        facets, annotations=annotations, knowledge_base=knowledge_base).content]
+
+    kept_singles = [s for s in kept if len(s.facet_ids) == 1]
+    kept_pairs = [s for s in kept if len(s.facet_ids) == 2]
+    all_pairs = [s for s in all_schemas if len(s.facet_ids) == 2]
+    summary = f"Design space: kept {len(kept_singles)} of {len(facets)} single factors"
+    summary += (f" and {len(kept_pairs)} of {len(all_pairs)} pairs." if with_pairs else ".")
+    lines += ["", summary, "", "Kept combinations:"]
+    for schema in kept:
+        if len(schema.facet_ids) > 1 and getattr(schema, "member_overlaps", None):
+            ids = sorted(schema.member_overlaps, key=lambda f: order.get(f, 0))
+            why = ", ".join(f"{display.get(f, f)} alone carries "
+                            f"{schema.member_overlaps[f]:.0%}" for f in ids)
+            closest = getattr(schema, "closest_id", "")
+            if closest and set(getattr(schema, "closest_facet_ids", [])) - set(schema.facet_ids):
+                why += (f"; the most any other kept combination carries is "
+                        f"{schema.closest_overlap:.0%} ({labels.get(closest, '?')})")
+        elif getattr(schema, "closest_id", ""):
+            why = (f"the most any kept combination with no more values carries is "
+                   f"{schema.closest_overlap:.0%} ({ref(schema.closest_id, schema.closest_facet_ids)})")
+        else:
+            why = "no kept combination has fewer values"
+        refines = parents.get(schema.id)
+        lines.append(
+            f"- {labels[schema.id]}: {name(schema.facet_ids)}, "
+            f"{cell_count(schema.facet_ids)} cells; kept because {why}"
+            + (f"; refines {', '.join(sorted(refines))}" if refines else "")
+        )
+    if not kept:
+        lines.append("- none yet")
+
+    lines += ["", "Pruned single factors:"]
+    pruned_singles = sorted((s for s in rejected_schemas if len(s.facet_ids) == 1),
+                            key=lambda s: rank(s.facet_ids))
+    for schema in pruned_singles:
+        fid = schema.facet_ids[0]
+        used_in = [labels[k.id] for k in kept if fid in k.facet_ids]
+        lines.append(
+            f"- {name(schema.facet_ids)}: pruned; "
+            f"{ref(schema.rejected_by_id, schema.rejected_by_facet_ids)} already carries "
+            f"{schema.refinement_score:.0%} of its information; "
+            + (f"still used in {', '.join(used_in)}" if used_in else "used nowhere")
+        )
+    if not pruned_singles:
+        lines.append("- none")
+
+    if with_pairs:
+        pruned_pairs = [s for s in rejected_schemas if len(s.facet_ids) == 2]
+        own = sum(1 for s in pruned_pairs
+                  if set(s.rejected_by_facet_ids) <= set(s.facet_ids))
+        line = f"Pruned pairs: {len(pruned_pairs)} of {len(all_pairs)}."
+        if pruned_pairs:
+            line += (f" In {own}, one of the pair's own factors already carries more than "
+                     f"{limit} of it; in {len(pruned_pairs) - own}, another kept "
+                     f"combination does.")
+        lines += ["", line]
+
+    if last_submission is not None:
+        lines += ["", "Last submission:"]
+        lines += _last_submission_lines(
+            last_submission, kept, rejected_schemas, labels, display, name, ref, with_pairs)
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
+
+
+def _last_submission_lines(sub, kept, rejected, labels, display, name, ref, with_pairs) -> List[str]:
+    title = getattr(sub, "title", "")
+    fid = getattr(sub, "facet_id", "")
+    head = (f"- \"{title}\"" + (f" ({display[fid]})" if fid in display else "") + ": "
+            if title else "- ")
+    head += f"{getattr(sub, 'outcome', '')}."
+    if not getattr(sub, "entered", False):
+        return [head + (" It did not enter the design space." if title else "")]
+    lines = [head]
+    single_kept = next((s for s in kept if s.facet_ids == [fid]), None)
+    single_pruned = next((s for s in rejected if s.facet_ids == [fid]), None)
+    if single_kept is not None:
+        lines.append(f"- As a single factor: kept as {labels[single_kept.id]}.")
+    elif single_pruned is not None:
+        lines.append(
+            f"- As a single factor: pruned; "
+            f"{ref(single_pruned.rejected_by_id, single_pruned.rejected_by_facet_ids)} "
+            f"already carries {single_pruned.refinement_score:.0%} of its information.")
+    if with_pairs:
+        kept_pairs = [s for s in kept if len(s.facet_ids) == 2 and fid in s.facet_ids]
+        pruned_pairs = [s for s in rejected if len(s.facet_ids) == 2 and fid in s.facet_ids]
+        if kept_pairs:
+            partners = ", ".join(
+                f"{labels[s.id]} (with {name([f for f in s.facet_ids if f != fid])})"
+                for s in kept_pairs)
+            lines.append(f"- In pairs: kept in {partners}; {len(pruned_pairs)} other pairs pruned.")
+        else:
+            lines.append(f"- In pairs: none of its {len(pruned_pairs)} pairs is kept.")
+    before = set(getattr(sub, "previous_schema_ids", []))
+    changes = [
+        f"{name(s.facet_ids)} is now pruned; "
+        f"{ref(s.rejected_by_id, s.rejected_by_facet_ids)} carries {s.refinement_score:.0%} of it"
+        for s in rejected if s.id in before
+    ] + [
+        f"{labels[s.id]} ({name(s.facet_ids)}) is now kept"
+        for s in kept if s.id not in before and fid not in s.facet_ids
+    ]
+    lines.append("- Elsewhere: " + ("; ".join(changes) + "." if changes
+                                    else "nothing else in the design space changed."))
+    return lines
 
 
 def history_to_message_content(history: List[Any]) -> MessageContent:

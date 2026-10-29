@@ -23,23 +23,17 @@ from optimization import count_unique_units
 from contextual import bookkeeping
 from contextual.corpus import select_corpus
 from contextual.evaluation import PoolEvaluator
+from contextual.feedback import history_entries, last_submission
 from contextual.lifecycle import CandidateProcessor, Embedder, VocabularyBuilder, Labeler
-from contextual.models import RunState, RunResult, CandidateStatus, StopReason
+from contextual.models import RunState, RunResult, CandidateStatus, StopReason, refinement_edges
 from contextual.settings import stage_seed
 from contextual.store import RunStore, kb_fingerprint
 
 from .config import PipelineConfig, ProposalStrategy, ContextComponent
 from .fingerprint import prompt_fingerprint
-from .proposal import FacetProposer, BatchContext, IterativeContext, HistoryEntry
+from .proposal import FacetProposer, BatchContext, IterativeContext
 
 logger = logging.getLogger(__name__)
-
-# Statuses never shown in HISTORY (no meaningful candidate to avoid).
-_NO_HISTORY_STATUSES = {
-    CandidateStatus.REFUSED,
-    CandidateStatus.INVALID,
-    CandidateStatus.TRUNCATED,
-}
 
 
 class PipelineRunner:
@@ -170,23 +164,6 @@ class PipelineRunner:
 
     # ---- a1 / a2 ----
 
-    def _history(self, state: RunState) -> List[HistoryEntry]:
-        pool_ids = set(state.pool_ids())
-        titles = {r.facet_id: r.title for r in state.ledger if r.facet_id}
-        history = []
-        for r in state.ledger:
-            if r.status in _NO_HISTORY_STATUSES or r.facet_id in pool_ids:
-                continue
-            outcome = ("replaced_out"
-                       if r.status in (CandidateStatus.ACCEPTED, CandidateStatus.REPLACED)
-                       else r.status.value)
-            history.append(HistoryEntry(
-                title=r.title or "", scope=r.scope or "", definition=r.definition or "",
-                outcome=outcome,
-                duplicate_of=titles.get(r.duplicate_of) if r.duplicate_of else None,
-            ))
-        return history
-
     def _items_videos(self, attempt: int):
         """Tutorial segments for the ITEMS component: all videos, or a sample
         of ``items_sample_videos`` drawn per attempt from the run seed."""
@@ -210,7 +187,11 @@ class PipelineRunner:
                     if ContextComponent.ITEMS in components else None),
             accepted_schemas=list(state.accepted_schemas),
             rejected_schemas=list(state.rejected_schemas),
-            history=(self._history(state)
+            refinement_edges=refinement_edges(state),
+            refinement_threshold=self.config.refinement_threshold,
+            last_submission=(last_submission(state)
+                             if ContextComponent.SCHEMAS in components else None),
+            history=(history_entries(state)
                      if ContextComponent.HISTORY in components else []),
             seed=stage_seed(self.config.seed, "proposal", attempt),
         )
