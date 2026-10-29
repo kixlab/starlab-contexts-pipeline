@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import type { TreeBuildConfig } from "../utils/treeBuilder";
 import type { DatasetStatus } from "../types";
 
@@ -18,6 +19,9 @@ type ToolbarProps = {
   treeSummary: { nodeCount: number; edgeCount: number; rootCount: number } | null;
   visibleCount: number;
   visibleEdgeCount: number;
+  onDownloadLog?: () => void;
+  hasLogEntries?: boolean;
+  buildTimestamp?: number | null;
 };
 
 export function Toolbar({
@@ -35,6 +39,9 @@ export function Toolbar({
   treeSummary,
   visibleCount,
   visibleEdgeCount,
+  onDownloadLog,
+  hasLogEntries,
+  buildTimestamp,
 }: ToolbarProps) {
   const busy = isBuilding || datasetStatus === "loading" || datasetStatus === "computing";
   const canBuild = selectedLabel && datasetStatus === "loaded" && !busy;
@@ -139,18 +146,47 @@ export function Toolbar({
           </>
         )}
 
-        {/* Right side: summary stats */}
+        {/* Right side: summary stats + log download */}
         {treeSummary && (
           <div className="ml-auto flex items-center gap-3 text-xs text-neutral-500">
             <span>{visibleCount}/{treeSummary.nodeCount} nodes</span>
             <span>{visibleEdgeCount} edges</span>
             <span className="text-blue-400">{treeSummary.rootCount} roots</span>
+            {buildTimestamp && <ElapsedTimer since={buildTimestamp} />}
+            {onDownloadLog && (
+              <button
+                onClick={onDownloadLog}
+                disabled={!hasLogEntries}
+                className={`h-6 px-2 rounded text-[10px] border transition-colors ${
+                  hasLogEntries
+                    ? "border-neutral-600 text-neutral-300 hover:bg-neutral-800"
+                    : "border-neutral-800 text-neutral-700 cursor-not-allowed"
+                }`}
+              >
+                ↓ Log
+              </button>
+            )}
           </div>
         )}
       </div>
 
     </header>
   );
+}
+
+function ElapsedTimer({ since }: { since: number }) {
+  const [elapsed, setElapsed] = useState(() => Math.floor((Date.now() - since) / 1000));
+
+  useEffect(() => {
+    setElapsed(Math.floor((Date.now() - since) / 1000));
+    const id = setInterval(() => setElapsed(Math.floor((Date.now() - since) / 1000)), 1000);
+    return () => clearInterval(id);
+  }, [since]);
+
+  const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
+  const ss = String(elapsed % 60).padStart(2, "0");
+
+  return <span className="font-mono text-neutral-400">{mm}:{ss}</span>;
 }
 
 function Spinner() {
