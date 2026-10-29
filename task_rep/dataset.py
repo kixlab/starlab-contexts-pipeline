@@ -27,6 +27,8 @@ Usage:
 
 import argparse
 import json
+import shutil
+from pathlib import Path
 from config import Config
 from data_prep import (
     TaskManager,
@@ -285,6 +287,58 @@ def cmd_info(args):
         print(f"    ... and {len(task.video_ids) - 10} more")
 
 
+def cmd_collect(args):
+    """Copy in-use video directories to a new location."""
+    manager = TaskManager(tasks_file=Config.TASKS_FILE)
+
+    if args.task_ids:
+        tasks = [manager.get_task(tid) for tid in args.task_ids]
+    else:
+        tasks = manager.list_tasks()
+
+    used_ids = set()
+    for task in tasks:
+        used_ids.update(task.video_ids)
+
+    dest = Path(args.dest)
+    dest.mkdir(parents=True, exist_ok=True)
+
+    src_dir = Path(args.src)
+    all_dirs = set(p.name for p in src_dir.iterdir() if p.is_dir()) if src_dir.exists() else set()
+
+    copied = 0
+    skipped = 0
+    missing = 0
+
+    print(f"\nCollecting {len(used_ids)} in-use videos to {dest}")
+    print(f"Source: {src_dir}")
+    print(f"Total video dirs on disk: {len(all_dirs)}")
+    print()
+
+    for video_id in sorted(used_ids):
+        src = src_dir / video_id
+        dst = dest / video_id
+        if not src.exists():
+            print(f"  MISSING  {video_id}")
+            missing += 1
+            continue
+        if dst.exists():
+            print(f"  EXISTS   {video_id}")
+            skipped += 1
+            continue
+        shutil.copytree(src, dst)
+        print(f"  COPIED   {video_id}")
+        copied += 1
+
+    unused = len(all_dirs - used_ids)
+    print(f"\n{'='*40}")
+    print(f"  Copied:  {copied}")
+    print(f"  Existed: {skipped}")
+    print(f"  Missing: {missing}")
+    print(f"  Unused videos (not copied): {unused}")
+    print(f"{'='*40}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Prepare datasets from tasks.json"
@@ -335,6 +389,12 @@ def main():
     build_some_parser.add_argument("--min-word-count", type=int, default=DEFAULT_MIN_WORD_COUNT, help=f"Minimum word count to pass narration check (default: {DEFAULT_MIN_WORD_COUNT})")
     build_some_parser.add_argument("--min-words-per-minute", type=float, default=DEFAULT_MIN_WORDS_PER_MINUTE, help=f"Minimum words/min to pass narration check (default: {DEFAULT_MIN_WORDS_PER_MINUTE})")
 
+    # Collect command
+    collect_parser = subparsers.add_parser("collect", help="Copy in-use videos to a new directory")
+    collect_parser.add_argument("--src", default=str(Config.VIDEOS_DIR), help="Source videos directory (default: static/videos)")
+    collect_parser.add_argument("--dest", default=str(Config.VIDEOS_DIR.parent / "videos-collected"), help="Destination directory (default: static/videos-collected)")
+    collect_parser.add_argument("--task-ids", nargs="+", help="Only collect videos for these tasks (default: all)")
+
     # Status command
     status_parser = subparsers.add_parser("status", help="Show download/processing status")
     status_parser.add_argument("task_id", nargs="?", help="Task ID (omit to show all tasks)")
@@ -354,6 +414,8 @@ def main():
         cmd_build_all(args)
     elif args.command == "build-some":
         cmd_build_some(args)
+    elif args.command == "collect":
+        cmd_collect(args)
     elif args.command == "status":
         cmd_status(args)
     elif args.command == "list":
