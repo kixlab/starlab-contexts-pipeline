@@ -39,6 +39,9 @@ def prompt_fingerprint(config: PipelineConfig) -> str:
             knowledge_base=kb,
             accepted_schemas=fx["accepted"],
             rejected_schemas=fx["rejected"],
+            refinement_edges=fx["edges"],
+            refinement_threshold=config.refinement_threshold,
+            last_submission=fx["last"],
             history=history,
         )
     return hash_requests([proposal] + lifecycle_requests(fx))

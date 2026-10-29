@@ -23,7 +23,7 @@ def _imported_packages(package: str) -> set:
     return found
 
 
-@pytest.mark.parametrize("package", ["contextual", *RUNNERS])
+@pytest.mark.parametrize("package", ["contextual", "analysis", *RUNNERS])
 def test_no_cross_runner_imports(package):
     if not (ROOT / package).exists():
         pytest.skip(f"{package}/ not present")

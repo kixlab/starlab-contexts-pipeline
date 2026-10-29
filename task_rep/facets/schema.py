@@ -60,6 +60,8 @@ class Facet:
         justification: Why this facet was chosen
         guidelines: Instructions for labeling items
         vocabulary: List of possible labels
+        kind: "situation", "progress", or "moment" ("" for facets proposed
+              before kinds existed)
     """
 
     id: str
@@ -71,6 +73,7 @@ class Facet:
     guidelines: List[str]
     vocabulary: List[FacetLabel]
     user_question: str = ""
+    kind: str = ""  # "situation" | "progress" | "moment"
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def __hash__(self):
@@ -93,6 +96,7 @@ class Facet:
             "guidelines": self.guidelines,
             "vocabulary": [label.to_dict() for label in self.vocabulary],
             "user_question": self.user_question,
+            "kind": self.kind,
             "metadata": self.metadata,
         }
 
@@ -110,6 +114,7 @@ class Facet:
             guidelines=data["guidelines"],
             vocabulary=vocabulary,
             user_question=data.get("user_question", ""),
+            kind=data.get("kind", ""),
             metadata=data.get("metadata", {}),
         )
 

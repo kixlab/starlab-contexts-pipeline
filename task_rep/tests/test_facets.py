@@ -4,6 +4,8 @@ Tests for facet discovery and data structures.
 Run with: python -m pytest tests/test_facets.py -v
 """
 
+from types import SimpleNamespace
+
 import pytest
 
 from facets import AnnotationTable, Facet, FacetLabel, VLMFacetExtractor
@@ -244,7 +246,7 @@ def test_facets_to_message_content_includes_label_frequencies(sample_facet):
     assert "<frequency>0</frequency>" in text
 
 
-def test_schemas_to_message_content_includes_signature_frequencies(sample_facet):
+def test_schemas_to_message_content_renders_design_space(sample_facet):
     tool_facet = Facet(
         id="f2",
         title="Tool",
@@ -303,25 +305,82 @@ def test_schemas_to_message_content_includes_signature_frequencies(sample_facet)
         refinement_threshold=0.7,
     )]
 
+    accepted.append(AcceptedSchemaSummary(
+        id="f1|f2", facet_ids=["f1", "f2"], size=5, D=0.0, eta2=1.0, H=1.0,
+        closest_id="f2", closest_facet_ids=["f2"], closest_overlap=0.5,
+        member_overlaps={"f1": 0.45, "f2": 0.5},
+    ))
+    rejected[0] = RejectedSchemaSummary(
+        id="f1", facet_ids=["f1"], size=3, D=0.0, eta2=1.0, H=1.0,
+        rejected_by_id="f2", rejected_by_facet_ids=["f2"], MI=0.8,
+        refinement_score=0.8, refinement_threshold=0.55,
+    )
+    last = SimpleNamespace(title="Difficulty Level", facet_id="f1",
+                           outcome="accepted into the pool", entered=True,
+                           previous_schema_ids=["", "f2"])
+
     mc = schemas_to_message_content(
-        accepted, rejected, [sample_facet, tool_facet], annotations, kb
+        accepted, rejected, [sample_facet, tool_facet], annotations, kb,
+        refinement_edges=[("f2", "f1|f2")], refinement_threshold=0.55,
+        last_submission=last,
     )
     text = mc.content[0]["text"]
-    assert "Accepted facet combinations:" in text
-    assert "Rejected facet combinations:" in text
-    accepted_text = text.split("Rejected facet combinations:")[0]
-    assert "No factors." not in accepted_text
-    # F IDs are global to the full factor list, not local to each combination.
-    assert '<facet_combination id="A1" status="accepted">' in text
-    assert '<facet_combination id="R1" status="rejected">' in text
-    assert "<factor id=\"F1\">" in text
-    assert "<factor id=\"F2\">" in text
-    assert "<title>Difficulty Levels</title>" in text
-    assert "<title>Tools</title>" in text
+    # How it is built, with the run's threshold.
+    assert "HOW THE DESIGN SPACE IS BUILT" in text
+    assert "overlap above 55% with it" in text and "a single factor or a pair" in text
+    # Each factor once, with value frequencies; F IDs follow the factor list.
+    assert text.count("<factor id=\"F1\">") == 1
+    assert text.count("<factor id=\"F2\">") == 1
     assert "<user_question>What tool is being used?</user_question>" in text
-    assert "<value><Tool:brush></value><frequency>1</frequency>" in text
-    assert '<rejected_by id="A1"/>' in text
-    assert "Redundant with accepted facet combination A1" in text
+    assert "Design space: kept 1 of 2 single factors and 1 of 1 pairs." in text
+    # Kept combinations with why they were kept; the empty schema is not shown.
+    assert "- C1: F2 (Tools), 2 cells; kept because no kept combination has fewer values" in text
+    assert ("- C2: F1 (Difficulty Levels) + F2 (Tools), 2 cells; kept because F1 alone "
+            "carries 45%, F2 alone carries 50%; refines C1") in text
+    assert "(no factors)" not in text
+    # Pruned singles, and whether they are still used anywhere.
+    assert ("- F1 (Difficulty Levels): pruned; C1 (F2 (Tools)) already carries 80% "
+            "of its information; still used in C2") in text
+    assert "Pruned pairs: 0 of 1." in text
+    # What the last submission did.
+    assert '- "Difficulty Level" (F1): accepted into the pool.' in text
+    assert "- As a single factor: pruned; C1 (F2 (Tools)) already carries 80%" in text
+    assert "- In pairs: kept in C2 (with F2 (Tools)); 0 other pairs pruned." in text
+    assert "- Elsewhere: nothing else in the design space changed." in text
+    # Nothing that scales with the number of segments.
+    assert "<signature" not in text
+    assert "D=" not in text and "eta2=" not in text
+
+
+def test_design_space_used_nowhere_and_failed_submission(sample_facet):
+    other = Facet(id="f2", title="Tool", title_plural="Tools", scope="global",
+                  definition="d", justification="j", user_question="q", guidelines=[],
+                  vocabulary=[FacetLabel(label="brush", definition="b")])
+    kb = KnowledgeBase(items=[KnowledgeItem(
+        id="i1", type=KnowledgeItemType.ATOMIC, text="Item 1",
+        source=KnowledgeSource(video_id="v1"), unit_id="u1")])
+    accepted = [AcceptedSchemaSummary(id="f1", facet_ids=["f1"], size=3, D=0.0, eta2=1.0, H=1.0)]
+    rejected = [
+        RejectedSchemaSummary(id="f2", facet_ids=["f2"], size=3, D=0.0, eta2=1.0, H=1.0,
+                              rejected_by_id="f1", rejected_by_facet_ids=["f1"], MI=0.9,
+                              refinement_score=0.9, refinement_threshold=0.55),
+        RejectedSchemaSummary(id="f1|f2", facet_ids=["f1", "f2"], size=6, D=0.0, eta2=1.0,
+                              H=1.0, rejected_by_id="f1", rejected_by_facet_ids=["f1"],
+                              MI=0.9, refinement_score=0.9, refinement_threshold=0.55),
+    ]
+    failed = SimpleNamespace(title="Knife", facet_id="x", entered=False,
+                             outcome="rejected; independent labelers disagreed too often",
+                             previous_schema_ids=["f1"])
+    text = schemas_to_message_content(
+        accepted, rejected, [sample_facet, other], AnnotationTable(), kb,
+        last_submission=failed,
+    ).content[0]["text"]
+    assert "overlap above 55%" in text  # threshold taken from the rejections
+    assert "of its information; used nowhere" in text
+    assert ("Pruned pairs: 1 of 1. In 1, one of the pair's own factors already carries "
+            "more than 55% of it; in 0, another kept combination does.") in text
+    assert ('- "Knife": rejected; independent labelers disagreed too often. '
+            "It did not enter the design space.") in text
 
 
 def test_iterative_prompt_assembles_factor_combinations(sample_facet):
@@ -351,7 +410,7 @@ def test_iterative_prompt_assembles_factor_combinations(sample_facet):
     content = request["messages"][1]["content"].content
     text = "\n".join(block["text"] for block in content if block["type"] == "text")
     assert "<frequency>1</frequency>" in text
-    assert "Accepted facet combinations:" in text
+    assert "Kept combinations:" in text
     assert "<factor id=\"F1\">" in text
     assert "learner's situation" in request["messages"][0]["content"].content[0]["text"]
     assert "Show me the segments for when" in text

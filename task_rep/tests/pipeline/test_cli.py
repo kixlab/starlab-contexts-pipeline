@@ -68,7 +68,7 @@ def test_budget_command_prints_table(saved_result, capsys):
 def test_show_and_compare(saved_result, capsys):
     main(["show", str(saved_result)])
     out = capsys.readouterr().out
-    assert "stop: proposal_budget" in out and "context: facets+items" in out
+    assert "stop: proposal_budget" in out and "context: facets+history+items" in out
     assert "- B (global)" in out
 
     main(["compare", str(saved_result), str(saved_result)])

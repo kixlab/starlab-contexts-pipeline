@@ -404,6 +404,34 @@ class TestPruneAndConnect:
         assert rejected_by_id["f2"] == "f1"
         assert evaluation.rejected_schemas[0].refinement_threshold == 0.3
 
+    def test_evaluate_schemas_records_why_kept(
+        self, six_unit_kb, f_temporal, f_content, independent_annotations
+    ):
+        """Kept schemas carry their closest earlier keeper and member overlaps."""
+        facets = [f_temporal, f_content]
+        nodes, h_memo = build_tree_nodes(
+            six_unit_kb, facets, independent_annotations, max_schema_facets=2
+        )
+        evaluation = evaluate_schemas(
+            nodes, six_unit_kb, {f.id: f for f in facets}, independent_annotations,
+            h_memo, refinement_threshold=0.7, metric_mode="entropy",
+        )
+        kept = {s.id: s for s in evaluation.accepted_schemas}
+        pair = kept["f_content|f_temporal"]
+        # H(temporal) = 1, H(content) = log2 3, H(pair) = log2 6
+        assert pair.member_overlaps["f_temporal"] == pytest.approx(1 / math.log2(6))
+        assert pair.member_overlaps["f_content"] == pytest.approx(math.log2(3) / math.log2(6))
+        assert pair.closest_id == "f_content"
+        assert pair.closest_overlap == pytest.approx(math.log2(3) / math.log2(6))
+        # independent singles: the closest keeper overlaps 0%; the first has none
+        assert kept["f_temporal"].closest_id == ""
+        assert kept["f_content"].closest_id == "f_temporal"
+        assert kept["f_content"].closest_overlap == pytest.approx(0.0, abs=1e-9)
+        assert kept["f_content"].member_overlaps == {}
+        # round trip keeps the new fields
+        again = type(pair).from_dict(pair.to_dict())
+        assert again == pair
+
     def test_independent_nodes_survive(self, three_unit_kb, f1, f2, annotations_f1_f2):
         """
         With a very high tau (close to 1), almost nothing gets pruned.

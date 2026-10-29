@@ -16,6 +16,7 @@ from typing import Any, Collection, Dict, List, Optional
 from utils.llm import MessageContent
 from utils import random_uid
 
+from .fa_criteria import FACTOR_CRITERIA
 from .fa_pydantic import ContextualFactorInitResult
 from .formatters import (
     build_item_id_map,
@@ -35,55 +36,13 @@ CONTEXT_COMPONENTS = frozenset({"facets", "items", "schemas", "history"})
 
 SYSTEM_PROMPT = """You design user-facing metadata for tutorial videos about: {task}.
 
-You propose contextual factors: dimensions of a learner's situation that determine which tutorial segments apply to them. A learner's situation consists of their goal, materials, equipment, and progress through the task.
+You propose contextual factors: questions about a learner's situation, progress, or current step that determine which tutorial segments apply to them.
 
-Your audience is novice and intermediate learners of {task}. Factors become filter menus, timeline labels, and search options. Learners use them to find useful segments before watching, so every factor must be something a learner can state about their own situation without seeing the footage."""
+Your audience is novice and intermediate learners of {task}. Factors become filter menus, timeline labels, and search options. Learners use them to find useful segments before watching, so every factor must be something a learner can answer about themselves without seeing the footage."""
 
-_INSTRUCTIONS = """Propose exactly ONE new contextual factor that complements the existing ones. Always propose the single best remaining candidate, even if it is narrower or finer-grained than the existing factors; when broad dimensions are covered, subdivide the learner's situation more finely (specific materials, equipment variants, preparation states, sub-goals, problem situations). Return an empty list only if every conceivable candidate would duplicate an existing factor outright.
+_INSTRUCTIONS = """Propose exactly ONE new contextual factor that complements the existing ones. A proposal is expected on every call; return an empty candidate list only if every candidate you can think of would duplicate an existing factor, and say which candidates you considered.
 
-WHAT QUALIFIES AS A CONTEXTUAL FACTOR
-Each vocabulary value must be a situation a learner could truthfully claim before watching. Test every value with this sentence:
-
-    "Show me the segments for when ___."
-
-- If a value can only be determined by observing how the instructor moves, holds, paces, presents, or what the camera shows, it describes the footage, not a learner's situation.
-- A factor is useful only if learners in different situations need different segments. Before proposing it, identify two concrete learners whose situations differ on this factor and who would retrieve different segments.
-- Values must use the words of {task}, not vocabulary from robotics, motor control, cinematography, or another discipline.
-- If the factor and vocabulary would transfer unchanged to an unrelated manual task such as pottery, knitting, surgery, or furniture assembly, reject it.
-
-VALIDITY REQUIREMENTS
-- Distinct from existing factors and not largely predictable from their combination.
-- Grounded in the provided segments, with at least two values that would be used.
-- Not based on narration, editing, camera framing, viewer visibility, visual occlusion, or segment presentation.
-
-EXPRESSION REQUIREMENTS
-- `title`: 1-3 everyday words; a concrete noun phrase a learner would recognize.
-- `user_question`: the learner-facing question this factor answers, e.g. "What kind of roll are you making?" or "What tool do you have?"
-- `vocabulary`: 3-8 values when possible. Labels are 1-3 common words and distinguishable by a first-time learner. One "other" or "not applicable" value is allowed.
-- `definition` and value definitions: one plain sentence, roughly 15 words or fewer.
-- `guidelines`: annotator-facing edge cases, tie-breakers, boundary conditions, and label-change triggers.
-
-DEPTH RULE
-A proposal is expected on every call. When broad dimensions are covered, go finer-grained within the learner's situation rather than refusing — narrower factors are acceptable as long as every value completes "Show me the segments for when ___" and the factor is not an outright duplicate. Only if every conceivable candidate would duplicate an existing factor, return an empty candidate list and state which candidates you considered and why each is a duplicate.
-
-EXAMPLE (different domain: pottery)
-BAD: title="Prehension Patterns", user_question="How is the object grasped?", vocabulary=["precision pinch", "power grasp"].
-GOOD: title="Clay Stage", user_question="How firm is your clay right now?", vocabulary=["wet", "leather-hard", "bone-dry", "fired"].
-
-When accepted/rejected facet combinations are provided, use them as feedback:
-- Accepted combinations show useful non-redundant dimensions.
-- Rejected combinations usually mean the combination was redundant with an accepted one; do not treat every included facet as bad.
-- Prefer a learner-situation factor over a technical variant of a rejected combination.
-
-For each proposed contextual factor, provide:
-- `title`: short name (1-3 words)
-- `title_plural`: plural form of the title
-- `user_question`: a learner-facing question used to choose the factor value
-- `scope`: one of "global", "mid-level", or "fine-grained"
-- `definition`: brief description of what this factor captures
-- `justification`: include the two concrete learners, plus why it is distinct from and not predictable from existing factors
-- `guidelines`: list of concise instructions for labeling tutorial segments under this factor, including when the label should change
-- `vocabulary`: finite list of mutually exclusive label values, each with `label` and `definition`
+""" + FACTOR_CRITERIA + """
 
 INPUTS
 """
@@ -97,7 +56,7 @@ _SECTION_ITEMS = """- Tutorial segments (with current pool labels):
 """
 
 
-_SECTION_SCHEMAS = """- Accepted and rejected facet combinations:
+_SECTION_SCHEMAS = """- The current design space of factor combinations. A pruned combination does not make its factors bad; a new factor should add a distinction that the kept combinations do not already carry, alone or paired with an existing factor.
 {factor_combinations}
 """
 
@@ -106,7 +65,7 @@ Do not re-propose these factors or close paraphrases of them.
 {history}
 """
 
-_REMINDER = """REMINDER: propose exactly one factor — the best remaining candidate, going finer-grained within the learner's situation when broad dimensions are covered; every value must complete "Show me the segments for when ___"; vocabulary uses 3-8 plain-word values when possible. An empty list is reserved for the case where every candidate would outright duplicate an existing factor.
+_REMINDER = """REMINDER: propose exactly one new factor; every value must complete "Show me the segments for when ___"; prefer factors that apply across most tutorials.
 """
 
 
@@ -119,6 +78,9 @@ def form_facet_iterative_request(
     knowledge_base: Optional[KnowledgeBase] = None,
     accepted_schemas: Optional[List[Any]] = None,
     rejected_schemas: Optional[List[Any]] = None,
+    refinement_edges: Optional[List[Any]] = None,
+    refinement_threshold: Optional[float] = None,
+    last_submission: Optional[Any] = None,
     history: Optional[List[Any]] = None,
     **kwargs,
 ) -> Dict[str, Any]:
@@ -165,6 +127,9 @@ def form_facet_iterative_request(
                 facets,
                 annotations or AnnotationTable(),
                 knowledge_base,
+                refinement_edges,
+                refinement_threshold=refinement_threshold,
+                last_submission=last_submission,
             ),
         )
         content_blocks.extend(mc.content)
@@ -230,6 +195,7 @@ def process_facet_iterative_response(
             title=candidate["title"],
             title_plural=candidate["title_plural"],
             user_question=candidate.get("user_question", ""),
+            kind=candidate.get("kind", ""),
             scope=candidate["scope"],
             definition=candidate["definition"],
             justification=candidate["justification"],

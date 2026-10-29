@@ -10,7 +10,7 @@ context component set differs.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, FrozenSet, List, Optional, Protocol, runtime_checkable
+from typing import Dict, FrozenSet, List, Optional, Protocol, Tuple, runtime_checkable
 
 from utils import ModelConfig
 
@@ -19,6 +19,8 @@ from knowledge_items import KnowledgeItem, KnowledgeBase
 from facets import Facet, AnnotationTable, VLMFacetExtractor
 
 from optimization import AcceptedSchemaSummary, RejectedSchemaSummary
+
+from contextual.feedback import HistoryEntry, LastSubmission
 
 from .config import ContextComponent
 
@@ -38,21 +40,6 @@ class BatchContext:
 
 
 @dataclass
-class HistoryEntry:
-    """A previously tried candidate that is not in the pool (HISTORY component).
-
-    ``outcome`` is the candidate's ledger status value, or ``"replaced_out"`` for
-    a facet that was accepted and later evicted from the pool.
-    """
-
-    title: str
-    scope: str
-    definition: str
-    outcome: str
-    duplicate_of: Optional[str] = None  # title of the matched candidate
-
-
-@dataclass
 class IterativeContext:
     """Context for a single a1/a2 proposal.
 
@@ -68,6 +55,10 @@ class IterativeContext:
     videos: Optional[Dict[str, List[KnowledgeItem]]] = None
     accepted_schemas: List[AcceptedSchemaSummary] = field(default_factory=list)
     rejected_schemas: List[RejectedSchemaSummary] = field(default_factory=list)
+    # (source_id, target_id) refinement edges among accepted schemas
+    refinement_edges: List[Tuple[str, str]] = field(default_factory=list)
+    refinement_threshold: Optional[float] = None
+    last_submission: Optional[LastSubmission] = None
     history: List[HistoryEntry] = field(default_factory=list)
     seed: Optional[int] = None  # distinct per attempt (see contextual.settings.stage_seed)
 
@@ -120,6 +111,9 @@ class VLMFacetProposer:
             knowledge_base=context.knowledge_base,
             accepted_schemas=context.accepted_schemas,
             rejected_schemas=context.rejected_schemas,
+            refinement_edges=context.refinement_edges,
+            refinement_threshold=context.refinement_threshold,
+            last_submission=context.last_submission,
             history=context.history,
             seed=context.seed,
         )

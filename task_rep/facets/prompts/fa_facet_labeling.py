@@ -27,22 +27,24 @@ logger = logging.getLogger(__name__)
 
 LABELING_SYSTEM_PROMPT = """You are an expert at analyzing tutorial content and labeling tutorial segments with contextual factors related to the task: {task}. Inputs are structured with XML tags. Use tag names and id attributes to identify objects and boundaries."""
 
-LABELING_USER_PROMPT = """You are given a contextual factor with its vocabulary, and tutorial segments extracted from a tutorial video. For each tutorial segment, assign the single most appropriate label from the factor's vocabulary. A vocabulary label is one possible value of the given contextual factor.
+LABELING_USER_PROMPT = """You are given a contextual factor with its vocabulary, and the segments of one tutorial in order. Assign each segment one value from the factor's vocabulary.
+
+HOW TO LABEL, BY THE FACTOR'S KIND
+- situation: the value describes the learner's whole attempt (what they are making, with what). Use everything this tutorial shows, including other segments, and give each segment the value that holds for the attempt at that point; it is usually the same for the whole tutorial. Use "unspecified" only if the tutorial never reveals the value.
+- progress: give the value for where in the task this segment is.
+- moment: give this segment's own value; use "not applicable" when the segment is not part of the step the factor is about.
+- If the factor has no kind, decide from its definition which kind it resembles.
 
 REQUIREMENTS
-- Assign exactly one label to each tutorial segment.
-- The label must be one of the labels in the factor's vocabulary. Use the exact text inside the <name> tag.
-- Use the factor definition, label definitions, and segmentation guidance when choosing labels.
-- If none of the labels clearly apply, choose the closest match.
-- Every segment must receive a label.
-- Consider neighboring segments for context when helpful.
+- Exactly one value per segment, written exactly as in the <name> tag.
+- Follow the factor's definition, value definitions, and guidelines.
+- If no value fits and the vocabulary has no "unspecified" or "not applicable" value, choose the value that fits best.
 
 INPUTS
 - Contextual factor:
 {facet}
-- Tutorial segments from this video:
-{video_items}
-"""
+- Tutorial segments from this video, in order:
+{video_items}"""
 
 
 def form_labeling_request(

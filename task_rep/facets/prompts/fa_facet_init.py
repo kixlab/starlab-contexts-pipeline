@@ -11,6 +11,7 @@ from typing import Any, Dict, List
 from utils.llm import MessageContent
 from utils import random_uid
 
+from .fa_criteria import FACTOR_CRITERIA
 from .fa_pydantic import ContextualFactorInitResult
 from .formatters import (
     videos_to_message_content,
@@ -25,69 +26,19 @@ logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You design user-facing metadata for tutorial videos about: {task}.
 
-You propose contextual factors: dimensions of a learner's situation that determine which tutorial segments apply to them. A learner's situation consists of their goal, materials, equipment, and progress through the task.
+You propose contextual factors: questions about a learner's situation, progress, or current step that determine which tutorial segments apply to them.
 
-Your audience is novice and intermediate learners of {task}. Factors become filter menus, timeline labels, and search options. Learners use them to find useful segments before watching, so every factor must be something a learner can state about their own situation without seeing the footage."""
+Your audience is novice and intermediate learners of {task}. Factors become filter menus, timeline labels, and search options. Learners use them to find useful segments before watching, so every factor must be something a learner can answer about themselves without seeing the footage."""
 
-# USER_PROMPT = """You are given a tutorial task domain. Identify exactly {num_facets} contextual factors that could be used to organize tutorial segments by differences in procedural context. The factors should capture important dimensions of variation in how tutorial content may apply, and should be distinct from each other.
+USER_PROMPT = """You are given tutorial segments from tutorials. Propose exactly {num_facets} contextual factors that together help learners find the segments that fit them. Cover situations, progress, and moments, and start with the broadest factors.
 
-# A contextual factor is an aspect of the procedural situation that helps characterize when a tutorial segment is applicable.
-
-# For each factor:
-# - provide a short title
-# - provide a brief definition
-# - provide a finite set of labels
-# - provide brief segmentation guidance for when labels change
-
-# Prefer factors that are interpretable, broadly useful, and likely to generalize across many tutorials in the domain."""
-
-USER_PROMPT = """You are given tutorial segments from tutorials. Identify exactly {num_facets} contextual factors that can organize segments by learner situation. Propose the strongest, broadest factors first; once the obvious dimensions are covered, continue with progressively finer-grained learner-situation factors (specific materials, equipment choices, sub-goals, variations, problem conditions) until you reach {num_facets}. Never fill remaining slots with footage-derived or motor-description factors — go finer-grained within the learner's situation instead.
-
-WHAT QUALIFIES AS A CONTEXTUAL FACTOR
-Each vocabulary value must be a situation a learner could truthfully claim before watching. Test every value with this sentence:
-
-    "Show me the segments for when ___."
-
-- If a value can only be determined by observing how the instructor moves, holds, paces, presents, or what the camera shows, it describes the footage, not a learner's situation.
-- A factor is useful only if learners in different situations need different segments. Before proposing it, identify two concrete learners whose situations differ on this factor and who would retrieve different segments.
-- Values must use the words of {task}, not vocabulary from robotics, motor control, cinematography, or another discipline.
-- If the factor and vocabulary would transfer unchanged to an unrelated manual task such as pottery, knitting, surgery, or furniture assembly, reject it.
-
-VALIDITY REQUIREMENTS
-- Distinct from other proposed factors.
-- Grounded in the provided segments, with at least two values that would be used.
-- Not based on narration, editing, camera framing, viewer visibility, visual occlusion, or segment presentation.
-
-EXPRESSION REQUIREMENTS
-- `title`: 1-3 everyday words; a concrete noun phrase a learner would recognize.
-- `user_question`: the learner-facing question this factor answers, e.g. "What kind of roll are you making?" or "What tool do you have?"
-- `vocabulary`: 3-8 values when possible. Labels are 1-3 common words and distinguishable by a first-time learner. One "other" or "not applicable" value is allowed.
-- `definition` and value definitions: one plain sentence, roughly 15 words or fewer.
-- `guidelines`: annotator-facing edge cases, tie-breakers, boundary conditions, and label-change triggers.
-
-DEPTH RULE
-Deliver exactly {num_facets} factors. When broad dimensions run out, do not stop and do not pad with footage-derived factors — instead subdivide the learner's situation more finely: specific ingredient or material choices, equipment and tool variants, preparation states, sub-goals, serving or output intentions, and common problem situations all qualify as long as each value still completes "Show me the segments for when ___".
-
-EXAMPLE (different domain: pottery)
-BAD: title="Prehension Patterns", user_question="How is the object grasped?", vocabulary=["precision pinch", "power grasp"].
-GOOD: title="Clay Stage", user_question="How firm is your clay right now?", vocabulary=["wet", "leather-hard", "bone-dry", "fired"].
-
-OUTPUT
-For each proposed contextual factor, provide:
-- `title`: short name (1-3 words)
-- `title_plural`: plural form of the title
-- `user_question`: a learner-facing question used to choose the factor value
-- `scope`: one of "global", "mid-level", or "fine-grained"
-- `definition`: brief description of what this factor captures
-- `justification`: (1) why this is a valid contextual factor, and (2) why it is distinct from the previous contextual factors (if any)
-- `guidelines`: list of concise instructions for labeling tutorial segments under this factor, including when the label should change
-- `vocabulary`: finite list of mutually exclusive label values, each with `label` and `definition`
+""" + FACTOR_CRITERIA + """
 
 INPUTS
 - Tutorial segments:
 {tutorials}
 
-REMINDER: every value must complete "Show me the segments for when ___"; use learner-situation vocabulary; return exactly {num_facets} factors, going finer-grained within the learner's situation rather than stopping early or padding with footage-derived factors.
+REMINDER: propose exactly {num_facets} distinct factors; every value must complete "Show me the segments for when ___"; prefer factors that apply across most tutorials.
 """
 
 # USER_PROMPT = """You are given tutorial videos and information units extracted from them. Propose exactly {num_facets} broad `contextual factors` (facets) that would help differentiate when information units appear in the videos.
@@ -206,6 +157,7 @@ def process_facet_init_response(
             title=candidate["title"],
             title_plural=candidate["title_plural"],
             user_question=candidate.get("user_question", ""),
+            kind=candidate.get("kind", ""),
             scope=candidate["scope"],
             definition=candidate["definition"],
             justification=candidate["justification"],
