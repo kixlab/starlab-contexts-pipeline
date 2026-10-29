@@ -96,6 +96,8 @@ class VideoDownloader:
                 "yt-dlp",
                 "-f", format_selector,
                 "--no-warnings",
+                "--retries", "3",
+                "--sleep-requests", "1",
                 "-o", str(video_path),
             ]
 
@@ -142,6 +144,8 @@ class VideoDownloader:
             "yt-dlp",
             "-f", "bestaudio",
             "--no-warnings",
+            "--retries", "3",
+            "--sleep-requests", "1",
             "-x",  # Extract audio only
             "--audio-format", self.config.audio_format,
             "--audio-quality", str(self.config.audio_quality),

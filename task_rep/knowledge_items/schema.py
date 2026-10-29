@@ -5,8 +5,8 @@ from enum import Enum
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Union
 
 from .taxonomy import AtomicType, AtomicCategory
-from task_rep.utils.llm import MessageContent
-from task_rep.utils.video import format_time
+from ..utils.llm import MessageContent
+from ..utils.video import format_time
 
 class KnowledgeItemType(str, Enum):
     """Types of knowledge items we can extract."""

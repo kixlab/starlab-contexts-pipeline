@@ -1,7 +1,7 @@
 """
 Tests for knowledge items extraction, clustering, and data structures.
 
-Run with: python -m pytest task_rep/tests/test_knowledge_items.py -v
+Run with: python -m pytest tests/test_knowledge_items.py -v
 """
 
 import json
@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from task_rep.knowledge_items import (
+from knowledge_items import (
     extract_and_cluster_knowledge_items,
     load_knowledge_items,
     save_knowledge_items,
