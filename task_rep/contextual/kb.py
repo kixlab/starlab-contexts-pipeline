@@ -1,110 +1,68 @@
 """
-Knowledge-base access, saved-result lookup, and model-backed lifecycle services.
+Task and knowledge-base access, and the model-backed lifecycle services.
 
-The only module that couples ``ConstructKnowledgeBase`` to the contextual-unit
-runners; experiment adapters call it with their own experiment specs.
+Experiment adapters call it with their own experiment specs; where things are
+stored on disk is ``contextual.cache``.
 """
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
 from config import Config
 
-from construct import ConstructKnowledgeBase, ConstructorConfig
+from construct import ConstructorConfig
 
 from data_prep import TaskManager
 
 from facets import VLMFacetLabeler, VLMFacetVocabularyBuilder
 
 from knowledge_items import KnowledgeItemType, KnowledgeBase
-from knowledge_items.io import get_clustering_cache_path, load_knowledge_items
 
 from utils import ModelConfig
 from utils.embeddings import get_embeddings
 
+from . import cache
 from .lifecycle import Embedder, Labeler, VocabularyBuilder
 from .settings import RunSettings
 
 
 # ---------------------------------------------------------------------------
-# Knowledge base + result locations
+# Tasks and knowledge bases
 # ---------------------------------------------------------------------------
 
-def _constructor(constructor_config: ConstructorConfig) -> ConstructKnowledgeBase:
-    return ConstructKnowledgeBase(
-        config=constructor_config,
-        task_datasets_dir=Config.TASK_DATASETS_DIR,
-        cache_dir=Config.CACHE_DIR,
-    )
+def get_task(task_id: str):
+    return TaskManager(tasks_file=Config.TASKS_FILE).get_task(task_id)
+
+
+def task_name(task_id: str) -> str:
+    """The task's display name, as the prompts use it."""
+    return get_task(task_id).name
 
 
 def load_knowledge_base(
     task_id: str,
     constructor_config: ConstructorConfig,
     item_type: KnowledgeItemType,
-) -> tuple[Any, KnowledgeBase, Path]:
-    """Load a task + its knowledge base via the existing constructor.
+) -> tuple[Any, KnowledgeBase, Dict[str, str]]:
+    """The task, its knowledge base, and the items/units files it came from.
 
-    May run extraction/clustering (VLM and embedding calls) when the
-    constructor cache is missing.
+    Extracts and clusters (model calls) when the files are not cached yet.
     """
-    constructor = _constructor(constructor_config)
-    task = TaskManager(tasks_file=Config.TASKS_FILE).get_task(task_id)
-    cache_dir = constructor.get_cache_dir(task)
-    kb = constructor.get_knowledge_base(task, item_type)
-    return task, kb, cache_dir
-
-
-def results_dir(task_id: str, constructor_config: ConstructorConfig) -> Path:
-    """Where a task's checkpoints and results live (no KB load)."""
-    task = TaskManager(tasks_file=Config.TASKS_FILE).get_task(task_id)
-    return _constructor(constructor_config).get_cache_dir(task)
+    task = get_task(task_id)
+    kb, sources = cache.knowledge_base(task, constructor_config, item_type)
+    return task, kb, sources
 
 
 def cached_knowledge_base(
     task_id: str, constructor_config: ConstructorConfig, item_type: KnowledgeItemType,
 ) -> Optional[KnowledgeBase]:
-    """The knowledge base if already cached; never calls a model."""
-    path = get_clustering_cache_path(
-        cache_dir=results_dir(task_id, constructor_config), item_type=item_type,
-        cluster_config=constructor_config.cluster_config,
-    )
-    if not path.exists():
-        return None
-    return KnowledgeBase(items=load_knowledge_items(path=path))
-
-
-def find_result(directory: str | Path, prefix: str, settings: RunSettings) -> Optional[Path]:
-    """Newest ``{prefix}_result_*.json`` in ``directory`` whose config matches.
-
-    Saved configs are normalized through ``type(settings)`` first, so a result
-    written before a config field existed matches that field's default.
-    Results for the same config under older prompts or knowledge bases also
-    match; the newest one wins.
-    """
-    wanted = settings.semantic_dict()
-    matches = []
-    for path in Path(directory).glob(f"{prefix}_result_*.json"):
-        saved = json.loads(path.read_text()).get("config", {})
-        if _normalized_config(type(settings), saved) == wanted:
-            matches.append(path)
-    return max(matches, key=lambda p: p.stat().st_mtime) if matches else None
-
-
-def _normalized_config(
-    cls: Type[RunSettings], saved: Dict[str, Any],
-) -> Optional[Dict[str, Any]]:
-    """A saved semantic config with defaults filled in (None if unreadable)."""
-    try:
-        return cls.from_dict(saved).semantic_dict()
-    except (KeyError, TypeError, ValueError):
-        return None
+    """The knowledge base if its units are cached; never calls a model."""
+    found = cache.knowledge_base(get_task(task_id), constructor_config, item_type, build=False)
+    return found[0] if found else None
 
 
 # ---------------------------------------------------------------------------

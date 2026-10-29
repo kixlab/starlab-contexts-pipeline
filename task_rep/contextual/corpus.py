@@ -23,3 +23,17 @@ def select_corpus(knowledge_base: KnowledgeBase, settings: RunSettings) -> Knowl
         return knowledge_base
     chosen = set(random.Random(settings.corpus_seed).sample(videos, n))
     return KnowledgeBase(items=[i for i in knowledge_base if i.source.video_id in chosen])
+
+
+def evaluated_segments(knowledge_base: KnowledgeBase, settings: RunSettings) -> KnowledgeBase:
+    """The segments a run evaluates and shows: those of the selected corpus that
+    pass the ``item_scope`` subtype filter and belong to a knowledge unit.
+
+    Every prompt block (the tutorials, ITEMS, FACETS counts, SCHEMAS) and the
+    design-space evaluation use this set. Vocabulary building and labeling
+    still see the whole selected corpus, for context.
+    """
+    subtypes = settings.item_scope.atomic_subtype.subtypes
+    if subtypes:
+        knowledge_base = knowledge_base.filter_subtypes(subtypes)
+    return KnowledgeBase(items=[i for i in knowledge_base if i.unit_id is not None])

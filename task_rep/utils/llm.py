@@ -104,6 +104,23 @@ def usage_stage(name: str):
         _usage_stage.reset(token)
 
 
+_batch_log: contextvars.ContextVar[Optional[Dict[str, List[str]]]] = contextvars.ContextVar(
+    "llm_batch_log", default=None,
+)
+
+
+@contextlib.contextmanager
+def logged_batches():
+    """Collect the ids of batches run inside this block (their request and
+    response logs are in ``BATCH_PATH``), grouped by ``usage_stage``."""
+    ids: Dict[str, List[str]] = {}
+    token = _batch_log.set(ids)
+    try:
+        yield ids
+    finally:
+        _batch_log.reset(token)
+
+
 @dataclass
 class UsageTracker:
     """Process-wide token totals per usage stage (successful requests only)."""
@@ -766,23 +783,6 @@ def llm_enqueue_request(
     return req_id
 
 
-def llm_get_response(batch_id: str, request_id: str) -> Dict[str, Any]:
-    """Get a specific response by request ID."""
-    path = llm_get_responses_path(batch_id)
-    with open(path, "r", encoding="utf-8") as f:
-        for line in f:
-            if not line.strip():
-                continue
-            record = json.loads(line)
-            request_json = record[0]
-            result = record[1]
-            if request_json["request_id"] == request_id:
-                if "errors" in result:
-                    raise ValueError(f"Request failed with errors: {result['errors']}")
-                return result
-    raise ValueError(f"Request ID not found: {request_id}")
-
-
 def llm_get_responses(
     batch_id: str, raise_on_error: bool = True,
 ) -> Dict[str, Dict[str, Any]]:
@@ -1201,6 +1201,8 @@ def batch_run_llm_calls(
     ``usage_stage``.
     """
     logger.info(f"Batch ID for {func_request.__name__}: {batch_id}")
+    if (log := _batch_log.get()) is not None:
+        log.setdefault(_usage_stage.get(), []).append(batch_id)
     if len(request_args) == 0:
         return []
     if seeds is not None and len(seeds) != len(request_args):

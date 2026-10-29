@@ -2,12 +2,16 @@
 Prompts for iterative facet proposal: one facet at a time, conditioned on
 the current pool.
 
-The prompt is assembled from a collection of context component names:
-  "facets"  — include existing pool (definitions + vocabularies + label frequencies)
-  "items"   — include tutorial video segments with their current pool labels
-  "schemas" — include accepted/rejected factor combinations with signature frequencies
-  "history" — include previously tried factors that were not kept, with outcomes
-Any non-empty combination is valid (e.g. {"facets", "items"}).
+The system message (role + every tutorial segment) is the same in every
+condition (``fa_system.system_message``). The user message is assembled from a
+collection of context components, none of which contains segment text:
+  "facets"  — the pool: each factor's id, kind, question, definition,
+              guidelines, values, and segment count per value
+  "items"   — each segment's label under every pool factor, by segment id
+  "schemas" — the design space (DAG) of factor combinations
+  "history" — tried factors that are not in the pool, and why
+"items" and "schemas" refer to factors by the ids "facets" defines, so they
+require it.
 """
 
 import logging
@@ -18,10 +22,10 @@ from utils import random_uid
 
 from .fa_criteria import FACTOR_CRITERIA
 from .fa_pydantic import ContextualFactorInitResult
+from .fa_system import system_message
 from .formatters import (
-    build_item_id_map,
     facets_to_message_content,
-    annotated_videos_to_message_content,
+    segment_labels_to_message_content,
     schemas_to_message_content,
     history_to_message_content,
 )
@@ -32,13 +36,8 @@ from knowledge_items.schema import KnowledgeBase, KnowledgeItem
 logger = logging.getLogger(__name__)
 
 CONTEXT_COMPONENTS = frozenset({"facets", "items", "schemas", "history"})
+NEEDS_FACETS = frozenset({"items", "schemas"})
 
-
-SYSTEM_PROMPT = """You design user-facing metadata for tutorial videos about: {task}.
-
-You propose contextual factors: questions about a learner's situation, progress, or current step that determine which tutorial segments apply to them.
-
-Your audience is novice and intermediate learners of {task}. Factors become filter menus, timeline labels, and search options. Learners use them to find useful segments before watching, so every factor must be something a learner can answer about themselves without seeing the footage."""
 
 _INSTRUCTIONS = """Propose exactly ONE new contextual factor that complements the existing ones. A proposal is expected on every call; return an empty candidate list only if every candidate you can think of would duplicate an existing factor, and say which candidates you considered.
 
@@ -47,20 +46,19 @@ _INSTRUCTIONS = """Propose exactly ONE new contextual factor that complements th
 INPUTS
 """
 
-_SECTION_FACETS = """- Existing contextual factors:
+SECTION_FACETS = """- Contextual factors in the pool:
 {facets}
 """
 
-_SECTION_ITEMS = """- Tutorial segments (with current pool labels):
-{tutorials}
+SECTION_ITEMS = """- Current labels of the tutorial segments (segment ids as in the tutorials; factor ids as in the pool):
+{labels}
 """
 
-
-_SECTION_SCHEMAS = """- The current design space of factor combinations. A pruned combination does not make its factors bad; a new factor should add a distinction that the kept combinations do not already carry, alone or paired with an existing factor.
+SECTION_SCHEMAS = """- The current design space of factor combinations. A pruned combination does not make its factors bad; a new factor should add a distinction that the kept combinations do not already carry, alone or paired with an existing factor.
 {factor_combinations}
 """
 
-_SECTION_HISTORY = """- Previously tried factors that were not kept:
+SECTION_HISTORY = """- Previously tried factors that are not in the pool:
 Do not re-propose these factors or close paraphrases of them.
 {history}
 """
@@ -69,19 +67,82 @@ _REMINDER = """REMINDER: propose exactly one new factor; every value must comple
 """
 
 
-def form_facet_iterative_request(
-    task: str,
-    facets: List[Facet],
+def facets_section(facets, annotations, knowledge_base, ids=None, template=SECTION_FACETS):
+    return MessageContent.from_template(template, facets=facets_to_message_content(
+        facets, annotations=annotations, knowledge_base=knowledge_base, ids=ids)).content
+
+
+def items_section(corpus, facets, annotations, video_ids=None, ids=None):
+    return MessageContent.from_template(SECTION_ITEMS, labels=segment_labels_to_message_content(
+        corpus, facets, annotations, video_ids=video_ids, ids=ids)).content
+
+
+def schemas_section(facets, annotations, knowledge_base, accepted_schemas, rejected_schemas,
+                    refinement_edges=None, refinement_threshold=None, ids=None,
+                    max_schema_facets=None):
+    return MessageContent.from_template(
+        SECTION_SCHEMAS, factor_combinations=schemas_to_message_content(
+            accepted_schemas or [], rejected_schemas or [], facets,
+            annotations or AnnotationTable(), knowledge_base, refinement_edges,
+            refinement_threshold=refinement_threshold, ids=ids,
+            max_schema_facets=max_schema_facets)).content
+
+
+def history_section(history, template=SECTION_HISTORY):
+    return MessageContent.from_template(
+        template, history=history_to_message_content(history or [])).content
+
+
+def context_sections(
     components: Collection[str],
-    videos: Optional[Dict[str, List[KnowledgeItem]]] = None,
+    facets: List[Facet],
+    corpus: Optional[Dict[str, List[KnowledgeItem]]] = None,
+    item_video_ids: Optional[List[str]] = None,
     annotations: Optional[AnnotationTable] = None,
     knowledge_base: Optional[KnowledgeBase] = None,
     accepted_schemas: Optional[List[Any]] = None,
     rejected_schemas: Optional[List[Any]] = None,
     refinement_edges: Optional[List[Any]] = None,
     refinement_threshold: Optional[float] = None,
-    last_submission: Optional[Any] = None,
     history: Optional[List[Any]] = None,
+    ids: Optional[Dict[str, str]] = None,
+    max_schema_facets: Optional[int] = None,
+) -> List[Dict[str, Any]]:
+    """Content blocks for the requested context components, in a fixed order.
+
+    ``ids`` maps facet ids to stable display ids (default: list position);
+    ``item_video_ids`` restricts ITEMS to some videos (default: all).
+    """
+    annotations = annotations if annotations is not None else AnnotationTable()
+    blocks: List[Dict[str, Any]] = []
+    if "facets" in components:
+        blocks += facets_section(facets, annotations, knowledge_base, ids)
+    if "items" in components and corpus:
+        blocks += items_section(corpus, facets, annotations, item_video_ids, ids)
+    if "schemas" in components and knowledge_base is not None:
+        blocks += schemas_section(facets, annotations, knowledge_base, accepted_schemas,
+                                  rejected_schemas, refinement_edges, refinement_threshold, ids,
+                                  max_schema_facets)
+    if "history" in components:
+        blocks += history_section(history)
+    return blocks
+
+
+def form_facet_iterative_request(
+    task: str,
+    facets: List[Facet],
+    components: Collection[str],
+    corpus: Dict[str, List[KnowledgeItem]],
+    item_video_ids: Optional[List[str]] = None,
+    annotations: Optional[AnnotationTable] = None,
+    knowledge_base: Optional[KnowledgeBase] = None,
+    accepted_schemas: Optional[List[Any]] = None,
+    rejected_schemas: Optional[List[Any]] = None,
+    refinement_edges: Optional[List[Any]] = None,
+    refinement_threshold: Optional[float] = None,
+    history: Optional[List[Any]] = None,
+    ids: Optional[Dict[str, str]] = None,
+    max_schema_facets: Optional[int] = None,
     **kwargs,
 ) -> Dict[str, Any]:
     """Form a request to propose one new facet given the configured context components."""
@@ -90,77 +151,27 @@ def form_facet_iterative_request(
     unknown = set(components) - CONTEXT_COMPONENTS
     if unknown:
         raise ValueError(f"Unknown context components: {sorted(unknown)}.")
+    if set(components) & NEEDS_FACETS and "facets" not in components:
+        raise ValueError("The items and schemas components require facets.")
 
-    content_blocks = MessageContent.from_template(
-        _INSTRUCTIONS,
-        task=task,
-    ).content
-
-    if "facets" in components:
-        mc = MessageContent.from_template(
-            _SECTION_FACETS,
-            facets=facets_to_message_content(
-                facets,
-                annotations=annotations,
-                knowledge_base=knowledge_base,
-            ),
-        )
-        content_blocks.extend(mc.content)
-
-    if "items" in components and videos:
-        all_items = [item for items in videos.values() for item in items]
-        id_map = build_item_id_map(all_items)
-        mc = MessageContent.from_template(
-            _SECTION_ITEMS,
-            tutorials=annotated_videos_to_message_content(
-                videos, facets, annotations or AnnotationTable(), id_map
-            ),
-        )
-        content_blocks.extend(mc.content)
-
-    if "schemas" in components and knowledge_base is not None:
-        mc = MessageContent.from_template(
-            _SECTION_SCHEMAS,
-            factor_combinations=schemas_to_message_content(
-                accepted_schemas or [],
-                rejected_schemas or [],
-                facets,
-                annotations or AnnotationTable(),
-                knowledge_base,
-                refinement_edges,
-                refinement_threshold=refinement_threshold,
-                last_submission=last_submission,
-            ),
-        )
-        content_blocks.extend(mc.content)
-
-    if "history" in components:
-        mc = MessageContent.from_template(
-            _SECTION_HISTORY,
-            history=history_to_message_content(history or []),
-        )
-        content_blocks.extend(mc.content)
-
+    content_blocks = MessageContent.from_template(_INSTRUCTIONS, task=task).content
+    content_blocks += context_sections(
+        components, facets, corpus=corpus, item_video_ids=item_video_ids,
+        annotations=annotations, knowledge_base=knowledge_base,
+        accepted_schemas=accepted_schemas, rejected_schemas=rejected_schemas,
+        refinement_edges=refinement_edges, refinement_threshold=refinement_threshold,
+        history=history, ids=ids, max_schema_facets=max_schema_facets,
+    )
     if len(content_blocks) == 1:  # No context components included
-        content_blocks.append(
-            {"type": "text", "text": "- No additional context provided."}
-        )
-
+        content_blocks.append({"type": "text", "text": "- No additional context provided."})
     content_blocks.append({"type": "text", "text": _REMINDER})
 
-    messages = [
-        {
-            "role": "system",
-            "content": MessageContent.from_template(SYSTEM_PROMPT, task=task),
-        },
-        {
-            "role": "user",
-            "content": MessageContent(content=content_blocks),
-        },
-    ]
     return {
-        "messages": messages,
-        "response_format": ContextualFactorInitResult, 
+        "messages": [
+            {"role": "system", "content": system_message(task, corpus)},
+            {"role": "user", "content": MessageContent(content=content_blocks)},
+        ],
+        "response_format": ContextualFactorInitResult,
     }
 
 

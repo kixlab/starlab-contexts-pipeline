@@ -25,17 +25,17 @@ class ProposalStrategy(str, Enum):
 class ContextComponent(str, Enum):
     """One section of the iterative proposal prompt. Ignored for BATCH."""
 
-    FACETS = "facets"    # current pool: definitions, vocabularies, label frequencies
-    ITEMS = "items"      # tutorial segments with current pool labels
-    SCHEMAS = "schemas"  # design space (DAG) of factor combinations + last submission
-    HISTORY = "history"  # prior non-accepted candidates and their outcomes
+    FACETS = "facets"    # current pool: definitions, values, segment count per value
+    ITEMS = "items"      # each segment's label under every pool factor (no segment text)
+    SCHEMAS = "schemas"  # design space (DAG) of factor combinations
+    HISTORY = "history"  # tried factors not in the pool, and why
 
 
 A1_CONTEXT: FrozenSet[ContextComponent] = frozenset(
     {ContextComponent.FACETS, ContextComponent.ITEMS, ContextComponent.HISTORY}
 )
 A2_CONTEXT: FrozenSet[ContextComponent] = frozenset(
-    {ContextComponent.SCHEMAS, ContextComponent.HISTORY}
+    {ContextComponent.FACETS, ContextComponent.SCHEMAS, ContextComponent.HISTORY}
 )
 
 
@@ -54,6 +54,10 @@ def parse_context(components: Iterable[Any]) -> FrozenSet[ContextComponent]:
             raise ValueError(f"Unknown context component {c!r}; expected one of {valid}.")
     if not parsed:
         raise ValueError("context must contain at least one component.")
+    if parsed & {ContextComponent.ITEMS, ContextComponent.SCHEMAS} and \
+            ContextComponent.FACETS not in parsed:
+        raise ValueError("items and schemas refer to the pool's factor ids, so they "
+                         "require the facets component.")
     return frozenset(parsed)
 
 
@@ -66,7 +70,7 @@ class PipelineConfig(RunSettings):
     context: FrozenSet[ContextComponent] = field(default_factory=lambda: A1_CONTEXT)
 
     # ---- proposal context ----
-    items_sample_videos: int = 0  # ITEMS context: videos per attempt (0 = all)
+    items_sample_videos: int = 0  # ITEMS: videos whose labels are shown per attempt (0 = all)
 
     def __post_init__(self):
         if not isinstance(self.strategy, ProposalStrategy):

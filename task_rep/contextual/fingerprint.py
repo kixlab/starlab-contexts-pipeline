@@ -27,7 +27,6 @@ from knowledge_items.schema import (
     KnowledgeItemType,
     KnowledgeSource,
 )
-from contextual.feedback import LastSubmission
 from optimization import AcceptedSchemaSummary, RefinementTree, RejectedSchemaSummary, TreeEdge
 from utils.llm import MessageContent
 
@@ -87,9 +86,7 @@ def fixture() -> Dict[str, Any]:
     return dict(kb=kb, facets=[f1, f2], annotations=ann, accepted=accepted,
                 rejected=rejected, tree=tree,
                 edges=[(e.source_id, e.target_id) for e in tree.edges],
-                schema_ids_before_last=["", "f1"],
-                last=LastSubmission(title=f2.title, facet_id="f2", outcome="accepted into the pool",
-                                    entered=True, previous_schema_ids=["", "f1"]))
+                ids={"f1": "F1", "f2": "F3"})
 
 
 def lifecycle_requests(fx: Dict[str, Any]) -> List[Dict[str, Any]]:

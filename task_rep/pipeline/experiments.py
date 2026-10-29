@@ -29,14 +29,14 @@ from construct import ConstructorConfig
 
 from knowledge_items import KnowledgeItemType, KnowledgeBase
 
-from contextual import kb as kb_access
+from contextual import cache, kb as kb_access
 from contextual.kb import load_knowledge_base, lifecycle_services
 from contextual.lifecycle import Embedder, VocabularyBuilder, Labeler
 from contextual.models import RunResult
 
 from .config import PipelineConfig
 from .proposal import FacetProposer, VLMFacetProposer
-from .runner import PipelineRunner
+from .runner import KIND, PipelineRunner
 
 EXPERIMENTS_DIR = Path(__file__).parent.parent / "experiments"
 
@@ -137,12 +137,9 @@ def load_experiments_dir(
 # Knowledge base, results, services
 # ---------------------------------------------------------------------------
 
-RESULT_PREFIX = "pipeline"
-
-
 def results_dir(spec: ExperimentSpec) -> Path:
-    """Where the experiment's checkpoints and results live (no KB load)."""
-    return kb_access.results_dir(spec.task_id, spec.constructor)
+    """The folder of the experiment's task runs (no KB load)."""
+    return cache.runs_dir(spec.task_id)
 
 
 def cached_knowledge_base(spec: ExperimentSpec) -> Optional[KnowledgeBase]:
@@ -151,9 +148,9 @@ def cached_knowledge_base(spec: ExperimentSpec) -> Optional[KnowledgeBase]:
 
 
 def find_result(spec: ExperimentSpec, directory: str | Path | None = None) -> Optional[Path]:
-    """Newest saved pipeline result whose config matches ``spec``."""
-    directory = directory if directory is not None else results_dir(spec)
-    return kb_access.find_result(directory, RESULT_PREFIX, spec.pipeline)
+    """The newest finished run folder whose config matches ``spec``."""
+    return cache.find_result(directory if directory is not None else results_dir(spec),
+                             KIND, spec.pipeline)
 
 
 @dataclass
@@ -179,52 +176,25 @@ def vlm_services(config: PipelineConfig) -> Services:
 # Running
 # ---------------------------------------------------------------------------
 
-def run_pipeline(
-    config: PipelineConfig,
-    task_name: str,
-    knowledge_base: KnowledgeBase,
-    cache_dir: str | Path,
-    *,
-    proposer: FacetProposer,
-    vocab_builder: VocabularyBuilder,
-    labeler: Labeler,
-    embedder: Embedder,
-    output_dir: str | Path | None = None,
-) -> RunResult:
-    """Invoke the contextual-unit runner with the given (real or fake) services.
-
-    Checkpoints and results are written under ``output_dir`` (defaults to
-    ``cache_dir``). Pass a scratch dir for throwaway/offline runs so they do not
-    write into the shared knowledge-base cache.
-    """
-    runner = PipelineRunner(
-        config=config,
-        task=task_name,
-        knowledge_base=knowledge_base,
-        proposer=proposer,
-        vocab_builder=vocab_builder,
-        labeler=labeler,
-        embedder=embedder,
-        cache_dir=output_dir if output_dir is not None else cache_dir,
-    )
-    return runner.run()
-
-
 def run_experiment(
     spec: ExperimentSpec,
     *,
     services: Optional[Services] = None,
     output_dir: str | Path | None = None,
+    fresh: bool = False,
 ) -> RunResult:
     """Load the experiment's knowledge base and run its pipeline.
 
-    ``services`` defaults to the real VLM-backed services.
+    Resumes the experiment's last run if it was interrupted (unless ``fresh``);
+    otherwise starts a new run folder under ``output_dir`` (default: the task's
+    runs folder). ``services`` defaults to the real VLM-backed services.
     """
-    task, kb, cache_dir = load_knowledge_base(spec.task_id, spec.constructor, spec.item_type)
+    task, kb, sources = load_knowledge_base(spec.task_id, spec.constructor, spec.item_type)
     services = services or vlm_services(spec.pipeline)
-    return run_pipeline(
-        spec.pipeline, task.name, kb, cache_dir,
+    return PipelineRunner(
+        config=spec.pipeline, task=task.name, knowledge_base=kb,
         proposer=services.proposer, vocab_builder=services.vocab_builder,
         labeler=services.labeler, embedder=services.embedder,
-        output_dir=output_dir,
-    )
+        runs_dir=output_dir if output_dir is not None else results_dir(spec),
+        name=spec.name, sources=sources, fresh=fresh,
+    ).run()

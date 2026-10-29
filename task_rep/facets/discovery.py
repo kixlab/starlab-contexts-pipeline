@@ -11,7 +11,7 @@ from __future__ import annotations
 import logging
 import random
 from dataclasses import dataclass
-from typing import Any, Collection, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from utils import (
     ModelConfig,
@@ -30,7 +30,7 @@ from .prompts import (
     process_facet_iterative_response,
 )
 
-from .schema import Facet, AnnotationTable
+from .schema import Facet
 
 logger = logging.getLogger(__name__)
 
@@ -94,59 +94,15 @@ class VLMFacetExtractor:
 
         return [facet for result in batch_results for facet in result]
 
-    def propose_facet_iterative(
-        self,
-        task: str,
-        facets: List[Facet],
-        components: Collection[str],
-        videos: Optional[Dict[str, List[KnowledgeItem]]] = None,
-        annotations: Optional[AnnotationTable] = None,
-        knowledge_base: Optional[Any] = None,
-        accepted_schemas: Optional[List[Any]] = None,
-        rejected_schemas: Optional[List[Any]] = None,
-        refinement_edges: Optional[List[Any]] = None,
-        refinement_threshold: Optional[float] = None,
-        last_submission: Optional[Any] = None,
-        history: Optional[List[Any]] = None,
-        seed: Optional[int] = None,
-    ) -> List[Facet]:
+    def propose_facet_iterative(self, seed: Optional[int] = None, **request: Any) -> List[Facet]:
         """Propose exactly one new facet conditioned on the existing pool.
 
-        Args:
-            task: Task name/description
-            facets: Current facet pool (definitions + vocabularies shown to LLM)
-            components: Context component names to include ("facets", "items", "schemas", "history")
-            videos: Video segments with their pool annotations (included with "items")
-            annotations: Current pool annotations for the video segments
-            knowledge_base: Active optimization scope for frequency statistics
-            accepted_schemas: Surviving schema summaries (included with "schemas")
-            rejected_schemas: Rejected schema summaries (included with "schemas")
-            refinement_edges: (source_id, target_id) pairs among accepted schemas;
-                the target refines the source (included with "schemas")
-            refinement_threshold: Pruning threshold tau, explained with "schemas"
-            last_submission: What the latest submission did (included with "schemas")
-            history: Previously tried, non-kept candidates (included with "history")
-            seed: Sampling seed for the request (None = provider default)
-
-        Returns:
-            A list of new Facets, or an empty list if the LLM refused.
+        ``request`` holds the arguments of ``form_facet_iterative_request``
+        (task, pool, context components, corpus, and the components' data).
+        Returns a list with the new Facet, or an empty list if the LLM refused.
         """
         batch_id = f"facet_iterative_{random_uid()}"
-
-        request_args = [{
-            "task": task,
-            "facets": facets,
-            "components": components,
-            "videos": videos,
-            "annotations": annotations,
-            "knowledge_base": knowledge_base,
-            "accepted_schemas": accepted_schemas,
-            "rejected_schemas": rejected_schemas,
-            "refinement_edges": refinement_edges,
-            "refinement_threshold": refinement_threshold,
-            "last_submission": last_submission,
-            "history": history,
-        }]
+        request_args = [request]
 
         batch_results = batch_run_llm_calls(
             batch_id,

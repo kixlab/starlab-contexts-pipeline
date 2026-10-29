@@ -517,16 +517,12 @@ def test_knowledge_base_iter_and_len():
 
 # ============= Clustering Config Tests =============
 
-def test_cluster_config():
-    """Test ClusterConfig cache suffix generation."""
+def test_cluster_config_round_trip():
     config = ClusterConfig(
         similarity_threshold=0.85,
         model_config=ModelConfig(category="embedding", provider="openai", model="text-embedding-3-small"),
     )
-    suffix = config.cache_suffix()
-
-    assert "sim085" in suffix
-    assert "textembedding" in suffix.lower()
+    assert ClusterConfig.from_dict(config.to_dict()) == config
 
 
 if __name__ == "__main__":
