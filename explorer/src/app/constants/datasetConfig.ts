@@ -8,10 +8,10 @@ export interface DatasetOption {
 }
 
 export const DATASET_OPTIONS: DatasetOption[] = [
-  { label: "Synthetic paper folding", bundleUrl: "/data/demo-bundle.json", infoTypes: null },
   ...(process.env.NEXT_PUBLIC_BUNDLE_URL ? [{
     label: "Local pipeline output", bundleUrl: process.env.NEXT_PUBLIC_BUNDLE_URL, infoTypes: null,
   }] : []),
+  { label: "Synthetic paper folding", bundleUrl: "/data/demo-bundle.json", infoTypes: null },
 ];
 export const DEFAULT_DATASET_OPTION = DATASET_OPTIONS[0];
 

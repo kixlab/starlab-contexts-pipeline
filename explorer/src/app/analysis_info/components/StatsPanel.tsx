@@ -204,7 +204,7 @@ export function StatsPanel({
             
             {/* Show placeholder when nothing is selected */}
             {Object.entries(selectedFacets).length === 0 && (
-              <div className="text-transparent">placeholder</div>
+              <div aria-hidden className="h-4" />
             )}
           </div>
         </div>

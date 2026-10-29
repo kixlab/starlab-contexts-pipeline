@@ -52,6 +52,7 @@ export function Toolbar({
       <div className="flex items-center gap-3 text-sm">
         {/* Dataset selector */}
         <select
+          aria-label="Dataset"
           value={selectedLabel ?? ""}
           onChange={(e) => e.target.value && onSelectDataset(e.target.value)}
           className="h-7 px-2 rounded bg-neutral-800 border border-neutral-700 text-white text-xs"
