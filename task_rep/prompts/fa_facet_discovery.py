@@ -10,11 +10,11 @@ Supports multiple discovery strategies:
 from enum import Enum
 from typing import Any, Dict, List
 
-from task_rep.utils.llm import MessageContent
+from ..utils.llm import MessageContent
 
-from task_rep.prompts.fa_pydantic import FacetDiscoveryResult
+from .fa_pydantic import FacetDiscoveryResult
 
-from task_rep.prompts.formatters import dict_mc_to_str
+from .formatters import dict_mc_to_str
 
 
 SYSTEM_PROMPT = """You are a helpful assistant who can analyze and detect the contextual factors around the task: {task}."""

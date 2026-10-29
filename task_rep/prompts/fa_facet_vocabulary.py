@@ -10,14 +10,14 @@ Two-phase process:
 
 from typing import Any, Dict, List
 
-from task_rep.utils.llm import MessageContent
+from ..utils.llm import MessageContent
 
-from task_rep.prompts.fa_pydantic import (
+from .fa_pydantic import (
     VocabularyProposalResult,
     VocabularyConsolidationResult,
 )
 
-from task_rep.prompts.formatters import list_mc_to_str
+from .formatters import list_mc_to_str
 
 
 # ============= Phase 1: Per-(Facet, Video) Proposal =============

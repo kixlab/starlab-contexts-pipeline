@@ -13,7 +13,7 @@ from typing import List
 from collections import defaultdict
 
 from .schema import KnowledgeItem, KnowledgeItemType
-from task_rep.utils.embeddings import get_embeddings
+from ..utils.embeddings import get_embeddings
 
 
 @dataclass

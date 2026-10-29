@@ -4,10 +4,10 @@ CLI for working with knowledge items.
 
 Usage:
     # Extract and cluster knowledge items from a task
-    python -m task_rep.scripts.knowledge_items_cli extract sushi_roll_3 --granularity atomic
+    python -m scripts.knowledge_items_cli extract sushi_roll_3 --granularity atomic
 
     # Inspect cached knowledge items
-    python -m task_rep.scripts.knowledge_items_cli inspect sushi_roll_3 --granularity atomic
+    python -m scripts.knowledge_items_cli inspect sushi_roll_3 --granularity atomic
 """
 
 import argparse
@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from task_rep.knowledge_items import (
+from knowledge_items import (
     extract_and_cluster_knowledge_items,
     load_knowledge_items,
     load_dataset,

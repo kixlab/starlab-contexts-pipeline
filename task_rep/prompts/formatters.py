@@ -2,7 +2,7 @@
 
 from typing import List, Dict, Any
 
-from task_rep.utils.llm import MessageContent
+from ..utils.llm import MessageContent
 
 def taxonomy_to_str(taxonomy: List[Dict[str, Any]]) -> str:
     """Format taxonomy as a string for prompts."""

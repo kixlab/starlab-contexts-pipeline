@@ -1,12 +1,15 @@
 """
 Facet discovery and annotation module.
 
-This module provides functionality for discovering contextual factors (facets)
-that discriminate knowledge items, and for annotating items with facet labels.
+This module provides data structures for facets and annotations, and
+VLM-based operations for discovering, revising, building vocabulary for,
+and labeling with facets.
 
 Public API:
-- Facet, FacetLabel: Data structures for facets
+- Facet, FacetLabel, AnnotationTable: Core data structures
 - VLMFacetExtractor: Batch-first VLM-based facet discovery and revision
+- VLMFacetVocabularyBuilder: VLM-based vocabulary construction
+- VLMFacetLabeler: VLM-based item labeling
 """
 
 from .schema import Facet, FacetLabel, AnnotationTable

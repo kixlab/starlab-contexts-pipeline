@@ -6,8 +6,8 @@ knowledge of an entire tutorial video.
 """
 from typing import Any, Dict, List
 
-from task_rep.utils.llm import MessageContent
-from task_rep.prompts.ki_pydantic import TutorialInformation
+from ..utils.llm import MessageContent
+from .ki_pydantic import TutorialInformation
 
 SYSTEM_MESSAGE = """You are an expert at understanding and summarizing tutorial videos about the task: {task}. You excel at synthesizing information from both visual demonstrations and narration."""
 
