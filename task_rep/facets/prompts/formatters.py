@@ -273,18 +273,7 @@ def annotated_videos_to_message_content(
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
-def tree_stats_to_message_content(tree_stats: Dict[str, Any]) -> MessageContent:
-    """Format refinement-tree statistics as MessageContent."""
-    used = ", ".join(tree_stats.get("facets_used", [])) or "none"
-    unused = ", ".join(tree_stats.get("facets_unused", [])) or "none"
-    lines = [
-        f"Total nodes: {tree_stats.get('total_nodes', 0)}",
-        f"Contextual factors used in tree: {used}",
-        f"Contextual factors not in tree: {unused}",
-    ]
-    return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
-
-
+_HISTORY_ENTRY_FORMAT = """<tried_factor><title>{title}</title><scope>{scope}</scope><definition>{definition}</definition><outcome>{outcome}</outcome></tried_factor>"""
 _SIGNATURE_WITH_FREQUENCY_STR_FORMAT = """<signature><value>{signature}</value><frequency>{frequency}</frequency></signature>"""
 
 def _format_signature_frequencies(
@@ -422,6 +411,29 @@ def schemas_to_message_content(
     else:
         lines.append("No rejected facet combinations.")
 
+    return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
+
+
+def history_to_message_content(history: List[Any]) -> MessageContent:
+    """Format previously tried, non-kept factors with their outcomes.
+
+    Each entry needs ``title``, ``scope``, ``definition``, ``outcome`` and an
+    optional ``duplicate_of`` (title of the matched factor).
+    """
+    lines = []
+    for entry in history:
+        outcome = getattr(entry, "outcome", "")
+        duplicate_of = getattr(entry, "duplicate_of", None)
+        if duplicate_of:
+            outcome = f"{outcome} of {duplicate_of}"
+        lines.append(_HISTORY_ENTRY_FORMAT.format(
+            title=getattr(entry, "title", ""),
+            scope=getattr(entry, "scope", ""),
+            definition=getattr(entry, "definition", ""),
+            outcome=outcome,
+        ))
+    if not lines:
+        lines.append("None yet.")
     return MessageContent(content=[{"type": "text", "text": "\n".join(lines)}])
 
 
