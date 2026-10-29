@@ -6,17 +6,17 @@ import math
 
 import pytest
 
-from pipeline import candidates as candidates_mod
-from pipeline.candidates import CandidateFailure, CandidateProcessor, ProcessedCandidate
-from pipeline.config import stage_seed
-from pipeline.models import CandidateStatus
+from contextual import lifecycle as candidates_mod
+from contextual.lifecycle import CandidateFailure, CandidateProcessor, ProcessedCandidate
+from contextual.settings import stage_seed
+from contextual.models import CandidateStatus
 
-from tests.pipeline.helpers import (
+from tests.contextual.helpers import (
     ScriptedLabeler,
     ScriptedVocabBuilder,
     TableEmbedder,
     embedding_of,
-    make_config,
+    make_settings,
     make_facet,
     make_kb,
 )
@@ -24,7 +24,7 @@ from tests.pipeline.helpers import (
 
 def _processor(embedder=None, vocab=None, labeler=None, **config_overrides):
     return CandidateProcessor(
-        config=make_config(**config_overrides),
+        config=make_settings(**config_overrides),
         task="test task",
         knowledge_base=make_kb(),
         vocab_builder=vocab or ScriptedVocabBuilder(),

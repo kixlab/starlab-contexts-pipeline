@@ -4,25 +4,24 @@ from __future__ import annotations
 
 from knowledge_items.schema import KnowledgeBase
 
-from pipeline.config import A2_CONTEXT
-from pipeline.models import (
+from contextual.models import (
     CandidateRecord,
     CandidateStatus,
-    PipelineResult,
-    PipelineState,
+    RunResult,
+    RunState,
     StopReason,
     TreeQualitySnapshot,
 )
-from pipeline.candidates import ProcessedCandidate
-from pipeline.evaluation import PoolEvaluator
-from pipeline.store import PipelineStore, kb_fingerprint
+from contextual.lifecycle import ProcessedCandidate
+from contextual.evaluation import PoolEvaluator
+from contextual.store import RunStore, kb_fingerprint
 
-from tests.pipeline.helpers import label_book, make_config, make_facet, make_kb
+from tests.contextual.helpers import label_book, make_settings, make_facet, make_kb
 
 
-def _state() -> PipelineState:
-    cfg = make_config(pool_size=3)
-    state = PipelineState()
+def _state() -> RunState:
+    cfg = make_settings(pool_size=3)
+    state = RunState()
     ev = PoolEvaluator(config=cfg, focused_kb=make_kb())
     for fid in ["A", "A2", "B"]:
         ev.consider(state, ProcessedCandidate(
@@ -50,9 +49,9 @@ def _state() -> PipelineState:
     return state
 
 
-def _store(tmp_path, config=None, kb_fp="kb1", prompt_fp="p1") -> PipelineStore:
-    return PipelineStore(cache_dir=tmp_path, config=config or make_config(),
-                         kb_fp=kb_fp, prompt_fp=prompt_fp)
+def _store(tmp_path, config=None, kb_fp="kb1", prompt_fp="p1") -> RunStore:
+    return RunStore(cache_dir=tmp_path, config=config or make_settings(),
+                    kb_fp=kb_fp, prompt_fp=prompt_fp, prefix="test")
 
 
 def test_exact_fingerprint_restores(tmp_path):
@@ -79,14 +78,14 @@ def test_serialization_round_trip_keeps_ledger_and_embeddings(tmp_path):
 
 
 def test_result_round_trip(tmp_path):
-    result = PipelineResult.from_state(_state(), kb_fingerprint="kb1")
+    result = RunResult.from_state(_state(), kb_fingerprint="kb1")
     path = _store(tmp_path).save_result(result)
-    assert PipelineStore.load_result(path).to_dict() == result.to_dict()
+    assert RunStore.load_result(path).to_dict() == result.to_dict()
 
 
 def test_config_mismatch_invalidates(tmp_path):
     _store(tmp_path).save_checkpoint(_state())
-    other = _store(tmp_path, config=make_config(context=A2_CONTEXT))
+    other = _store(tmp_path, config=make_settings(refinement_threshold=0.5))
     assert other.restore_checkpoint() is None
 
 
@@ -109,15 +108,15 @@ def test_tampered_checkpoint_fingerprint_is_ignored(tmp_path):
 
 
 def test_non_semantic_settings_do_not_change_fingerprint(tmp_path):
-    base = _store(tmp_path, config=make_config(use_cache=True, max_concurrency=8))
-    other = _store(tmp_path, config=make_config(use_cache=False, max_concurrency=64))
+    base = _store(tmp_path, config=make_settings(use_cache=True, max_concurrency=8))
+    other = _store(tmp_path, config=make_settings(use_cache=False, max_concurrency=64))
     assert base.fingerprint == other.fingerprint
 
 
 def test_sampling_settings_change_fingerprint(tmp_path, monkeypatch):
     from optimization import irr
     before = _store(tmp_path).fingerprint
-    assert _store(tmp_path, config=make_config(seed=1)).fingerprint != before
+    assert _store(tmp_path, config=make_settings(seed=1)).fingerprint != before
     monkeypatch.setattr(irr, "IRR_TEMPERATURE", 0.5)
     assert _store(tmp_path).fingerprint != before
 
@@ -130,3 +129,13 @@ def test_kb_fingerprint_is_content_hash():
     assert kb_fingerprint(changed) != kb_fingerprint(kb)
     reordered = KnowledgeBase(items=list(reversed(make_kb().items)))
     assert kb_fingerprint(reordered) == kb_fingerprint(kb)
+
+
+def test_prefix_separates_runner_files(tmp_path):
+    a = RunStore(cache_dir=tmp_path, config=make_settings(), kb_fp="kb", prompt_fp="p",
+                 prefix="pipeline")
+    b = RunStore(cache_dir=tmp_path, config=make_settings(), kb_fp="kb", prompt_fp="p",
+                 prefix="agentic")
+    assert a.fingerprint == b.fingerprint
+    assert a.checkpoint_path() != b.checkpoint_path()
+    assert b.result_path().name.startswith("agentic_result_")
