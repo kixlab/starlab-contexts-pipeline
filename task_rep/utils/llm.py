@@ -19,14 +19,16 @@ import random
 import re
 import threading
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional
 
 import tiktoken
 from openai import OpenAI
 from anthropic import AnthropicBedrock
 from uuid import uuid4
+
+from .config import ModelConfig
 
 
 # ============== Configuration ==============
@@ -171,7 +173,7 @@ class MessageContent:
         return {"content": self.content}
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MessageContent":
+    def from_dict(cls, data: Dict[str, Any]) -> MessageContent:
         """Create MessageContent from a dictionary."""
         return cls(content=data["content"])
 
@@ -240,7 +242,7 @@ class MessageContent:
         return self.content
 
     @classmethod
-    def from_template(cls, template: str, **kwargs) -> "MessageContent":
+    def from_template(cls, template: str, **kwargs) -> MessageContent:
         """Build MessageContent from a template with mixed str and MessageContent values.
 
         String values are substituted via str.format(). MessageContent values are
@@ -256,7 +258,7 @@ class MessageContent:
         """
         # Separate str vs MessageContent kwargs
         str_kwargs: Dict[str, str] = {}
-        mc_kwargs: Dict[str, "MessageContent"] = {}
+        mc_kwargs: Dict[str, MessageContent] = {}
         for k, v in kwargs.items():
             if isinstance(v, MessageContent):
                 mc_kwargs[k] = v
@@ -411,91 +413,6 @@ def get_response_pydantic_anthropic(
         return json.loads(json_text)
     except (json.JSONDecodeError, IndexError):
         raise Exception(f"Failed to extract JSON from response: {response_text}")
-
-
-# ============== VLM Client Interface ==============
-
-
-class VLMClient:
-    """
-    High-level VLM client that abstracts over OpenAI and Anthropic.
-
-    Usage:
-        client = VLMClient(provider="openai")
-
-        response = client.generate(
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": MessageContent(
-                    content=[
-                        {"type": "text", "text": "What's in this image?"},
-                        {"type": "image_path", "path": "frame.jpg"}
-                    ]
-                )}
-            ],
-            response_format=MyPydanticModel
-        )
-    """
-
-    def __init__(
-        self,
-        provider: Literal["openai", "anthropic"] = "openai",
-        model: Optional[str] = None,
-    ):
-        self.provider = provider
-        self.model = model
-
-        if provider == "openai":
-            self._generate_fn = get_response_pydantic_openai
-        elif provider == "anthropic":
-            self._generate_fn = get_response_pydantic_anthropic
-        else:
-            raise ValueError(f"Unknown provider: {provider}")
-
-    def generate(
-        self,
-        messages: List[Dict[str, Any]],
-        response_format: Any,
-        model: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        """
-        Generate a structured response from the VLM.
-
-        Args:
-            messages: List of message dicts with "role" and "content"
-                     Content can be a string, MessageContent, or OpenAI/Anthropic format
-            response_format: Pydantic model or JSON schema dict
-            model: Override the default model
-
-        Returns:
-            Parsed JSON response as a dictionary
-        """
-        # Convert MessageContent objects to API-specific format
-        processed_messages = []
-        for msg in messages:
-            content = msg["content"]
-            if isinstance(content, MessageContent):
-                if self.provider == "openai":
-                    content = content.to_openai_content()
-                else:
-                    content = content.to_anthropic_content()
-
-            processed_messages.append({"role": msg["role"], "content": content})
-
-        return self._generate_fn(
-            processed_messages,
-            response_format,
-            model=model or self.model,
-        )
-
-
-def get_vlm_client(
-    provider: Literal["openai", "anthropic"] = "openai",
-    model: Optional[str] = None,
-) -> VLMClient:
-    """Convenience factory for creating a VLM client."""
-    return VLMClient(provider=provider, model=model)
-
 
 # ============== Batch Processing ==============
 
@@ -793,9 +710,8 @@ def estimate_token_consumption(request_json: dict, model: str | None) -> int:
 
 async def process_api_requests(
     batch_id: str,
+    model_config: ModelConfig,
     max_concurrency: int = 64,
-    provider: Literal["openai", "anthropic"] = "openai",
-    model: Optional[str] = None,
     seconds_to_pause_after_limit_error: float = 60.0,
 ):
     """
@@ -805,18 +721,17 @@ async def process_api_requests(
         batch_id: Batch identifier
         max_concurrency: Maximum concurrent requests
         seconds_to_pause_after_limit_error: Pause duration after rate limit errors
-        provider: Which API to use ("openai" or "anthropic")
     """
     requests_path = llm_get_requests_path(batch_id)
     responses_path = llm_get_responses_path(batch_id)
 
     # Select the appropriate call function
-    if provider == "openai":
+    if model_config.provider == "openai":
         call_function = get_response_pydantic_openai
-    elif provider == "anthropic":
+    elif model_config.provider == "anthropic":
         call_function = get_response_pydantic_anthropic
     else:
-        raise ValueError(f"Unknown provider: {provider}")
+        raise ValueError(f"Unknown provider: {model_config.provider}")
 
     # Rate limiting
     req_bucket = TokenBucket(MAX_REQUESTS_PER_MINUTE)
@@ -838,7 +753,7 @@ async def process_api_requests(
                     task_id=task_id,
                     request_json=record,
                     attempts_left=MAX_ATTEMPTS,
-                    token_consumption=estimate_token_consumption(record, model),
+                    token_consumption=estimate_token_consumption(record, model_config.model),
                 )
                 task_id += 1
                 status.num_tasks_started += 1
@@ -878,13 +793,13 @@ async def process_api_requests(
                             if isinstance(content, dict) and "content" in content and isinstance(content["content"], list):
                                 # Reconstruct MessageContent and convert to API format
                                 msg_content = MessageContent.from_dict(content)
-                                if provider == "openai":
+                                if model_config.provider == "openai":
                                     content = msg_content.to_openai_content()
                                 else:
                                     content = msg_content.to_anthropic_content()
                             processed_messages.append({"role": msg["role"], "content": content})
 
-                        return call_function(processed_messages, response_format, model)
+                        return call_function(processed_messages, response_format, model_config.model)
 
                     result = await asyncio.to_thread(_call)
                     _append_jsonl(responses_path, [req.request_json, result])
@@ -940,8 +855,7 @@ def batch_run_llm_calls(
     func_request, 
     func_response,
     max_concurrency: int,
-    provider: Literal["openai", "anthropic"],
-    model: Optional[str],
+    model_config: ModelConfig,
 ):
     print(f"Batch ID for {func_request.__name__}: {batch_id}")
     if len(request_args) == 0:
@@ -955,8 +869,7 @@ def batch_run_llm_calls(
     asyncio.run(process_api_requests(
         batch_id,
         max_concurrency=max_concurrency,
-        provider=provider,
-        model=model,
+        model_config=model_config,
     ))
     batch_responses = llm_get_responses(batch_id)
 

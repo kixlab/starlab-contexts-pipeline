@@ -7,20 +7,16 @@ Supports text embeddings from various providers with automatic batching.
 from __future__ import annotations
 
 import os
-from typing import Any, List
+from typing import List
 
 import numpy as np
 from openai import OpenAI
 
-
-# Default embedding models
-DEFAULT_EMBEDDING_MODEL_OPENAI = "text-embedding-3-small"
-
+from .config import ModelConfig
 
 def get_embeddings(
     texts: List[str],
-    model: str = DEFAULT_EMBEDDING_MODEL_OPENAI,
-    provider: str = "openai"
+    model_config: ModelConfig,
 ) -> np.ndarray:
     """
     Get embeddings for a list of texts with automatic batching.
@@ -42,10 +38,10 @@ def get_embeddings(
     if not texts:
         return np.array([])
 
-    if provider == "openai":
-        return _get_openai_embeddings(texts, model)
+    if model_config.provider == "openai":
+        return _get_openai_embeddings(texts, model_config.model)
     else:
-        raise ValueError(f"Unsupported embedding provider: {provider}")
+        raise ValueError(f"Unsupported embedding provider: {model_config.provider}")
 
 
 def _get_openai_embeddings(texts: List[str], model: str) -> np.ndarray:

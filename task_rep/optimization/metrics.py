@@ -11,9 +11,13 @@ import math
 from collections import defaultdict
 from typing import Dict, List, Set
 
-from ..knowledge_items.schema import KnowledgeBase
-from ..facets.schema import Facet, AnnotationTable
-
+from knowledge_items import (
+    KnowledgeBase,
+)
+from facets import (
+    Facet,
+    AnnotationTable,
+)
 
 def compute_cells(
     knowledge_base: KnowledgeBase,

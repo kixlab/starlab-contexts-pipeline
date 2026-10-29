@@ -12,21 +12,25 @@ from dataclasses import dataclass
 from typing import List
 from collections import defaultdict
 
-from .schema import KnowledgeItem, KnowledgeItemType
-from ..utils.embeddings import get_embeddings
+from utils import (
+    ModelConfig,
+    get_embeddings,
+)
+
+from .schema import KnowledgeItem
 
 
 @dataclass
 class ClusterConfig:
     """Configuration for clustering knowledge items."""
-
+    
+    model_config: ModelConfig
     similarity_threshold: float = 0.85
-    embedding_model: str = "text-embedding-3-small"
 
     def cache_suffix(self) -> str:
         """Generate cache suffix for this config."""
         threshold_str = str(self.similarity_threshold).replace(".", "")
-        model_name = self.embedding_model.split("/")[-1].replace("-", "").replace("_", "")
+        model_name = self.model_config.cache_suffix()
         return f"sim{threshold_str}_{model_name}"
 
 
@@ -82,7 +86,7 @@ def cluster_knowledge_items(
 
     Args:
         items: List of knowledge items to cluster
-        config: Clustering configuration (threshold, embedding model)
+        config: Clustering configuration (threshold, model config)
 
     Returns:
         New list of items with unit_id assigned
@@ -99,13 +103,13 @@ def cluster_knowledge_items(
     unit_ids = [None] * len(items)
     global_unit_id = 0
 
-    for item_type, indices in items_by_type.items():
+    for _, indices in items_by_type.items():
         if not indices:
             continue
 
         # Extract texts and get embeddings
         texts = [items[idx].text for idx in indices]
-        embeddings = get_embeddings(texts, model=config.embedding_model)
+        embeddings = get_embeddings(texts, model_config=config.model_config)
 
         # Cluster
         local_labels = _cluster_greedy(embeddings, config.similarity_threshold)

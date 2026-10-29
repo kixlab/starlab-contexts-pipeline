@@ -4,6 +4,8 @@ Taxonomy for atomic knowledge items.
 Based on the classification system from server/helpers/dataset.py
 """
 
+from __future__ import annotations
+
 from enum import Enum
 from typing import Dict
 
