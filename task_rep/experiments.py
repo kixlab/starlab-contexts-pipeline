@@ -72,6 +72,7 @@ from data_prep import (
 
 from optimization import (
     count_unique_units,
+    compute_tree_depth,
 )
 
 # ---------------------------------------------------------------------------
@@ -153,6 +154,15 @@ class ExperimentSummary:
 
     iterations: int
     """How many algorithm iterations ran before convergence."""
+
+    tree_nodes: int
+    """Surviving nodes in the refinement tree."""
+
+    tree_depth: int
+    """Max path length from root to leaf in the refinement tree."""
+
+    discovery_calls: int
+    """Total VLM discovery/revision calls (init + propose + revise)."""
 
 
 @dataclass
@@ -260,6 +270,9 @@ def run_experiment(
         min_discriminativeness = result.frontier[-1].discriminativeness
         min_compactness = result.frontier[-1].compactness
 
+    tree_nodes = len(result.tree.nodes) if result.tree else 0
+    tree_depth = compute_tree_depth(result.tree) if result.tree else 0
+
     summary = ExperimentSummary(
         num_units=num_units,
         num_facets=len(result.facets),
@@ -269,6 +282,9 @@ def run_experiment(
         target_discriminativeness=target_discriminativeness,
         target_compactness=target_compactness,
         iterations=result.iterations,
+        tree_nodes=tree_nodes,
+        tree_depth=tree_depth,
+        discovery_calls=result.discovery_calls,
     )
 
     return ExperimentResult(
@@ -287,14 +303,14 @@ def run_experiment(
 
 def compare_results(results: List[ExperimentResult]) -> None:
     """Print a compact side-by-side comparison table."""
-    cols = f"{'name':<38} {'units':>6} {'facets':>7} {'frontier':>7} {'min_D':>7} {'min_C':>7} {'target_D':>7} {'target_C':>7} {'iters':>6} {'secs':>6}"
+    cols = f"{'name':<38} {'units':>6} {'facets':>7} {'frontier':>7} {'min_D':>7} {'min_C':>7} {'target_D':>7} {'target_C':>7} {'t_nodes':>7} {'t_depth':>7} {'d_calls':>7} {'iters':>6} {'secs':>6}"
     print(cols)
     print("-" * len(cols))
     for r in results:
         s = r.summary
         c = r.config
         print(
-            f"{c.name:<38} {s.num_units:>6} {s.num_facets:>7} {s.frontier_size:>7} {s.min_discriminativeness:>7.4f} {s.min_compactness:>7} {s.target_discriminativeness:>7.4f} {s.target_compactness:>7} {s.iterations:>6} {r.elapsed_seconds:.1f}"
+            f"{c.name:<38} {s.num_units:>6} {s.num_facets:>7} {s.frontier_size:>7} {s.min_discriminativeness:>7.4f} {s.min_compactness:>7} {s.target_discriminativeness:>7.4f} {s.target_compactness:>7} {s.tree_nodes:>7} {s.tree_depth:>7} {s.discovery_calls:>7} {s.iterations:>6} {r.elapsed_seconds:.1f}"
         )
 
 
