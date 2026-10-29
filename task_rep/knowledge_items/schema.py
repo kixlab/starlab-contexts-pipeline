@@ -5,8 +5,6 @@ from enum import Enum
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Union
 
 from .taxonomy import AtomicType, AtomicCategory
-from utils.llm import MessageContent
-from utils.video import format_time
 
 class KnowledgeItemType(str, Enum):
     """Types of knowledge items we can extract."""
@@ -48,74 +46,6 @@ class Video:
     transcript: List[VideoTranscriptSegment]
     frames: List[VideoFrame]
     metadata: Dict[str, Any] = field(default_factory=dict)
-
-    def format_to_message_content(
-        self,
-        use_vision: bool,
-        frames_per_group: int,
-        target_chunks: int = 0,
-    ) -> MessageContent:
-        """Format contents for prompt."""
-        if use_vision and not self.frames:
-            raise ValueError("When vision is enabled, video must have frames")
-
-        if not self.transcript:
-            raise ValueError("Video must have transcript")
-
-        segment_groups = []
-        
-        # Determine how to group segments
-        if target_chunks == 0:
-            # i.e., ATOMIC/STEP or TUTORIAL with number of chunks larger than number of segments
-            target_chunks = len(self.transcript)
-            segment_groups = [[seg] for seg in self.transcript]
-        else:
-            # i.e., TUTORIAL
-            segment_groups = self._group_segments(self.transcript, target_chunks)
-
-        content = []
-
-        content.append({
-            "type": "text",
-            "text": f"Title: {self.title}\n"
-        })
-
-        for group in segment_groups:
-            # Get time range for this group
-            group_start = group[0].start
-            group_end = group[-1].end
-
-            # Combine transcript text from all segments in group
-            group_text = " ".join(seg.text for seg in group)
-
-            # Sample frames within this group's time range
-            group_frames = self.sample_frames(
-                start_time=group_start,
-                end_time=group_end,
-                max_frames=frames_per_group
-            )
-
-            if group_frames or group_text:
-                # Add temporal marker
-                content.append({
-                    "type": "text",
-                    "text": f"\n--- Time {format_time(group_start)}-{format_time(group_end)} ---\n"
-                })
-
-                if group_text:
-                    # Add group transcript
-                    content.append({"type": "text", "text": f"{group_text}\n"})
-
-                if group_frames and use_vision:
-                    # Interleave frames with time markers
-                    for frame in group_frames:
-                        content.append({
-                            "type": "text",
-                            "text": f"[Visual frame at {format_time(frame.time)}]\n"
-                        })
-                        content.append({"type": "image_path", "path": frame.path})
-
-        return MessageContent(content=content)
 
     def _group_segments(self, segments: List[VideoTranscriptSegment], target_chunks: int) -> List[List[VideoTranscriptSegment]]:
         """
@@ -237,22 +167,6 @@ class KnowledgeItem:
     unit_id: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-
-    def format(self, with_type: bool = True) -> str:
-        prefix = f"[{self.id}]"
-        if with_type and self.subtype:
-            subtype_val = self.subtype.value if isinstance(self.subtype, AtomicType) else self.subtype
-            prefix += f" ({subtype_val})"
-        return prefix + " " + self.text
-
-    def __str__(self) -> str:
-        return self.format()
-
-    def format_to_message_content(self, with_type: bool = True) -> MessageContent:
-        """Format this item as MessageContent for prompt inclusion."""
-        return MessageContent(content=[
-            {"type": "text", "text": self.format(with_type)}
-        ])
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialize to a plain JSON-serializable dict."""

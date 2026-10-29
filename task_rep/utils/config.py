@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Any, Dict, Literal, Optional
 
 @dataclass
 class ModelConfig:
@@ -10,9 +10,11 @@ class ModelConfig:
     model: Optional[str] = None
 
     def __post_init__(self):
-        """Initialize default model based on provider."""
+        """Initialize default model based on provider (only if not explicitly set)."""
         if self.category not in ["vlm", "embedding"]:
             raise ValueError(f"Invalid category: {self.category}")
+        if self.model is not None:
+            return
         if self.provider == "openai":
             if self.category == "vlm":
                 self.model = "gpt-4o-mini"
@@ -29,3 +31,14 @@ class ModelConfig:
     def cache_suffix(self) -> str:
         model_name = self.model.split("/")[-1].replace("-", "").replace("_", "")
         return f"{model_name}"
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {"category": self.category, "provider": self.provider, "model": self.model}
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "ModelConfig":
+        return ModelConfig(
+            category=data["category"],
+            provider=data["provider"],
+            model=data.get("model"),
+        )

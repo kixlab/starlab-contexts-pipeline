@@ -10,10 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
-from utils import (
-    random_uid,
-    MessageContent,
-)
+from utils import random_uid
 
 FACET_STR_FORMAT = """[F{id}] ({scope}) {title} (Plural: {title_plural}): {definition}
 **Guidelines for labeling items**:
@@ -21,10 +18,6 @@ FACET_STR_FORMAT = """[F{id}] ({scope}) {title} (Plural: {title_plural}): {defin
 **Vocabulary**:
 {vocabulary}
 """
-
-GUIDELINE_STR_FORMAT = """{guideline}"""
-
-LABEL_STR_FORMAT = """[L{id}] `{label}` -- {definition}"""
 
 @dataclass
 class FacetLabel:
@@ -52,19 +45,6 @@ class FacetLabel:
             label=data["label"],
             definition=data["definition"],
         )
-
-    def __str__(self) -> str:
-        return LABEL_STR_FORMAT.format(
-            id=self.label.lower().replace(" ", "_"),
-            label=self.label,
-            definition=self.definition,
-        )
-
-    def format_to_message_content(self) -> MessageContent:
-        """Format this facet label as MessageContent for prompt inclusion."""
-        return MessageContent(content=[
-            {"type": "text", "text": str(self)}
-        ])
 
 @dataclass
 class Facet:
@@ -138,35 +118,6 @@ class Facet:
             vocabulary=vocabulary,
             metadata=data.get("metadata", {}),
         )
-
-    def __str__(self) -> str:
-        return FACET_STR_FORMAT.format(
-            id=self.id,
-            scope=self.scope,
-            title=self.title,
-            title_plural=self.title_plural,
-            definition=self.definition,
-            guidelines=self.format_guidelines(),
-            vocabulary=self.format_vocabulary(),
-        )
-
-    def format_guidelines(self) -> str:
-        """Format the guidelines for the facet."""
-        if len(self.guidelines) == 0:
-            return "No guidelines are available."
-        return "\n".join(["\t-" + GUIDELINE_STR_FORMAT.format(guideline=guideline) for guideline in self.guidelines])
-
-    def format_vocabulary(self) -> str:
-        """Format the vocabulary for the facet."""
-        if len(self.vocabulary) == 0:
-            return "No labels are available."
-        return "\n".join(["\t" + str(label) for label in self.vocabulary])
-
-    def format_to_message_content(self) -> MessageContent:
-        """Format this facet as MessageContent for prompt inclusion."""
-        return MessageContent(content=[
-            {"type": "text", "text": str(self)}
-        ])
 
     def replace_vocabulary(self, new_vocabulary: List[FacetLabel]):
         """Replace the vocabulary for this facet."""
@@ -264,11 +215,7 @@ class AnnotationTable:
             if key in self._data:
                 parts.append(f"<{facet.title}:{self._data[key]}>")
             else:
-                print(f"No label found for {key}")
-                for k, v in self._data.items():
-                    if k[0] == item_id and k[1] == facet.id:
-                        print("Found", k, v)
-                        break
+                parts.append(f"<{facet.title}:'na'>")
         return "".join(parts)
 
     def item_ids(self) -> Set[str]:

@@ -18,10 +18,9 @@ from utils import (
     ModelConfig,
     batch_run_llm_calls,
     random_uid,
-    MessageContent,
 )
 
-from prompts import (
+from .prompts import (
     form_labeling_request,
     process_labeling_response,
 )
@@ -66,26 +65,18 @@ class VLMFacetLabeler:
         if not videos:
             return AnnotationTable()
 
-        # Pre-format video items as MessageContent (reused across all facets)
-        video_contents: Dict[str, List[MessageContent]] = {}
-        for video_id, video_items in videos.items():
-            video_contents[video_id] = [
-                item.format_to_message_content() for item in video_items
-            ]
-
         # One request per (facet, video) pair, flattened into a single batch
         batch_id = f"facet_labeling_{random_uid()}"
         request_keys: List[Tuple[str, str]] = []  # (facet_id, video_id)
         request_args = []
 
         for facet in facets:
-            facet_mc = facet.format_to_message_content()
-            for video_id, video_content in video_contents.items():
+            for video_id, video_items in videos.items():
                 request_keys.append((facet.id, video_id))
                 request_args.append({
                     "task": task,
-                    "facet": facet_mc,
-                    "video_items": video_content,
+                    "facet": facet,
+                    "video_items": video_items,
                 })
 
         batch_results = batch_run_llm_calls(

@@ -7,13 +7,18 @@ Revision can include:
 - Splitting overly broad facets
 - Merging redundant facets
 """
-
+import logging
 from typing import Any, Dict, List
 
 from utils.llm import MessageContent
-from .formatters import dict_mc_to_str
+from utils import random_uid
 
 from .fa_pydantic import FacetRevisionResult
+from .formatters import facets_to_message_content
+
+from facets.schema import Facet, FacetLabel
+
+logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are a helpful assistant who can analyze and refine contextual factors for the task: {task}."""
 
@@ -45,26 +50,22 @@ List of existing factors:
 
 def form_facet_revision_request(
     task: str,
-    facets: Dict[str, MessageContent],
+    facets: List[Facet],
     **kwargs,
 ) -> Dict[str, Any]:
     """Form request to revise existing facets."""
-    facets_str = dict_mc_to_str(facets)
     messages = [
         {
             "role": "system",
-            "content": MessageContent.from_template(
-                SYSTEM_PROMPT,
-                task=task
-            )
+            "content": MessageContent.from_template(SYSTEM_PROMPT, task=task),
         },
         {
             "role": "user",
             "content": MessageContent.from_template(
                 USER_PROMPT,
-                existing_facets=facets_str,
-            )
-        }
+                existing_facets=facets_to_message_content(facets),
+            ),
+        },
     ]
     return {
         "messages": messages,
@@ -75,8 +76,29 @@ def form_facet_revision_request(
 def process_facet_revision_response(
     response: Dict[str, Any],
     **kwargs,
-) -> List[Dict[str, Any]]:
-    """Process response from facet revision."""
+) -> List[Facet]:
+    """Process facet revision response, returning typed Facet objects.
+
+    IDs are self-generated (not taken from the LLM response).
+    """
     result = response.get("response", {})
     candidates = result.get("candidates", [])
-    return candidates
+    changes = result.get("changes", "")
+    logger.info("Revision changes: %s", changes)
+    facets = []
+    for candidate in candidates:
+        vocabulary = [
+            FacetLabel(label=ld["label"], definition=ld["definition"])
+            for ld in candidate.get("segment_labels", [])
+        ]
+        facets.append(Facet(
+            id=random_uid(),
+            title=candidate["title"],
+            title_plural=candidate["title_plural"],
+            scope=candidate["scope"],
+            definition=candidate["definition"],
+            justification=candidate["justification"],
+            guidelines=candidate["guidelines"],
+            vocabulary=vocabulary,
+        ))
+    return facets

@@ -5,7 +5,6 @@ class SegmentLabel(BaseModel):
     """A label in a facet's vocabulary."""
     model_config = ConfigDict(extra='forbid')
 
-    id: str = Field(description="Label ID")
     label: str = Field(description="Label text")
     definition: str = Field(description="Definition of this label")
 
@@ -15,7 +14,6 @@ class RevisedFacetCandidate(BaseModel):
     """A revised facet candidate."""
     model_config = ConfigDict(extra='forbid')
 
-    id: str = Field(description="Facet ID (preserved when possible)")
     title: str = Field(description="Factor title")
     title_plural: str = Field(description="Plural form")
     scope: str = Field(description="global, mid-level, or fine-grained")
@@ -52,7 +50,6 @@ class FacetCandidate(BaseModel):
     """A proposed facet candidate with vocabulary and segmentations."""
     model_config = ConfigDict(extra='forbid')
 
-    id: str = Field(description="Facet ID")
     title: str = Field(description="Short name (2-3 words)")
     title_plural: str = Field(description="Plural form of the title")
     scope: str = Field(description="global, mid-level, or fine-grained")
