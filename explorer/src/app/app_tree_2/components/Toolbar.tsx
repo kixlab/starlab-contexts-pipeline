@@ -52,12 +52,12 @@ export function Toolbar({
       <div className="flex items-center gap-3 text-sm">
         {/* Dataset selector */}
         <select
-          aria-label="Tutorial corpus"
+          aria-label="Tutorial collection"
           value={selectedLabel ?? ""}
           onChange={(e) => e.target.value && onSelectDataset(e.target.value)}
           className="h-7 px-2 rounded bg-neutral-800 border border-neutral-700 text-white text-xs"
         >
-          <option value="">Select tutorial corpus…</option>
+          <option value="">Choose tutorial collection…</option>
           {datasetOptions.map((o) => (
             <option key={o.label} value={o.label}>{o.label}</option>
           ))}
@@ -99,7 +99,7 @@ export function Toolbar({
 
             {/* Max K */}
             <label className="flex items-center gap-1.5 text-xs text-neutral-400">
-              Max CUs
+              Max contexts
               <input
                 type="number"
                 min={1}

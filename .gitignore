@@ -28,3 +28,4 @@ legacy/static/
 **/next-env.d.ts
 **/*.tsbuildinfo
 explorer/public/data/local*.json
+explorer/public/media/local*/

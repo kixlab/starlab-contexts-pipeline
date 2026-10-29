@@ -8,8 +8,8 @@ Use Node.js 22. From this directory, run `npm ci`, then
 The bundled synthetic dataset and local video work without API keys. To use a
 generated bundle, follow the [root quick start](../README.md#quick-start-both-repos).
 The configured bundle is selected automatically. Select a graph node and press
-**Copy IDs** to use that candidate's contextual units in TaskTailor's
-**Contextual unit IDs** field. TaskTailor contains contextual retrieval, video
+**Copy selection** to use that candidate's contexts in TaskTailor's
+**Paste a saved selection** field. TaskTailor contains contextual retrieval, video
 segmentation, and coverage analysis; it is separate from this Pipeline repo.
 Graph construction only reads existing annotations; it makes no model calls.
 For a new raw corpus, follow [corpus setup](../README.md#use-your-own-corpus).

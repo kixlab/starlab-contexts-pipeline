@@ -218,7 +218,7 @@ export function FacetListPanel({
   );
 
   if (facets.length === 0) {
-    return <div className={`text-xs text-neutral-500 italic ${className}`}>No contextual units available.</div>;
+    return <div className={`text-xs text-neutral-500 italic ${className}`}>No contexts available.</div>;
   }
 
   // Top-3 opacities: rank 0 → 30%, rank 1 → 20%, rank 2 → 10%

@@ -16,8 +16,8 @@ import {
 // ---------------------------------------------------------------------------
 
 const METRIC_TOOLTIPS: Record<string, string> = {
-  Size: "Vocabulary cost: total canonical values across the selected contextual units, excluding N/A.",
-  Effectiveness: "How much the candidate's contextual-unit values distinguish knowledge content in this corpus. Higher values indicate less remaining uncertainty.",
+  Size: "Vocabulary cost: total context details across the selected contexts, excluding N/A.",
+  Effectiveness: "How much the candidate's context details distinguish knowledge content in this corpus. Higher values indicate less remaining uncertainty.",
   Refinement: "Fraction of the parent's partition information preserved by the child candidate.",
 };
 
@@ -247,7 +247,7 @@ function SingleNodeView({
 
       {/* Distributions */}
       {dists.length > 0 && (
-        <Section title="Contextual units & canonical values" extra={<span className="text-[9px] text-neutral-600 font-normal normal-case tracking-normal">click a CU to expand</span>}>
+        <Section title="Contexts & context details" extra={<span className="text-[9px] text-neutral-600 font-normal normal-case tracking-normal">click a context to expand</span>}>
           {dists.map((d) => (
             <FacetDistBar key={d.facet.id} dist={d} dataset={dataset} infoTypes={infoTypes}
               onExpand={onExpandDist ? () => onExpandDist(node.id, d.facet.id) : undefined} />
@@ -308,7 +308,7 @@ function ComparisonView({
       </Section>
 
       {/* Facet overlap */}
-      <Section title="Shared contextual units">
+      <Section title="Shared contexts">
         {shared.length > 0 && <FacetList label="Shared" facets={shared} />}
         {onlyA.length > 0 && <FacetList label="Only #1" facets={onlyA} />}
         {onlyB.length > 0 && <FacetList label="Only #2" facets={onlyB} />}
@@ -398,7 +398,7 @@ function EdgeView({
           </div>
         )}
         {edge.addedFacets.length === 0 && edge.removedFacets.length === 0 && (
-          <div className="text-xs text-neutral-500">No contextual-unit changes</div>
+          <div className="text-xs text-neutral-500">No context changes</div>
         )}
       </Section>
 
@@ -463,7 +463,7 @@ function CopyFacetIdsButton({ facets, onCopy }: { facets: Facet[]; onCopy?: (fac
       }}
       className="text-[9px] px-1.5 py-0.5 rounded border border-neutral-700 text-neutral-400 hover:text-white hover:border-neutral-500 transition-colors"
     >
-      {copied ? "Copied!" : "Copy IDs"}
+      {copied ? "Copied!" : "Copy selection"}
     </button>
   );
 }
