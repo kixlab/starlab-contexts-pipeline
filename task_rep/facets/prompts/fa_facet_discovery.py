@@ -30,61 +30,64 @@ logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are a helpful assistant who can analyze and detect the contextual factors around the task: {task}."""
 
-USER_PROMPT_SINGLE_VIDEO = """You are given tutorial videos and target information units extracted from them. Identify `contextual factors` (facets) that would help differentiate when these information units appear in the videos.
+USER_PROMPT = """You are given tutorial videos and target information units extracted from them. Your job is to discover candidate contextual factors (facets) that help differentiate the procedural situations in which these information units occur.
 
-A contextual factor is a domain-grounded, task-relevant, monolithic, piecewise-stable, and target-independent variable that describes the procedural situation of the task at a given moment or over a meaningful span.
-    - Domain-grounded: the factor is anchored in the task-world and describes a real aspect of the procedure as it unfolds, such as procedural stage, material state, tool state, object configuration, environmental condition, or service context. It does not describe the media, editorial, or presentation format through which the procedure is shown.
-    - Task-relevant: the factor changes what actions, constraints, interpretations, or information are applicable in that part of the task.
-    - Monolithic: the factor captures one coherent semantic concept rather than combining multiple distinct concepts.
-    - Piecewise-stable: the factor remains constant over meaningful temporal segments and changes at identifiable boundaries.
-    - Target-independent: the factor is determined by the broader procedural context, not by the specific information unit being labeled; removing that unit would not change the factor value.
-Non-examples of contextual factors include:
-    - video genre or tutorial format
-    - presenter configuration
-    - narration style
-    - camera or editing style
-    - entertainment framing
-    - human skill or expertise
-    - subjective quality judgments
+You are also given a previous factor set under which all targets share the same signature. Proposed factors must be distinct from that set.
 
-GOAL
-Propose contextual factors so that target information units receive DIFFERENT signatures (ideally unique). You are also given a previous set of factors under which all targets share the same signature, so avoid proposing factors that are similar or overlapping with the previous set.
-Follow the requirements and the procedure below.
+CONTEXTUAL FACTOR DEFINITION
+A valid contextual factor is a variable describing the procedural situation at a given moment or span. It must be:
 
-WHEN NOT TO PROPOSE FACTORS
-Do NOT force factors that are artificial or unreliable. Return an empty candidate list with a refusal reason if any of the following apply:
-- All target items occur in the same narrow region of the tutorial and share identical context — no factor can assign them different labels without reading the item content itself (violating target-independence).
-- The only distinguishing factors would be too fine-grained to generalize (e.g., "the exact product being discussed"), essentially re-encoding the item content as a label.
-- Proposed factors would require subjective or ambiguous judgment calls that different annotators would disagree on.
-It is better to return zero candidates than to propose a factor that does not reliably separate the targets.
+- Domain-grounded: anchored in the task-world (e.g., procedural stage, material state, tool state, object configuration, environmental condition, operating mode, verification state, service context) — NOT in media, narration, editing, presentation, or social framing.
+- Consequential: changes what actions, constraints, interpretations, checks, or information apply.
+- Monolithic: captures one coherent semantic concept, not a bundle.
+- Piecewise-stable: remains constant over meaningful spans; changes at identifiable boundaries.
+- Target-independent: determined by the broader procedural context; removing the target item would not change the factor's value.
 
-REQUIREMENTS
-- Each proposed factor must be distinct from the previous set of factors.
-- For each factor, labeling must be non-overlapping, exhaustive, and single-label (exactly one label per moment in time).
-- Keep factor titles short (2-3 words)
-- Provide a finite, explicit label vocabulary for each factor
-- Try to propose global or mid-level factors first. Available context scopes are:
-    - Global: stable across a large section or the whole tutorial.
-    - Mid-level: persists for a meaningful span of the tutorial.
-    - Fine-grained (only if necessary): brief contexts used only if global + mid-level factors cannot resolve the collisions.
+Non-examples: video genre, tutorial format, presenter configuration, narration style, camera/editing style, entertainment framing, human skill level, subjective quality, labels restating target content.
+
+DESIDERATA
+Prefer factors that are:
+- easy to understand at a glance, even without deep domain familiarity
+- broadly useful across the tutorial
+- simple, intuitive, mid-level task-world distinctions over obscure or overly fine-grained ones
 
 PROCEDURE
-1. Propose contextual factors that improve discrimination among the target information units.
-    - Briefly justify: (1) why it is a contextual factor and satisfies each part of the definition, (2) how it separates (at least some of the) colliding information units, (3) why it is not contained in the previous set.
-    - Provide for each factor:
-        - Context scope ("global", "mid-level", "fine-grained")
-        - Title
-        - Definition
-        - Segmentation guidelines (start/end rules; transcript cues for label change)
-        - Full vocabulary necessary to segment the tutorial according to the factor.
-    - If no valid factors can be proposed, return an empty candidate list with a refusal reason.
-2. If there are factors, assign a label to each TARGET information unit under each proposed factor.
-    - For each factor, provide a brief reason for each target assignment explaining why the label applies based on the surrounding context (not the item content itself).
-    - For each factor, also provide 2-4 anchor items (non-target items from the tutorial) that demonstrate the factor applies broadly and that different labels from the vocabulary are actually used across the tutorial. Choose anchors that receive DIFFERENT labels from each other to show the factor's range.
-3. If there are factors, verify that the signatures of the target information units will be different under the new factors.
+
+0. Exploratory search
+Generate 8-15 raw candidate factors spanning multiple families. For each, briefly note:
+- Title (2-3 words) and contextual family
+- One-sentence definition
+- Why it may separate some targets
+- Risks: overlap with previous or sibling candidates, ambiguity, low stability, too technical, target leakage
+
+1. Candidate selection
+Select the best 3-6 factors that jointly maximize: validity (all five criteria), interpretability, target discrimination, family diversity, and distinctness from the previous set and from each other.
+
+2. Final specification
+For each selected factor provide:
+- Context scope: global / mid-level / fine-grained
+- Title (2-3 words) and plain-language summary (one line a non-expert could understand)
+- Definition
+- Brief validity note: one sentence confirming it satisfies the five criteria
+- Why it separates at least some colliding targets
+- Why it is distinct from the previous set and from the other new factors
+- Segmentation guidelines: start/end rules, transcript or visual cues for label changes
+- Label vocabulary: finite, explicit, mutually exclusive, collectively exhaustive
+
+3. Target assignments
+Assign one label per target per factor. For each, give a brief reason grounded in procedural context, not item content.
+
+4. Anchor examples
+Per factor, provide 2-4 non-target items from the tutorial showing the factor applies broadly and multiple labels are used. Choose anchors with different labels from each other.
+
+5. Signature check
+State which targets are now separated. If collisions remain, explain which and why.
+
+REFUSAL RULE
+Do NOT force artificial or item-specific factors. Return an empty candidate list with a refusal reason if, after searching across families and abstraction levels, no factor can differentiate the targets without encoding target content, relying on subjective judgment, or being too brittle to generalize.
 
 OUTPUT
-Return the proposed contextual factors, target assignments, and anchor examples according to the schema.
+Return: selected factors, target assignments, anchor examples, signature verification, refusal reason (if applicable).
 
 INPUTS
 - Previous contextual factors:
@@ -96,6 +99,73 @@ INPUTS
 - Tutorials:
 {tutorials}
 """
+
+# USER_PROMPT = """You are given tutorial videos and target information units extracted from them. Identify `contextual factors` (facets) that would help differentiate when these information units appear in the videos.
+
+# A contextual factor is a domain-grounded, task-relevant, monolithic, piecewise-stable, and target-independent variable that describes the procedural situation of the task at a given moment or over a meaningful span.
+#     - Domain-grounded: the factor is anchored in the task-world and describes a real aspect of the procedure as it unfolds, such as procedural stage, material state, tool state, object configuration, environmental condition, or service context. It does not describe the media, editorial, or presentation format through which the procedure is shown.
+#     - Task-relevant: the factor changes what actions, constraints, interpretations, or information are applicable in that part of the task.
+#     - Monolithic: the factor captures one coherent semantic concept rather than combining multiple distinct concepts.
+#     - Piecewise-stable: the factor remains constant over meaningful temporal segments and changes at identifiable boundaries.
+#     - Target-independent: the factor is determined by the broader procedural context, not by the specific information unit being labeled; removing that unit would not change the factor value.
+# Non-examples of contextual factors include:
+#     - video genre or tutorial format
+#     - presenter configuration
+#     - narration style
+#     - camera or editing style
+#     - entertainment framing
+#     - human skill or expertise
+#     - subjective quality judgments
+
+# GOAL
+# Propose contextual factors so that target information units receive DIFFERENT signatures (ideally unique). You are also given a previous set of factors under which all targets share the same signature, so avoid proposing factors that are similar or overlapping with the previous set.
+# Follow the requirements and the procedure below.
+
+# WHEN NOT TO PROPOSE FACTORS
+# Do NOT force factors that are artificial or unreliable. Return an empty candidate list with a refusal reason if any of the following apply:
+# - All target items occur in the same narrow region of the tutorial and share identical context — no factor can assign them different labels without reading the item content itself (violating target-independence).
+# - The only distinguishing factors would be too fine-grained to generalize (e.g., "the exact product being discussed"), essentially re-encoding the item content as a label.
+# - Proposed factors would require subjective or ambiguous judgment calls that different annotators would disagree on.
+# It is better to return zero candidates than to propose a factor that does not reliably separate the targets.
+
+# REQUIREMENTS
+# - Each proposed factor must be distinct from the previous set of factors.
+# - For each factor, labeling must be non-overlapping, exhaustive, and single-label (exactly one label per moment in time).
+# - Keep factor titles short (2-3 words)
+# - Provide a finite, explicit label vocabulary for each factor
+# - Try to propose global or mid-level factors first. Available context scopes are:
+#     - Global: stable across a large section or the whole tutorial.
+#     - Mid-level: persists for a meaningful span of the tutorial.
+#     - Fine-grained (only if necessary): brief contexts used only if global + mid-level factors cannot resolve the collisions.
+
+# PROCEDURE
+# 1. Propose contextual factors that improve discrimination among the target information units.
+#     - Briefly justify: (1) why it is a contextual factor and satisfies each part of the definition, (2) how it separates (at least some of the) colliding information units, (3) why it is not contained in the previous set.
+#     - Provide for each factor:
+#         - Context scope ("global", "mid-level", "fine-grained")
+#         - Title
+#         - Definition
+#         - Segmentation guidelines (start/end rules; transcript cues for label change)
+#         - Full vocabulary necessary to segment the tutorial according to the factor.
+#     - If no valid factors can be proposed, return an empty candidate list with a refusal reason.
+# 2. If there are factors, assign a label to each TARGET information unit under each proposed factor.
+#     - For each factor, provide a brief reason for each target assignment explaining why the label applies based on the surrounding context (not the item content itself).
+#     - For each factor, also provide 2-4 anchor items (non-target items from the tutorial) that demonstrate the factor applies broadly and that different labels from the vocabulary are actually used across the tutorial. Choose anchors that receive DIFFERENT labels from each other to show the factor's range.
+# 3. If there are factors, verify that the signatures of the target information units will be different under the new factors.
+
+# OUTPUT
+# Return the proposed contextual factors, target assignments, and anchor examples according to the schema.
+
+# INPUTS
+# - Previous contextual factors:
+# {previous_facets}
+# - Signature of the target information units under the previous set of factors:
+# {signature}
+# - Target information units:
+# {target_items}
+# - Tutorials:
+# {tutorials}
+# """
 
 
 def form_facet_discovery_request(
@@ -120,7 +190,7 @@ def form_facet_discovery_request(
         {
             "role": "user",
             "content": MessageContent.from_template(
-                USER_PROMPT_SINGLE_VIDEO,
+                USER_PROMPT,
                 previous_facets=facets_to_message_content(facets),
                 tutorials=videos_to_message_content(videos, id_map),
                 target_items=target_items_to_message_content(target_items, id_map),

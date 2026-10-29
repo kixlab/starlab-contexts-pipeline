@@ -40,7 +40,6 @@ from .tree import (
     build_tree_nodes,
     prune_and_connect,
     sample_schemas_from_tree,
-    is_tree_improved,
-    get_active_facet_ids,
+    compare_tree_quality,
     compute_tree_depth,
 )

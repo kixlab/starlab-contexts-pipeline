@@ -1,7 +1,7 @@
 """
 Data structures for facets and annotations.
 
-A facet is a data-grounded, task-relevant, monolithic, piecewise-stable, target-independent dimension
+A facet is a data-grounded, consequential, monolithic, piecewise-stable, target-independent dimension
 that discriminates knowledge items from one another.
 """
 
@@ -50,11 +50,6 @@ class FacetLabel:
 class Facet:
     """
     A contextual factor that discriminates knowledge items.
-
-    Properties:
-    - Piecewise-stable: stays constant for meaningful spans
-    - Target-independent: determined by context, not the specific item
-    - Task-relevant: affects knowledge applicability
 
     Attributes:
         id: Unique identifier
