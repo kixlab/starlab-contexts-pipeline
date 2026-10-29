@@ -1,0 +1,492 @@
+{
+  "context_schema": [
+    {
+      "id": "paper",
+      "type": "global",
+      "title": "Paper weight",
+      "title_plural": "Paper weights",
+      "definition": "The weight of the paper used for folding.",
+      "guidelines": [
+        "Label each step with the tutorial paper weight."
+      ],
+      "vocabulary": [
+        {
+          "label": "Thin",
+          "definition": "Lightweight folding paper."
+        },
+        {
+          "label": "Thick",
+          "definition": "Heavy folding paper."
+        }
+      ]
+    },
+    {
+      "id": "stage",
+      "type": "local",
+      "title": "Folding stage",
+      "title_plural": "Folding stages",
+      "definition": "The stage reached in the folding procedure.",
+      "guidelines": [
+        "Identify the stage described by the step."
+      ],
+      "vocabulary": [
+        {
+          "label": "Prepare",
+          "definition": "Select and align the paper."
+        },
+        {
+          "label": "Fold",
+          "definition": "Make the principal creases."
+        },
+        {
+          "label": "Finish",
+          "definition": "Open and adjust the finished shape."
+        }
+      ]
+    }
+  ],
+  "facet_candidates": [
+    {
+      "id": "paper",
+      "type": "global",
+      "title": "Paper weight",
+      "title_plural": "Paper weights",
+      "definition": "The weight of the paper used for folding.",
+      "guidelines": [
+        "Label each step with the tutorial paper weight."
+      ],
+      "vocabulary": [
+        {
+          "label": "Thin",
+          "definition": "Lightweight folding paper."
+        },
+        {
+          "label": "Thick",
+          "definition": "Heavy folding paper."
+        }
+      ]
+    },
+    {
+      "id": "stage",
+      "type": "local",
+      "title": "Folding stage",
+      "title_plural": "Folding stages",
+      "definition": "The stage reached in the folding procedure.",
+      "guidelines": [
+        "Identify the stage described by the step."
+      ],
+      "vocabulary": [
+        {
+          "label": "Prepare",
+          "definition": "Select and align the paper."
+        },
+        {
+          "label": "Fold",
+          "definition": "Make the principal creases."
+        },
+        {
+          "label": "Finish",
+          "definition": "Open and adjust the finished shape."
+        }
+      ]
+    }
+  ],
+  "labeled_dataset": [
+    {
+      "id": "synthetic-1",
+      "url": "/media/folding-demo.mp4",
+      "title": "Synthetic folding tutorial 1 (thin paper)",
+      "original_title": "Synthetic folding tutorial 1 (thin paper)",
+      "content": "Lay the sheet flat and align its corners. Fold the thin paper in half and smooth the center crease. Bring both corners toward the middle; use gentle pressure. Open the bottom edge and adjust the shape until it stands evenly.",
+      "transcript": [
+        {
+          "text": "Lay the sheet flat and align its corners.",
+          "start": 0,
+          "end": 5
+        },
+        {
+          "text": "Fold the thin paper in half and smooth the center crease.",
+          "start": 5,
+          "end": 10
+        },
+        {
+          "text": "Bring both corners toward the middle; use gentle pressure.",
+          "start": 10,
+          "end": 15
+        },
+        {
+          "text": "Open the bottom edge and adjust the shape until it stands evenly.",
+          "start": 15,
+          "end": 20
+        }
+      ],
+      "pieces": [
+        {
+          "piece_id": "synthetic-1-step-1",
+          "unit_id": "prepare",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 0,
+          "end": 5,
+          "content": "Lay the sheet flat and align its corners.",
+          "labels": {
+            "paper": [
+              "Thin"
+            ],
+            "stage": [
+              "Prepare"
+            ]
+          }
+        },
+        {
+          "piece_id": "synthetic-1-step-2",
+          "unit_id": "crease-thin",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 5,
+          "end": 10,
+          "content": "Fold the thin paper in half and smooth the center crease.",
+          "labels": {
+            "paper": [
+              "Thin"
+            ],
+            "stage": [
+              "Fold"
+            ]
+          }
+        },
+        {
+          "piece_id": "synthetic-1-step-3",
+          "unit_id": "corners-thin",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 10,
+          "end": 15,
+          "content": "Bring both corners toward the middle; use gentle pressure.",
+          "labels": {
+            "paper": [
+              "Thin"
+            ],
+            "stage": [
+              "Fold"
+            ]
+          }
+        },
+        {
+          "piece_id": "synthetic-1-step-4",
+          "unit_id": "finish",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 15,
+          "end": 20,
+          "content": "Open the bottom edge and adjust the shape until it stands evenly.",
+          "labels": {
+            "paper": [
+              "Thin"
+            ],
+            "stage": [
+              "Finish"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "synthetic-2",
+      "url": "/media/folding-demo.mp4",
+      "title": "Synthetic folding tutorial 2 (thick paper)",
+      "original_title": "Synthetic folding tutorial 2 (thick paper)",
+      "content": "Lay the sheet flat and align its corners. Fold the thick paper in half and smooth the center crease. Bring both corners toward the middle; use firm pressure. Open the bottom edge and adjust the shape until it stands evenly.",
+      "transcript": [
+        {
+          "text": "Lay the sheet flat and align its corners.",
+          "start": 0,
+          "end": 5
+        },
+        {
+          "text": "Fold the thick paper in half and smooth the center crease.",
+          "start": 5,
+          "end": 10
+        },
+        {
+          "text": "Bring both corners toward the middle; use firm pressure.",
+          "start": 10,
+          "end": 15
+        },
+        {
+          "text": "Open the bottom edge and adjust the shape until it stands evenly.",
+          "start": 15,
+          "end": 20
+        }
+      ],
+      "pieces": [
+        {
+          "piece_id": "synthetic-2-step-1",
+          "unit_id": "prepare",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 0,
+          "end": 5,
+          "content": "Lay the sheet flat and align its corners.",
+          "labels": {
+            "paper": [
+              "Thick"
+            ],
+            "stage": [
+              "Prepare"
+            ]
+          }
+        },
+        {
+          "piece_id": "synthetic-2-step-2",
+          "unit_id": "crease-thick",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 5,
+          "end": 10,
+          "content": "Fold the thick paper in half and smooth the center crease.",
+          "labels": {
+            "paper": [
+              "Thick"
+            ],
+            "stage": [
+              "Fold"
+            ]
+          }
+        },
+        {
+          "piece_id": "synthetic-2-step-3",
+          "unit_id": "corners-thick",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 10,
+          "end": 15,
+          "content": "Bring both corners toward the middle; use firm pressure.",
+          "labels": {
+            "paper": [
+              "Thick"
+            ],
+            "stage": [
+              "Fold"
+            ]
+          }
+        },
+        {
+          "piece_id": "synthetic-2-step-4",
+          "unit_id": "finish",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 15,
+          "end": 20,
+          "content": "Open the bottom edge and adjust the shape until it stands evenly.",
+          "labels": {
+            "paper": [
+              "Thick"
+            ],
+            "stage": [
+              "Finish"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "synthetic-3",
+      "url": "/media/folding-demo.mp4",
+      "title": "Synthetic folding tutorial 3 (thin paper)",
+      "original_title": "Synthetic folding tutorial 3 (thin paper)",
+      "content": "Lay the sheet flat and align its corners. Fold the thin paper in half and smooth the center crease. Bring both corners toward the middle; use gentle pressure. Open the bottom edge and adjust the shape until it stands evenly.",
+      "transcript": [
+        {
+          "text": "Lay the sheet flat and align its corners.",
+          "start": 0,
+          "end": 5
+        },
+        {
+          "text": "Fold the thin paper in half and smooth the center crease.",
+          "start": 5,
+          "end": 10
+        },
+        {
+          "text": "Bring both corners toward the middle; use gentle pressure.",
+          "start": 10,
+          "end": 15
+        },
+        {
+          "text": "Open the bottom edge and adjust the shape until it stands evenly.",
+          "start": 15,
+          "end": 20
+        }
+      ],
+      "pieces": [
+        {
+          "piece_id": "synthetic-3-step-1",
+          "unit_id": "prepare",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 0,
+          "end": 5,
+          "content": "Lay the sheet flat and align its corners.",
+          "labels": {
+            "paper": [
+              "Thin"
+            ],
+            "stage": [
+              "Prepare"
+            ]
+          }
+        },
+        {
+          "piece_id": "synthetic-3-step-2",
+          "unit_id": "crease-thin",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 5,
+          "end": 10,
+          "content": "Fold the thin paper in half and smooth the center crease.",
+          "labels": {
+            "paper": [
+              "Thin"
+            ],
+            "stage": [
+              "Fold"
+            ]
+          }
+        },
+        {
+          "piece_id": "synthetic-3-step-3",
+          "unit_id": "corners-thin",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 10,
+          "end": 15,
+          "content": "Bring both corners toward the middle; use gentle pressure.",
+          "labels": {
+            "paper": [
+              "Thin"
+            ],
+            "stage": [
+              "Fold"
+            ]
+          }
+        },
+        {
+          "piece_id": "synthetic-3-step-4",
+          "unit_id": "finish",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 15,
+          "end": 20,
+          "content": "Open the bottom edge and adjust the shape until it stands evenly.",
+          "labels": {
+            "paper": [
+              "Thin"
+            ],
+            "stage": [
+              "Finish"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "synthetic-4",
+      "url": "/media/folding-demo.mp4",
+      "title": "Synthetic folding tutorial 4 (thick paper)",
+      "original_title": "Synthetic folding tutorial 4 (thick paper)",
+      "content": "Lay the sheet flat and align its corners. Fold the thick paper in half and smooth the center crease. Bring both corners toward the middle; use firm pressure. Open the bottom edge and adjust the shape until it stands evenly.",
+      "transcript": [
+        {
+          "text": "Lay the sheet flat and align its corners.",
+          "start": 0,
+          "end": 5
+        },
+        {
+          "text": "Fold the thick paper in half and smooth the center crease.",
+          "start": 5,
+          "end": 10
+        },
+        {
+          "text": "Bring both corners toward the middle; use firm pressure.",
+          "start": 10,
+          "end": 15
+        },
+        {
+          "text": "Open the bottom edge and adjust the shape until it stands evenly.",
+          "start": 15,
+          "end": 20
+        }
+      ],
+      "pieces": [
+        {
+          "piece_id": "synthetic-4-step-1",
+          "unit_id": "prepare",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 0,
+          "end": 5,
+          "content": "Lay the sheet flat and align its corners.",
+          "labels": {
+            "paper": [
+              "Thick"
+            ],
+            "stage": [
+              "Prepare"
+            ]
+          }
+        },
+        {
+          "piece_id": "synthetic-4-step-2",
+          "unit_id": "crease-thick",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 5,
+          "end": 10,
+          "content": "Fold the thick paper in half and smooth the center crease.",
+          "labels": {
+            "paper": [
+              "Thick"
+            ],
+            "stage": [
+              "Fold"
+            ]
+          }
+        },
+        {
+          "piece_id": "synthetic-4-step-3",
+          "unit_id": "corners-thick",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 10,
+          "end": 15,
+          "content": "Bring both corners toward the middle; use firm pressure.",
+          "labels": {
+            "paper": [
+              "Thick"
+            ],
+            "stage": [
+              "Fold"
+            ]
+          }
+        },
+        {
+          "piece_id": "synthetic-4-step-4",
+          "unit_id": "finish",
+          "item_type": "step",
+          "content_type": "step",
+          "start": 15,
+          "end": 20,
+          "content": "Open the bottom edge and adjust the shape until it stands evenly.",
+          "labels": {
+            "paper": [
+              "Thick"
+            ],
+            "stage": [
+              "Finish"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

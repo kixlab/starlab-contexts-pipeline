@@ -1,0 +1,4 @@
+-r requirements.txt
+opencv-python-headless>=4.9,<5
+yt-dlp>=2025.1
+# Also install ffmpeg (and Node.js for yt-dlp's JavaScript runtime) on your OS.

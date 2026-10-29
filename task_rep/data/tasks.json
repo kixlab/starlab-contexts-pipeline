@@ -1,0 +1,9 @@
+{
+  "paper_folding_demo": {
+    "name": "Synthetic paper folding",
+    "video_ids": [],
+    "metadata": {
+      "synthetic": true
+    }
+  }
+}

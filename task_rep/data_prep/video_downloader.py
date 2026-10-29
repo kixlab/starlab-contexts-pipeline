@@ -16,20 +16,14 @@ from typing import List, Optional, Literal
 
 from .transcriber import transcribe_audio
 
-COOKIES_FILE = Path("./static/chrome_cookies_personal.txt")
-
 def _add_cookie_support(cmd: List[str]) -> List[str]:
-    # Add JS runtime (required by yt-dlp >= 2025)
     cmd.extend(["--js-runtimes", "node"])
-    # Add cookie support
-    # if COOKIES_FILE.exists():
-    #     cmd.extend(["--cookies", COOKIES_FILE])
-    # else:
-    #     if os.environ.get("YT_DLP_COOKIES_FROM_BROWSER"):
-    #         cmd.extend(["--cookies-from-browser", os.environ["YT_DLP_COOKIES_FROM_BROWSER"]])
-    #     else:
-    #         print(f"    Cookies file `{COOKIES_FILE}` not found and YT_DLP_COOKIES_FROM_BROWSER not set")
-    #         return cmd
+    cookies_file = os.environ.get("YT_DLP_COOKIES_FILE")
+    browser = os.environ.get("YT_DLP_COOKIES_FROM_BROWSER")
+    if cookies_file:
+        cmd.extend(["--cookies", str(Path(cookies_file).expanduser())])
+    elif browser:
+        cmd.extend(["--cookies-from-browser", browser])
     return cmd
 
 @dataclass

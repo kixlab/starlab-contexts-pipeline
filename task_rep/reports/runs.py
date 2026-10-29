@@ -12,9 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-import agentic.experiments as aexp
 import pipeline.experiments as pexp
-from agentic.fingerprint import prompt_fingerprint as agentic_fingerprint
 from contextual import cache
 from contextual.corpus import evaluated_segments, select_corpus
 from contextual.kb import task_name
@@ -24,7 +22,7 @@ from knowledge_items import KnowledgeBase
 from optimization import count_unique_units
 from pipeline.fingerprint import prompt_fingerprint as pipeline_fingerprint
 
-KINDS = {"pipeline": pexp, "agentic": aexp}
+KINDS = {"pipeline": pexp}
 
 
 @dataclass
@@ -50,7 +48,7 @@ class LoadedRun:
 def load_spec(kind: str, experiment: str):
     mod = KINDS[kind]
     spec = mod.load_experiment(mod.EXPERIMENTS_DIR / f"{experiment}.json")
-    settings = spec.pipeline if kind == "pipeline" else spec.agentic
+    settings = spec.pipeline
     return mod, spec, settings
 
 
@@ -77,7 +75,7 @@ def load_run(kind: str, experiment: str, run: Optional[str] = None) -> LoadedRun
 def save_run(kind: str, name: str, settings: RunSettings, corpus: KnowledgeBase,
              runs_dir: Path, state: RunState, focused: KnowledgeBase) -> Path:
     """Save ``state`` as a new finished run of ``name`` under ``settings``."""
-    prompt_fp = (pipeline_fingerprint if kind == "pipeline" else agentic_fingerprint)(settings)
+    prompt_fp = pipeline_fingerprint(settings)
     kb_fp = cache.kb_fingerprint(corpus)
     fingerprint = cache.run_fingerprint(settings, kb_fp, prompt_fp)
     folder = cache.RunFolder.open(runs_dir, name, kind, fingerprint, fresh=True, info={

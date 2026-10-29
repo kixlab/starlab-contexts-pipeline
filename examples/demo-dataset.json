@@ -1,0 +1,126 @@
+[
+  {
+    "id": "synthetic-1",
+    "url": "/media/folding-demo.mp4",
+    "title": "Synthetic folding tutorial 1 (thin paper)",
+    "transcript": [
+      {
+        "text": "Lay the sheet flat and align its corners.",
+        "start": 0,
+        "end": 5
+      },
+      {
+        "text": "Fold the thin paper in half and smooth the center crease.",
+        "start": 5,
+        "end": 10
+      },
+      {
+        "text": "Bring both corners toward the middle; use gentle pressure.",
+        "start": 10,
+        "end": 15
+      },
+      {
+        "text": "Open the bottom edge and adjust the shape until it stands evenly.",
+        "start": 15,
+        "end": 20
+      }
+    ],
+    "frames": [],
+    "metadata": {
+      "synthetic": true
+    }
+  },
+  {
+    "id": "synthetic-2",
+    "url": "/media/folding-demo.mp4",
+    "title": "Synthetic folding tutorial 2 (thick paper)",
+    "transcript": [
+      {
+        "text": "Lay the sheet flat and align its corners.",
+        "start": 0,
+        "end": 5
+      },
+      {
+        "text": "Fold the thick paper in half and smooth the center crease.",
+        "start": 5,
+        "end": 10
+      },
+      {
+        "text": "Bring both corners toward the middle; use firm pressure.",
+        "start": 10,
+        "end": 15
+      },
+      {
+        "text": "Open the bottom edge and adjust the shape until it stands evenly.",
+        "start": 15,
+        "end": 20
+      }
+    ],
+    "frames": [],
+    "metadata": {
+      "synthetic": true
+    }
+  },
+  {
+    "id": "synthetic-3",
+    "url": "/media/folding-demo.mp4",
+    "title": "Synthetic folding tutorial 3 (thin paper)",
+    "transcript": [
+      {
+        "text": "Lay the sheet flat and align its corners.",
+        "start": 0,
+        "end": 5
+      },
+      {
+        "text": "Fold the thin paper in half and smooth the center crease.",
+        "start": 5,
+        "end": 10
+      },
+      {
+        "text": "Bring both corners toward the middle; use gentle pressure.",
+        "start": 10,
+        "end": 15
+      },
+      {
+        "text": "Open the bottom edge and adjust the shape until it stands evenly.",
+        "start": 15,
+        "end": 20
+      }
+    ],
+    "frames": [],
+    "metadata": {
+      "synthetic": true
+    }
+  },
+  {
+    "id": "synthetic-4",
+    "url": "/media/folding-demo.mp4",
+    "title": "Synthetic folding tutorial 4 (thick paper)",
+    "transcript": [
+      {
+        "text": "Lay the sheet flat and align its corners.",
+        "start": 0,
+        "end": 5
+      },
+      {
+        "text": "Fold the thick paper in half and smooth the center crease.",
+        "start": 5,
+        "end": 10
+      },
+      {
+        "text": "Bring both corners toward the middle; use firm pressure.",
+        "start": 10,
+        "end": 15
+      },
+      {
+        "text": "Open the bottom edge and adjust the shape until it stands evenly.",
+        "start": 15,
+        "end": 20
+      }
+    ],
+    "frames": [],
+    "metadata": {
+      "synthetic": true
+    }
+  }
+]

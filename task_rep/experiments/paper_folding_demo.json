@@ -1,0 +1,52 @@
+{
+  "name": "paper_folding_demo",
+  "task_id": "paper_folding_demo",
+  "description": "Small synthetic transcript example; run calls model APIs.",
+  "constructor": {
+    "use_vision": false,
+    "model_config": {
+      "category": "vlm",
+      "provider": "openai",
+      "model": "gpt-4.1-mini-2025-04-14"
+    },
+    "cluster_config": {
+      "model_config": {
+        "category": "embedding",
+        "provider": "openai",
+        "model": "text-embedding-3-small"
+      },
+      "similarity_threshold": 0.85
+    },
+    "max_concurrency": 2
+  },
+  "pipeline": {
+    "item_scope": {
+      "item_type": "step",
+      "atomic_subtype": "all"
+    },
+    "strategy": "batch",
+    "context": [
+      "facets"
+    ],
+    "proposal_budget": 3,
+    "pool_size": 3,
+    "max_schema_facets": 2,
+    "irr_sample_videos": 0,
+    "max_concurrency": 2,
+    "proposal_model": {
+      "category": "vlm",
+      "provider": "openai",
+      "model": "gpt-4.1-mini-2025-04-14"
+    },
+    "vocab_model": {
+      "category": "vlm",
+      "provider": "openai",
+      "model": "gpt-4.1-mini-2025-04-14"
+    },
+    "labeling_model": {
+      "category": "vlm",
+      "provider": "openai",
+      "model": "gpt-4.1-mini-2025-04-14"
+    }
+  }
+}

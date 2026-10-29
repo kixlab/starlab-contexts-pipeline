@@ -216,7 +216,8 @@ MAX_TOKENS_PER_MINUTE = 75_000_000  # 50% of OpenAI's 150M limit
 MAX_ATTEMPTS = 6
 
 # Batch processing
-BATCH_PATH = "./static/lm-batches/"
+from config import STORAGE_DIR
+BATCH_PATH = str(STORAGE_DIR / "lm-batches")
 
 # Token estimation
 MESSAGE_OVERHEAD_TOKENS = 4

@@ -47,7 +47,8 @@ from .experiments import (
     run_experiment,
 )
 
-STATIC_DIR = Path(__file__).parent.parent / "static"
+from config import STORAGE_DIR
+STATIC_DIR = STORAGE_DIR
 
 
 def _context_label(strategy: str, context) -> str:

@@ -20,7 +20,6 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from agentic.feedback import SECTION_ADDED, SECTION_NOT_ADDED, SECTION_REPLACED
 from facets.prompts.fa_facet_iterative import (
     SECTION_FACETS, SECTION_HISTORY, SECTION_ITEMS, SECTION_SCHEMAS)
 from utils.llm import llm_get_requests_path, llm_get_responses_path
@@ -30,8 +29,7 @@ from .runs import LoadedRun
 # Prompt headings: a section template's first line ("- Contextual factors in
 # the pool:"), any "- ...:" line, a capitalized heading ("HOW TO WORK"), and
 # the design-space summary ("Design space: kept 6 of 7 ...").
-_SECTIONS = (SECTION_FACETS, SECTION_ITEMS, SECTION_SCHEMAS, SECTION_HISTORY,
-             SECTION_ADDED, SECTION_NOT_ADDED, SECTION_REPLACED)
+_SECTIONS = (SECTION_FACETS, SECTION_ITEMS, SECTION_SCHEMAS, SECTION_HISTORY)
 _KNOWN = {t.split("\n", 1)[0] for t in _SECTIONS}
 _HEADING = re.compile(r"^(?:- [^\n]{2,200}:|[A-Z][A-Z &/-]{2,}(?: \([^\n]*\))?"
                       r"|Design space: [^\n]*)$")
