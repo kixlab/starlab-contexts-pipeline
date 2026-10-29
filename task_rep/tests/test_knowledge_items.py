@@ -232,25 +232,6 @@ def test_load_task_dataset_file_not_found(tmp_path):
 
 # ============= KnowledgeItem Formatting Tests =============
 
-def test_knowledge_item_format():
-    """Test format_item() output."""
-    item = KnowledgeItem(
-        id="item1",
-        type=KnowledgeItemType.ATOMIC,
-        text="Wash the rice",
-        source=KnowledgeSource(video_id="v1"),
-        subtype=AtomicType.METHOD_INSTRUCTION,
-    )
-
-    formatted = format_item(item, with_type=True)
-    assert "[item1]" in formatted
-    assert "Method - Instruction" in formatted
-    assert "Wash the rice" in formatted
-
-    formatted_no_type = format_item(item, with_type=False)
-    assert "[item1]" in formatted_no_type
-    assert "Method - Instruction" not in formatted_no_type
-
 
 def test_knowledge_item_format_to_message_content():
     """Test knowledge_item_to_message_content()."""

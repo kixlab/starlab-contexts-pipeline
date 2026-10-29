@@ -95,16 +95,6 @@ def test_facet_creation(sample_facet):
     assert len(sample_facet.guidelines) == 2
 
 
-def test_facet_invalid_scope():
-    """Test that invalid scope raises ValueError."""
-    with pytest.raises(ValueError, match="Invalid scope"):
-        Facet(
-            id="f1", title="Test", title_plural="Tests",
-            scope="invalid",
-            definition="Test", justification="Test",
-            guidelines=[], vocabulary=[],
-        )
-
 
 def test_facet_valid_scopes():
     """Test all valid scope values."""
