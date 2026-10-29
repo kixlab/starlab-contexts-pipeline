@@ -34,6 +34,7 @@ class BatchContext:
     task: str
     videos: Dict[str, List[KnowledgeItem]]
     num_facets: int
+    seed: Optional[int] = None
 
 
 @dataclass
@@ -68,6 +69,7 @@ class IterativeContext:
     accepted_schemas: List[AcceptedSchemaSummary] = field(default_factory=list)
     rejected_schemas: List[RejectedSchemaSummary] = field(default_factory=list)
     history: List[HistoryEntry] = field(default_factory=list)
+    seed: Optional[int] = None  # distinct per attempt (see config.stage_seed)
 
 
 # ---------------------------------------------------------------------------
@@ -105,6 +107,7 @@ class VLMFacetProposer:
             task=context.task,
             videos=context.videos,
             num_facets=context.num_facets,
+            seed=context.seed,
         )
 
     def propose_one(self, context: IterativeContext) -> List[Facet]:
@@ -118,4 +121,5 @@ class VLMFacetProposer:
             accepted_schemas=context.accepted_schemas,
             rejected_schemas=context.rejected_schemas,
             history=context.history,
+            seed=context.seed,
         )

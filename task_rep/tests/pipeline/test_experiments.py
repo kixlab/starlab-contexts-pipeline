@@ -173,6 +173,20 @@ def test_find_result_matches_config_only(tmp_path, monkeypatch):
     assert find_result(other, tmp_path) is None
 
 
+def test_find_result_fills_defaults_for_fields_added_later(tmp_path, monkeypatch):
+    monkeypatch.setattr(experiments_mod, "load_knowledge_base",
+                        lambda *a: (FakeTask("t"), make_kb(), tmp_path))
+    spec = ExperimentSpec.from_dict(spec_dict(proposal_budget=1, pool_size=1))
+    run_experiment(spec, services=_services([[make_facet("A")]]))
+
+    # Simulate a result saved before `items_sample_videos` existed.
+    path = find_result(spec, tmp_path)
+    data = json.loads(path.read_text())
+    del data["config"]["items_sample_videos"]
+    path.write_text(json.dumps(data))
+    assert find_result(spec, tmp_path) == path
+
+
 def test_summary(tmp_path, monkeypatch):
     monkeypatch.setattr(experiments_mod, "load_knowledge_base",
                         lambda *a: (FakeTask("t"), make_kb(), tmp_path))

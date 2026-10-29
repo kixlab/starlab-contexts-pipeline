@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import pytest
 
+from facets import Facet
+
 from pipeline import candidates as candidates_mod
-from pipeline.config import A2_CONTEXT, ContextComponent, ProposalStrategy
+from pipeline.config import A2_CONTEXT, ContextComponent, ProposalStrategy, stage_seed
 from pipeline.candidates import ProcessedCandidate
 from pipeline.models import CandidateStatus, PipelineState, StopReason
 from pipeline.runner import PipelineRunner
+from utils import llm as llm_mod
 
 from tests.pipeline.helpers import (
     ScriptedLabeler,
@@ -402,3 +405,155 @@ def test_a0_is_atomic(tmp_path):
     runner.store.save_checkpoint = lambda s: (saved.append(s.stop_reason), original(s))
     runner.run()
     assert saved == [StopReason.BATCH_COMPLETE]
+
+
+# ---------------------------------------------------------------------------
+# Sampling seeds
+# ---------------------------------------------------------------------------
+
+class SeedEchoProposer:
+    """Deterministic like a seeded model: the proposal depends only on the seed."""
+
+    def __init__(self):
+        self.seeds = []
+
+    def propose_batch(self, context):
+        self.seeds.append(context.seed)
+        return [make_facet(f"S{context.seed}")]
+
+    def propose_one(self, context):
+        self.seeds.append(context.seed)
+        return [make_facet(f"S{context.seed}")]
+
+
+def test_failure_does_not_lock_iterative_run_into_repeats(tmp_path):
+    """Regression: a fixed seed + unchanged prompt re-proposed the same facet
+    after any failure, so the run looped on duplicates until patience ran out."""
+    proposer = SeedEchoProposer()
+    first = stage_seed(0, "proposal", 1)
+    vocab = ScriptedVocabBuilder(fail_ids={f"S{first}"})
+    result = _runner(tmp_path, proposer, vocab=vocab, proposal_budget=3,
+                     pool_size=3).run()
+    assert _statuses(result) == [CandidateStatus.VOCABULARY_FAILED,
+                                 CandidateStatus.ACCEPTED, CandidateStatus.ACCEPTED]
+    assert len(set(proposer.seeds)) == 3
+
+
+def test_seeds_are_reproducible_and_differ_by_run_seed(tmp_path):
+    runs = []
+    for run_seed, sub in [(0, "a"), (0, "b"), (1, "c")]:
+        proposer = SeedEchoProposer()
+        _runner(tmp_path / sub, proposer, proposal_budget=2, pool_size=2,
+                seed=run_seed).run()
+        runs.append(proposer.seeds)
+    assert runs[0] == runs[1]                  # same run seed: same sequence
+    assert not set(runs[0]) & set(runs[2])     # different run seed: disjoint
+    assert runs[0] == [stage_seed(0, "proposal", 1), stage_seed(0, "proposal", 2)]
+
+
+def test_a0_proposal_uses_run_seed(tmp_path):
+    proposer = SeedEchoProposer()
+    _runner(tmp_path, proposer, strategy=ProposalStrategy.BATCH, seed=2).run()
+    assert proposer.seeds == [stage_seed(2, "proposal")]
+
+
+# ---------------------------------------------------------------------------
+# Failures, outages, token usage
+# ---------------------------------------------------------------------------
+
+
+class OutageLabeler(ScriptedLabeler):
+    """Raises an outage on the ``fail_on``-th labeling call (1-based)."""
+
+    def __init__(self, fail_on):
+        super().__init__()
+        self.fail_on = fail_on
+
+    def label_batch(self, task, facets, knowledge_base, temperature=None, seed=None):
+        if len(self.calls) + 1 == self.fail_on:
+            self.calls.append(None)
+            raise llm_mod.LLMBatchOutage("all requests failed")
+        return super().label_batch(task, facets, knowledge_base)
+
+
+def test_outage_stops_run_without_recording_and_resumes(tmp_path):
+    script = [[make_facet("A")], [make_facet("B")]]
+    with pytest.raises(llm_mod.LLMBatchOutage):
+        _runner(tmp_path, ScriptedProposer(script), labeler=OutageLabeler(fail_on=2),
+                proposal_budget=3, pool_size=3, use_cache=True).run()
+
+    resumed = _runner(tmp_path, ScriptedProposer([[make_facet("B")], [make_facet("C")]]),
+                      proposal_budget=3, pool_size=3, use_cache=True).run()
+    # The outage attempt left no trace; B is proposed again and accepted.
+    assert [r.facet_id for r in resumed.ledger] == ["A", "B", "C"]
+    assert all(r.status == CandidateStatus.ACCEPTED for r in resumed.ledger)
+
+
+class UsageReportingLabeler(ScriptedLabeler):
+    """Reports usage the way batch_run_llm_calls does (current usage stage)."""
+
+    def label_batch(self, task, facets, knowledge_base, temperature=None, seed=None):
+        llm_mod.USAGE.add(llm_mod._usage_stage.get(),
+                          {"input_tokens": 10, "output_tokens": 2, "thinking_tokens": 1})
+        return super().label_batch(task, facets, knowledge_base)
+
+
+class UsageReportingProposer(ScriptedProposer):
+    def propose_one(self, context):
+        llm_mod.USAGE.add(llm_mod._usage_stage.get(),
+                          {"input_tokens": 1000, "output_tokens": 50, "thinking_tokens": 20})
+        return super().propose_one(context)
+
+
+def test_usage_is_accumulated_per_stage_and_checkpointed(tmp_path):
+    runner = _runner(tmp_path, UsageReportingProposer([[make_facet("A")], [], [make_facet("B")]]),
+                     labeler=UsageReportingLabeler(), proposal_budget=2, pool_size=2,
+                     use_cache=True)
+    result = runner.run()
+    assert result.usage == {
+        "proposal": {"input_tokens": 3000, "output_tokens": 150,
+                     "thinking_tokens": 60, "requests": 3},
+        "labeling": {"input_tokens": 20, "output_tokens": 4,
+                     "thinking_tokens": 2, "requests": 2},
+    }
+    assert runner.store.restore_checkpoint().usage == result.usage
+
+
+class GappyVocab(ScriptedVocabBuilder):
+    def build_vocabulary(self, task, facets, knowledge_base, sample_videos=0, seed=None):
+        out = super().build_vocabulary(task, facets, knowledge_base, sample_videos)
+        return [Facet.from_dict({**f.to_dict(), "metadata": {"vocab_proposal_failures": 2}})
+                for f in out]
+
+
+def test_vocabulary_gaps_are_noted_in_ledger(tmp_path):
+    result = _runner(tmp_path, ScriptedProposer([[make_facet("A")]]), vocab=GappyVocab(),
+                     proposal_budget=1, pool_size=1).run()
+    assert result.ledger[0].status == CandidateStatus.ACCEPTED
+    assert result.ledger[0].note == "vocabulary proposals failed for 2 video(s)"
+
+
+# ---------------------------------------------------------------------------
+# ITEMS sampling
+# ---------------------------------------------------------------------------
+
+def test_items_sampling_draws_per_attempt_and_leaves_other_components(tmp_path):
+    proposer = ScriptedProposer([[make_facet("A")], [make_facet("B")]])
+    _runner(tmp_path, proposer, items_sample_videos=1, proposal_budget=2, pool_size=2).run()
+    for ctx in proposer.iterative_contexts:
+        assert len(ctx.videos) == 1                 # 1 of the 2 videos
+        assert len(ctx.knowledge_base.by_video()) == 2  # frequencies use the whole KB
+
+
+def test_items_sampling_is_reproducible_and_off_by_default(tmp_path):
+    picks = []
+    for sub in ("a", "b"):
+        proposer = ScriptedProposer([[make_facet("A")], [make_facet("B")]])
+        _runner(tmp_path / sub, proposer, items_sample_videos=1, proposal_budget=2,
+                pool_size=2).run()
+        picks.append([sorted(c.videos) for c in proposer.iterative_contexts])
+    assert picks[0] == picks[1]
+
+    proposer = ScriptedProposer([[make_facet("A")]])
+    _runner(tmp_path / "c", proposer, proposal_budget=1, pool_size=1).run()
+    assert sorted(proposer.iterative_contexts[0].videos) == ["v1", "v2"]

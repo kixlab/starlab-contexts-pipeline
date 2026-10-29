@@ -159,7 +159,7 @@ class ScriptedVocabBuilder:
         self.fail_ids = set(fail_ids or ())
         self.calls: List[List[str]] = []
 
-    def build_vocabulary(self, task, facets, knowledge_base, sample_videos=0):
+    def build_vocabulary(self, task, facets, knowledge_base, sample_videos=0, seed=None):
         self.calls.append([f.id for f in facets])
         out = []
         for f in facets:
@@ -181,7 +181,7 @@ class ScriptedLabeler:
         self.fail_ids = set(fail_ids or ())
         self.calls: List[List[str]] = []
 
-    def label_batch(self, task, facets, knowledge_base, temperature=None):
+    def label_batch(self, task, facets, knowledge_base, temperature=None, seed=None):
         self.calls.append([f.id for f in facets])
         ids = [f.id for f in facets if f.id not in self.fail_ids]
         kb_items = {item.id for item in knowledge_base}
@@ -191,6 +191,9 @@ class ScriptedLabeler:
             if item_id in kb_items:
                 out[(item_id, fid)] = label
         return out
+
+    def label_batch_multi(self, task, facets, knowledge_base, seeds, temperature=None):
+        return [self.label_batch(task, facets, knowledge_base) for _ in seeds]
 
 
 class TableEmbedder:
