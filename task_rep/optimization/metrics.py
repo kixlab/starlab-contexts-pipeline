@@ -7,6 +7,7 @@ from server/helpers/cim_scripts.py into the task_rep data model.
 
 from __future__ import annotations
 
+import json
 import math
 from collections import defaultdict
 from typing import Dict, List, Set
@@ -61,7 +62,6 @@ def compute_discriminativeness(
       D = 0           → perfect separation (each unit in its own cell)
       D = log_base(N) → no separation (all units in one cell)
 
-    Port of server's calc_discriminativeness() (cim_scripts.py:178-215).
     """
     if num_units == 0:
         return 0.0
@@ -70,6 +70,7 @@ def compute_discriminativeness(
         n_c = len(unit_set)
         if n_c > 0:
             total += (n_c / num_units) * math.log(n_c, base)
+    print(total)
     return total
 
 

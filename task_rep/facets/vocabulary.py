@@ -21,10 +21,9 @@ from utils import (
     ModelConfig,
     batch_run_llm_calls,
     random_uid,
-    MessageContent,
 )
 
-from prompts import (
+from .prompts import (
     form_vocabulary_proposal_request,
     process_vocabulary_proposal_response,
     form_vocabulary_consolidation_request,
@@ -75,24 +74,18 @@ class VLMFacetVocabularyBuilder:
         if not videos:
             return facets
 
-        # Pre-format video items as MessageContent (reused across all facets)
-        video_contents: Dict[str, List[MessageContent]] = {}
-        for video_id, video_items in videos.items():
-            video_contents[video_id] = [item.format_to_message_content() for item in video_items]
-
         # Phase 1: Propose vocabulary labels — one request per (facet, video) pair
         batch_id = f"vocab_proposal_{random_uid()}"
         request_keys = []  # track (facet_id, video_id) for each request
         request_args = []
 
         for facet in facets:
-            facet_mc = facet.format_to_message_content()
-            for video_id, video_content in video_contents.items():
+            for video_id, video_items in videos.items():
                 request_keys.append((facet.id, video_id))
                 request_args.append({
                     "task": task,
-                    "facet": facet_mc,
-                    "video_items": video_content,
+                    "facet": facet,
+                    "video_items": video_items,
                 })
 
         batch_results = batch_run_llm_calls(
@@ -107,10 +100,7 @@ class VLMFacetVocabularyBuilder:
         # Re-group proposal results by facet
         proposals_by_facet: Dict[str, Dict[str, List[FacetLabel]]] = defaultdict(dict)
         for (facet_id, video_id), result in zip(request_keys, batch_results):
-            proposals_by_facet[facet_id][video_id] = [
-                FacetLabel(label=lbl["label"], definition=lbl["definition"])
-                for lbl in result
-            ]
+            proposals_by_facet[facet_id][video_id] = result
 
         # Phase 2: Per-facet consolidation
         batch_id = f"vocab_consolidation_{random_uid()}"
@@ -118,24 +108,10 @@ class VLMFacetVocabularyBuilder:
         request_args = []
 
         for facet in facets:
-            facet_proposals = proposals_by_facet.get(facet.id, {})
-            proposals_by_video_content = []
-            for video_id, proposals in facet_proposals.items():
-                proposals_by_video_content.append({
-                    "type": "text",
-                    "text": f"Video {video_id}:",
-                })
-                for proposal in proposals:
-                    proposals_by_video_content.append({
-                        "type": "text",
-                        "text": str(proposal),
-                    })
-
             request_args.append({
                 "task": task,
-                "facet": facet.format_to_message_content(),
-                "existing_vocabulary": facet.format_vocabulary(),
-                "proposals_by_video": MessageContent(content=proposals_by_video_content),
+                "facet": facet,
+                "proposals_by_video": proposals_by_facet.get(facet.id, {}),
             })
 
         batch_results = batch_run_llm_calls(
@@ -149,10 +125,6 @@ class VLMFacetVocabularyBuilder:
 
         updated_facets = []
         for facet, result in zip(facets, batch_results):
-            updated_vocabulary = [
-                FacetLabel(label=lbl["label"], definition=lbl["definition"])
-                for lbl in result
-            ]
-            updated_facets.append(replace(facet, vocabulary=updated_vocabulary))
+            updated_facets.append(replace(facet, vocabulary=result))
 
         return updated_facets

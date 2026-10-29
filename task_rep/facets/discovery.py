@@ -10,26 +10,24 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from knowledge_items.schema import KnowledgeItem
-
 from utils import (
     ModelConfig,
     batch_run_llm_calls,
     random_uid,
-    MessageContent,
 )
 
-from prompts import (
+from knowledge_items import (
+    KnowledgeItem,
+)
+
+from .prompts import (
     form_facet_discovery_request,
     process_facet_discovery_response,
     form_facet_revision_request,
     process_facet_revision_response,
 )
 
-from .schema import (
-    Facet,
-    FacetLabel,
-)
+from .schema import Facet
 
 
 @dataclass
@@ -70,33 +68,20 @@ class VLMFacetExtractor:
         if target_signature is None:
             target_signature = ""
 
-        # Build request args
         batch_id = f"facet_discovery_{random_uid()}"
-        request_args = []
 
-        video_contents = {}
-        facets_contents = {}
-        target_items_contents = {}
-
-        for video_id, video_items in videos.items():
-            video_content = []
-            for item in video_items:
-                item_content = item.format_to_message_content()
-                if item.id in target_item_ids:
-                    target_items_contents[item.id] = item_content
-                video_content.extend(item_content.to_content())
-
-            video_contents[video_id] = MessageContent(content=video_content)
-
-        for facet in facets:
-            facet_content = facet.format_to_message_content()
-            facets_contents[facet.id] = facet_content
+        target_items = [
+            item
+            for video_items in videos.values()
+            for item in video_items
+            if item.id in target_item_ids
+        ]
 
         request_args = [{
             "task": task,
-            "tutorial_contents": video_contents,
-            "target_items": target_items_contents,
-            "facets": facets_contents,
+            "videos": videos,
+            "target_items": target_items,
+            "facets": facets,
             "target_signature": target_signature,
         }]
 
@@ -109,27 +94,7 @@ class VLMFacetExtractor:
             model_config=self.model_config,
         )
 
-        new_facets = []
-        for result in batch_results:
-            for idx in range(len(result)):
-                candidate = result[idx]
-                new_vocabulary = [FacetLabel(
-                    label=ld["label"],
-                    definition=ld["definition"],
-                ) for ld in candidate.get("segment_labels", [])]
-                new_facet = Facet(
-                    id=random_uid(),
-                    title=candidate["title"],
-                    title_plural=candidate["title_plural"],
-                    scope=candidate["scope"],
-                    definition=candidate["definition"],
-                    justification=candidate["justification"],
-                    guidelines=candidate["guidelines"],
-                    vocabulary=new_vocabulary,
-                )
-                new_facets.append(new_facet)
-
-        return new_facets
+        return [facet for result in batch_results for facet in result]
 
     def revise_facets(
         self,
@@ -157,15 +122,7 @@ class VLMFacetExtractor:
 
         batch_id = f"facet_revision_{random_uid()}"
 
-        # Format existing facets
-        facets_contents = {}
-        for facet in facets:
-            facets_contents[facet.id] = facet.format_to_message_content()
-
-        request_args = [{
-            "task": task,
-            "facets": facets_contents,
-        }]
+        request_args = [{"task": task, "facets": facets}]
 
         batch_results = batch_run_llm_calls(
             batch_id,
@@ -176,23 +133,4 @@ class VLMFacetExtractor:
             model_config=self.model_config,
         )
 
-        new_facets = []
-        for result in batch_results:
-            for idx in range(len(result)):
-                candidate = result[idx]
-                new_vocabulary = [FacetLabel(
-                    label=ld["label"],
-                    definition=ld["definition"],
-                ) for ld in candidate.get("segment_labels", [])]
-                new_facet = Facet(
-                    id=random_uid(),
-                    title=candidate["title"],
-                    title_plural=candidate["title_plural"],
-                    scope=candidate["scope"],
-                    definition=candidate["definition"],
-                    justification=candidate["justification"],
-                    guidelines=candidate["guidelines"],
-                    vocabulary=new_vocabulary,
-                )
-                new_facets.append(new_facet)
-        return new_facets
+        return [facet for result in batch_results for facet in result]

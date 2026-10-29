@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from pathlib import Path
 
 from utils import ModelConfig
@@ -46,6 +46,27 @@ class ConstructorConfig:
         use_vision = "vision" if self.use_vision else "no_vision"
         model_suffix = self.model_config.cache_suffix()
         return f"{max_videos}_{use_vision}_{model_suffix}"
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "use_vision": self.use_vision,
+            "use_cache": self.use_cache,
+            "max_videos": self.max_videos,
+            "max_concurrency": self.max_concurrency,
+            "cluster_config": self.cluster_config.to_dict(),
+            "model_config": self.model_config.to_dict(),
+        }
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "ConstructorConfig":
+        return ConstructorConfig(
+            use_vision=data["use_vision"],
+            cluster_config=ClusterConfig.from_dict(data["cluster_config"]),
+            model_config=ModelConfig.from_dict(data["model_config"]),
+            max_videos=data.get("max_videos"),
+            use_cache=data.get("use_cache", True),
+            max_concurrency=data.get("max_concurrency", 32),
+        )
 
 
 class ConstructKnowledgeBase:

@@ -19,7 +19,7 @@ from __future__ import annotations
 import logging
 import json
 from dataclasses import dataclass
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 from pathlib import Path
 
 from utils import ModelConfig
@@ -106,6 +106,39 @@ class DiscoveryConfig:
         max_items_per_cell = str(self.max_items_per_cell)
         
         return f"{item_type}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}"
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "item_type": self.item_type.value,
+            "use_cache": self.use_cache,
+            "max_iterations": self.max_iterations,
+            "k_schemas_to_sample": self.k_schemas_to_sample,
+            "target_d": self.target_d,
+            "min_d": self.min_d,
+            "max_cells_per_iteration": self.max_cells_per_iteration,
+            "max_items_per_cell": self.max_items_per_cell,
+            "max_concurrency": self.max_concurrency,
+            "discovery_model": self.discovery_model.to_dict(),
+            "vocab_model": self.vocab_model.to_dict(),
+            "labeling_model": self.labeling_model.to_dict(),
+        }
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "DiscoveryConfig":
+        return DiscoveryConfig(
+            item_type=KnowledgeItemType(data["item_type"]),
+            discovery_model=ModelConfig.from_dict(data["discovery_model"]),
+            vocab_model=ModelConfig.from_dict(data["vocab_model"]),
+            labeling_model=ModelConfig.from_dict(data["labeling_model"]),
+            use_cache=data.get("use_cache", True),
+            max_iterations=data.get("max_iterations", 5),
+            k_schemas_to_sample=data.get("k_schemas_to_sample", 2),
+            target_d=data.get("target_d", 0.8),
+            min_d=data.get("min_d", 0.01),
+            max_cells_per_iteration=data.get("max_cells_per_iteration", 1),
+            max_items_per_cell=data.get("max_items_per_cell", 5),
+            max_concurrency=data.get("max_concurrency", 32),
+        )
 
 
 @dataclass

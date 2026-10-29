@@ -5,12 +5,23 @@ One request per (facet, video) pair: assigns a label from the facet's
 vocabulary to each knowledge item in that video.
 """
 
+import logging
 from typing import Any, Dict, List
 
 from utils.llm import MessageContent
 
 from .fa_pydantic import Segmentation
-from .formatters import list_mc_to_str
+from .formatters import (
+    facet_to_message_content,
+    knowledge_items_to_message_content,
+    build_item_id_map,
+    reverse_id_map,
+)
+
+from facets.schema import Facet
+from knowledge_items.schema import KnowledgeItem
+
+logger = logging.getLogger(__name__)
 
 
 LABELING_SYSTEM_PROMPT = """You are an expert at analyzing tutorial content and labeling knowledge items with contextual factors related to the task: {task}."""
@@ -37,29 +48,25 @@ INPUTS
 
 def form_labeling_request(
     task: str,
-    facet: MessageContent,
-    video_items: List[MessageContent],
+    facet: Facet,
+    video_items: List[KnowledgeItem],
     **kwargs,
 ) -> Dict[str, Any]:
     """Form request to label items from one video with one facet."""
-    video_items_str = list_mc_to_str(video_items)
-
+    id_map = build_item_id_map(video_items)
     messages = [
         {
             "role": "system",
-            "content": MessageContent.from_template(
-                LABELING_SYSTEM_PROMPT,
-                task=task,
-            )
+            "content": MessageContent.from_template(LABELING_SYSTEM_PROMPT, task=task),
         },
         {
             "role": "user",
             "content": MessageContent.from_template(
                 LABELING_USER_PROMPT,
-                facet=facet,
-                video_items=video_items_str,
-            )
-        }
+                facet=facet_to_message_content(facet, "F"),
+                video_items=knowledge_items_to_message_content(video_items, id_map),
+            ),
+        },
     ]
     return {
         "messages": messages,
@@ -69,20 +76,54 @@ def form_labeling_request(
 
 def process_labeling_response(
     response: Dict[str, Any],
+    facet: Facet,
+    video_items: List[KnowledgeItem],
     **kwargs,
 ) -> List[Dict[str, str]]:
     """Process response from labeling request.
 
+    Remaps temp IDs (I1, I2, ...) back to real item IDs.
+    Logs errors for: hallucinated item IDs, hallucinated labels, and unlabeled items.
+
     Returns:
         List of dicts: [{"item_id": str, "label": str}]
     """
+    id_map = build_item_id_map(video_items)
+    rev_map = reverse_id_map(id_map)  # temp_id → real_id
+    valid_labels = {lbl.label for lbl in facet.vocabulary}
+
     result = response.get("response", {})
     segmentation = result.get("segmentation", [])
 
-    return [
-        {
-            "item_id": entry.get("item_id", "").strip(),
-            "label": entry.get("label", "").strip(),
-        }
-        for entry in segmentation
-    ]
+    entries = []
+    labeled_temp_ids = set()
+    for entry in segmentation:
+        temp_id = entry.get("item_id", "").strip()
+        label = entry.get("label", "").strip()
+
+        real_id = rev_map.get(temp_id)
+        if real_id is None:
+            logger.error(
+                "Labeling hallucinated item_id %r (facet=%r). Dropping.",
+                temp_id, facet.title,
+            )
+            continue
+
+        if label not in valid_labels:
+            logger.error(
+                "Labeling hallucinated label %r for item %r (facet=%r). Dropping.",
+                label, temp_id, facet.title,
+            )
+            continue
+
+        labeled_temp_ids.add(temp_id)
+        entries.append({"item_id": real_id, "label": label})
+
+    unlabeled = set(id_map.values()) - labeled_temp_ids
+    if unlabeled:
+        logger.error(
+            "Labeling skipped %d/%d items for facet=%r: %s",
+            len(unlabeled), len(video_items), facet.title, sorted(unlabeled),
+        )
+
+    return entries

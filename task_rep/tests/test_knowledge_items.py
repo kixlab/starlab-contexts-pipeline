@@ -26,6 +26,8 @@ from knowledge_items import (
     get_category,
     get_types_in_category,
 )
+from knowledge_items.prompts.formatters import video_to_message_content, format_item, knowledge_item_to_message_content
+from knowledge_items.chunk_sampling import ChunkConfig
 
 
 # ============= Fixtures =============
@@ -230,7 +232,7 @@ def test_load_task_dataset_file_not_found(tmp_path):
 # ============= KnowledgeItem Formatting Tests =============
 
 def test_knowledge_item_format():
-    """Test KnowledgeItem.format() output."""
+    """Test format_item() output."""
     item = KnowledgeItem(
         id="item1",
         type=KnowledgeItemType.ATOMIC,
@@ -239,18 +241,18 @@ def test_knowledge_item_format():
         subtype=AtomicType.METHOD_INSTRUCTION,
     )
 
-    formatted = item.format(with_type=True)
+    formatted = format_item(item, with_type=True)
     assert "[item1]" in formatted
     assert "Method - Instruction" in formatted
     assert "Wash the rice" in formatted
 
-    formatted_no_type = item.format(with_type=False)
+    formatted_no_type = format_item(item, with_type=False)
     assert "[item1]" in formatted_no_type
     assert "Method - Instruction" not in formatted_no_type
 
 
 def test_knowledge_item_format_to_message_content():
-    """Test KnowledgeItem.format_to_message_content()."""
+    """Test knowledge_item_to_message_content()."""
     item = KnowledgeItem(
         id="item1",
         type=KnowledgeItemType.ATOMIC,
@@ -259,7 +261,7 @@ def test_knowledge_item_format_to_message_content():
         subtype=AtomicType.METHOD_INSTRUCTION,
     )
 
-    mc = item.format_to_message_content()
+    mc = knowledge_item_to_message_content(item)
     assert len(mc.content) == 1
     assert mc.content[0]["type"] == "text"
     assert "item1" in mc.content[0]["text"]
@@ -317,9 +319,9 @@ def test_video_sample_frames_no_frames():
 
 
 def test_video_format_to_message_content_text_only(mock_videos):
-    """Test format_to_message_content without vision."""
+    """Test video_to_message_content without vision."""
     video = mock_videos[1]  # No frames
-    mc = video.format_to_message_content(use_vision=False, frames_per_group=1)
+    mc = video_to_message_content(video, use_vision=False, chunk_config=ChunkConfig(size=0, frames_per_chunk=1))
     assert len(mc.content) > 0
     # All content should be text blocks
     for block in mc.content:
@@ -327,25 +329,25 @@ def test_video_format_to_message_content_text_only(mock_videos):
 
 
 def test_video_format_to_message_content_no_transcript():
-    """Test that format_to_message_content raises on empty transcript."""
+    """Test that video_to_message_content raises on empty transcript."""
     video = Video(
         id="v1", url="", title="",
         transcript=[],
         frames=[VideoFrame(path="/tmp/f.jpg", time=1.0)],
     )
     with pytest.raises(ValueError, match="must have transcript"):
-        video.format_to_message_content(use_vision=False, frames_per_group=1)
+        video_to_message_content(video, use_vision=False, chunk_config=ChunkConfig(size=0, frames_per_chunk=1))
 
 
 def test_video_format_to_message_content_vision_no_frames():
-    """Test that format_to_message_content raises when vision=True but no frames."""
+    """Test that video_to_message_content raises when vision=True but no frames."""
     video = Video(
         id="v1", url="", title="",
         transcript=[VideoTranscriptSegment(text="hi", start=0.0, end=5.0)],
         frames=[],
     )
     with pytest.raises(ValueError, match="vision is enabled"):
-        video.format_to_message_content(use_vision=True, frames_per_group=1)
+        video_to_message_content(video, use_vision=True, chunk_config=ChunkConfig(size=0, frames_per_chunk=1))
 
 
 def test_video_group_segments(mock_videos):

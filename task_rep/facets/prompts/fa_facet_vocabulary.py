@@ -8,6 +8,7 @@ Two-phase process:
    Batched across all facets.
 """
 
+import logging
 from typing import Any, Dict, List
 
 from utils.llm import MessageContent
@@ -16,9 +17,16 @@ from .fa_pydantic import (
     VocabularyProposalResult,
     VocabularyConsolidationResult,
 )
+from .formatters import (
+    facet_to_message_content,
+    knowledge_items_to_message_content,
+    proposals_by_video_to_message_content,
+)
 
-from .formatters import list_mc_to_str
+from facets.schema import Facet, FacetLabel
+from knowledge_items.schema import KnowledgeItem
 
+logger = logging.getLogger(__name__)
 
 # ============= Phase 1: Per-(Facet, Video) Proposal =============
 
@@ -46,29 +54,24 @@ INPUTS
 
 def form_vocabulary_proposal_request(
     task: str,
-    facet: MessageContent,
-    video_items: List[MessageContent],
+    facet: Facet,
+    video_items: List[KnowledgeItem],
     **kwargs,
 ) -> Dict[str, Any]:
     """Form request to propose vocabulary labels for one facet from one video."""
-    video_items_str = list_mc_to_str(video_items)
-
     messages = [
         {
             "role": "system",
-            "content": MessageContent.from_template(
-                PROPOSAL_SYSTEM_PROMPT,
-                task=task,
-            )
+            "content": MessageContent.from_template(PROPOSAL_SYSTEM_PROMPT, task=task),
         },
         {
             "role": "user",
             "content": MessageContent.from_template(
                 PROPOSAL_USER_PROMPT,
-                facet=facet,
-                video_items=video_items_str,
-            )
-        }
+                facet=facet_to_message_content(facet, "F"),
+                video_items=knowledge_items_to_message_content(video_items),
+            ),
+        },
     ]
     return {
         "messages": messages,
@@ -79,20 +82,15 @@ def form_vocabulary_proposal_request(
 def process_vocabulary_proposal_response(
     response: Dict[str, Any],
     **kwargs,
-) -> List[Dict[str, Any]]:
-    """Process response from per-(facet, video) vocabulary proposal.
-
-    Returns:
-        List of dicts: [{"label": str, "definition": str}]
-    """
+) -> List[FacetLabel]:
+    """Process per-(facet, video) vocabulary proposal, returning typed FacetLabels."""
     result = response.get("response", {})
     proposed_labels = result.get("proposed_labels", [])
-
     return [
-        {
-            "label": lbl.get("label", "").strip(),
-            "definition": lbl.get("definition", "").strip(),
-        }
+        FacetLabel(
+            label=lbl.get("label", "").strip(),
+            definition=lbl.get("definition", "").strip(),
+        )
         for lbl in proposed_labels
     ]
 
@@ -114,8 +112,6 @@ REQUIREMENTS
 INPUTS
 - Facet:
 {facet}
-- Existing vocabulary:
-{existing_vocabulary}
 - Proposed labels by video:
 {proposals_by_video}
 """
@@ -123,29 +119,24 @@ INPUTS
 
 def form_vocabulary_consolidation_request(
     task: str,
-    facet: MessageContent,
-    existing_vocabulary: str,
-    proposals_by_video: MessageContent,
+    facet: Facet,
+    proposals_by_video: Dict[str, List[FacetLabel]],
     **kwargs,
 ) -> Dict[str, Any]:
     """Form request to consolidate vocabulary labels for a single facet."""
     messages = [
         {
             "role": "system",
-            "content": MessageContent.from_template(
-                CONSOLIDATION_SYSTEM_PROMPT,
-                task=task,
-            )
+            "content": MessageContent.from_template(CONSOLIDATION_SYSTEM_PROMPT, task=task),
         },
         {
             "role": "user",
             "content": MessageContent.from_template(
                 CONSOLIDATION_USER_PROMPT,
-                facet=facet,
-                existing_vocabulary=existing_vocabulary,
-                proposals_by_video=proposals_by_video,
-            )
-        }
+                facet=facet_to_message_content(facet, "F"),
+                proposals_by_video=proposals_by_video_to_message_content(proposals_by_video),
+            ),
+        },
     ]
     return {
         "messages": messages,
@@ -156,20 +147,16 @@ def form_vocabulary_consolidation_request(
 def process_vocabulary_consolidation_response(
     response: Dict[str, Any],
     **kwargs,
-) -> List[Dict[str, Any]]:
-    """Process response from vocabulary consolidation.
-
-    Returns:
-        List of dicts: [{"label": str, "definition": str, "source_labels": [str]}]
-    """
+) -> List[FacetLabel]:
+    """Process vocabulary consolidation response, returning typed FacetLabels."""
     result = response.get("response", {})
     labels = result.get("consolidated_labels", [])
-
+    notes = result.get("consolidation_notes", "")
+    logger.info("Consolidation notes: %s", notes)
     return [
-        {
-            "label": lbl.get("label", "").strip(),
-            "definition": lbl.get("definition", "").strip(),
-            "source_labels": lbl.get("source_labels", []),
-        }
+        FacetLabel(
+            label=lbl.get("label", "").strip(),
+            definition=lbl.get("definition", "").strip(),
+        )
         for lbl in labels
     ]

@@ -277,6 +277,7 @@ class VideoDownloader:
 
         Returns True if successful, False otherwise.
         """
+        return False ### Skipped for now due to YouTube throttling
         cmd = [
             "yt-dlp",
             "--skip-download",

@@ -7,8 +7,13 @@ consistent taxonomy of step names and definitions.
 
 from typing import Any, Dict, List
 
-from utils.llm import MessageContent
+from utils import MessageContent
+
+from .formatters import steps_by_video_to_message_content
 from .ki_pydantic import StepTaxonomy
+
+from knowledge_items.schema import KnowledgeItem, Video
+
 
 SYSTEM_MESSAGE = """You are an expert at analyzing procedural knowledge and creating step taxonomies for the task: {task}. You excel at identifying similar or duplicate steps across multiple tutorials, understanding naming variations, and creating clear, consistent canonical names with comprehensive definitions. You understand logical ordering of procedural steps and can recognize when steps from different videos represent the same action versus genuinely distinct actions."""
 
@@ -32,47 +37,45 @@ INPUT:
 {steps_by_tutorial}
 """
 
+
 def form_step_aggregation_request(
     task: str,
-    steps_by_tutorial: MessageContent,
-    **kwargs,    
+    videos: List[Video],
+    steps_by_video: Dict[str, List[KnowledgeItem]],
+    **kwargs,
 ) -> Dict[str, Any]:
-
+    """Form request to aggregate discovered steps into a canonical taxonomy."""
+    steps_content = steps_by_video_to_message_content(videos, steps_by_video)
     messages = [
         {
             "role": "system",
-            "content": MessageContent.from_template(
-                SYSTEM_MESSAGE,
-                task=task
-            )
+            "content": MessageContent.from_template(SYSTEM_MESSAGE, task=task),
         },
         {
             "role": "user",
             "content": MessageContent.from_template(
                 USER_MESSAGE,
-                steps_by_tutorial=steps_by_tutorial
-            )
-        }
+                steps_by_tutorial=steps_content,
+            ),
+        },
     ]
     return {
         "messages": messages,
         "response_format": StepTaxonomy,
     }
 
+
 def process_step_aggregation_response(
     response: Dict[str, Any],
     **kwargs,
 ) -> List[Dict[str, Any]]:
-    """Process response from step aggregation from tutorials."""
+    """Process step aggregation response, returning the canonical taxonomy as dicts."""
     result = response.get("response", {})
     steps = result.get("steps", [])
 
     taxonomy = []
     for step in steps:
-        name = step.get("name").strip().lower()
-        definition = step.get("definition").strip()
-        taxonomy.append({
-            "name": name,
-            "definition": definition,
-        })
+        name = step.get("name", "").strip().lower()
+        definition = step.get("definition", "").strip()
+        taxonomy.append({"name": name, "definition": definition})
     return taxonomy
