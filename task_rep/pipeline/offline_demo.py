@@ -21,12 +21,15 @@ from construct import ConstructorConfig
 
 from knowledge_items import KnowledgeItemType
 
-from .config import PipelineConfig, ProposalStrategy, A1_CONTEXT, A2_CONTEXT
-from .experiments import load_experiment, load_knowledge_base, run_pipeline, summarize
-from .fakes import (
-    load_corpus, ReplayProposer, PassthroughVocabularyBuilder, ReplayLabeler,
-    HashingEmbedder,
+from contextual.fakes import (
+    load_corpus, PassthroughVocabularyBuilder, ReplayLabeler, HashingEmbedder,
 )
+from contextual.kb import load_knowledge_base
+from contextual.reporting import summarize
+
+from .config import PipelineConfig, ProposalStrategy, A1_CONTEXT, A2_CONTEXT
+from .experiments import load_experiment, run_pipeline
+from .fakes import ReplayProposer
 
 logger = logging.getLogger(__name__)
 

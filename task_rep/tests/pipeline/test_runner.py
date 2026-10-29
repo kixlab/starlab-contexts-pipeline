@@ -6,10 +6,11 @@ import pytest
 
 from facets import Facet
 
-from pipeline import candidates as candidates_mod
-from pipeline.config import A2_CONTEXT, ContextComponent, ProposalStrategy, stage_seed
-from pipeline.candidates import ProcessedCandidate
-from pipeline.models import CandidateStatus, PipelineState, StopReason
+from contextual import lifecycle as candidates_mod
+from contextual.settings import stage_seed
+from pipeline.config import A2_CONTEXT, ContextComponent, ProposalStrategy
+from contextual.lifecycle import ProcessedCandidate
+from contextual.models import CandidateStatus, RunState, StopReason
 from pipeline.runner import PipelineRunner
 from utils import llm as llm_mod
 
@@ -116,7 +117,7 @@ def test_stop_precedence_attempts_over_refusals(tmp_path):
 COUNTER_TABLE = {
     CandidateStatus.REFUSED: (1, 0, +1, 0),
     CandidateStatus.INVALID: (1, 0, "reset", 0),
-    CandidateStatus.DUPLICATE: (1, 0, "reset", +1),
+    CandidateStatus.DUPLICATE: (1, 1, "reset", +1),   # a parseable proposal: uses budget
     CandidateStatus.IRR_PRUNED: (1, 1, "reset", +1),
     CandidateStatus.VOCABULARY_FAILED: (1, 1, "reset", +1),
     CandidateStatus.LABELING_FAILED: (1, 1, "reset", +1),
@@ -134,7 +135,7 @@ def _setup_outcome(tmp_path, monkeypatch, status):
     overrides = dict(proposal_budget=20, pool_size=20, refusal_patience=50,
                      no_improvement_patience=50, attempt_limit=60)
     facet = make_facet("C")
-    state = PipelineState()
+    state = RunState()
 
     if status == CandidateStatus.REFUSED:
         script = [[]]
@@ -220,7 +221,7 @@ def test_duplicates_do_not_join_the_dedup_set(tmp_path):
     emb = TableEmbedder({"A": [1, 0], "A2": [1, 0]})
     script = [[make_facet("A")], [make_facet("A2")]]
     runner = _runner(tmp_path, ScriptedProposer(script), embedder=emb)
-    state = PipelineState()
+    state = RunState()
     runner.run_iteration(state)
     runner.run_iteration(state)
     assert _statuses(state) == [CandidateStatus.ACCEPTED, CandidateStatus.DUPLICATE]
@@ -355,7 +356,7 @@ def test_a0_truncates_before_dedup(tmp_path):
         CandidateStatus.ACCEPTED, CandidateStatus.TRUNCATED,
     ]
     assert result.ledger[3].facet_id == "C"
-    assert result.proposals == 2  # duplicate cost no budget; C was cut
+    assert result.proposals == 3  # A, the duplicate, and B all use budget; C was cut
     assert result.attempts == 1
     assert result.stop_reason == StopReason.BATCH_COMPLETE
 
@@ -557,3 +558,13 @@ def test_items_sampling_is_reproducible_and_off_by_default(tmp_path):
     proposer = ScriptedProposer([[make_facet("A")]])
     _runner(tmp_path / "c", proposer, proposal_budget=1, pool_size=1).run()
     assert sorted(proposer.iterative_contexts[0].videos) == ["v1", "v2"]
+
+
+def test_corpus_sampling_restricts_what_the_runner_sees(tmp_path):
+    proposer = ScriptedProposer([[make_facet("A")]])
+    runner = _runner(tmp_path, proposer, corpus_sample_videos=1, proposal_budget=1,
+                     pool_size=1)
+    result = runner.run()
+    assert len(runner.knowledge_base.by_video()) == 1
+    assert len(proposer.iterative_contexts[0].videos) == 1
+    assert result.num_units == 4

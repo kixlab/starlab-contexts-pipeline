@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from pipeline.candidates import ProcessedCandidate
-from pipeline.evaluation import PoolEvaluator
-from pipeline.models import CandidateStatus, PipelineState
+from contextual.lifecycle import ProcessedCandidate
+from contextual.evaluation import PoolEvaluator
+from contextual.models import CandidateStatus, RunState
 
-from tests.pipeline.helpers import label_book, make_config, make_facet, make_kb
+from tests.contextual.helpers import label_book, make_settings, make_facet, make_kb
 
 
 def _processed(fid: str) -> ProcessedCandidate:
@@ -16,11 +16,11 @@ def _processed(fid: str) -> ProcessedCandidate:
 
 
 def _evaluator(pool_size: int) -> PoolEvaluator:
-    return PoolEvaluator(config=make_config(pool_size=pool_size), focused_kb=make_kb())
+    return PoolEvaluator(config=make_settings(pool_size=pool_size), focused_kb=make_kb())
 
 
-def _fill(evaluator: PoolEvaluator, *fids: str) -> PipelineState:
-    state = PipelineState()
+def _fill(evaluator: PoolEvaluator, *fids: str) -> RunState:
+    state = RunState()
     for fid in fids:
         decision = evaluator.consider(state, _processed(fid))
         assert decision.status == CandidateStatus.ACCEPTED
@@ -29,7 +29,7 @@ def _fill(evaluator: PoolEvaluator, *fids: str) -> PipelineState:
 
 def test_unconditional_add_below_capacity_even_if_redundant():
     ev = _evaluator(pool_size=3)
-    state = PipelineState()
+    state = RunState()
 
     d1 = ev.consider(state, _processed("A"))
     assert d1.status == CandidateStatus.ACCEPTED and d1.improved

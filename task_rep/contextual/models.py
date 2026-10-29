@@ -1,5 +1,5 @@
 """
-Pipeline-level state and result models.
+Run state, candidate ledger, and result models shared by all runners.
 
 Reuses ``Facet`` / ``AnnotationTable`` from ``facets`` and the schema summaries
 from ``optimization`` rather than duplicating domain models. Everything here is
@@ -50,6 +50,8 @@ class StopReason(str, Enum):
     NO_IMPROVEMENT_PATIENCE = "no_improvement_patience"
     BATCH_COMPLETE = "batch_complete"  # a0 processed its single batch
     BATCH_REFUSED = "batch_refused"    # a0 batch response was empty
+    TOOL_CALL_LIMIT = "tool_call_limit"  # agentic: run-level tool-call cap reached
+    AGENT_FINISHED = "agent_finished"    # agentic: agent replied without a tool call
 
 
 @dataclass
@@ -138,7 +140,7 @@ class CandidateRecord:
 
 
 @dataclass
-class PipelineState:
+class RunState:
     """Mutable state carried through a run and checkpointed each iteration."""
 
     # selected pool, ordered by insertion (deterministic for tie-breaks/checkpoints)
@@ -165,6 +167,9 @@ class PipelineState:
 
     # token usage per stage (successful requests of completed attempts)
     usage: Dict[str, Dict[str, int]] = field(default_factory=dict)
+
+    # runner-specific state, checkpointed with the rest (e.g. an agent transcript)
+    runner_state: Dict[str, Any] = field(default_factory=dict)
 
     # exact-run cache identity
     fingerprint: str = ""
@@ -194,14 +199,15 @@ class PipelineState:
             "no_improve_streak": self.no_improve_streak,
             "iteration": self.iteration,
             "usage": self.usage,
+            "runner_state": self.runner_state,
             "fingerprint": self.fingerprint,
             "stop_reason": self.stop_reason.value if self.stop_reason else None,
         }
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "PipelineState":
+    def from_dict(data: Dict[str, Any]) -> "RunState":
         stop = data.get("stop_reason")
-        return PipelineState(
+        return RunState(
             pool=[Facet.from_dict(f) for f in data.get("pool", [])],
             annotations=AnnotationTable.from_list(data.get("annotations", [])),
             tree=RefinementTree.from_dict(data["tree"]) if data.get("tree") else None,
@@ -221,13 +227,14 @@ class PipelineState:
             no_improve_streak=data.get("no_improve_streak", 0),
             iteration=data.get("iteration", 0),
             usage=data.get("usage", {}),
+            runner_state=data.get("runner_state", {}),
             fingerprint=data.get("fingerprint", ""),
             stop_reason=StopReason(stop) if stop else None,
         )
 
 
 @dataclass
-class PipelineResult:
+class RunResult:
     """Serialized outcome of a run. Does not embed the knowledge base — only its
     fingerprint; the adapter reloads the KB from the constructor when needed.
 
@@ -252,16 +259,17 @@ class PipelineResult:
     config: Dict[str, Any] = field(default_factory=dict)
     num_units: int = 0
     usage: Dict[str, Dict[str, int]] = field(default_factory=dict)
+    runner_state: Dict[str, Any] = field(default_factory=dict)
 
     @staticmethod
     def from_state(
-        state: PipelineState,
+        state: RunState,
         kb_fingerprint: str = "",
         prompt_fingerprint: str = "",
         config: Optional[Dict[str, Any]] = None,
         num_units: int = 0,
-    ) -> "PipelineResult":
-        return PipelineResult(
+    ) -> "RunResult":
+        return RunResult(
             pool=list(state.pool),
             annotations=state.annotations,
             tree=state.tree,
@@ -278,6 +286,7 @@ class PipelineResult:
             config=dict(config or {}),
             num_units=num_units,
             usage={k: dict(v) for k, v in state.usage.items()},
+            runner_state=dict(state.runner_state),
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -298,12 +307,13 @@ class PipelineResult:
             "config": self.config,
             "num_units": self.num_units,
             "usage": self.usage,
+            "runner_state": self.runner_state,
         }
 
     @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "PipelineResult":
+    def from_dict(data: Dict[str, Any]) -> "RunResult":
         stop = data.get("stop_reason")
-        return PipelineResult(
+        return RunResult(
             pool=[Facet.from_dict(f) for f in data.get("pool", [])],
             annotations=AnnotationTable.from_list(data.get("annotations", [])),
             tree=RefinementTree.from_dict(data["tree"]) if data.get("tree") else None,
@@ -326,4 +336,5 @@ class PipelineResult:
             config=data.get("config", {}),
             num_units=data.get("num_units", 0),
             usage=data.get("usage", {}),
+            runner_state=data.get("runner_state", {}),
         )

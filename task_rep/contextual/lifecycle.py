@@ -23,7 +23,7 @@ from optimization import compute_irr
 
 from utils.llm import usage_stage
 
-from .config import PipelineConfig, stage_seed
+from .settings import RunSettings, stage_seed
 from .models import CandidateStatus
 
 logger = logging.getLogger(__name__)
@@ -137,7 +137,7 @@ class CandidateProcessor:
 
     def __init__(
         self,
-        config: PipelineConfig,
+        config: RunSettings,
         task: str,
         knowledge_base: KnowledgeBase,
         vocab_builder: VocabularyBuilder,

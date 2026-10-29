@@ -69,7 +69,7 @@ class IterativeContext:
     accepted_schemas: List[AcceptedSchemaSummary] = field(default_factory=list)
     rejected_schemas: List[RejectedSchemaSummary] = field(default_factory=list)
     history: List[HistoryEntry] = field(default_factory=list)
-    seed: Optional[int] = None  # distinct per attempt (see config.stage_seed)
+    seed: Optional[int] = None  # distinct per attempt (see contextual.settings.stage_seed)
 
 
 # ---------------------------------------------------------------------------

@@ -165,7 +165,7 @@ def test_config_round_trip_and_defaults():
     })
     assert defaults.context == A1_CONTEXT
     assert defaults.irr_sample_videos == 3
-    assert defaults.dedup_similarity_threshold == 0.87
+    assert defaults.dedup_similarity_threshold == 0.93
     assert defaults.seed == 0
     assert defaults.no_improvement_patience == 5
     assert defaults.refusal_patience == 5
