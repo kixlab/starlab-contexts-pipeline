@@ -21,33 +21,26 @@ jobs:
       - run: python -m pytest -q
       - run: python main.py demo
       - run: python scripts/check_public.py --history
-  interfaces:
+  explorer:
     runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_BUNDLE_URL: /data/local-bundle.json
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: kixlab/starlab-contexts-applications
-          path: applications
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
       - run: python -m pip install -r requirements-lock.txt
-      - name: Generate the bundle consumed by both interfaces
+      - name: Generate the bundle consumed by the explorer
         run: |
           python main.py demo
           cp task_rep/static/demo/demo-bundle.json explorer/public/data/local-bundle.json
-          cp task_rep/static/demo/demo-bundle.json applications/public/data/local-bundle.json
       - uses: actions/setup-node@v4
         with:
           node-version-file: explorer/.nvmrc
           cache: npm
-          cache-dependency-path: |
-            explorer/package-lock.json
-            applications/package-lock.json
+          cache-dependency-path: explorer/package-lock.json
       - run: npm ci
         working-directory: explorer
       - run: npm run build
@@ -58,13 +51,3 @@ jobs:
         working-directory: explorer
       - run: npm run test:smoke
         working-directory: explorer
-      - run: npm ci
-        working-directory: applications
-      - run: npm run build
-        working-directory: applications
-      - run: npm run lint
-        working-directory: applications
-      - run: npx playwright install --with-deps chromium
-        working-directory: applications
-      - run: npm run test:smoke
-        working-directory: applications
