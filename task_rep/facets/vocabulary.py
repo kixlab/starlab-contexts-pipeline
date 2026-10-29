@@ -14,8 +14,8 @@ from __future__ import annotations
 import logging
 import random
 from collections import defaultdict
-from dataclasses import dataclass
-from typing import Dict, List
+from dataclasses import dataclass, replace
+from typing import Dict, List, Optional
 
 from knowledge_items.schema import KnowledgeBase
 
@@ -24,6 +24,8 @@ from utils import (
     batch_run_llm_calls,
     random_uid,
 )
+
+from utils.llm import LLMRequestFailed
 
 from .prompts import (
     form_vocabulary_proposal_request,
@@ -61,6 +63,7 @@ class VLMFacetVocabularyBuilder:
         facets: List[Facet],
         knowledge_base: KnowledgeBase,
         sample_videos: int = 0,
+        seed: Optional[int] = None,
     ) -> List[Facet]:
         """
         Build vocabulary for each facet using knowledge items from the corpus.
@@ -69,6 +72,8 @@ class VLMFacetVocabularyBuilder:
             facets: Facets with definitions/guidelines (vocabulary may be empty or partial).
             knowledge_base: Knowledge items to derive vocabulary from.
             sample_videos: Number of videos to derive the vocabulary (`0` means all)
+            seed: Seeds video sampling and the requests (None = unseeded sampling,
+                  provider-default request seed)
 
         Returns:
             New list of Facets with updated vocabulary fields.
@@ -87,7 +92,7 @@ class VLMFacetVocabularyBuilder:
 
         video_items_list = list(videos.items())
         if sample_videos > 0 and sample_videos < len(video_items_list):
-            video_items_list = random.sample(video_items_list, sample_videos)
+            video_items_list = random.Random(seed).sample(video_items_list, sample_videos)
             logger.info(
                 "Vocab proposal: sampling %d/%d videos.", sample_videos, len(videos)
             )
@@ -108,12 +113,20 @@ class VLMFacetVocabularyBuilder:
             process_vocabulary_proposal_response,
             max_concurrency=self.max_concurrency,
             model_config=self.model_config,
+            seeds=[seed] * len(request_args),
+            allow_errors=True,
         )
 
-        # Re-group proposal results by facet
+        # Re-group proposal results by facet; failed per-video proposals are
+        # tolerated (the vocabulary is consolidated from the rest).
         proposals_by_facet: Dict[str, Dict[str, List[FacetLabel]]] = defaultdict(dict)
+        failed_videos: Dict[str, int] = defaultdict(int)
+        requested_videos: Dict[str, int] = defaultdict(int)
         for (facet_id, video_id), result in zip(request_keys, batch_results):
-            if result:  # only store non-empty proposals
+            requested_videos[facet_id] += 1
+            if isinstance(result, LLMRequestFailed):
+                failed_videos[facet_id] += 1
+            elif result:  # only store non-empty proposals
                 proposals_by_facet[facet_id][video_id] = result
 
         # Phase 2: Per-facet consolidation (revises definition, guidelines, and vocabulary together)
@@ -122,7 +135,12 @@ class VLMFacetVocabularyBuilder:
         request_args = []
         consolidated_facet_ids: List[str] = []  # facets that have a consolidation request, in request order
 
+        failed_ids = set()
         for facet in facets:
+            if failed_videos[facet.id] == requested_videos[facet.id]:
+                logger.warning("All vocabulary proposals failed for facet %s.", facet.id)
+                failed_ids.add(facet.id)
+                continue
             proposals_by_video = proposals_by_facet.get(facet.id, {})
             if not proposals_by_video:
                 logger.info(
@@ -144,8 +162,29 @@ class VLMFacetVocabularyBuilder:
             process_vocabulary_consolidation_response,
             max_concurrency=self.max_concurrency,
             model_config=self.model_config,
+            seeds=[seed] * len(request_args),
+            allow_errors=True,
         )
 
         # process_vocabulary_consolidation_response returns a fully-revised Facet.
-        revised_by_id: Dict[str, Facet] = dict(zip(consolidated_facet_ids, batch_results))
-        return [revised_by_id.get(facet.id, facet) for facet in facets]
+        revised_by_id: Dict[str, Facet] = {}
+        for facet_id, result in zip(consolidated_facet_ids, batch_results):
+            if isinstance(result, LLMRequestFailed):
+                logger.warning("Vocabulary consolidation failed for facet %s.", facet_id)
+                failed_ids.add(facet_id)
+            else:
+                revised_by_id[facet_id] = result
+
+        # Failed facets come back without vocabulary; tolerated gaps are noted
+        # in metadata. Inputs are never mutated.
+        out = []
+        for facet in facets:
+            built = replace(facet, vocabulary=[]) if facet.id in failed_ids \
+                else revised_by_id.get(facet.id, facet)
+            if failed_videos[facet.id] and facet.id not in failed_ids:
+                built = replace(built, metadata={
+                    **built.metadata,
+                    "vocab_proposal_failures": failed_videos[facet.id],
+                })
+            out.append(built)
+        return out

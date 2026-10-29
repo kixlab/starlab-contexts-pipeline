@@ -10,6 +10,7 @@ in the outer experiment adapter.
 from __future__ import annotations
 
 import logging
+import random
 from pathlib import Path
 from typing import List, Optional
 
@@ -17,9 +18,11 @@ from knowledge_items import KnowledgeBase
 
 from facets import Facet
 
+from utils.llm import USAGE, usage_delta, usage_stage
+
 from optimization import count_unique_units
 
-from .config import PipelineConfig, ProposalStrategy, ContextComponent
+from .config import PipelineConfig, ProposalStrategy, ContextComponent, stage_seed
 from .candidates import (
     CandidateProcessor, ProcessedCandidate, CandidateFailure, CandidateOutcome,
     Embedder, VocabularyBuilder, Labeler,
@@ -178,7 +181,7 @@ class PipelineRunner:
                 facet=outcome.facet, nearest_id=outcome.nearest_id,
                 nearest_similarity=outcome.nearest_similarity,
                 replaced_facet_id=decision.replaced_facet_id,
-                snapshot=decision.snapshot,
+                snapshot=decision.snapshot, note=outcome.note,
             )
             return
 
@@ -225,27 +228,39 @@ class PipelineRunner:
         )
 
     def run_iteration(self, state: PipelineState) -> None:
-        """One iterative attempt: propose, process, select, record. No stop check."""
+        """One iterative attempt: propose, process, select, record. No stop check.
+
+        A failed proposal request or a stage-wide outage raises; nothing is
+        recorded for the attempt and the run resumes from the last checkpoint.
+        """
+        before = USAGE.snapshot()
         state.iteration += 1
-        proposed = self.proposer.propose_one(self._build_iterative_context(state))
+        attempt = state.attempts + 1  # the attempt being made
+        with usage_stage("proposal"):
+            proposed = self.proposer.propose_one(self._build_iterative_context(state, attempt))
         if not proposed:
             self._record(state, CandidateStatus.REFUSED)
-            return
-        outcome = self.processor.process(proposed[0], state.embeddings)
-        self._apply_outcome(state, outcome, increment_attempts=True)
+        else:
+            outcome = self.processor.process(proposed[0], state.embeddings, index=attempt)
+            self._apply_outcome(state, outcome, increment_attempts=True)
+        state.add_usage(usage_delta(USAGE.snapshot(), before))
 
     # ---- a0 ----
 
     def _run_batch(self, state: PipelineState) -> None:
         """One batch request; atomic (no mid-run checkpoint)."""
+        before = USAGE.snapshot()
         state.iteration += 1
         videos = self.knowledge_base.by_video()
         budget = self.config.proposal_budget
-        proposed = self.proposer.propose_batch(
-            BatchContext(task=self.task, videos=videos, num_facets=budget)
-        )
+        with usage_stage("proposal"):
+            proposed = self.proposer.propose_batch(
+                BatchContext(task=self.task, videos=videos, num_facets=budget,
+                             seed=stage_seed(self.config.seed, "proposal"))
+            )
         if not proposed:
             self._record(state, CandidateStatus.REFUSED)
+            state.add_usage(usage_delta(USAGE.snapshot(), before))
             state.stop_reason = StopReason.BATCH_REFUSED
             return
 
@@ -262,6 +277,7 @@ class PipelineRunner:
         for facet in surplus:
             self._record(state, CandidateStatus.TRUNCATED, facet=facet)
 
+        state.add_usage(usage_delta(USAGE.snapshot(), before))
         state.stop_reason = StopReason.BATCH_COMPLETE
 
     # ---- a1 / a2 ----
@@ -283,7 +299,18 @@ class PipelineRunner:
             ))
         return history
 
-    def _build_iterative_context(self, state: PipelineState) -> IterativeContext:
+    def _items_videos(self, attempt: int):
+        """Tutorial segments for the ITEMS component: all videos, or a sample
+        of ``items_sample_videos`` drawn per attempt from the run seed."""
+        videos = self.knowledge_base.by_video()
+        n = self.config.items_sample_videos
+        if n <= 0 or n >= len(videos):
+            return videos
+        rng = random.Random(stage_seed(self.config.seed, "items", attempt))
+        chosen = set(rng.sample(sorted(videos), n))
+        return {vid: items for vid, items in videos.items() if vid in chosen}
+
+    def _build_iterative_context(self, state: PipelineState, attempt: int) -> IterativeContext:
         components = self.config.context
         return IterativeContext(
             task=self.task,
@@ -291,12 +318,13 @@ class PipelineRunner:
             pool=list(state.pool),
             annotations=state.annotations,
             knowledge_base=self.focused_kb,
-            videos=(self.knowledge_base.by_video()
+            videos=(self._items_videos(attempt)
                     if ContextComponent.ITEMS in components else None),
             accepted_schemas=list(state.accepted_schemas),
             rejected_schemas=list(state.rejected_schemas),
             history=(self._history(state)
                      if ContextComponent.HISTORY in components else []),
+            seed=stage_seed(self.config.seed, "proposal", attempt),
         )
 
     def _run_iterative(self, state: PipelineState) -> None:

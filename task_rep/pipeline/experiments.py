@@ -195,6 +195,8 @@ def cached_knowledge_base(spec: ExperimentSpec) -> Optional[KnowledgeBase]:
 def find_result(spec: ExperimentSpec, directory: str | Path | None = None) -> Optional[Path]:
     """Newest saved result in ``directory`` whose config matches ``spec``.
 
+    Saved configs are normalized through ``PipelineConfig`` first, so a result
+    written before a config field existed matches that field's default.
     Results for the same config under older prompts or knowledge bases also
     match; the newest one wins.
     """
@@ -202,9 +204,17 @@ def find_result(spec: ExperimentSpec, directory: str | Path | None = None) -> Op
     wanted = spec.pipeline.semantic_dict()
     matches = []
     for path in directory.glob("pipeline_result_*.json"):
-        if json.loads(path.read_text()).get("config") == wanted:
+        if _normalized_config(json.loads(path.read_text()).get("config", {})) == wanted:
             matches.append(path)
     return max(matches, key=lambda p: p.stat().st_mtime) if matches else None
+
+
+def _normalized_config(saved: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """A saved semantic config with defaults filled in (None if unreadable)."""
+    try:
+        return PipelineConfig.from_dict(saved).semantic_dict()
+    except (KeyError, TypeError, ValueError):
+        return None
 
 
 # ---------------------------------------------------------------------------

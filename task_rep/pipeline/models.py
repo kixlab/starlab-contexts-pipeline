@@ -163,12 +163,21 @@ class PipelineState:
     no_improve_streak: int = 0
     iteration: int = 0
 
+    # token usage per stage (successful requests of completed attempts)
+    usage: Dict[str, Dict[str, int]] = field(default_factory=dict)
+
     # exact-run cache identity
     fingerprint: str = ""
     stop_reason: Optional[StopReason] = None
 
     def pool_ids(self) -> List[str]:
         return [f.id for f in self.pool]
+
+    def add_usage(self, delta: Dict[str, Dict[str, int]]) -> None:
+        for stage, counts in delta.items():
+            totals = self.usage.setdefault(stage, {})
+            for key, value in counts.items():
+                totals[key] = totals.get(key, 0) + value
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -184,6 +193,7 @@ class PipelineState:
             "refusal_streak": self.refusal_streak,
             "no_improve_streak": self.no_improve_streak,
             "iteration": self.iteration,
+            "usage": self.usage,
             "fingerprint": self.fingerprint,
             "stop_reason": self.stop_reason.value if self.stop_reason else None,
         }
@@ -210,6 +220,7 @@ class PipelineState:
             refusal_streak=data.get("refusal_streak", 0),
             no_improve_streak=data.get("no_improve_streak", 0),
             iteration=data.get("iteration", 0),
+            usage=data.get("usage", {}),
             fingerprint=data.get("fingerprint", ""),
             stop_reason=StopReason(stop) if stop else None,
         )
@@ -240,6 +251,7 @@ class PipelineResult:
     prompt_fingerprint: str = ""
     config: Dict[str, Any] = field(default_factory=dict)
     num_units: int = 0
+    usage: Dict[str, Dict[str, int]] = field(default_factory=dict)
 
     @staticmethod
     def from_state(
@@ -265,6 +277,7 @@ class PipelineResult:
             prompt_fingerprint=prompt_fingerprint,
             config=dict(config or {}),
             num_units=num_units,
+            usage={k: dict(v) for k, v in state.usage.items()},
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -284,6 +297,7 @@ class PipelineResult:
             "prompt_fingerprint": self.prompt_fingerprint,
             "config": self.config,
             "num_units": self.num_units,
+            "usage": self.usage,
         }
 
     @staticmethod
@@ -311,4 +325,5 @@ class PipelineResult:
             prompt_fingerprint=data.get("prompt_fingerprint", ""),
             config=data.get("config", {}),
             num_units=data.get("num_units", 0),
+            usage=data.get("usage", {}),
         )

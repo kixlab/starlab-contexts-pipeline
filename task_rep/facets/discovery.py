@@ -51,6 +51,7 @@ class VLMFacetExtractor:
         task: str,
         videos: Dict[str, List[KnowledgeItem]],
         num_facets: int,
+        seed: Optional[int] = None,
     ) -> List[Facet]:
         """
         Bootstrap the algorithm with common-sense contextual factors.
@@ -59,6 +60,7 @@ class VLMFacetExtractor:
             task: Task name/description
             videos: Dict of video_id -> List of KnowledgeItems
             num_facets: Number of facets to initialize with
+            seed: Sampling seed for the request (None = provider default)
 
         Returns:
             List of initialized facets
@@ -87,6 +89,7 @@ class VLMFacetExtractor:
             process_facet_init_response,
             max_concurrency=self.max_concurrency,
             model_config=self.model_config,
+            seeds=[seed],
         )
 
         return [facet for result in batch_results for facet in result]
@@ -102,6 +105,7 @@ class VLMFacetExtractor:
         accepted_schemas: Optional[List[Any]] = None,
         rejected_schemas: Optional[List[Any]] = None,
         history: Optional[List[Any]] = None,
+        seed: Optional[int] = None,
     ) -> List[Facet]:
         """Propose exactly one new facet conditioned on the existing pool.
 
@@ -115,6 +119,7 @@ class VLMFacetExtractor:
             accepted_schemas: Surviving schema summaries (included with "schemas")
             rejected_schemas: Rejected schema summaries (included with "schemas")
             history: Previously tried, non-kept candidates (included with "history")
+            seed: Sampling seed for the request (None = provider default)
 
         Returns:
             A list of new Facets, or an empty list if the LLM refused.
@@ -140,6 +145,7 @@ class VLMFacetExtractor:
             process_facet_iterative_response,
             max_concurrency=self.max_concurrency,
             model_config=self.model_config,
+            seeds=[seed],
         )
 
         return [facet for result in batch_results for facet in result]

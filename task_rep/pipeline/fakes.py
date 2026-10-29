@@ -80,7 +80,7 @@ class PassthroughVocabularyBuilder:
 
     def build_vocabulary(
         self, task: str, facets: List[Facet], knowledge_base: KnowledgeBase,
-        sample_videos: int = 0,
+        sample_videos: int = 0, seed: Optional[int] = None,
     ) -> List[Facet]:
         out = []
         for f in facets:
@@ -105,9 +105,16 @@ class ReplayLabeler:
 
     def label_batch(
         self, task: str, facets: List[Facet], knowledge_base: KnowledgeBase,
-        temperature: Optional[float] = None,
+        temperature: Optional[float] = None, seed: Optional[int] = None,
     ) -> AnnotationTable:
         return self._annotations.filter_facets([f.id for f in facets])
+
+    def label_batch_multi(
+        self, task: str, facets: List[Facet], knowledge_base: KnowledgeBase,
+        seeds: List[Optional[int]], temperature: Optional[float] = None,
+    ) -> List[AnnotationTable]:
+        """Replay is deterministic: every pass gets the cached labels."""
+        return [self.label_batch(task, facets, knowledge_base) for _ in seeds]
 
 
 # ---------------------------------------------------------------------------

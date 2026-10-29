@@ -7,10 +7,12 @@ Command-line interface for the contextual-unit pipeline.
     python -m pipeline.cli dump TARGET
     python -m pipeline.cli compare TARGET [TARGET ...]
     python -m pipeline.cli budget TARGET [TARGET ...]
+    python -m pipeline.cli tree NAME [--tau T ...]
 
 TARGET is an experiment name (resolved to its newest saved result with a
 matching config) or a path to a ``pipeline_result_*.json`` file. Only ``run``
-loads a knowledge base or calls models; the other commands read saved files.
+calls models; ``tree`` reads the experiment's cached knowledge base; the other
+commands read saved result files only.
 Dataset construction stays in ``python -m dataset``.
 """
 
@@ -18,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import dataclasses
 import logging
 import sys
 from pathlib import Path
@@ -34,6 +37,10 @@ from .experiments import (
     run_experiment,
     summarize,
 )
+from optimization import compute_tree_depth
+
+from .config import PipelineConfig
+from .evaluation import PoolEvaluator
 from .models import PipelineResult
 from .store import PipelineStore
 
@@ -111,8 +118,65 @@ def format_budget_table(label: str, result: PipelineResult) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Refinement-threshold sweep
+# ---------------------------------------------------------------------------
+
+DEFAULT_TAUS = [0.2, 0.3, 0.4, 0.5, 0.6]
+
+
+def tau_sweep(result: PipelineResult, knowledge_base: KnowledgeBase,
+              config: PipelineConfig, taus: List[float]) -> List[Dict[str, Any]]:
+    """Rebuild the result's tree at each refinement threshold (no model calls)."""
+    focused = knowledge_base
+    if config.item_scope.atomic_subtype.subtypes:
+        focused = knowledge_base.filter_subtypes(config.item_scope.atomic_subtype.subtypes)
+    rows = []
+    for tau in taus:
+        evaluator = PoolEvaluator(
+            config=dataclasses.replace(config, refinement_threshold=tau), focused_kb=focused,
+        )
+        evaluation = evaluator.evaluate_pool(result.pool, result.annotations)
+        tree = evaluation.tree
+        rows.append({
+            "tau": tau,
+            "tree_nodes": len(tree.nodes),
+            "tree_depth": compute_tree_depth(tree),
+            "unique_facets_in_tree": len({fid for n in tree.nodes for fid in n.facet_ids}),
+            "rejected_schemas": len(evaluation.rejected_schemas),
+        })
+    return rows
+
+
+def format_tau_table(label: str, result: PipelineResult, rows: List[Dict[str, Any]]) -> str:
+    lines = [f"=== Tree by refinement threshold: {label} ({len(result.pool)} pool facets) ===",
+             f"{'tau':>5} {'t_nodes':>7} {'depth':>5} {'u_facets':>8} {'rejected':>8}"]
+    for r in rows:
+        lines.append(f"{r['tau']:>5.2f} {r['tree_nodes']:>7} {r['tree_depth']:>5} "
+                     f"{r['unique_facets_in_tree']:>8} {r['rejected_schemas']:>8}")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
 # Display
 # ---------------------------------------------------------------------------
+
+def total_usage(result: PipelineResult) -> Dict[str, int]:
+    keys = ("input_tokens", "output_tokens", "thinking_tokens", "requests")
+    return {k: sum(stage.get(k, 0) for stage in result.usage.values()) for k in keys}
+
+
+def format_usage(result: PipelineResult) -> List[str]:
+    if not result.usage:
+        return ["usage: not recorded"]
+    lines = [f"usage ({'stage':<10} {'requests':>8} {'input':>12} {'output':>10} {'thinking':>10}):"]
+    rows = sorted(result.usage.items()) + [("total", total_usage(result))]
+    for stage, u in rows:
+        lines.append(
+            f"  {stage:<16} {u.get('requests', 0):>8} {u.get('input_tokens', 0):>12,} "
+            f"{u.get('output_tokens', 0):>10,} {u.get('thinking_tokens', 0):>10,}"
+        )
+    return lines
+
 
 def format_summary(label: str, result: PipelineResult) -> str:
     s = summarize(result)
@@ -126,6 +190,7 @@ def format_summary(label: str, result: PipelineResult) -> str:
         f"units: {s.num_units}",
         f"pool: {s.pool_facets} facets  tree: {s.tree_nodes} nodes, depth {s.tree_depth}",
         "statuses: " + ", ".join(f"{k}={v}" for k, v in sorted(s.status_counts.items())),
+        *format_usage(result),
         "pool facets:",
     ]
     lines += [f"  - {f.title} ({f.scope}): {f.definition}" for f in result.pool]
@@ -134,7 +199,8 @@ def format_summary(label: str, result: PipelineResult) -> str:
 
 def format_comparison(entries: List[Tuple[str, PipelineResult]]) -> str:
     header = (f"{'name':<40} {'strategy':<9} {'context':<22} {'stop':<24} "
-              f"{'att':>4} {'prop':>4} {'pool':>4} {'nodes':>5} {'depth':>5}")
+              f"{'att':>4} {'prop':>4} {'pool':>4} {'nodes':>5} {'depth':>5} "
+              f"{'in_tok':>11} {'think_tok':>10}")
     lines = [header, "-" * len(header)]
     for label, result in entries:
         s = summarize(result)
@@ -144,7 +210,9 @@ def format_comparison(entries: List[Tuple[str, PipelineResult]]) -> str:
             f"{_context_label(cfg.get('strategy'), cfg.get('context', [])):<22} "
             f"{s.stop_reason:<24} "
             f"{s.attempts:>4} {s.proposals:>4} {s.pool_facets:>4} "
-            f"{s.tree_nodes:>5} {s.tree_depth:>5}"
+            f"{s.tree_nodes:>5} {s.tree_depth:>5} "
+            f"{total_usage(result)['input_tokens']:>11,} "
+            f"{total_usage(result)['thinking_tokens']:>10,}"
         )
     return "\n".join(lines)
 
@@ -220,6 +288,9 @@ def main(argv: Optional[List[str]] = None, experiments_dir: Path = EXPERIMENTS_D
     p_cmp.add_argument("targets", nargs="+")
     p_bud = sub.add_parser("budget", help="Replay a result's candidate ledger.")
     p_bud.add_argument("targets", nargs="+")
+    p_tree = sub.add_parser("tree", help="Rebuild a result's tree at several taus.")
+    p_tree.add_argument("name", help="experiment name (needs its cached KB)")
+    p_tree.add_argument("--tau", type=float, nargs="+", default=DEFAULT_TAUS)
     args = parser.parse_args(argv)
 
     if args.command == "list":
@@ -249,6 +320,14 @@ def main(argv: Optional[List[str]] = None, experiments_dir: Path = EXPERIMENTS_D
             label, result, _ = resolve(target, experiments_dir)
             print(format_budget_table(label, result))
             print()
+    elif args.command == "tree":
+        label, result, spec = resolve(args.name, experiments_dir)
+        if spec is None:
+            raise SystemExit("tree needs an experiment name (for its knowledge base).")
+        kb = cached_knowledge_base(spec)
+        if kb is None:
+            raise SystemExit(f"Knowledge base for {label!r} is not cached.")
+        print(format_tau_table(label, result, tau_sweep(result, kb, spec.pipeline, args.tau)))
 
 
 if __name__ == "__main__":

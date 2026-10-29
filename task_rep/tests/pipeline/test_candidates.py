@@ -8,6 +8,7 @@ import pytest
 
 from pipeline import candidates as candidates_mod
 from pipeline.candidates import CandidateFailure, CandidateProcessor, ProcessedCandidate
+from pipeline.config import stage_seed
 from pipeline.models import CandidateStatus
 
 from tests.pipeline.helpers import (
@@ -213,3 +214,31 @@ def test_batch_issues_one_call_per_stage(monkeypatch):
     assert irr_calls == [["A", "B", "C", "D"]]
     assert vocab.calls == [["A", "C", "D"]]
     assert labeler.calls == [["A", "D"]]
+
+
+# ---- sampling seeds ----
+
+def test_stage_seeds_follow_run_seed_and_attempt(monkeypatch):
+    seen = {}
+
+    def fake_irr(**kwargs):
+        seen["irr"] = kwargs["seed"]
+        return {"low_irr_facet_ids": []}
+
+    class SeedVocab(ScriptedVocabBuilder):
+        def build_vocabulary(self, task, facets, knowledge_base, sample_videos=0, seed=None):
+            seen["vocabulary"] = seed
+            return super().build_vocabulary(task, facets, knowledge_base, sample_videos)
+
+    class SeedLabeler(ScriptedLabeler):
+        def label_batch(self, task, facets, knowledge_base, temperature=None, seed=None):
+            seen["labeling"] = seed
+            return super().label_batch(task, facets, knowledge_base)
+
+    monkeypatch.setattr(candidates_mod, "compute_irr", fake_irr)
+    proc = _processor(vocab=SeedVocab(), labeler=SeedLabeler(),
+                      irr_sample_videos=3, seed=4)
+    proc.process(make_facet("A"), {}, index=7)
+    assert seen == {stage: stage_seed(4, stage, 7)
+                    for stage in ("irr", "vocabulary", "labeling")}
+    assert len(set(seen.values())) == 3
