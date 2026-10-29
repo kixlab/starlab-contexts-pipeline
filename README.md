@@ -13,7 +13,7 @@ items using named aspects, definitions, and canonical values. A candidate
 organization selects CUs whose value signatures group the annotated items.
 
 The explorer presents candidate organizations and refinement relationships in a
-directed acyclic graph (DAG). Inspect candidates and **Copy IDs** to configure
+directed acyclic graph (DAG). Inspect candidates and **Copy selection** to configure
 TaskTailor. TaskTailor can also load annotated corpora directly. Building a graph
 or using a TaskTailor feature does not invoke discovery or labeling.
 
@@ -65,7 +65,7 @@ npm --prefix ../starlab-contexts-applications run dev
 
 | URL | Interface | First action |
 | --- | --- | --- |
-| <http://localhost:3001/space> | Pipeline: design-space exploration | Press **Build**, inspect a candidate, then **Copy IDs** |
+| <http://localhost:3001/space> | Pipeline: design-space exploration | Press **Build**, inspect a candidate, then **Copy selection** |
 | <http://localhost:3000/retrieval> | TaskTailor: contextual retrieval | Play or seek to a knowledge item; inspect matches from other tutorials |
 | <http://localhost:3000/segmentation> | TaskTailor: video segmentation | Navigate the chapter timeline and expand other tutorials' chapter lists |
 | <http://localhost:3000/analysis> | TaskTailor: coverage analysis | Choose two CUs, or normalized temporal position and a CU; click a bar/bubble |
@@ -115,14 +115,16 @@ live model APIs is a separate mode below.
    its cached extraction/units.
 4. Set `NEXT_PUBLIC_BUNDLE_URL=/data/local-bundle.json` and
    `NEXT_PUBLIC_DATASET_LABEL=My tutorials` in `explorer/.env.local`. Restart the
-   explorer; at `/space`, choose the **Tutorial corpus** and press **Build**.
-   **Max CUs** limits contextual units per candidate; start at 1 or 2 for a large
+   explorer; at `/space`, choose the **Tutorial collection** and press **Build**.
+   **Max contexts** limits contextual units per candidate; start at 1 or 2 for a large
    pool. Nodes are arranged by vocabulary cost (canonical values excluding N/A).
    Inspect a candidate's contextual units, value distributions, and effectiveness;
-   follow refinement links and press **Copy IDs** for your selection.
+   follow refinement links and press **Copy selection** for your selection.
 5. Copy the same bundle into the applications repo and configure it there.
-   In any TaskTailor feature, choose that corpus, paste the IDs into
-   **Contextual unit IDs**, and press **Apply**. See the
+   In any TaskTailor feature, choose that collection, open **Paste a saved selection**,
+   paste the selection, and press **Apply**. You can also choose context names
+   directly. The learner-facing views call contextual units **contexts** and
+   knowledge items **clips**. See the
    [applications dataset guide](https://github.com/kixlab/starlab-contexts-applications/blob/main/docs/DATASETS.md).
 
 Already have an annotated bundle? Start at step 4. Each viewer has its own JSON
@@ -144,7 +146,8 @@ python main.py export path/to/result.json \
 
 Copy that bundle into the applications repo as above. `--dataset` supplies video
 titles and URLs; omit it for text-only inspection. For your own local video URLs,
-copy the referenced media into each viewer's `public/` directory. Configure
+copy the referenced media into each viewer's `public/media/local/` directory
+(ignored by Git) and use matching `/media/local/` URLs. Configure
 `.env.local` **before a production build** and restart dev servers after changes.
 The [bundle contract](docs/BUNDLE_FORMAT.md) describes the shared format.
 

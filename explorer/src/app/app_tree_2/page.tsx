@@ -343,7 +343,7 @@ export default function AppTree2() {
           <Link href="/" className="text-neutral-400 hover:text-white text-xs transition-colors">
             ← Back
           </Link>
-          <span className="text-sm font-semibold">Contextual-unit refinement DAG</span>
+          <span className="text-sm font-semibold">Context exploration map</span>
         </div>
 
         <Toolbar

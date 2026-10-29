@@ -10,5 +10,6 @@ next-env.d.ts
 .codex/
 .agents/
 public/data/local*.json
+public/media/local*/
 test-results/
 playwright-report/
