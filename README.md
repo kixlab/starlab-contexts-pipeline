@@ -5,7 +5,7 @@ items, cluster shared knowledge across sources, propose contextual factors, labe
 items, and construct a refinement graph of factor combinations. An included web
 explorer lets you inspect the resulting knowledge and design space.
 
-The current implementation is in `task_rep/`. The earlier pipeline remains in
+The current implementation is in `task_rep/`. The framework-split implementation is available in
 [`legacy/`](legacy/README.md). The separate `starlab-contexts-applications` repo
 contains retrieval, segmentation/augmentation, and schema analysis interfaces.
 Both repos consume the same JSON bundle and run independently.
@@ -129,8 +129,8 @@ your own data. See [`docs/BUNDLE_FORMAT.md`](docs/BUNDLE_FORMAT.md).
 | `task_rep/reports/` | Offline run reports and re-scoring |
 | `explorer/` | Knowledge inspector and design-space graph |
 | `examples/` | Synthetic input, labels, and a ready-to-open UI bundle |
-| `legacy/` | Earlier CIM construction implementation |
-| `docs/history/` | Original-to-filtered commit maps |
+| `legacy/` | Framework-split CIM construction implementation |
+| `docs/history/` | Component source mappings |
 
 ```bash
 python -m pytest -c pytest.ini task_rep/tests -q
@@ -147,6 +147,5 @@ browser smoke tests. Live model calls and third-party video downloads are not
 part of CI. An automated scan detects common secret patterns and excluded paths;
 it cannot determine the privacy or copyright status of arbitrary text.
 
-The import preserves relevant development commits and author metadata, with
-rewritten hashes where paths or parentage changed. The two agent implementations
-and private study data are excluded. See [`docs/HISTORY.md`](docs/HISTORY.md).
+See [`docs/BUNDLE_FORMAT.md`](docs/BUNDLE_FORMAT.md) for the interface data
+contract and [`docs/HISTORY.md`](docs/HISTORY.md) for component source references.

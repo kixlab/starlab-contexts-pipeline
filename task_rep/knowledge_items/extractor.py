@@ -12,7 +12,7 @@ Design principles:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from typing import List
 
 from utils import (
@@ -75,7 +75,7 @@ class VLMKnowledgeExtractor:
     model_config: ModelConfig
     use_vision: bool = True
     max_concurrency: int = 32
-    chunk_config: ChunkConfig = FINE_CHUNK_CONFIG
+    chunk_config: ChunkConfig = field(default_factory=lambda: replace(FINE_CHUNK_CONFIG))
 
     def _base_video_args(self, video: Video) -> dict:
         """Common video formatting args shared across all extraction types."""
