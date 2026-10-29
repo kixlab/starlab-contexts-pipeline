@@ -3,6 +3,11 @@ from .fa_facet_discovery import (
     process_facet_discovery_response,
 )
 
+from .fa_facet_init import (
+    form_facet_init_request,
+    process_facet_init_response,
+)
+
 from .fa_facet_revision import (
     form_facet_revision_request,
     process_facet_revision_response,

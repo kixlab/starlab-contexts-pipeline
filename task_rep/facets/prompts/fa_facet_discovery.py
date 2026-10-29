@@ -32,16 +32,26 @@ SYSTEM_PROMPT = """You are a helpful assistant who can analyze and detect the co
 
 USER_PROMPT_SINGLE_VIDEO = """You are given tutorial videos and target information units extracted from them. Identify `contextual factors` (facets) that would help differentiate when these information units appear in the videos.
 
-A contextual factor is a `piecewise-stable`, `target-independent`, and `task-relevant` variable:
-- Piecewise-stable: stays constant for meaningful spans of the video, changes at clear boundaries
-- Target-independent: the label is decided based on the comprehensive context of the task at the moment/span of the information unit, not the information unit itself. If you remove the specific information unit, the label should remain the same.
-- Task-relevant: reflects conditions that change what information is applicable or not applicable within the task
+A contextual factor is a domain-grounded, task-relevant, monolithic, piecewise-stable, and target-independent variable that describes the procedural situation of the task at a given moment or over a meaningful span.
+    - Domain-grounded: the factor is anchored in the task-world and describes a real aspect of the procedure as it unfolds, such as procedural stage, material state, tool state, object configuration, environmental condition, or service context. It does not describe the media, editorial, or presentation format through which the procedure is shown.
+    - Task-relevant: the factor changes what actions, constraints, interpretations, or information are applicable in that part of the task.
+    - Monolithic: the factor captures one coherent semantic concept rather than combining multiple distinct concepts.
+    - Piecewise-stable: the factor remains constant over meaningful temporal segments and changes at identifiable boundaries.
+    - Target-independent: the factor is determined by the broader procedural context, not by the specific information unit being labeled; removing that unit would not change the factor value.
+Non-examples of contextual factors include:
+    - video genre or tutorial format
+    - presenter configuration
+    - narration style
+    - camera or editing style
+    - entertainment framing
+    - human skill or expertise
+    - subjective quality judgments
 
 GOAL
 Propose contextual factors so that target information units receive DIFFERENT signatures (ideally unique). You are also given a previous set of factors under which all targets share the same signature, so avoid proposing factors that are similar or overlapping with the previous set.
 Follow the requirements and the procedure below.
 
-WHEN TO PROPOSE NO FACTORS
+WHEN NOT TO PROPOSE FACTORS
 Do NOT force factors that are artificial or unreliable. Return an empty candidate list with a refusal reason if any of the following apply:
 - All target items occur in the same narrow region of the tutorial and share identical context — no factor can assign them different labels without reading the item content itself (violating target-independence).
 - The only distinguishing factors would be too fine-grained to generalize (e.g., "the exact product being discussed"), essentially re-encoding the item content as a label.

@@ -19,7 +19,7 @@ from knowledge_items.chunk_sampling import ChunkConfig
 logger = logging.getLogger(__name__)
 
 
-SYSTEM_MESSAGE_DISCOVERY = """You are an expert at analyzing tutorial videos and identifying procedural steps about the task: {task}. You excel at recognizing the high-level structure of tutorials, breaking down complex procedures into clear steps, and understanding both what is shown visually and what is explained in narration. Inputs are structured with XML tags — use the tag name and id attribute to identify each object and its boundaries."""
+SYSTEM_MESSAGE_DISCOVERY = """You are an expert at analyzing tutorial videos and identifying procedural steps about the task: {task}. You excel at recognizing the high-level structure of tutorials, breaking down complex procedures into clear steps, and understanding both what is shown visually and what is explained in narration. You focus ONLY on steps that are directly part of performing the task itself — not on video production, presentation, or meta-commentary. Inputs are structured with XML tags — use the tag name and id attribute to identify each object and its boundaries."""
 
 USER_MESSAGE_DISCOVERY = """You are given temporally aligned frames and transcript from a tutorial video. Analyze the video and identify ALL procedural steps relevant to completing the task.
 
@@ -27,6 +27,11 @@ For each step:
 1. Provide a short, clear step name
 2. Write a comprehensive, but concise description of what this step involves
 3. Provide the start and end times of the step in the video
+
+IMPORTANT:
+- Only include steps that are directly part of performing the task.
+- Do NOT include generic video segments such as introductions, conclusions, sponsor messages, channel promotions, personal anecdotes, equipment setup for filming, or other content not directly related to performing the task.
+- If a segment contains both task-relevant and task-irrelevant content, extract only the task-relevant portion and adjust the time boundaries accordingly.
 
 Use both visual cues from frames and transcript information to identify steps.
 Make sure that steps have a clear start and end time in the video, and each segment of the video assigned to exactly one step.
@@ -94,12 +99,12 @@ def process_step_extraction_response_discovery(
                 local_index=idx,
                 time_range=(float(start), float(end)),
             ),
-            subtype=name,
+            subtype=None,
         ))
     return items
 
 
-SYSTEM_MESSAGE_EXTRACTION = """You are an expert at extracting detailed procedural information from tutorial videos about the task: {task}. Given a taxonomy of steps, you can identify which steps appear in a video and provide comprehensive descriptions of how each step is performed, using both visual and verbal cues. Inputs are structured with XML tags — use the tag name and id attribute to identify each object and its boundaries."""
+SYSTEM_MESSAGE_EXTRACTION = """You are an expert at extracting detailed procedural information from tutorial videos about the task: {task}. Given a taxonomy of steps, you can identify which steps appear in a video and provide comprehensive descriptions of how each step is performed, using both visual and verbal cues. You focus ONLY on steps that are directly part of performing the task itself — not on video production, presentation, or meta-commentary. Inputs are structured with XML tags — use the tag name and id attribute to identify each object and its boundaries."""
 
 USER_MESSAGE_EXTRACTION = """You are given temporally aligned frames and transcript from a tutorial video and a taxonomy of steps. Extract detailed information about the steps from the taxonomy that appear in the video.
 
@@ -107,6 +112,11 @@ For each step that appears:
 1. Confirm the step name from the taxonomy
 2. Write a comprehensive natural text description of how this step is performed in the video
 3. Provide the start and end times of the step in the video
+
+IMPORTANT:
+- Only extract steps that match the provided taxonomy. Do NOT invent new steps outside the taxonomy.
+- Do NOT include generic video segments such as introductions, conclusions, sponsor messages, channel promotions, personal anecdotes, equipment setup for filming, or other content not directly related to performing the task.
+- If a segment contains both task-relevant and task-irrelevant content, extract only the task-relevant portion and adjust the time boundaries accordingly.
 
 Use visual frames to understand techniques and transcript for detailed instructions.
 Make sure that steps have a clear start and end time in the video, and each segment of the video assigned to exactly one step.
