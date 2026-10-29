@@ -11,6 +11,8 @@ Follows the same architectural pattern as VLMKnowledgeExtractor and VLMFacetExtr
 
 from __future__ import annotations
 
+import logging
+import random
 from collections import defaultdict
 from dataclasses import dataclass, replace
 from typing import Dict, List
@@ -35,6 +37,8 @@ from .schema import (
     FacetLabel,
 )
 
+logger = logging.getLogger(__name__)
+
 
 @dataclass
 class VLMFacetVocabularyBuilder:
@@ -56,6 +60,7 @@ class VLMFacetVocabularyBuilder:
         task: str,
         facets: List[Facet],
         knowledge_base: KnowledgeBase,
+        sample_videos: int = 0,
     ) -> List[Facet]:
         """
         Build vocabulary for each facet using knowledge items from the corpus.
@@ -63,6 +68,7 @@ class VLMFacetVocabularyBuilder:
         Args:
             facets: Facets with definitions/guidelines (vocabulary may be empty or partial).
             knowledge_base: Knowledge items to derive vocabulary from.
+            sample_videos: Number of videos to derive the vocabulary (`0` means all)
 
         Returns:
             New list of Facets with updated vocabulary fields.
@@ -79,8 +85,15 @@ class VLMFacetVocabularyBuilder:
         request_keys = []  # track (facet_id, video_id) for each request
         request_args = []
 
+        video_items_list = list(videos.items())
+        if sample_videos > 0 and sample_videos < len(video_items_list):
+            video_items_list = random.sample(video_items_list, sample_videos)
+            logger.info(
+                "Vocab proposal: sampling %d/%d videos.", sample_videos, len(videos)
+            )
+
         for facet in facets:
-            for video_id, video_items in videos.items():
+            for video_id, video_items in video_items_list:
                 request_keys.append((facet.id, video_id))
                 request_args.append({
                     "task": task,

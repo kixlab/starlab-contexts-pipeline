@@ -16,34 +16,15 @@ from knowledge_items import (
     KnowledgeBase,
     KnowledgeItem,
 )
-from facets import (
-    Facet,
-    AnnotationTable,
-)
-
-
-def find_colliding_cells(
-    cell_to_units: Dict[str, Set[str]],
-) -> Dict[str, Set[str]]:
-    """
-    Return cells that contain more than one unit (collisions).
-
-    A collision means the current schema cannot distinguish between
-    the units sharing the same cell signature.
-    """
-    return {sig: units for sig, units in cell_to_units.items() if len(units) > 1}
-
 
 def sample_target_items(
     knowledge_base: KnowledgeBase,
-    facets: List[Facet],
-    annotations: AnnotationTable,
-    colliding_cells: Dict[str, Set[str]],
+    cell_to_units: Dict[str, Set[str]],
     max_cells: int = 1,
     max_items_per_cell: int = 5,
 ) -> List[Tuple[List[str], str]]:
     """
-    Sample representative items from colliding cells for facet discovery.
+    Sample representative items from cells for facet discovery.
 
     For each selected cell, picks one item per unit to maximise diversity
     while avoiding intra-unit redundancy (items from the same unit are
@@ -55,53 +36,50 @@ def sample_target_items(
 
     Args:
         knowledge_base: All knowledge items.
-        facets: Current schema facets.
-        annotations: Current annotation table.
-        colliding_cells: Output of find_colliding_cells().
+        cell_to_units: Cell -> units mapping.
         max_cells: Number of cells to sample from (largest first).
         max_items_per_cell: Maximum representative items per cell.
 
     Returns:
-        List of (target_item_ids, cell_signature) tuples, one per cell.
+        List of (target_item_ids, cell_signature) tuples, one per cell with at least 2 units.
         Each tuple represents one discovery request to the VLM.
     """
-    if not colliding_cells:
+    if max_cells < 1:
+        return []
+    if max_items_per_cell < 2:
         return []
 
-    # Sort by collision size (largest first — most ambiguous cells first)
+    # Sort by cell size (largest first — most ambiguous cells first)
     sorted_cells = sorted(
-        colliding_cells.items(),
+        cell_to_units.items(),
         key=lambda kv: len(kv[1]),
         reverse=True,
     )
 
-    # Build a lookup: cell_sig -> items in that cell
-    # Must use the same subtype-prefixed signature as compute_cells so keys match.
-    cell_items: Dict[str, List[KnowledgeItem]] = defaultdict(list)
+    # Build a lookup: unit_id -> items in that unit
+    unit_id_to_items: Dict[str, List[KnowledgeItem]] = defaultdict(list)
     for item in knowledge_base:
         if item.unit_id is None:
             continue
-        subtype = item.subtype.value if hasattr(item.subtype, "value") else (str(item.subtype) if item.subtype is not None else None)
-        sig = annotations.signature(item.id, facets, subtype=subtype)
-        cell_items[sig].append(item)
+        unit_id_to_items[item.unit_id].append(item)
 
     results = []
     for cell_sig, _unit_ids in sorted_cells[:max_cells]:
-        items_in_cell = cell_items.get(cell_sig, [])
+        if len(_unit_ids) < 2:
+            continue
 
-        # Group by unit — pick one representative per unit
-        by_unit: Dict[str, List[KnowledgeItem]] = defaultdict(list)
-        for item in items_in_cell:
-            by_unit[item.unit_id].append(item)
-
-        representatives = [random.choice(unit_items) for unit_items in by_unit.values()]
+        representatives = []
+        for _unit_id in _unit_ids:
+            if len(unit_id_to_items[_unit_id]) == 0:
+                continue
+            rep = random.choice(unit_id_to_items[_unit_id])
+            representatives.append(rep)
+        
+        if len(representatives) < 2:
+            continue
 
         if len(representatives) > max_items_per_cell:
             representatives = random.sample(representatives, max_items_per_cell)
-
-        # Need at least 2 items to have something to discriminate
-        if len(representatives) < 2:
-            continue
 
         results.append(([item.id for item in representatives], cell_sig))
 

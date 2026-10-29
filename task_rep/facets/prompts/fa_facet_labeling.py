@@ -24,7 +24,7 @@ from knowledge_items.schema import KnowledgeItem
 logger = logging.getLogger(__name__)
 
 
-LABELING_SYSTEM_PROMPT = """You are an expert at analyzing tutorial content and labeling knowledge items with contextual factors related to the task: {task}."""
+LABELING_SYSTEM_PROMPT = """You are an expert at analyzing tutorial content and labeling knowledge items with contextual factors related to the task: {task}. Inputs are structured with XML tags — use the tag name and id attribute to identify each object and its boundaries."""
 
 LABELING_USER_PROMPT = """You are given a contextual factor (facet) with its vocabulary, and knowledge items extracted from a tutorial video. For each knowledge item, assign the single most appropriate label from the facet's vocabulary.
 
@@ -90,7 +90,7 @@ def process_labeling_response(
     """
     id_map = build_item_id_map(video_items)
     rev_map = reverse_id_map(id_map)  # temp_id → real_id
-    valid_labels = {lbl.label for lbl in facet.vocabulary}
+    valid_labels = {lbl.label.lower() for lbl in facet.vocabulary}
 
     result = response.get("response", {})
     segmentation = result.get("segmentation", [])
@@ -99,7 +99,7 @@ def process_labeling_response(
     labeled_temp_ids = set()
     for entry in segmentation:
         temp_id = entry.get("item_id", "").strip()
-        label = entry.get("label", "").strip()
+        label = entry.get("label", "").strip().lower()
 
         real_id = rev_map.get(temp_id)
         if real_id is None:

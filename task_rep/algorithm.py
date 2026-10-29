@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import logging
 import json
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Dict, List
 from pathlib import Path
@@ -45,7 +46,6 @@ from facets import (
 
 from optimization import (
     compute_cells,
-    find_colliding_cells,
     sample_target_items,
     sample_schemas,
 
@@ -94,6 +94,11 @@ class DiscoveryConfig:
 
     max_concurrency: int = 32
 
+    # Vocabulary sampling — limits Phase 1 (per-video proposal) to a random
+    # sample of this many videos.  `0` means use all videos (original behaviour).
+    # Phase 2 consolidation and labeling are always run on the full corpus.
+    vocab_sample_videos: int = 0
+
     def cache_suffix(self) -> str:
         item_type = self.item_type.value.lower().replace(" ", "_")
         discovery_model_suffix = self.discovery_model.cache_suffix()
@@ -104,8 +109,9 @@ class DiscoveryConfig:
         target_d = str(self.target_d)
         max_cells_per_iteration = str(self.max_cells_per_iteration)
         max_items_per_cell = str(self.max_items_per_cell)
-        
-        return f"{item_type}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}"
+        vocab_sample_videos = str(self.vocab_sample_videos) if self.vocab_sample_videos != 0 else "all"
+
+        return f"{item_type}_{discovery_model_suffix}_{vocab_model_suffix}_{labeling_model_suffix}_{max_iterations}_{k_schemas_to_sample}_{target_d}_{max_cells_per_iteration}_{max_items_per_cell}_{vocab_sample_videos}"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -118,6 +124,7 @@ class DiscoveryConfig:
             "max_cells_per_iteration": self.max_cells_per_iteration,
             "max_items_per_cell": self.max_items_per_cell,
             "max_concurrency": self.max_concurrency,
+            "vocab_sample_videos": self.vocab_sample_videos,
             "discovery_model": self.discovery_model.to_dict(),
             "vocab_model": self.vocab_model.to_dict(),
             "labeling_model": self.labeling_model.to_dict(),
@@ -138,6 +145,7 @@ class DiscoveryConfig:
             max_cells_per_iteration=data.get("max_cells_per_iteration", 1),
             max_items_per_cell=data.get("max_items_per_cell", 5),
             max_concurrency=data.get("max_concurrency", 32),
+            vocab_sample_videos=data.get("vocab_sample_videos", 0),
         )
 
 
@@ -231,22 +239,36 @@ class IterativeSchemaDiscovery:
             self._annotations,
         )
         logger.info(
-            "Initial frontier: %d points | best D=%.4f",
+            "Initial frontier: %d points | worst D=%.4f | best D=%.4f",
             len(self._frontier),
             self._frontier[0].discriminativeness if self._frontier else float("inf"),
+            self._frontier[-1].discriminativeness if self._frontier else float("inf"),
         )
 
         tries_with_no_improvement = 0
-        min_d = self.config.min_d
+        # min_d = self.config.min_d
         target_d = self.config.target_d
         max_iterations = self.config.max_iterations
         max_cells_per_iteration = self.config.max_cells_per_iteration
         max_items_per_cell = self.config.max_items_per_cell
         k_schemas_to_sample = self.config.k_schemas_to_sample
+        vocab_sample_videos = self.config.vocab_sample_videos
 
         while tries_with_no_improvement < max_iterations:
             self._iteration += 1
             logger.info("=== Iteration %d ===", self._iteration)
+
+            # Print distribution of cell sizes
+            cells = compute_cells(
+                self._knowledge_base, list(self._facets.values()), self._annotations
+            )
+            size_counts = defaultdict(int)
+            for _, units in cells.items():
+                size_counts[len(units)] += 1
+            total_cell_sizes = sum(size_counts.values())
+            logger.info("Cell size distribution (total=%d units):", total_cell_sizes)
+            for size, count in size_counts.items():
+                logger.info(f"{size} units: {count} ({count/total_cell_sizes*100:.1f}%)")
 
             # Step 1: Sample schemas from the clipped frontier
             clipped = clip_frontier(self._frontier, min_d=target_d)
@@ -272,12 +294,9 @@ class IterativeSchemaDiscovery:
                     cells = compute_cells(
                         self._knowledge_base, schema_facets, self._annotations
                     )
-                    colliding = find_colliding_cells(cells)
                     targets = sample_target_items(
                         self._knowledge_base,
-                        schema_facets,
-                        self._annotations,
-                        colliding,
+                        cells,
                         max_cells=max_cells_per_iteration,
                         max_items_per_cell=max_items_per_cell,
                     )
@@ -286,7 +305,7 @@ class IterativeSchemaDiscovery:
                             task=task.name,
                             videos=videos,
                             target_item_ids=target_ids,
-                            facets=list(self._facets.values()),
+                            facets=schema_facets,
                             target_signature=cell_sig,
                         )
                         all_new_facets.extend(proposed)
@@ -324,6 +343,7 @@ class IterativeSchemaDiscovery:
                 task=task.name,
                 facets=unique_new,
                 knowledge_base=self._knowledge_base,
+                sample_videos=vocab_sample_videos,
             )
 
             # Step 4: Label items with new facets
@@ -340,8 +360,12 @@ class IterativeSchemaDiscovery:
                 self._knowledge_base, combined_facets, combined_annotations
             )
 
-            # Step 6: Accept if the clipped frontier improved
-            if is_pareto_improved(self._frontier, new_frontier, min_d=min_d):
+            # Step 6: Accept if the clipped frontier before target_d is improved
+            if is_pareto_improved(self._frontier, new_frontier, min_d=target_d):
+                logger.info("-------------------------------- New frontier --------------------------------")
+                for point in new_frontier:
+                    logger.info(f"New: {point.discriminativeness} {point.compactness}")
+                logger.info("---------------------------------------------------------------------")
                 logger.info("Pareto improvement — accepting %d new facets.", len(unique_new))
                 for f in unique_new:
                     self._facets[f.id] = f

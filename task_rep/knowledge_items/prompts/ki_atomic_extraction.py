@@ -19,7 +19,7 @@ from knowledge_items.chunk_sampling import ChunkConfig
 
 logger = logging.getLogger(__name__)
 
-SYSTEM_MESSAGE = """You are an expert at analyzing tutorial videos and extracting atomic pieces of information about the task: {task}. You excel at identifying atomic information from both visual and audio content. You understand how to classify information using taxonomies and can accurately identify the start and end times of each piece of information."""
+SYSTEM_MESSAGE = """You are an expert at analyzing tutorial videos and extracting atomic pieces of information about the task: {task}. You excel at identifying atomic information from both visual and audio content. You understand how to classify information using taxonomies and can accurately identify the start and end times of each piece of information. Inputs are structured with XML tags — use the tag name and id attribute to identify each object and its boundaries."""
 
 USER_MESSAGE = """You are given a taxonomy of atomic information and a tutorial with temporally aligned frames and transcript. Extract ALL atomic information pieces that are relevant to the task from the tutorial.
 
