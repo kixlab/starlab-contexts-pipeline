@@ -55,7 +55,7 @@ def rescore(kind: str, experiment: str, overrides: dict, force: bool = False):
 
 def main(argv: Optional[List[str]] = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("kind", choices=["pipeline", "agentic"])
+    parser.add_argument("kind", choices=["pipeline"])
     parser.add_argument("experiments", nargs="+", help="experiment names (file stems)")
     parser.add_argument("--set", dest="overrides", action="append", required=True,
                         metavar="KEY=VALUE", help="evaluation setting to change")

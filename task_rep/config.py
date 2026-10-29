@@ -1,47 +1,14 @@
+"""Repository-relative defaults, optionally overridden with CIM_STORAGE_DIR."""
+import os
 from pathlib import Path
 
-DATA_DIR = Path("./data/")
-STORAGE_DIR = Path("./static/")
+ROOT_DIR = Path(__file__).resolve().parent
+DATA_DIR = ROOT_DIR / "data"
+STORAGE_DIR = Path(os.environ.get("CIM_STORAGE_DIR", str(ROOT_DIR / "static"))).expanduser().resolve()
 
 class Config:
-    TASKS_FILE: Path = DATA_DIR / "tasks.json"
-    
-    VIDEOS_DIR: Path = STORAGE_DIR / "videos"
-    TASK_DATASETS_DIR: Path = STORAGE_DIR / "task-datasets"
-
-    CACHE_DIR: Path = STORAGE_DIR / "cache_2"   # items, units, runs (contextual/cache.py)
-
-    TASKS_PER_DATASET = {
-        "test_tasks": [
-            "sushi_roll_3",
-        ],
-        "custom_tasks": [
-            "sushi_roll",
-            "caramel_apples",
-            "milkshake",
-            "steak",
-            "scrambled_eggs",
-            "hydrangea",
-            "pumpkin",
-            "bathroom_tile",
-            "stainless_steel",
-            "top_stove",
-            "wasp_nest",
-            "christmas_tree",
-            "boxing",
-            "trout",
-            "paper_hat"
-        ],
-        "cross_task_tasks": [
-            "tire",
-            "floating_shelves",
-            "french_toast",
-            "irish_coffee"
-        ],
-        "big_custom_tasks": [
-            "sushi_roll",
-            "steak",
-            "caramel_apples",
-            "top_stove"
-        ]
-    }
+    TASKS_FILE = Path(os.environ.get("CIM_TASKS_FILE", str(DATA_DIR / "tasks.json"))).expanduser().resolve()
+    VIDEOS_DIR = STORAGE_DIR / "videos"
+    TASK_DATASETS_DIR = STORAGE_DIR / "task-datasets"
+    CACHE_DIR = STORAGE_DIR / "cache_2"
+    TASKS_PER_DATASET = {"example_tasks": ["paper_folding_demo"]}

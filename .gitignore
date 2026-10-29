@@ -1,2 +1,30 @@
-**/__pycache__/
-**/static/results/lm-batches
+# Local credentials and tooling
+.env
+.env.*
+!.env.example
+!.env.local.example
+*.pem
+*.key
+*cookies*.txt
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.DS_Store
+.claude/
+.codex/
+.agents/
+# Generated / private datasets and results
+static/
+task_rep/static/
+task_rep/data/local*.json
+task_rep/experiments/local*.json
+legacy/static/
+**/node_modules/
+**/.next/
+**/out/
+**/next-env.d.ts
+**/*.tsbuildinfo
+explorer/public/data/local*.json
