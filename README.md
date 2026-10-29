@@ -5,6 +5,16 @@ knowledge, discover contextual factors, label items, and evaluate organizing
 schemas. The included explorer and the separate applications repo consume the
 same JSON bundle.
 
+The workflow is **timed tutorial corpus → pipeline extraction and CU labeling →
+annotated bundle → graph exploration → three applications**. Contextual units
+(CUs) are stored as facets; a schema is a chosen set of CU IDs. The graph helps
+compare schemas, but applications can load any valid annotated bundle directly.
+Neither the graph nor the applications invoke the pipeline.
+
+Run the model-backed pipeline when a new corpus needs knowledge extraction,
+CU discovery, or labeling. Existing annotations can be loaded immediately.
+Changing graph controls or selecting different, already labeled CUs needs no rerun.
+
 ## Quick start: both repos
 
 Use **Python 3.10+** and **Node.js 22 with npm**. Check `python3 --version`; if it
@@ -49,16 +59,14 @@ npm --prefix ../starlab-contexts-applications run dev
 
 | URL | Interface | First action |
 | --- | --- | --- |
-| <http://localhost:3001/inspect> | Knowledge inspector | Select a knowledge unit, then expand its source details |
 | <http://localhost:3001/space> | Design-space explorer | Press **Build**, then select a graph node |
 | <http://localhost:3000/retrieval> | Retrieval | Select a chapter or another tutorial |
 | <http://localhost:3000/segmentation> | Segmentation and augmentation | Seek to a chapter and inspect related information |
-| <http://localhost:3000/analysis> | Schema analysis | Select a point on the plot |
+| <http://localhost:3000/analysis> | Context intersection analysis | Choose two CUs, or Temporal Position and a CU; click a bar/bubble |
 
-Each interface opens **Local pipeline output** automatically. The generated
+Each interface opens **My tutorials** automatically. The generated
 bundle has four synthetic tutorials, sixteen steps, and two contextual factors.
-Both viewers include the matching 20-second video title card. Analysis also adds
-a Content Type facet for comparison. To run only the bundled sample, skip the
+Both viewers include the matching 20-second video title card. To run only the bundled sample, skip the
 bundle-copy and `.env.local` configuration steps.
 
 The demo runs the real proposal/evaluation/checkpoint pipeline with scripted
@@ -66,26 +74,53 @@ model services. It writes `demo-bundle.json`, `knowledge-base.json`, and a run
 folder containing `result.json` under `task_rep/static/demo/`. Extraction with
 live model APIs is a separate mode below.
 
-## Run with model APIs
+## Use your own corpus
 
-Activate the venv and export your own `OPENAI_API_KEY` in the shell. Python reads
-environment variables; it does **not** load `.env` automatically. Then:
+1. Collect tutorials about one task. Prepare a JSON array with a unique `id`,
+   `title`, `url`, and `transcript` entries `{text, start, end}` for each tutorial.
+   Times are seconds; see [`examples/demo-dataset.json`](examples/demo-dataset.json).
+   For videos without transcripts, start with [dataset preparation](task_rep/data_prep/README.md).
+2. From the repo root, register the corpus:
 
-```bash
-python scripts/prepare_demo_data.py
-python main.py run paper_folding_demo
-python main.py show paper_folding_demo
-```
+   ```bash
+   python scripts/register_corpus.py /path/to/tutorials.json --task-id local-my-tutorials --name "My tutorials"
+   export CIM_TASKS_FILE=task_rep/data/local-tasks.json
+   ```
 
-This uses synthetic transcripts but makes paid model calls. Adjust models and
-budgets in `task_rep/experiments/paper_folding_demo.json`. `run` resumes interrupted
-runs; `--fresh` starts a new one. For your corpus, add a task to
-`task_rep/data/tasks.json` and place its transcripts at
-`task_rep/static/task-datasets/<task_id>.json`, following `examples/demo-dataset.json`.
-Copy the example experiment under `task_rep/experiments/`, set its `task_id` to
-your task, and keep its filename and `name` consistent. See
-[task preparation](task_rep/data_prep/README.md) and [.env.example](.env.example)
-for optional downloads, providers, and external storage configuration.
+   This writes an ignored transcript dataset and
+   `task_rep/experiments/local-my-tutorials.json`. Review models, budgets, item
+   scope, and CU limits there. Registration makes no API calls; its default mode
+   uses transcripts without vision. Keep `CIM_TASKS_FILE` set for later commands.
+   Registration uses default storage; unset `CIM_STORAGE_DIR` if you changed it.
+3. Activate the venv and export your own `OPENAI_API_KEY`. Python reads shell
+   variables; it does not load `.env` automatically. Invoke the pipeline:
+
+   ```bash
+   python main.py run local-my-tutorials
+   python main.py show local-my-tutorials
+   python main.py export --experiment local-my-tutorials --output explorer/public/data/local-bundle.json
+   ```
+
+   `run` makes paid model calls to extract/cluster knowledge, discover CUs,
+   construct vocabularies, and label pieces. It resumes interrupted runs;
+   `--fresh` starts another run. `show` and `export` read saved results only.
+   Export automatically finds the completed run, knowledge base, and video
+   metadata. After changing corpus content, use a new task ID to avoid reusing
+   its cached extraction/units.
+4. Set `NEXT_PUBLIC_BUNDLE_URL=/data/local-bundle.json` and
+   `NEXT_PUBLIC_DATASET_LABEL=My tutorials` in `explorer/.env.local`. Restart the
+   explorer; at `/space`, choose the dataset and press **Build**. `Max K` limits
+   CUs per schema; start at 1 or 2 for a large candidate pool. Select a node to
+   inspect its schema, then press **Copy IDs**.
+5. Copy the same bundle into the applications repo and configure it there.
+   In retrieval, segmentation, or analysis, choose that dataset, paste the IDs
+   into the schema toolbar, and press **Apply**. See the
+   [applications dataset guide](https://github.com/kixlab/starlab-contexts-applications/blob/main/docs/DATASETS.md).
+
+Already have an annotated bundle? Start at step 4. Each viewer has its own JSON
+copy and `.env.local`; there is no shared backend. Multiple named datasets use
+`NEXT_PUBLIC_DATASETS` in each viewer, as described in the applications guide.
+Set configuration before a production build and restart after changes.
 
 ## Export another run
 

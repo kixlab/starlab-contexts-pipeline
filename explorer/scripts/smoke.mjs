@@ -10,7 +10,8 @@ const port = Number(process.env.CIM_SMOKE_PORT || 3811);
 const origin = `http://127.0.0.1:${port}`;
 const configured = process.env.NEXT_PUBLIC_BUNDLE_URL;
 const cases = [
-  ...(configured ? [{label: "Local pipeline output", url: configured}] : []),
+  ...(configured ? [{label: process.env.NEXT_PUBLIC_DATASET_LABEL || "Local dataset", url: configured}] : []),
+  ...JSON.parse(process.env.NEXT_PUBLIC_DATASETS || "[]").map(item => ({label: item.label, url: item.bundleUrl})),
   {label: "Synthetic paper folding", url: "/data/demo-bundle.json"},
 ];
 const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", String(port)], {
@@ -35,7 +36,7 @@ try {
     assert.ok(item.bundle.labeled_dataset.length > 0);
   }
   browser = await chromium.launch({headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? {executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE} : {})});
-  const context = await browser.newContext({viewport: {width: 1440, height: 1000}});
+  const context = await browser.newContext({viewport: {width: 1440, height: 1000}, permissions: ["clipboard-read", "clipboard-write"]});
   const errors = [], external = [], badResponses = [], requests = new Set();
   await context.route("**/*", route => {
     const url = route.request().url();
@@ -52,46 +53,35 @@ try {
   const fetched = async item => {
     await expect.poll(() => requests.has(new URL(item.url, origin).pathname)).toBeTruthy();
   };
-  const localVideo = async () => {
-    const video = page.locator("video").first();
-    await expect(video).toBeVisible();
-    await expect.poll(() => video.evaluate(element => element.readyState)).toBeGreaterThanOrEqual(1);
-    await video.evaluate(element => { element.currentTime = 7; });
-    await expect.poll(() => video.evaluate(element => element.currentTime)).toBeCloseTo(7, 1);
-  };
   await visit("/");
   await expect(page.getByRole("heading", {level: 1})).toContainText("CIM Pipeline Explorer");
-  await visit("/inspect");
-  const checkInspector = async item => {
-    await expect(page.getByRole("combobox", {name: "Dataset"})).toHaveValue(item.label);
-    await expect(page.getByText(item.bundle.context_schema[0].title, {exact: true}).first()).toBeVisible();
-    const text = item.bundle.labeled_dataset[0].pieces[0].content;
-    await page.getByRole("button", {name: text, exact: false}).first().click();
-    await page.getByRole("button", {name: "Expand details"}).first().click();
-    await localVideo();
-    await fetched(item);
-    await expect(page.getByText("placeholder", {exact: true})).toHaveCount(0);
-  };
-  await checkInspector(cases[0]);
-  if (cases.length > 1) {
-    for (const item of [cases[1], cases[0]]) {
-      requests.clear();
-      await page.getByRole("combobox", {name: "Dataset"}).selectOption(item.label);
-      await checkInspector(item);
-    }
-  }
+  await expect(page.getByRole("link", {name: "Inspect knowledge"})).toHaveCount(0);
+  for (const path of ["/inspect", "/analysis_info"]) assert.equal((await fetch(origin + path)).status, 404);
   await visit("/space");
-  await expect(page.getByRole("combobox", {name: "Dataset"})).toHaveValue(cases[0].label);
-  const build = page.getByRole("button", {name: "Build", exact: true});
-  await expect(build).toBeEnabled();
-  await build.click();
-  await expect(page.getByText(/\d+\/\d+ nodes/)).toBeVisible();
-  await fetched(cases[0]);
+  const checkGraph = async item => {
+    await expect(page.getByRole("combobox", {name: "Dataset"})).toHaveValue(item.label);
+    const build = page.getByRole("button", {name: "Build", exact: true});
+    await expect(build).toBeEnabled();
+    await build.click();
+    await expect(page.getByText(/\d+\/\d+ nodes/)).toBeVisible({timeout: 120000});
+    await fetched(item);
+    await page.getByRole("button", {name: /^Schema:/}).first().click({force: true});
+    await page.getByRole("button", {name: "Copy IDs", exact: true}).first().click();
+    const ids = await page.evaluate(() => navigator.clipboard.readText());
+    const validIds = new Set(item.bundle.facet_candidates.map(f => f.id));
+    assert.ok(ids.split(",").every(id => validIds.has(id.trim())), "Copied schema must use this dataset's CU IDs");
+  };
+  await checkGraph(cases[0]);
+  if (cases.length > 1) for (const item of [...cases.slice(1), cases[0]]) {
+    requests.clear();
+    await page.getByRole("combobox", {name: "Dataset"}).selectOption(item.label);
+    await checkGraph(item);
+  }
   if (process.env.CIM_SMOKE_SCREENSHOT) await page.screenshot({path: process.env.CIM_SMOKE_SCREENSHOT, fullPage: true});
   assert.deepEqual(errors, [], "Browser runtime errors");
   assert.deepEqual(external, [], "Local example attempted external requests");
   assert.deepEqual(badResponses, [], "Failed local requests");
-  console.log("explorer: default routes, selected bundle, local media, and dataset switching passed");
+  console.log("explorer: dataset switching, graph construction, schema selection, CU ID copying, and inspector removal passed");
 } catch (error) {
   console.error(logs.slice(-8000));
   throw error;

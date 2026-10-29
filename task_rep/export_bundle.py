@@ -21,7 +21,9 @@ def export_bundle(result: dict, knowledge_base: dict, dataset: list | None = Non
     labels = {}
     for item, facet, label in result.get("annotations", []):
         if facet in facet_ids:
-            labels.setdefault(item, {}).setdefault(facet, []).append(label)
+            values = labels.setdefault(item, {}).setdefault(facet, [])
+            if label not in values:
+                values.append(label)
     sources = {video["id"]: video for video in dataset or []}
     videos = {}
     for item in knowledge_base["items"]:
@@ -58,12 +60,41 @@ def load_knowledge_base(path: Path) -> dict:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("result", type=Path, help="Saved result.json")
-    parser.add_argument("--knowledge-base", required=True, type=Path, help="Knowledge-base JSON or cached units JSONL")
+    parser.add_argument("result", nargs="?", type=Path, help="Saved result.json or run folder")
+    parser.add_argument("--experiment", help="Export the newest finished run matching this experiment's config")
+    parser.add_argument("--knowledge-base", type=Path, help="Knowledge-base JSON or cached units JSONL; inferred for standard run folders")
     parser.add_argument("--dataset", type=Path, help="Optional task dataset with video URLs and titles")
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
-    bundle = export_bundle(json.loads(args.result.read_text()), load_knowledge_base(args.knowledge_base),
+    if bool(args.result) == bool(args.experiment):
+        parser.error("Supply a saved result/run folder OR --experiment NAME")
+    result_path = args.result
+    if args.experiment:
+        from pipeline.experiments import load_experiments_dir, find_result
+        from config import Config
+        specs, _ = load_experiments_dir()
+        if args.experiment not in specs:
+            parser.error(f"Unknown experiment {args.experiment!r}; use python main.py list")
+        spec = specs[args.experiment]
+        result_path = find_result(spec)
+        if result_path is None:
+            parser.error("No finished run matches this experiment; run it first")
+        if args.dataset is None:
+            dataset_path = Config.TASK_DATASETS_DIR / f"{spec.task_id}.json"
+            if dataset_path.exists():
+                args.dataset = dataset_path
+    if result_path.is_dir():
+        result_path = result_path / "result.json"
+    if args.knowledge_base is None:
+        run = result_path.parent
+        manifest = run / "run.json"
+        sources = json.loads(manifest.read_text()).get("sources", {}) if manifest.exists() else {}
+        if not sources.get("units"):
+            parser.error("Run has no recorded units file; supply --knowledge-base explicitly")
+        args.knowledge_base = run.parent.parent / sources["units"]
+        if not args.knowledge_base.is_file():
+            parser.error("Recorded units file is missing; supply --knowledge-base explicitly")
+    bundle = export_bundle(json.loads(result_path.read_text()), load_knowledge_base(args.knowledge_base),
                            json.loads(args.dataset.read_text()) if args.dataset else None)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(bundle, indent=2) + "\n")

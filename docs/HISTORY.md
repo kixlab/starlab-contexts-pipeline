@@ -6,7 +6,7 @@ The system contains three component families:
 | --- | --- | --- |
 | CIM framework construction | `legacy/` | Framework-split extraction and schema construction |
 | Task representation | `task_rep/` | Knowledge items, contextual factors, evaluation, and pipeline execution |
-| Knowledge and design-space explorer | `explorer/` | Knowledge inspection and schema refinement visualization |
+| Design-space explorer | `explorer/` | Compare CU combinations and visualize schema refinement |
 
 The task-representation modules share their development lineage with
 `probe/task_rep`. The explorer shares its interface foundations with

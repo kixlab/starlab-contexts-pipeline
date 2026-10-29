@@ -4,7 +4,7 @@ from export_bundle import export_bundle
 
 def test_export_keeps_cross_source_units_and_all_labels_without_internal_metadata():
     result = {"pool": [{"id": "f", "title": "Paper", "vocabulary": [{"label": "thin"}]}],
-              "annotations": [["a", "f", "thin"], ["a", "f", "thick"]],
+              "annotations": [["a", "f", "thin"], ["a", "f", "thick"], ["a", "f", "thin"]],
               "runner_state": {"private_prompt": "internal"}, "usage": {"private": 1}}
     kb = {"items": [{"id": name, "type": "step", "text": "Fold", "unit_id": "shared",
                      "source": {"video_id": video, "time_range": [0, 5]},

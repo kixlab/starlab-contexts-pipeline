@@ -1,10 +1,13 @@
 # Shared interface bundle
 
-All public interfaces accept one JSON object with these keys:
+The graph explorer and three applications accept one JSON object with these
+keys. A contextual unit (CU) is stored as a facet; a schema is a set of facet IDs.
+The applications can also consume manually annotated or independently produced
+bundles; they do not require this pipeline to run.
 
 | Key | Contents |
 | --- | --- |
-| `context_schema` | Facets initially available for inspection |
+| `context_schema` | Default schema; apps initially choose up to two of its CUs |
 | `facet_candidates` | Candidate facets available for schema selection |
 | `labeled_dataset` | Source tutorials and their timed knowledge pieces |
 
@@ -16,7 +19,8 @@ A tutorial contains `id`, `url`, `title`, `original_title`, `content`,
 `piece_id`, `unit_id`, `item_type`, `content_type`, `start`, `end`, `content`,
 and `labels` (a facet-ID-to-string-array map). Times are seconds. `unit_id`
 links related knowledge across tutorials. Facet IDs in `labels` must match the
-schema IDs; label values must match that facet's vocabulary.
+candidate IDs; label values must match that facet's vocabulary. Every default
+schema facet must appear among the candidates.
 
 Video URLs may be YouTube URLs or local/self-hosted video URLs. Relative URLs
 are served from the web app's `public/` directory. The included sample uses
