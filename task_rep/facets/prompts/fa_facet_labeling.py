@@ -5,8 +5,9 @@ One request per (facet, video) pair: assigns a label from the facet's
 vocabulary to each knowledge item in that video.
 """
 
+import difflib
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from utils.llm import MessageContent
 
@@ -74,6 +75,20 @@ def form_labeling_request(
     }
 
 
+def _fuzzy_match_label(label: str, valid_labels: set[str]) -> Optional[str]:
+    """Try to recover a truncated/near-miss label via prefix then difflib matching."""
+    # Prefix match: returned label is a strict prefix of exactly one valid label
+    prefix_matches = [v for v in valid_labels if v.startswith(label) and v != label]
+    if len(prefix_matches) == 1:
+        return prefix_matches[0]
+
+    # difflib closest match (cutoff=0.85 avoids false positives across short labels)
+    close = difflib.get_close_matches(label, valid_labels, n=1, cutoff=0.85)
+    if close:
+        return close[0]
+
+    return None
+
 def process_labeling_response(
     response: Dict[str, Any],
     facet: Facet,
@@ -110,11 +125,19 @@ def process_labeling_response(
             continue
 
         if label not in valid_labels:
-            logger.error(
-                "Labeling hallucinated label %r for item %r (facet=%r). Dropping.",
-                label, temp_id, facet.title,
-            )
-            continue
+            recovered = _fuzzy_match_label(label, valid_labels)
+            if recovered:
+                logger.warning(
+                    "Labeling fuzzy-matched label %r → %r for item %r (facet=%r).",
+                    label, recovered, temp_id, facet.title,
+                )
+                label = recovered
+            else:
+                logger.error(
+                    "Labeling hallucinated label %r for item %r (facet=%r). Dropping.",
+                    label, temp_id, facet.title,
+                )
+                continue
 
         labeled_temp_ids.add(temp_id)
         entries.append({"item_id": real_id, "label": label})

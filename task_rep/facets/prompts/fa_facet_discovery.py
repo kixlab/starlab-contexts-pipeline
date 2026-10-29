@@ -34,12 +34,19 @@ USER_PROMPT_SINGLE_VIDEO = """You are given tutorial videos and target informati
 
 A contextual factor is a `piecewise-stable`, `target-independent`, and `task-relevant` variable:
 - Piecewise-stable: stays constant for meaningful spans of the video, changes at clear boundaries
-- Target-independent: the label is decided based on the comprehnsive context of the task at the moment/span of the information unit, not the information unit itself. If you remove the specific information unit, the label should remain the same.
+- Target-independent: the label is decided based on the comprehensive context of the task at the moment/span of the information unit, not the information unit itself. If you remove the specific information unit, the label should remain the same.
 - Task-relevant: reflects conditions that change what information is applicable or not applicable within the task
 
 GOAL
 Propose contextual factors so that target information units receive DIFFERENT signatures (ideally unique). You are also given a previous set of factors under which all targets share the same signature, so avoid proposing factors that are similar or overlapping with the previous set.
 Follow the requirements and the procedure below.
+
+WHEN TO PROPOSE NO FACTORS
+Do NOT force factors that are artificial or unreliable. Return an empty candidate list with a refusal reason if any of the following apply:
+- All target items occur in the same narrow region of the tutorial and share identical context — no factor can assign them different labels without reading the item content itself (violating target-independence).
+- The only distinguishing factors would be too fine-grained to generalize (e.g., "the exact product being discussed"), essentially re-encoding the item content as a label.
+- Proposed factors would require subjective or ambiguous judgment calls that different annotators would disagree on.
+It is better to return zero candidates than to propose a factor that does not reliably separate the targets.
 
 REQUIREMENTS
 - Each proposed factor must be distinct from the previous set of factors.
@@ -60,13 +67,14 @@ PROCEDURE
         - Definition
         - Segmentation guidelines (start/end rules; transcript cues for label change)
         - Full vocabulary necessary to segment the tutorial according to the factor.
-    - It is okay to not propose any factors if the information units are indistinguishable within the tutorials.
-2. If there are factors, segment the tutorials according to each of them.
-    - For each factor, produce a segmentation of the tutorials: every moment in the tutorials must be assigned exactly one label from the factor's vocabulary.
+    - If no valid factors can be proposed, return an empty candidate list with a refusal reason.
+2. If there are factors, assign a label to each TARGET information unit under each proposed factor.
+    - For each factor, provide a brief reason for each target assignment explaining why the label applies based on the surrounding context (not the item content itself).
+    - For each factor, also provide 2-4 anchor items (non-target items from the tutorial) that demonstrate the factor applies broadly and that different labels from the vocabulary are actually used across the tutorial. Choose anchors that receive DIFFERENT labels from each other to show the factor's range.
 3. If there are factors, verify that the signatures of the target information units will be different under the new factors.
 
 OUTPUT
-Return the proposed contextual factors and segmentation of the tutorials according to each factor.
+Return the proposed contextual factors, target assignments, and anchor examples according to the schema.
 
 INPUTS
 - Previous contextual factors:
@@ -141,6 +149,12 @@ def process_facet_discovery_response(
             target_temp_ids.add(temp_id)
 
     result = response.get("response", {})
+
+    refusal_reason = result.get("refusal_reason")
+    if refusal_reason:
+        logger.info("Discovery refused: %s", refusal_reason)
+        return []
+
     candidates = result.get("candidates", [])
 
     # Track signatures for console diagnostics (using temp IDs throughout)
@@ -149,21 +163,28 @@ def process_facet_discovery_response(
 
     for idx, candidate in enumerate(candidates):
         c_id = f"C{idx + 1}"
+        valid_labels = {ld["label"] for ld in candidate.get("segment_labels", [])}
         for temp_id in target_temp_ids:
             temp_annotations[temp_id][c_id] = "na"
 
-        for segmentation_meta in candidate.get("segmentations", []):
-            for item_annotation in segmentation_meta.get("segmentation", []):
-                temp_id = item_annotation.get("item_id")  # LLM returns temp ID
-                label = item_annotation.get("label")
-                if temp_id not in rev_id_map:
-                    logger.error(
-                        "Discovery hallucinated item_id %r in segmentation. Skipping.",
-                        temp_id,
-                    )
-                    continue
-                if temp_id in target_temp_ids:
-                    temp_annotations[temp_id][c_id] = label
+        for assignment in candidate.get("target_assignments", []):
+            temp_id = assignment.get("item_id")  # LLM returns temp ID
+            label = assignment.get("label")
+            if temp_id not in rev_id_map:
+                logger.error(
+                    "Discovery hallucinated item_id %r in target_assignments. Skipping.",
+                    temp_id,
+                )
+                continue
+            if label not in valid_labels:
+                logger.error(
+                    "Discovery hallucinated label %r for item %r. Skipping.",
+                    label,
+                    temp_id,
+                )
+                continue
+            if temp_id in target_temp_ids:
+                temp_annotations[temp_id][c_id] = label
 
         for temp_id in target_temp_ids:
             temp_signatures[temp_id] += f"<{c_id}:{temp_annotations[temp_id][c_id]}>"
@@ -173,7 +194,7 @@ def process_facet_discovery_response(
     unique = len(set(signature_values))
     if total > 0:
         logger.info(
-            f"Effectiveness ({len(candidates)}/{total}) "
+            f"Effectiveness ({len(candidates)} facets for {total} units) "
             f"({unique}/{total}) = {unique / total:.3f}"
         )
 
