@@ -30,7 +30,7 @@ function configFromParams(params: URLSearchParams): { label: string | null; conf
   const tau = params.has("tau") ? Math.max(0.5, Math.min(1, Number(params.get("tau")))) : DEFAULT_TREE_CONFIG.refinementThreshold;
   const stability = params.has("stability") ? Math.max(0, Math.min(1, Number(params.get("stability")))) : DEFAULT_TREE_CONFIG.stabilityThreshold;
   return {
-    label: label && LOADABLE_OPTIONS.some((o) => o.label === label) ? label : null,
+    label: label && LOADABLE_OPTIONS.some((o) => o.label === label) ? label : LOADABLE_OPTIONS[0]?.label ?? null,
     config: { ...DEFAULT_TREE_CONFIG, maxK: isNaN(maxK) ? DEFAULT_TREE_CONFIG.maxK : maxK, refinementThreshold: isNaN(tau) ? DEFAULT_TREE_CONFIG.refinementThreshold : tau, stabilityThreshold: isNaN(stability) ? DEFAULT_TREE_CONFIG.stabilityThreshold : stability },
   };
 }
@@ -127,6 +127,7 @@ export default function AppTree2() {
 
     try {
       const response = await fetch(option.bundleUrl);
+      if (!response.ok) throw new Error(`Bundle request failed (${response.status})`);
       const contentLength = response.headers.get("Content-Length");
       const total = contentLength ? parseInt(contentLength, 10) : 0;
 
@@ -157,7 +158,7 @@ export default function AppTree2() {
       await new Promise<void>((r) => setTimeout(r, 0));
       const bundle = normalizeBundle(raw as Record<string, unknown>);
       const ds = bundle.labeled_dataset;
-      const fs = bundle.context_schema;
+      const fs = bundle.facet_candidates?.length ? bundle.facet_candidates : bundle.context_schema;
       const it = option.infoTypes === null ? deriveInfoTypesFromDataset(ds) : option.infoTypes;
 
       setDataset(ds);

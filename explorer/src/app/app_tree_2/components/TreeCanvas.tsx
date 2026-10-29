@@ -243,9 +243,14 @@ export function TreeCanvas({
           return (
             <g
               key={node.id}
+              role="button"
+              tabIndex={0}
+              aria-label={`Schema: ${node.facetSubset.map(f => f.title).join(" + ")}`}
+              aria-pressed={isSel}
               transform={`translate(${pos.x - NODE_WIDTH / 2}, ${pos.y - nh / 2})`}
               className="cursor-pointer"
               onClick={(ev) => { ev.stopPropagation(); onNodeClick(node.id, ev.shiftKey); }}
+              onKeyDown={(ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); ev.stopPropagation(); onNodeClick(node.id, ev.shiftKey); } }}
               onMouseEnter={() => onNodeHover(node.id)}
               onMouseLeave={() => onNodeHover(null)}
             >
