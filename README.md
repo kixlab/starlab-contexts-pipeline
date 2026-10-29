@@ -1,189 +1,152 @@
-# Context Information Model (CIM) Framework Construction
+# Starlab Contexts Pipeline
 
-This repository contains the pipeline for constructing Context Information Models (CIM) from instructional video datasets. The system processes video transcripts to extract information units, build facet candidates, and generate context schemas that organize knowledge in a structured, fine-grained manner.
+Build Context Information Maps (CIMs) from tutorial transcripts: extract knowledge
+items, cluster shared knowledge across sources, propose contextual factors, label
+items, and construct a refinement graph of factor combinations. An included web
+explorer lets you inspect the resulting knowledge and design space.
 
-## Repository Structure
+The current implementation is in `task_rep/`. The earlier pipeline remains in
+[`legacy/`](legacy/README.md). The separate `starlab-contexts-applications` repo
+contains retrieval, segmentation/augmentation, and schema analysis interfaces.
+Both repos consume the same JSON bundle and run independently.
 
-- [`main.py`](main.py): Main entry point for constructing CIM frameworks
-- [`src`](src/): Core framework construction logic
-  - [`framework_split.py`](src/framework_split.py): Main pipeline for processing videos and building CIM schemas
-- [`helpers`](helpers/): Helper scripts and utilities
-  - [`cim_scripts.py`](helpers/cim_scripts.py): CIM framework construction functions
-  - [`dataset.py`](helpers/dataset.py): Dataset loading and task definitions
-  - [`nlp.py`](helpers/nlp.py): Natural language processing utilities
-  - [`pydantic_models`](pydantic_models/): Pydantic models for data validation
-  - [`framework.py`](pydantic_models/framework.py): Framework-related models
-  - [`evaluation.py`](pydantic_models/evaluation.py): Evaluation models
-  - [`rag.py`](pydantic_models/rag.py): RAG-related models
-  - [`summarization.py`](pydantic_models/summarization.py): Summarization models
-- [`prompts`](prompts/): Prompt templates for LLM interactions
-  - [`framework.py`](prompts/framework.py): Framework construction prompts
-- [`static`](static/): Storage of datasets and processing results
-  - [`datasets`](static/datasets/): Input video datasets in JSON format
-  - [`results`](static/results/): Processing results and generated CIM schemas
-- [`requirements.txt`](requirements.txt): Python package dependencies
+## Quick start: offline example
 
-## Development environment
-
--   Ubuntu 22.04, CUDA 12.8
-
-## Installation
-
-1. Create a new [conda](https://docs.conda.io/en/latest/) environment (Python 3.10)
+Requirements: Python 3.10 or newer. No GPU, model account, downloaded videos, or
+API keys are needed for this example.
 
 ```bash
-conda create -n cim python=3.10
-conda activate cim
+python3 -m venv .venv
+source .venv/bin/activate
+# Windows PowerShell: .venv\Scripts\Activate.ps1
+python -m pip install -r requirements-lock.txt
+python main.py demo
 ```
 
-2. Install required dependencies
+The demo uses the real pipeline runner with explicitly scripted proposals,
+vocabularies, labels, and embeddings. It exercises evaluation, checkpoints, and
+export without pretending to generate model results. It writes a run folder,
+`knowledge-base.json`, and `demo-bundle.json` under `task_rep/static/demo/`.
+The four tutorials and the video title card are entirely synthetic.
+
+`requirements-lock.txt` records the tested Python environment, including pytest.
+For a smaller application install use `requirements.txt`; for video download and
+frame extraction also install `requirements-video.txt` and your OS's `ffmpeg`.
+Model API calls can run on CPU. Video download uses Node.js as yt-dlp's JS runtime.
+
+## Explore the results
+
+Install Node.js 22 and npm, then:
 
 ```bash
-pip install -r requirements.txt
+cd explorer
+npm ci
+npm run dev
 ```
 
-3. Set up environment variables for LMs (OpenAI)
+Open <http://localhost:3000>. Choose **Inspect knowledge** or **Explore design
+space**. The graph page loads the synthetic dataset; press **Build** to enumerate
+and display the graph. The bundled sample also includes a local playable MP4.
 
-Get your OpenAI API key from [OpenAI Platform](https://platform.openai.com/api-keys). You'll need to create an account and generate an API key.
+To inspect a new demo run, copy `task_rep/static/demo/demo-bundle.json` to
+`explorer/public/data/local-bundle.json`, then copy `.env.local.example` to
+`.env.local` inside `explorer/` and set:
 
-**Option A: Temporary (current terminal session only)**
+```dotenv
+NEXT_PUBLIC_BUNDLE_URL=/data/local-bundle.json
+```
+
+Restart the web server and choose **Local pipeline output**. The same file works
+in `starlab-contexts-applications/public/data/local-bundle.json`. These filenames
+are ignored by Git. Browser applications require no model API keys.
+
+## Run with model APIs
+
+The public example experiment uses OpenAI for extraction, clustering, proposal,
+vocabulary, and labeling. Export `OPENAI_API_KEY` in your shell, or set it through
+your environment manager; see `.env.example`. The Python CLI reads environment
+variables and does not automatically load dotenv files. Other configurations can
+use Gemini (`GEMINI_API_KEY`) or Anthropic through AWS Bedrock (your own AWS
+credentials and region). No credentials are bundled.
 
 ```bash
-export OPENAI_API_KEY="your-api-key-here"
+# From the repository root, with the virtual environment activated:
+python scripts/prepare_demo_data.py
+python main.py list
+python main.py run paper_folding_demo
+python main.py show paper_folding_demo
+python main.py tree paper_folding_demo --tau 0.2 0.4 0.6
 ```
 
-**Option B: Conda environment variable**
+Only `run` above calls model APIs and incurs their usage charges. Edit model IDs,
+concurrency, budget, and item scope in
+`task_rep/experiments/paper_folding_demo.json` to fit your account. `run` resumes
+interrupted runs; `--fresh` starts a new one. The example uses text only and
+disables the optional inter-rater check to keep the run small. The `demo` command
+always uses scripted services, regardless of environment credentials.
 
-If you're using conda, you can set it as an environment variable:
+For your own corpus, define a task in `task_rep/data/tasks.json`, put a transcript
+dataset in `task_rep/static/task-datasets/<task_id>.json` (see
+`examples/demo-dataset.json`), and copy the example experiment with matching
+`name` and `task_id`. Keep private task definitions in `task_rep/data/local-tasks.json` and export
+`CIM_TASKS_FILE` pointing to it. Use `local-*.json` for private experiment files;
+add individual ignore entries for other private filenames. Do not commit a dataset
+whose redistribution rights or privacy status you have not reviewed.
+
+Set `CIM_STORAGE_DIR` to keep datasets, cached knowledge, run results, and model
+request logs in an external directory. Defaults are resolved relative to the
+installed repo, so `python /path/to/repo/main.py ...` also works from another
+working directory. Dataset downloads are optional; see
+[`task_rep/data_prep/README.md`](task_rep/data_prep/README.md).
+
+## Export a model run
+
+A saved `result.json` contains labels and schema structure; the knowledge base
+is stored separately. The run's `run.json` records the relative `sources.units`
+JSONL path, under `task_rep/static/cache_2/<task_id>/`.
 
 ```bash
-# Make sure conda environment is activate (i.e., `cim`)
-conda env config vars set OPENAI_API_KEY="your-api-key-here"
-conda activate cim  # Reactivate the environment
+python main.py export path/to/result.json \
+  --knowledge-base path/to/units.jsonl \
+  --dataset examples/demo-dataset.json \
+  --output explorer/public/data/local-bundle.json
 ```
 
-**Verify the environment variable is set:**
+`--dataset` supplies video titles and URLs. Omit it for text-only inspection.
+Exports include only schema definitions, labels, knowledge text, and source
+timings; model conversations, API usage, embeddings, local frame paths, and
+arbitrary metadata are omitted. Review the exported text and URLs before sharing
+your own data. See [`docs/BUNDLE_FORMAT.md`](docs/BUNDLE_FORMAT.md).
+
+## Layout and checks
+
+| Path | Purpose |
+| --- | --- |
+| `main.py` | CLI for the current pipeline, offline demo, and bundle exporter |
+| `task_rep/pipeline/` | Batch and iterative proposal runners |
+| `task_rep/contextual/` | Candidate lifecycle, caching, evaluation, reporting |
+| `task_rep/knowledge_items/`, `facets/`, `optimization/` | Extraction, labels, and schema math |
+| `task_rep/reports/` | Offline run reports and re-scoring |
+| `explorer/` | Knowledge inspector and design-space graph |
+| `examples/` | Synthetic input, labels, and a ready-to-open UI bundle |
+| `legacy/` | Earlier CIM construction implementation |
+| `docs/history/` | Original-to-filtered commit maps |
 
 ```bash
-echo $OPENAI_API_KEY
+python -m pytest -c pytest.ini task_rep/tests -q
+python scripts/check_public.py --history
+cd explorer
+npm run build
+# Once per machine:
+npx playwright install chromium
+npm run test:smoke
 ```
 
-This should output your API key. If it's empty, the environment variable is not set correctly.
+CI runs the Python suite, offline demo, privacy scan, production web build, and
+browser smoke tests. Live model calls and third-party video downloads are not
+part of CI. An automated scan detects common secret patterns and excluded paths;
+it cannot determine the privacy or copyright status of arbitrary text.
 
-## Available Tasks
-
-The system supports multiple instructional video tasks. Available tasks include:
-
-**Cross-Task Tasks:**
-- Change a Tire
-- Build Simple Floating Shelves
-- Make French Toast
-- Make Irish Coffee
-
-**Custom Tasks:**
-- How to Make a Sushi Roll
-- How to Make Caramel Apples
-- How to Make a Milkshake Without Ice Cream
-- How to Grill Steak
-- How to Make Scrambled Eggs in a Microwave
-- How to Grow Hydrangea from Cuttings
-- How to Grow a Pumpkin
-- How to Clean Bathroom Tile
-- How to Polish Stainless Steel
-- How to Clean a Glass Top Stove
-- How to Get Rid of a Wasp's Nest
-- How to Plant a Living Christmas Tree
-- How to Wrap Your Hands for Boxing
-- How to Catch Trout
-- How to Make a Paper Hat
-
-## Run
-
-Run the pipeline to construct a CIM framework for a specific task:
-
-```bash
-# -t TASK, --task TASK
-#                       The task to construct the CIM for (required)
-# -e EMBEDDING_METHOD, --embedding_method EMBEDDING_METHOD
-#                       Embedding method: openai (default) | bert
-# -x EXTRACTION_MODEL, --extraction_model EXTRACTION_MODEL
-#                       LLM used for information unit extraction (default: gpt-4.1-mini-2025-04-14)
-# -g GENERATION_MODEL, --generation_model GENERATION_MODEL
-#                       LLM used for facet mining and labeling (default: gpt-4.1-mini-2025-04-14)
-# -v VERSION, --version VERSION
-#                       Optionally specify the version of the CIM (default: full_run_1)
-python main.py -t <task> [-e <embedding_method>] [-x <extraction_model>] [-g <generation_model>] [-v <version>]
-```
-
-Examples:
-```bash
-# Minimal (uses defaults: openai embeddings, gpt-4.1-mini-2025-04-14 models)
-python main.py -t "How to Make a Paper Hat"
-
-# Specify version label for results directory
-python main.py -t "How to Make a Paper Hat" -v "full_run_1"
-
-# Use local BERT embeddings instead of OpenAI embeddings
-python main.py -t "How to Make a Paper Hat" -e bert
-
-# Override LLMs used for extraction/generation
-python main.py -t "How to Make a Paper Hat" -x gpt-4.1-mini-2025-04-14 -g gpt-4.1-mini-2025-04-14
-```
-
-The pipeline will:
-1. Load the dataset for the specified task from `static/datasets/`
-2. Build information units from video transcripts
-3. Mine facet candidates iteratively
-4. Compute the Pareto frontier using knapsack optimization
-5. Generate the final context schema
-
-## Output
-
-Processing results are stored in `static/results/{task-name}/split_results_{version}.json`.
-
-The output format includes:
-
-```python
-{
-    "context_schema": [
-        {
-            "id": str,
-            "type": str,  # e.g., "what", "why", "when", "where"
-            "title": str,
-            "title_plural": str,
-            "definition": str,
-            "guidelines": [str, ...],
-            "vocabulary": [
-                {
-                    "label": str,
-                    "definition": str,
-                },
-                ...
-            ]
-        },
-        ...
-    ],
-    "facet_candidates": [...],  # All discovered facet candidates
-    "labeled_dataset": [...]     # Processed dataset with labels
-}
-```
-
-The context schema organizes knowledge into facets (dimensions of variation) with associated vocabularies (labels) that can be used to partition and structure instructional content.
-
-## LLM batching results
-
-- Framework prompts are dispatched in batches (see `prompts/framework_batch.py`), which writes JSONL request logs to `static/results/lm-batches/{batch_id}_llm_requests.jsonl`.
-- Responses are streamed to `static/results/lm-batches/{batch_id}_llm_responses.jsonl` by `helpers.process_api_requests`, which rate-limits and retries automatically.
-- Every run prints the `batch_id`; use it to inspect or rerun `process_api_requests(batch_id)` if a batch was interrupted.
-
-## What is CIM?
-We introduce Context-Information Maps (CIM) to automatically organize scattered task knowledge across a large corpus of tutorial videos about the same task. By transforming static tutorials into a unified bipartite graph that links specific "contexts" (applicability conditions such as tools, ingredients, or goals) with atomic "information units" (specific instructions, tips, or explanations), the system explicitly aligns diverse knowledge pieces from different sources according to when/where they are relevant (i.e., task contexts). CIM enables applications such as the automatic augmentation of tutorials with missing information, navigation between alternative methods across different sources, and the analytical detection of knowledge gaps or saturation points within a corpus of tutorials for the task.
-
-## Notes
-
-- The system uses OpenAI embeddings (`text-embedding-3-large`) and language models (`gpt-4.1-mini-2025-04-14`) for extraction and processing
-- Processing is iterative and may take time depending on dataset size
-- Intermediate results are saved automatically, allowing for resumption of interrupted runs
-- The system targets a discriminativeness score below 0.8 to ensure fine-grained knowledge organization
-
-For any questions please contact: [Bekzat Tilekbay](mailto:tilekbay@kaist.ac.kr)
+The import preserves relevant development commits and author metadata, with
+rewritten hashes where paths or parentage changed. The two agent implementations
+and private study data are excluded. See [`docs/HISTORY.md`](docs/HISTORY.md).
