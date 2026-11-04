@@ -13,6 +13,7 @@ from analysis.measures import (
     applicable_entropy,
     embedding_dispersion,
     information_matrices,
+    is_applicable,
     junk_control,
     junk_facets,
     levels,
@@ -125,6 +126,15 @@ def test_coverage_and_granularity_use_applicable_segments(setup):
     assert unit_coverage(kb, f["video"], ann) == pytest.approx(1.0)
     # over its two applicable segments the moment factor splits 50/50
     assert applicable_entropy(kb, f["moment"], ann) == pytest.approx(1.0)
+
+
+def test_is_applicable_rejects_not_applicable_labels():
+    for label in ["not applicable", "Not-Applicable", "N/A", "na", " none ", "Unspecified"]:
+        assert not is_applicable(label), label
+    assert not is_applicable(None) and not is_applicable("")
+    # only whole-label matches count as not applicable
+    for label in ["wet", "none of the above", "not applicable yet"]:
+        assert is_applicable(label), label
 
 
 def test_embedding_dispersion():
