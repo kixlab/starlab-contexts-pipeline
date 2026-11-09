@@ -12,7 +12,7 @@ if __name__ == "__main__":
         runpy.run_module("demo" if command == "demo" else "export_bundle", run_name="__main__")
     elif len(sys.argv) == 1 or sys.argv[1] in {"-h", "--help"}:
         print("Usage: python main.py {demo,export,list,run,show,compare,budget,tree,dump} ...")
-        print("  demo     Run a synthetic example without API keys or network access")
+        print("  demo     Run the makeup example without API keys or network access")
         print("  export   Export a saved run and knowledge base for the interfaces")
         print("  run      Run a configured pipeline experiment (uses model APIs)")
         print("Use python main.py COMMAND --help for command options.")

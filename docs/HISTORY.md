@@ -18,8 +18,8 @@ repository identifiers. A zero target identifier denotes a source change
 outside the component's retained scope. These references support tracing a
 module or behavior back to its implementation.
 
-Runtime datasets, model request logs, credentials, downloaded media, and local
-configuration belong in ignored storage. `scripts/check_public.py --history`
+Private runtime datasets, model request logs, credentials, additional media, and
+local configuration belong in ignored storage. `scripts/check_public.py --history`
 checks tracked files and reachable source history for common credential
-patterns and excluded paths. Synthetic sample data and media are documented
-separately alongside the examples.
+patterns and excluded paths. The committed makeup demo and its source videos are
+documented alongside the examples.

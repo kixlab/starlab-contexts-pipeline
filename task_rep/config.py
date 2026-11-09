@@ -11,4 +11,4 @@ class Config:
     VIDEOS_DIR = STORAGE_DIR / "videos"
     TASK_DATASETS_DIR = STORAGE_DIR / "task-datasets"
     CACHE_DIR = STORAGE_DIR / "cache_2"
-    TASKS_PER_DATASET = {"example_tasks": ["paper_folding_demo"]}
+    TASKS_PER_DATASET = {"example_tasks": ["makeup_demo"]}

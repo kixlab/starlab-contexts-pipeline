@@ -28,10 +28,10 @@ such as `facets`, `pieces`, and `context_schema` retain their existing spellings
 
 Video URLs may be YouTube URLs or local/self-hosted video URLs. Relative URLs
 are served from the web app's `public/` directory. The included sample uses
-`/media/folding-demo.mp4`; real YouTube playback needs internet access. Empty
+`/media/makeup/<tutorial-id>.mp4`; real YouTube playback needs internet access. Empty
 URLs are valid for text-only inspection but cannot play a video.
 
-`examples/demo-bundle.json` is the complete synthetic reference fixture.
+`examples/demo-bundle.json` is the complete makeup reference bundle.
 `python main.py export --help` describes exporting the current pipeline's
 separate `result.json` and knowledge-base JSON/JSONL to this format. Its output
 contains no run conversations, model request logs, embeddings, or frame paths.

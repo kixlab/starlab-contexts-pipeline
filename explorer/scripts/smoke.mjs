@@ -12,7 +12,7 @@ const configured = process.env.NEXT_PUBLIC_BUNDLE_URL;
 const cases = [
   ...(configured ? [{label: process.env.NEXT_PUBLIC_DATASET_LABEL || "Local dataset", url: configured}] : []),
   ...JSON.parse(process.env.NEXT_PUBLIC_DATASETS || "[]").map(item => ({label: item.label, url: item.bundleUrl})),
-  {label: "Synthetic paper folding", url: "/data/demo-bundle.json"},
+  {label: "Makeup", url: "/data/demo-bundle.json"},
 ];
 const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", String(port)], {
   cwd: root, env: {...process.env, NEXT_TELEMETRY_DISABLED: "1"}, stdio: ["ignore", "pipe", "pipe"],

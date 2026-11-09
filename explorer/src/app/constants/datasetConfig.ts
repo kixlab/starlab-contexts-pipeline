@@ -25,7 +25,7 @@ function configuredDatasets(): DatasetOption[] {
     }
   }
   const labels = options.map(option => option.label);
-  if (new Set([...labels, "Synthetic paper folding"]).size !== labels.length + 1) {
+  if (new Set([...labels, "Makeup"]).size !== labels.length + 1) {
     throw new Error("Dataset labels must be unique");
   }
   return options;
@@ -33,7 +33,7 @@ function configuredDatasets(): DatasetOption[] {
 
 export const DATASET_OPTIONS: DatasetOption[] = [
   ...configuredDatasets(),
-  { label: "Synthetic paper folding", bundleUrl: "/data/demo-bundle.json", infoTypes: null },
+  { label: "Makeup", bundleUrl: "/data/demo-bundle.json", infoTypes: null },
 ];
 export const DEFAULT_DATASET_OPTION = DATASET_OPTIONS[0];
 
