@@ -3,8 +3,7 @@ import { facetToLabelKey, normalizeFacetVals } from "@/app/utils/facetStats";
 import {
   computeCompactness,
   CONTENT_TYPE_FACET_ID,
-  MAX_FACETS_CAP,
-} from "@/app/app_analysis/utils/metricsUtils";
+} from "@/app/space/utils/contextMetrics";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -293,17 +292,6 @@ export function computeMI(
 ): number {
   const H_joint = unitWeightedJointEntropy(a, b, pieceUnitIds, unitTotals, numUnits);
   return Math.max(0, a.H + b.H - H_joint);
-}
-
-/** Unit-weighted joint entropy H(A,B). Used by InspectionPanel comparison mode. */
-export function computeJointEntropy(
-  a: TreeNode,
-  b: TreeNode,
-  pieceUnitIds: Uint32Array,
-  unitTotals: Uint32Array,
-  numUnits: number,
-): number {
-  return unitWeightedJointEntropy(a, b, pieceUnitIds, unitTotals, numUnits);
 }
 
 // ---------------------------------------------------------------------------

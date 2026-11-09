@@ -1,17 +1,6 @@
 /**
- * bundleConverter.ts
- *
- * Detects the "step" (new) bundle format by the presence of an `iterations`
- * key and converts it on-the-fly to the legacy "old" format expected by the
- * rest of the application.
- *
- * Step format  →  Old format
- * ─────────────────────────────────────────────────────────────────────────
- * facets            → context_schema + facet_candidates (same list)
- * knowledge_base    → labeled_dataset[].pieces  (one piece per step item)
- * annotations       → piece.labels
- * iterations        → (dropped)
- * frontier          → (dropped)
+ * Normalize annotated tutorial bundles and step bundles for browser interfaces.
+ * Step knowledge items and annotations become timed clips grouped by tutorial.
  */
 
 import type { DatasetVideo, DatasetVideoPiece, Facet } from "@/app/types";
@@ -65,10 +54,10 @@ type StepBundle = {
 };
 
 // ---------------------------------------------------------------------------
-// Old-format output shape (what the app expects)
+// Annotated tutorial output shape
 // ---------------------------------------------------------------------------
 
-type OldBundle = {
+type AnnotatedBundle = {
   context_schema: Facet[];
   facet_candidates: Facet[];
   labeled_dataset: DatasetVideo[];
@@ -105,13 +94,12 @@ function convertFacet(sf: StepFacet): Facet {
 // ---------------------------------------------------------------------------
 
 /**
- * Accepts any raw bundle JSON object and returns it in the old format.
- * If the bundle is already in the old format it is returned unchanged.
+ * Return an annotated tutorial bundle from either supported input format.
  */
-export function normalizeBundle(bundle: Record<string, unknown>): OldBundle {
-  // Already old format — pass through
+export function normalizeBundle(bundle: Record<string, unknown>): AnnotatedBundle {
+  // Already annotated — pass through
   if (!isStepFormat(bundle)) {
-    return bundle as unknown as OldBundle;
+    return bundle as unknown as AnnotatedBundle;
   }
 
   const step = bundle as StepBundle;

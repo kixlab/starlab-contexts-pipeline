@@ -21,7 +21,6 @@ static/
 task_rep/static/
 task_rep/data/local*.json
 task_rep/experiments/local*.json
-legacy/static/
 **/node_modules/
 **/.next/
 **/out/

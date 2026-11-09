@@ -1,10 +1,9 @@
 # Component provenance
 
-The system contains three component families:
+The system contains two component families.
 
 | Component | Location | Responsibility |
 | --- | --- | --- |
-| Legacy framework construction | `legacy/` | Framework-split knowledge extraction and contextual-unit construction |
 | Discovery Pipeline | `task_rep/` | Knowledge items and units, contextual units, canonical values, annotations, and evaluation |
 | Design-space explorer | `explorer/` | Compare candidate organizations and explore the contextual-unit refinement DAG |
 

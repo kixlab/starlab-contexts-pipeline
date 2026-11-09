@@ -56,7 +56,7 @@ try {
   await visit("/");
   await expect(page.getByRole("heading", {level: 1})).toContainText("Explore tutorial contexts");
   await expect(page.getByRole("link", {name: "Inspect knowledge"})).toHaveCount(0);
-  for (const path of ["/inspect", "/analysis_info"]) assert.equal((await fetch(origin + path)).status, 404);
+  for (const path of ["/inspect", "/analysis_info", "/app_tree_2", "/app_analysis"]) assert.equal((await fetch(origin + path)).status, 404);
   await visit("/space");
   const checkGraph = async item => {
     await expect(page.getByRole("combobox", {name: "Tutorial collection"})).toHaveValue(item.label);

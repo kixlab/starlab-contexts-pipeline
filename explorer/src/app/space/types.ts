@@ -1,4 +1,4 @@
-/** Position computed by stableLayout. */
+/** Position of a graph node. */
 export type NodePosition = {
   x: number;
   y: number;

@@ -165,6 +165,6 @@ npm --prefix explorer run test:smoke
 
 For production, run `npm run build` and then `npm run start` in each web app; use
 `-- --port 3001` for the explorer. `python main.py --help` lists pipeline commands.
-Core code is in [`task_rep/`](task_rep/README.md); the framework-split variant is
-in [`legacy/`](legacy/README.md). CI covers offline execution, exports, and browser
+Core code is in [`task_rep/`](task_rep/README.md). CI covers offline execution,
+exports, and browser
 interactions. Live model calls and downloads require your own credentials/data.

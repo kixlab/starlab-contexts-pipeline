@@ -32,17 +32,6 @@ from tests.pipeline.helpers import (
     make_kb,
 )
 
-# Legacy collision/pareto configs, deleted in migration step 9.
-OBSOLETE = {
-    "photo_editing_step_tree", "sushi_roll_step_tree", "test_makeup_step",
-    "test_photo_editing_step", "test_sushi_roll_3_step", "test_sushi_roll_step",
-    "test_caramel_apple_atomic", "test_caramel_apple_step",
-    "test_caramel_apple_tutorial", "test_makeup_atomic", "test_photo_editing_atomic",
-    "test_remove_object_atomic", "test_sushi_roll_3_atomic",
-    "test_sushi_roll_3_atomic_gpt5", "test_sushi_roll_3_tutorial_gpt5",
-    "test_sushi_roll_atomic", "test_sushi_roll_tutorial",
-}
-
 VLM = {"category": "vlm", "provider": "gemini", "model": "gemini-3-flash-preview"}
 EMB = {"category": "embedding", "provider": "gemini", "model": "gemini-embedding-2"}
 
@@ -122,9 +111,9 @@ def test_load_dir_skips_legacy_and_rejects_duplicates(tmp_path):
         load_experiments_dir(tmp_path)
 
 
-def test_repository_experiments_are_migrated():
+def test_repository_experiments_use_the_current_schema():
     specs, legacy = load_experiments_dir(EXPERIMENTS_DIR)
-    assert {p.stem for p in legacy} <= OBSOLETE, "unmigrated experiment files"
+    assert not legacy, "repository experiments must use the current schema"
     assert specs, "no experiments loaded"
 
 
