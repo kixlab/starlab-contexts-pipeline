@@ -1,7 +1,7 @@
 # Makeup pipeline example
 
 `demo-dataset.json` contains tutorial metadata and timed step descriptions for
-seven makeup tutorials. `demo-source.json` contains their 124 knowledge items,
+three makeup tutorials. `demo-source.json` contains their 50 knowledge items,
 30 contextual units, and saved annotations. `demo-bundle.json` is the matching
 bundle for the graph explorer and TaskTailor.
 

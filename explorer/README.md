@@ -5,7 +5,7 @@ Use Node.js 22. From this directory, run `npm ci`, then
 
 - `/space`: press **Build**, then inspect a candidate organization in the refinement DAG.
 
-The bundled **Makeup** dataset includes seven tutorials, 124 timed clips,
+The bundled **Makeup** dataset includes three tutorials, 50 timed clips,
 30 contexts, and full-length local videos. It works offline without API keys. To use a
 generated bundle, follow the [root quick start](../README.md#quick-start-both-repos).
 The configured bundle is selected automatically. Select a graph node and press

@@ -71,7 +71,7 @@ npm --prefix ../starlab-contexts-applications run dev
 | <http://localhost:3000/analysis> | TaskTailor: coverage analysis | Choose two CUs, or normalized temporal position and a CU; click a bar/bubble |
 
 Each interface opens **My tutorials** automatically with the generated makeup
-bundle. It contains seven tutorials, 124 timed knowledge items, and 30 contextual
+bundle. It contains three tutorials, 50 timed knowledge items, and 30 contextual
 units. Both viewers include full-length 480p demo videos. To open the bundled
 **Makeup** dataset directly, skip the bundle-copy and `.env.local` steps.
 
