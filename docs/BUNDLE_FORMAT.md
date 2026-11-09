@@ -37,6 +37,6 @@ separate `result.json` and knowledge-base JSON/JSONL to this format. Its output
 contains no run conversations, model request logs, embeddings, or frame paths.
 Knowledge text and explicitly supplied video URLs remain part of an export.
 
-The browser normalizer also accepts older step bundles with `facets`,
+The browser normalizer also accepts step bundles with `facets`,
 `knowledge_base`, `annotations`, and `iterations`. Export current run results
 before loading them: a raw `result.json` does not contain its knowledge base.

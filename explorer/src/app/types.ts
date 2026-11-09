@@ -8,8 +8,7 @@ export type DatasetVideoPiece = {
   piece_id: string;
   content: string;
   // item_type identifies the top-level knowledge category ("atomic" | "step" | "tutorial").
-  // Pieces from old-format datasets that pre-date this field will have item_type undefined,
-  // which should be treated as "atomic" by convention.
+  // Imported pieces may omit this field; these default to "atomic".
   item_type?: KnowledgeItemType;
   // content_type is the specific subtype / category label within item_type:
   //   atomic  → information-taxonomy label, e.g. "Method - Instruction"

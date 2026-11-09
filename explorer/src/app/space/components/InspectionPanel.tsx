@@ -9,7 +9,7 @@ import {
   facetIdToChipColor,
   computeFacetDistributions,
   type FacetValueDist,
-} from "@/app/app_analysis/utils/metricsUtils";
+} from "@/app/space/utils/contextMetrics";
 
 // ---------------------------------------------------------------------------
 // Metric tooltip text
@@ -61,12 +61,9 @@ type InspectionPanelProps = {
   dataset: DatasetVideo[];
   infoTypes: string[] | null;
   numUniqueUnits: number;
-  validPiecesCount: number;
   pieceUnitIds: Uint32Array;
   unitTotals: Uint32Array;
-  onNodeClick: (nodeId: string, trigger: "child" | "parent") => void;
-  onExpandDist?: (nodeId: string, facetId: string) => void;
-  onCopyId?: (facetIds: string) => void;
+  onNodeClick: (nodeId: string) => void;
   onClose: () => void;
 };
 
@@ -81,12 +78,9 @@ export function InspectionPanel({
   dataset,
   infoTypes,
   numUniqueUnits,
-  validPiecesCount,
   pieceUnitIds,
   unitTotals,
   onNodeClick,
-  onExpandDist,
-  onCopyId,
   onClose,
 }: InspectionPanelProps) {
   const nodeMap = useMemo(() => new Map(tree.nodes.map((n) => [n.id, n])), [tree.nodes]);
@@ -132,8 +126,6 @@ export function InspectionPanel({
             numUniqueUnits={numUniqueUnits}
             nodeMap={nodeMap}
             onNodeClick={onNodeClick}
-            onExpandDist={onExpandDist}
-            onCopyId={onCopyId}
           />
         )}
         {isCompare && (
@@ -143,10 +135,8 @@ export function InspectionPanel({
             dataset={dataset}
             infoTypes={infoTypes}
             numUniqueUnits={numUniqueUnits}
-            validPiecesCount={validPiecesCount}
             pieceUnitIds={pieceUnitIds}
             unitTotals={unitTotals}
-            onCopyId={onCopyId}
           />
         )}
         {isEdge && (
@@ -155,7 +145,6 @@ export function InspectionPanel({
             nodeMap={nodeMap}
             numUniqueUnits={numUniqueUnits}
             onNodeClick={onNodeClick}
-            onCopyId={onCopyId}
           />
         )}
       </div>
@@ -175,8 +164,6 @@ function SingleNodeView({
   numUniqueUnits,
   nodeMap,
   onNodeClick,
-  onExpandDist,
-  onCopyId,
 }: {
   node: TreeNode;
   tree: RefinementTree;
@@ -184,9 +171,7 @@ function SingleNodeView({
   infoTypes: string[] | null;
   numUniqueUnits: number;
   nodeMap: Map<string, TreeNode>;
-  onNodeClick: (id: string, trigger: "child" | "parent") => void;
-  onExpandDist?: (nodeId: string, facetId: string) => void;
-  onCopyId?: (facetIds: string) => void;
+  onNodeClick: (id: string) => void;
 }) {
   const isRoot = tree.roots.includes(node.id);
 
@@ -201,7 +186,7 @@ function SingleNodeView({
   return (
     <>
       {/* Schema */}
-      <Section title="Candidate organization" extra={<CopyFacetIdsButton facets={node.facetSubset} onCopy={onCopyId} />}>
+      <Section title="Candidate organization" extra={<CopyFacetIdsButton facets={node.facetSubset} />}>
         <div className="flex flex-wrap gap-1.5">
           {node.facetSubset.map((f) => {
             const c = facetIdToChipColor(f.id);
@@ -231,7 +216,7 @@ function SingleNodeView({
       {inEdges.length > 0 && (
         <Section title={`Parents (${inEdges.length})`}>
           {inEdges.map((e) => (
-            <EdgeLink key={e.sourceId} nodeId={e.sourceId} edge={e} nodeMap={nodeMap} onClick={(id) => onNodeClick(id, "parent")} />
+            <EdgeLink key={e.sourceId} nodeId={e.sourceId} edge={e} nodeMap={nodeMap} onClick={(id) => onNodeClick(id)} />
           ))}
         </Section>
       )}
@@ -240,7 +225,7 @@ function SingleNodeView({
       {outEdges.length > 0 && (
         <Section title={`Children (${outEdges.length})`}>
           {outEdges.map((e) => (
-            <EdgeLink key={e.targetId} nodeId={e.targetId} edge={e} nodeMap={nodeMap} onClick={(id) => onNodeClick(id, "child")} />
+            <EdgeLink key={e.targetId} nodeId={e.targetId} edge={e} nodeMap={nodeMap} onClick={(id) => onNodeClick(id)} />
           ))}
         </Section>
       )}
@@ -249,8 +234,7 @@ function SingleNodeView({
       {dists.length > 0 && (
         <Section title="Contexts & context details" extra={<span className="text-[9px] text-neutral-600 font-normal normal-case tracking-normal">click a context to expand</span>}>
           {dists.map((d) => (
-            <FacetDistBar key={d.facet.id} dist={d} dataset={dataset} infoTypes={infoTypes}
-              onExpand={onExpandDist ? () => onExpandDist(node.id, d.facet.id) : undefined} />
+            <FacetDistBar key={d.facet.id} dist={d} dataset={dataset} infoTypes={infoTypes} />
           ))}
         </Section>
       )}
@@ -268,20 +252,16 @@ function ComparisonView({
   dataset,
   infoTypes,
   numUniqueUnits,
-  validPiecesCount,
   pieceUnitIds,
   unitTotals,
-  onCopyId,
 }: {
   nodeA: TreeNode;
   nodeB: TreeNode;
   dataset: DatasetVideo[];
   infoTypes: string[] | null;
   numUniqueUnits: number;
-  validPiecesCount: number;
   pieceUnitIds: Uint32Array;
   unitTotals: Uint32Array;
-  onCopyId?: (facetIds: string) => void;
 }) {
   const mi = useMemo(
     () => computeMI(nodeA, nodeB, pieceUnitIds, unitTotals, numUniqueUnits),
@@ -302,8 +282,8 @@ function ComparisonView({
       {/* Side-by-side schemas */}
       <Section title="Candidate organizations">
         <div className="grid grid-cols-2 gap-2">
-          <SchemaCard node={nodeA} label="#1" color="#f59e0b" onCopyId={onCopyId} />
-          <SchemaCard node={nodeB} label="#2" color="#22d3ee" onCopyId={onCopyId} />
+          <SchemaCard node={nodeA} label="#1" color="#f59e0b" />
+          <SchemaCard node={nodeB} label="#2" color="#22d3ee" />
         </div>
       </Section>
 
@@ -360,13 +340,11 @@ function EdgeView({
   nodeMap,
   numUniqueUnits,
   onNodeClick,
-  onCopyId,
 }: {
   edge: TreeEdge;
   nodeMap: Map<string, TreeNode>;
   numUniqueUnits: number;
-  onNodeClick: (id: string, trigger: "child" | "parent") => void;
-  onCopyId?: (facetIds: string) => void;
+  onNodeClick: (id: string) => void;
 }) {
   const src = nodeMap.get(edge.sourceId);
   const tgt = nodeMap.get(edge.targetId);
@@ -376,9 +354,9 @@ function EdgeView({
     <>
       <Section title="Edge">
         <div className="flex items-center gap-2 text-xs">
-          <button onClick={() => onNodeClick(edge.sourceId, "parent")} className="text-blue-400 hover:underline">{nodeLabel(src)}</button>
+          <button onClick={() => onNodeClick(edge.sourceId)} className="text-blue-400 hover:underline">{nodeLabel(src)}</button>
           <span className="text-neutral-500">→</span>
-          <button onClick={() => onNodeClick(edge.targetId, "child")} className="text-blue-400 hover:underline">{nodeLabel(tgt)}</button>
+          <button onClick={() => onNodeClick(edge.targetId)} className="text-blue-400 hover:underline">{nodeLabel(tgt)}</button>
           <EdgeTypeBadge type={edge.edgeType} />
         </div>
       </Section>
@@ -412,8 +390,8 @@ function EdgeView({
       {/* Before / after */}
       <Section title="Before / After">
         <div className="grid grid-cols-2 gap-2">
-          <SchemaCard node={src} label="Parent" color="#60a5fa" onCopyId={onCopyId} />
-          <SchemaCard node={tgt} label="Child" color="#60a5fa" onCopyId={onCopyId} />
+          <SchemaCard node={src} label="Parent" color="#60a5fa" />
+          <SchemaCard node={tgt} label="Child" color="#60a5fa" />
         </div>
         <div className="grid grid-cols-4 gap-x-2 gap-y-1 text-xs mt-3">
           <span className="text-neutral-500">Metric</span>
@@ -436,7 +414,7 @@ function nodeLabel(node: TreeNode): string {
   return node.facetSubset.map((f) => f.title).join(" + ");
 }
 
-function CopyFacetIdsButton({ facets, onCopy }: { facets: Facet[]; onCopy?: (facetIds: string) => void }) {
+function CopyFacetIdsButton({ facets }: { facets: Facet[] }) {
   const [copied, setCopied] = useState(false);
   return (
     <button
@@ -458,7 +436,6 @@ function CopyFacetIdsButton({ facets, onCopy }: { facets: Facet[]; onCopy?: (fac
         write.then(() => {
           setCopied(true);
           setTimeout(() => setCopied(false), 1500);
-          if (onCopy) onCopy(ids);
         });
       }}
       className="text-[9px] px-1.5 py-0.5 rounded border border-neutral-700 text-neutral-400 hover:text-white hover:border-neutral-500 transition-colors"
@@ -518,12 +495,12 @@ function CompRow({ label, a, b, fmt, lower, suffix, tooltip }: { label: string; 
   );
 }
 
-function SchemaCard({ node, label, color, onCopyId }: { node: TreeNode; label: string; color: string; onCopyId?: (facetIds: string) => void }) {
+function SchemaCard({ node, label, color }: { node: TreeNode; label: string; color: string }) {
   return (
     <div className="rounded border border-neutral-800 p-2 bg-neutral-900">
       <div className="flex items-center gap-1.5 mb-1">
         <span className="text-xs font-medium" style={{ color }}>{label} · Cost={node.size}</span>
-        <CopyFacetIdsButton facets={node.facetSubset} onCopy={onCopyId} />
+        <CopyFacetIdsButton facets={node.facetSubset} />
       </div>
       <div className="flex flex-wrap gap-1">
         {node.facetSubset.map((f) => {
@@ -575,12 +552,10 @@ function FacetDistBar({
   dist,
   dataset,
   infoTypes,
-  onExpand,
 }: {
   dist: FacetValueDist;
   dataset: DatasetVideo[];
   infoTypes: string[] | null;
-  onExpand?: () => void;
 }) {
   const [showDetails, setShowDetails] = useState(false);
   const c = facetIdToChipColor(dist.facet.id);
@@ -623,7 +598,6 @@ function FacetDistBar({
         onClick={() => {
           const next = !showDetails;
           setShowDetails(next);
-          if (next && onExpand) onExpand();
         }}
         className="flex items-center gap-1.5 text-neutral-300 hover:text-white mb-0.5 group"
       >

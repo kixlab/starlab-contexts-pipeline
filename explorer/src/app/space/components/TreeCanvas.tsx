@@ -5,7 +5,7 @@ import type { TreeNode, TreeEdge, RefinementTree } from "../utils/treeBuilder";
 import { computeEffectiveness } from "../utils/treeBuilder";
 import { NODE_WIDTH, NODE_HEIGHT, MARGIN, type LayoutResult } from "../utils/xyLayout";
 import type { NodePosition } from "../types";
-import { facetIdToChipColor } from "@/app/app_analysis/utils/metricsUtils";
+import { facetIdToChipColor } from "@/app/space/utils/contextMetrics";
 
 // Adaptive node height constants
 const CHIP_H = 20;

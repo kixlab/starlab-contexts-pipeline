@@ -1,12 +1,9 @@
 import type { RefinementTree, TreeNode, TreeEdge } from "./treeBuilder";
 import type { NodePosition } from "../types";
 
-// Re-export constants so page.tsx / TreeCanvas can import from here.
-export { NODE_WIDTH, NODE_HEIGHT, MARGIN } from "./stableLayout";
-
-// Local copies for use in computePositions
-const _NODE_WIDTH = 160;
-const _MARGIN = { top: 48, right: 40, bottom: 40, left: 80 };
+export const NODE_WIDTH = 160;
+export const NODE_HEIGHT = 60;
+export const MARGIN = { top: 48, right: 40, bottom: 40, left: 80 };
 const MIN_ROW_HEIGHT = 80;
 const NODE_GAP = 20; // min horizontal gap between node edges
 
@@ -23,7 +20,7 @@ export type LayoutResult = {
   positions: Map<string, NodePosition>;
   /** Per-band row info. `height` may differ across bands (sub-lanes). */
   bandRows: { band: number; y: number; count: number; height: number }[];
-  rowHeight: number; // max band height (for backwards compat)
+  rowHeight: number; // maximum band height
 };
 
 /**
@@ -103,12 +100,11 @@ export function computePositions(
 
   // ── Usable width: moderate, sub-lanes handle density ──
   const usableWidth = Math.max(
-    containerWidth - _MARGIN.left - _MARGIN.right,
+    containerWidth - MARGIN.left - MARGIN.right,
     800,
   );
-  const xStart = _MARGIN.left + _NODE_WIDTH / 2;
-  const xRange = usableWidth - _NODE_WIDTH;
-  const minSpacing = _NODE_WIDTH + NODE_GAP;
+  const xStart = MARGIN.left + NODE_WIDTH / 2;
+  const xRange = usableWidth - NODE_WIDTH;
 
   // ── Assign sub-lanes per band ──
   const nodeLane = new Map<string, number>();
@@ -127,8 +123,8 @@ export function computePositions(
       const frac = (n.D - minD) / dRange;
       const x = xStart + frac * Math.max(0, xRange);
       nodeIdealX.set(n.id, x);
-      const leftEdge = x - _NODE_WIDTH / 2;
-      const rightEdge = x + _NODE_WIDTH / 2;
+      const leftEdge = x - NODE_WIDTH / 2;
+      const rightEdge = x + NODE_WIDTH / 2;
       maxH = Math.max(maxH, computeNodeH(n));
 
       // Find first lane where this node fits without overlap
@@ -153,7 +149,7 @@ export function computePositions(
 
   // ── Compute variable row heights and y positions ──
   const bandRows: LayoutResult["bandRows"] = [];
-  let currentY = _MARGIN.top;
+  let currentY = MARGIN.top;
 
   for (const band of sortedBands) {
     const numLanes = bandLaneCount.get(band) ?? 1;
