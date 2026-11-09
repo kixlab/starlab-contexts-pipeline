@@ -15,7 +15,7 @@ spec.loader.exec_module(registration)
 
 
 def test_registration_creates_a_local_task_and_experiment_without_copying_frame_paths(tmp_path):
-    for rel in ["task_rep/data/tasks.json", "task_rep/experiments/paper_folding_demo.json"]:
+    for rel in ["task_rep/data/tasks.json", "task_rep/experiments/makeup_demo.json"]:
         target = tmp_path / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text((ROOT / rel).read_text())

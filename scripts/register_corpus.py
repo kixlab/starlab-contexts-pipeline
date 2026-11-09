@@ -49,7 +49,7 @@ def register_corpus(source: Path, task_id: str, name: str, *, root: Path = ROOT,
     if not force and (dataset_path.exists() or experiment_path.exists() or task_id in tasks):
         raise ValueError("This local task already exists; use a new ID or --force to replace its inputs/config")
     tasks[task_id] = {"name": name, "video_ids": [v["id"] for v in corpus]}
-    spec = json.loads((root / "task_rep/experiments/paper_folding_demo.json").read_text())
+    spec = json.loads((root / "task_rep/experiments/makeup_demo.json").read_text())
     spec.update(name=task_id, task_id=task_id, description="Local transcript corpus")
     for path, data in [(dataset_path, corpus), (tasks_path, tasks), (experiment_path, spec)]:
         path.parent.mkdir(parents=True, exist_ok=True)

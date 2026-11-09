@@ -70,15 +70,15 @@ npm --prefix ../starlab-contexts-applications run dev
 | <http://localhost:3000/segmentation> | TaskTailor: video segmentation | Navigate the chapter timeline and expand other tutorials' chapter lists |
 | <http://localhost:3000/analysis> | TaskTailor: coverage analysis | Choose two CUs, or normalized temporal position and a CU; click a bar/bubble |
 
-Each interface opens **My tutorials** automatically. The generated
-bundle has four synthetic tutorials, sixteen knowledge items, and two contextual units.
-Both viewers include the matching 20-second video title card. To run only the bundled sample, skip the
-bundle-copy and `.env.local` configuration steps.
+Each interface opens **My tutorials** automatically with the generated makeup
+bundle. It contains seven tutorials, 124 timed knowledge items, and 30 contextual
+units. Both viewers include full-length 480p demo videos. To open the bundled
+**Makeup** dataset directly, skip the bundle-copy and `.env.local` steps.
 
-The demo runs the real proposal/evaluation/checkpoint pipeline with scripted
-model services. It writes `demo-bundle.json`, `knowledge-base.json`, and a run
+The demo runs the proposal/evaluation/checkpoint pipeline using saved makeup
+proposals and annotations with scripted model services. It writes `demo-bundle.json`, `knowledge-base.json`, and a run
 folder containing `result.json` under `task_rep/static/demo/`. Extraction with
-live model APIs is a separate mode below.
+live model APIs is described below. See [example inputs and tutorial sources](examples/README.md).
 
 ## Use your own corpus
 

@@ -1,4 +1,4 @@
-"""Run the real pipeline with scripted services over synthetic data, offline."""
+"""Run the real pipeline with saved makeup proposals and annotations, offline."""
 from __future__ import annotations
 
 import argparse
@@ -46,18 +46,19 @@ class DemoServices:
 def run_demo(output: Path) -> Path:
     source = json.loads((EXAMPLES / "demo-source.json").read_text())
     services = DemoServices(source)
+    facet_count = len(source["facets"])
     model = ModelConfig(category="vlm", provider="openai", model="offline-demo")
     config = PipelineConfig(
         proposal_model=model, vocab_model=model, labeling_model=model,
         embedding_model=ModelConfig(category="embedding", provider="openai", model="offline-demo"),
         item_scope=ItemScopeConfig.from_dict({"item_type": "step", "atomic_subtype": "all"}),
-        strategy="batch", proposal_budget=2, pool_size=2, irr_sample_videos=0,
+        strategy="batch", proposal_budget=facet_count, pool_size=facet_count, irr_sample_videos=0,
         max_schema_facets=2, refinement_threshold=0.55,
     )
     output.mkdir(parents=True, exist_ok=True)
-    runner = PipelineRunner(config=config, task="Synthetic paper folding", knowledge_base=KnowledgeBase.from_dict(source["knowledge_base"]),
+    runner = PipelineRunner(config=config, task="Makeup", knowledge_base=KnowledgeBase.from_dict(source["knowledge_base"]),
                             proposer=services, vocab_builder=services, labeler=services, embedder=services,
-                            runs_dir=output / "runs", name="synthetic-demo", fresh=True)
+                            runs_dir=output / "runs", name="makeup-demo", fresh=True)
     result = runner.run()
     (output / "knowledge-base.json").write_text(json.dumps(source["knowledge_base"], indent=2) + "\n")
     bundle = export_bundle(result.to_dict(), source["knowledge_base"], source["dataset"])

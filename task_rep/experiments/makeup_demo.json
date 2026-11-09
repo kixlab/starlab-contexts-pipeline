@@ -1,7 +1,7 @@
 {
-  "name": "paper_folding_demo",
-  "task_id": "paper_folding_demo",
-  "description": "Small synthetic transcript example; run calls model APIs.",
+  "name": "makeup_demo",
+  "task_id": "makeup_demo",
+  "description": "Makeup tutorials with timed step descriptions. Running this experiment calls model APIs.",
   "constructor": {
     "use_vision": false,
     "model_config": {
